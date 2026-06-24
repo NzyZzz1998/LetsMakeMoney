@@ -70,9 +70,9 @@
 
 #### 模块 1.4: PetResource 自定义 Resource
 
-- [ ] 1.4.1 编写 `src/resources/pet_resource.gd`，`class_name PetResource`，含 `pet_id`/`display_name`/`sprite_frames`/`thumbnail`/`animation_speeds` 字段
-- [ ] 1.4.2 在 Godot 编辑器中创建 `assets/pets/cat/cat_resource.tres`（New Resource → PetResource）
-- [ ] 1.4.3 验证 tres 文件可被编辑器识别，不报错
+- [x] 1.4.1 编写 `src/resources/pet_resource.gd`，`class_name PetResource`，含 `pet_id`/`display_name`/`sprite_frames`/`thumbnail`/`animation_speeds` 字段
+- [x] 1.4.2 在 Godot 编辑器中创建 `assets/pets/cat/cat_resource.tres`（New Resource → PetResource）
+- [x] 1.4.3 验证 tres 文件可被编辑器识别，不报错
 
 ### v0.1 M2. 角色系统
 

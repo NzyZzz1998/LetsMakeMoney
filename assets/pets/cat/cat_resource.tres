@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="PetResource" format=3 uid="uid://ckkuklefoty7k"]
+
+[ext_resource type="Script" uid="uid://c6ijsvk4g5db7" path="res://src/resources/pet_resource.gd" id="1_832vm"]
+
+[resource]
+script = ExtResource("1_832vm")
+pet_id = "cat"
+display_name = "小猫"
