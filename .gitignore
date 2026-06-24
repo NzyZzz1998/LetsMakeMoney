@@ -7,6 +7,11 @@ build/
 *.exe
 export_presets.cfg
 
+# Test files (temporary, should not be committed)
+test_*.tscn
+test_*.gd
+test_*.gd.uid
+
 # OS
 .DS_Store
 Thumbs.db
