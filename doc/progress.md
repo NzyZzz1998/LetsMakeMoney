@@ -78,12 +78,12 @@
 
 #### 模块 2.1: PetManager Autoload
 
-- [ ] 2.1.1 编写 `src/autoload/pet_manager.gd` 骨架，定义 `PetState` 枚举（IDLE/WORKING/RESTING/HOVER/CLICKED_SINGLE/CLICKED_DOUBLE/CLICKED_HOLD）
-- [ ] 2.1.2 实现 `_scan_pets()` — 扫描 `assets/pets/` 下所有子目录加载 `*_resource.tres`
-- [ ] 2.1.3 实现 `switch_pet(pet_id)` — 切换当前角色并写入 Config
-- [ ] 2.1.4 实现 `request_state(new_state)` — 统一状态入口，带状态变化信号 `state_changed`
-- [ ] 2.1.5 实现 `_process()` 中根据 SalaryEngine 工作时间自动切换 WORKING/RESTING（仅在非 HOVER/CLICKED 时）
-- [ ] 2.1.6 注册 PetManager 为 Autoload，验证 `_scan_pets()` 正常加载 cat
+- [x] 2.1.1 编写 `src/autoload/pet_manager.gd` 骨架，定义 `PetState` 枚举（IDLE/WORKING/RESTING/HOVER/CLICKED_SINGLE/CLICKED_DOUBLE/CLICKED_HOLD）
+- [x] 2.1.2 实现 `_scan_pets()` — 扫描 `assets/pets/` 下所有子目录加载 `*_resource.tres`
+- [x] 2.1.3 实现 `switch_pet(pet_id)` — 切换当前角色并写入 Config
+- [x] 2.1.4 实现 `request_state(new_state)` — 统一状态入口，带状态变化信号 `state_changed`
+- [x] 2.1.5 实现 `_process()` 中根据 SalaryEngine 工作时间自动切换 WORKING/RESTING（仅在非 HOVER/CLICKED 时）
+- [x] 2.1.6 注册 PetManager 为 Autoload，验证 `_scan_pets()` 正常加载 cat
 
 #### 模块 2.2: Pet 场景 + 状态机
 

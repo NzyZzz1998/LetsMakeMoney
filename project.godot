@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 Platform="*res://src/autoload/platform.gd"
 Config="*res://src/autoload/config.gd"
 SalaryEngine="*res://src/autoload/salary_engine.gd"
+PetManager="*res://src/autoload/pet_manager.gd"
 
 [display]
 
