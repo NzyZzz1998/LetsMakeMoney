@@ -60,13 +60,13 @@
 
 #### 模块 1.3: SalaryEngine 薪资引擎
 
-- [ ] 1.3.1 编写 `src/autoload/salary_engine.gd` 骨架，注册为 Autoload `SalaryEngine`
-- [ ] 1.3.2 实现 `_calc_work_days(year, month, mode)` — 根据日历和休息模式计算当月工作天数
-- [ ] 1.3.3 实现 `_days_in_month(year, month)` — 含闰年判断
-- [ ] 1.3.4 实现 `is_working_hours()` — 基于当前时间和上下班时间判定
-- [ ] 1.3.5 实现 `get_earnings_today()` — 处理上班前/工作中/下班后三时段
-- [ ] 1.3.6 实现 `get_earnings_this_month()` 和 `get_work_progress()`
-- [ ] 1.3.7 实现 `get_state_text()` 和 `_process` 中跨日/跨月自动 `_recalculate()`
+- [x] 1.3.1 编写 `src/autoload/salary_engine.gd` 骨架，注册为 Autoload `SalaryEngine`
+- [x] 1.3.2 实现 `_calc_work_days(year, month, mode)` — 根据日历和休息模式计算当月工作天数
+- [x] 1.3.3 实现 `_days_in_month(year, month)` — 含闰年判断
+- [x] 1.3.4 实现 `is_working_hours()` — 基于当前时间和上下班时间判定
+- [x] 1.3.5 实现 `get_earnings_today()` — 处理上班前/工作中/下班后三时段
+- [x] 1.3.6 实现 `get_earnings_this_month()` 和 `get_work_progress()`
+- [x] 1.3.7 实现 `get_state_text()` 和 `_process` 中跨日/跨月自动 `_recalculate()`
 
 #### 模块 1.4: PetResource 自定义 Resource
 
