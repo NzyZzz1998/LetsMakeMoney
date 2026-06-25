@@ -98,10 +98,10 @@
 
 #### 模块 2.3: 占位素材准备
 
-- [ ] 2.3.1 下载 itch.io 免费 cat sprite sheet（如 [Cat 2D Pixel Art](https://xzany.itch.io/cat-2d-pixel-art)）到 `assets/pets/cat/raw/`
-- [ ] 2.3.2 在 Godot 编辑器中创建 `cat_sprite_frames.tres`，按动画规格配置 IDLE/RESTING/CLICKED_SINGLE/DOUBLE/HOLD 帧
-- [ ] 2.3.3 手动调整或创建 WORKING（敲键盘）4 帧 + HOVER 1 帧
-- [ ] 2.3.4 将 sprite_frames 引用填入 `cat_resource.tres`，验证运行时角色可见
+- [x] 2.3.1 下载免费 sprite sheet（兔子素材包，含 idle/walk）到 `assets/pets/cat/raw/`（v0.1 占位用兔子，v1.0 换真猫）
+- [x] 2.3.2 在 Godot 编辑器中创建 `cat_sprite_frames.tres`，配置 idle/resting/hover/clicked_single/double/hold 动画帧
+- [x] 2.3.3 用 walk_side 当 working 动画（侧面走路代替敲键盘，v1.0 替换）
+- [x] 2.3.4 将 sprite_frames 引用填入 `cat_resource.tres`，验证运行时角色可见、动画播放正常
 
 ### v0.1 M3. UI 与交互
 

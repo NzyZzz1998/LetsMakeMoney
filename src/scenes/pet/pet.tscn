@@ -1,19 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://bp8a2r3x4pet5"]
+[gd_scene format=3 uid="uid://bp8a2r3x4pet5"]
 
-[ext_resource type="Script" path="res://src/scenes/pet/pet.gd" id="1_pet"]
+[ext_resource type="Script" uid="uid://d3ynomlp33g1e" path="res://src/scenes/pet/pet.gd" id="1_pet"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(120, 120)
 
-[node name="Pet" type="Node2D"]
+[node name="Pet" type="Node2D" unique_id=342433039]
 script = ExtResource("1_pet")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=726526180]
 position = Vector2(60, 60)
 
-[node name="ClickArea" type="Area2D" parent="."]
-input_pickable = true
+[node name="ClickArea" type="Area2D" parent="." unique_id=1963044041]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ClickArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ClickArea" unique_id=1471983990]
 position = Vector2(60, 60)
 shape = SubResource("RectangleShape2D_1")
