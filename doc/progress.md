@@ -2,8 +2,9 @@
 
 > 本文档作为整个项目的总体进度跟踪，按版本和模块组织 Vibe Coding 最小可执行任务。每个模块对应一组 checklist，完成时勾选。完整实施细节参见 `implementation-plan.md`，需求细节参见 `LetsMakeMoneyPRD.md`。
 
-**最后更新**: 2026-06-24  
-**当前阶段**: v0.1 Beta 开发期
+**最后更新**: 2026-06-25  
+**当前阶段**: v0.1 Beta 开发期  
+**当前里程碑**: M2 完成，准备进入 M3（UI 与交互）
 
 ---
 
@@ -11,7 +12,7 @@
 
 | 版本 | 阶段 | 平台 | 状态 |
 |------|------|------|------|
-| v0.1 | Beta | Windows | ⏳ 开发中 |
+| v0.1 | Beta | Windows | ⏳ 开发中（M1+M2 完成） |
 | v1.0 | 正式版 | Windows | 🗓 未开始 |
 | v2.0 | 跨平台 | + macOS | 🗓 未开始 |
 | v3.0 | 移动端 | + iOS/Android | 🗓 未开始 |
@@ -24,22 +25,22 @@
 
 | 里程碑 | 模块 | 状态 | 完成度 |
 |--------|------|------|--------|
-| **M1** | 项目搭建 + Config | ⏳ 未开始 | 0/5 |
-| **M1** | PlatformInterface | ⏳ 未开始 | 0/4 |
-| **M1** | SalaryEngine | ⏳ 未开始 | 0/7 |
-| **M1** | PetResource | ⏳ 未开始 | 0/3 |
-| **M2** | PetManager | ⏳ 未开始 | 0/6 |
-| **M2** | Pet 场景 + 状态机 | ⏳ 未开始 | 0/8 |
-| **M2** | 占位素材准备 | ⏳ 未开始 | 0/4 |
+| **M1** | 项目搭建 + Config | ✅ 完成 | 5/5 |
+| **M1** | PlatformInterface | ✅ 完成 | 4/4 |
+| **M1** | SalaryEngine | ✅ 完成 | 7/7 |
+| **M1** | PetResource | ✅ 完成 | 3/3 |
+| **M2** | PetManager | ✅ 完成 | 6/6 |
+| **M2** | Pet 场景 + 状态机 | ✅ 完成 | 8/8 |
+| **M2** | 占位素材准备 | ✅ 完成（用兔子素材占位） | 4/4 |
 | **M3** | PanelSystem | ⏳ 未开始 | 0/5 |
 | **M3** | Panel 场景 | ⏳ 未开始 | 0/6 |
-| **M3** | DragResizeSystem | ⏳ 未开始 | 0/5 |
+| **M3** | DragResizeSystem | ⏳ 未开始 | 0/5（占位已存在） |
 | **M3** | Main 场景整合 | ⏳ 未开始 | 0/6 |
 | **M4** | 设置对话框 | ⏳ 未开始 | 0/7 |
 | **M4** | 首次启动向导 | ⏳ 未开始 | 0/6 |
 | **M5** | 打包发布 | ⏳ 未开始 | 0/3 |
 
-**v0.1 总计**: 75 个最小任务
+**v0.1 总进度**: 37/75 任务完成（49%），M1 + M2 全部完成
 
 ### v0.1 M1. 基础设施
 
@@ -188,18 +189,79 @@
 | 风险 | 降级方案 |
 |------|---------|
 | Godot 无原生系统托盘 | v0.1 用窗口隐藏 + 右键 PopupMenu 代替，标注为临时方案 |
-| "融入桌面"模式需 Windows Progman 父窗口技巧，复杂且不稳定 | v0.1 默认置顶，"融入桌面"选项保留但实现为普通非置顶窗口（不真正嵌入桌面层） |
-| WORKING（敲键盘）和 HOVER 动画素材无现成开源包 | v0.1 手动调整几帧占位，v1.0 用 AI 生成替换 |
+| "融入桌面"模式需 Windows Progman 父窗口技巧，复杂且不稳定 | v0.1 默认置顶，"融入桌面"选项保留但实现为普通非置顶窗口（不真实嵌入桌面层） |
+| WORKING（敲键盘）和 HOVER 动画素材无现成开源包 | v0.1 用兔子素材的 walk_side 代替 working，idle 第 1 帧代替 hover |
+| AI 生成 sprite 动画素材效果不理想（见下方困难记录） | v0.1 继续用兔子占位素材推进，v1.0 再解决 |
 
 ---
 
 ## v0.1 已知问题 / Bug 跟踪
 
-（开发过程中发现的问题记录于此）
+### 素材生成困难（2026-06-25，已决策延后）
+
+**背景**：M2 Task 2.3 占位素材准备过程中，尝试用 AI 生成扁平卡通猫咪动画素材，多次方案均不理想。
+
+**尝试过的方案及问题**：
+
+1. **方案 1：ChatGPT 逐帧生成**
+   - 问题：动作幅度极小（"微缩2像素"对 AI 等于无变化）；resting 帧只画一条腿；帧间角色漂移；拼成动画几乎看不出在动
+
+2. **方案 2：ChatGPT 生成 sprite sheet（横向多帧）**
+   - 问题：帧间角色不一致（颜色/比例漂移）；切片不齐；姿态差异不明显
+
+3. **方案 3：AI 生成关键帧 + Python 程序化变换（缩放/平移）**
+   - 5 张关键帧（idle/working/resting/hover/clicked）由 ChatGPT 生成，Python 用 Pillow 做缩放平移生成多帧
+   - 问题：Python 程序化变换幅度太小，视觉上几乎无变化；且部分关键帧是 1536×1024 三视图布局而非单图，裁剪后内容偏小
+
+4. **方案 4：sprite-animator skill（Gemini API）**
+   - 发现 `olafs-world/sprite-animator` 工具可用 Gemini 生成 16 帧 sprite animation
+   - 问题：需要 Gemini API Key；skill 安装时因网络问题克隆失败；未实际测试
+
+**当前决策（方案 B）**：
+- 继续使用现有的**兔子素材**（`assets/pets/cat/raw/{idle,walk}/`）作为 v0.1 占位
+- AI 生成的猫咪尝试素材归档到 `experiments/ai_cat_assets/`（保留供 v1.0 参考）
+- 不再阻塞 M3 进度，v1.0 正式版再解决扁平卡通猫咪素材
+
+**v1.0 可探索的方案**：
+- 获取 Gemini API Key 试用 sprite-animator 工具
+- 雇佣插画师定制（Fiverr/米画师）
+- 使用 Live2D 或骨骼动画替代帧动画
+- 自己学 Pixelorama/Aseprite 手绘
+
+### Godot 4.7 开发踩坑记录
+
+- `Time.get_weekday_from_datetime_string()` 不存在 → 用 `get_unix_time_from_datetime_string` + `get_date_dict_from_unix_time` 取 weekday
+- `Time.get_datetime_dict_from_datetime_string()` 返回的字典无 weekday 字段
+- Dictionary 字段访问需 `int()` 显式类型转换（Godot 4.7 严格类型推断）
+- `Vector2` 与 `Vector2i` 不能直接相减，需统一类型
+- 脚本 `extends Node` 必须与场景根节点类型匹配（Control/Node2D 等）
+- Godot 4.7 为每个 .gd 文件生成 .uid 文件，删除脚本时 .uid 也需清理
+- 测试场景 `test_*.tscn` 已加入 .gitignore，避免误提交
 
 ---
 
 ## 开发日志
 
 - **2026-06-24**: 完成 PRD 和 implementation-plan.md，生成 progress.md；review 后重写 plan 修复 30 处问题
+- **2026-06-24**: 初始化 git 仓库，提交项目文档（commit b2885a3）
+- **2026-06-24**: M1.1 项目搭建 + Config Autoload 完成（commit 1fcded8, 83c0744）
+- **2026-06-24**: M1.2 PlatformInterface 跨平台抽象层完成（commit 83c0744）
+- **2026-06-24**: M1.3 Config Autoload 完成（commit 83c0744）
+- **2026-06-24**: M1.4 SalaryEngine 薪资引擎完成（commit 317e891）—— 修复 Godot 4.7 Time API 和类型推断问题
+- **2026-06-24**: M1.5 PetResource 自定义 Resource 完成（commit 5c5c91b）—— M1 全部完成
+- **2026-06-25**: M2.1 PetManager 角色状态机中枢完成（commit 50c5802）
+- **2026-06-25**: M2.2 Pet 场景 + 状态机完成（commit 5c8a1ce）—— 含 DragResizeSystem 占位
+- **2026-06-25**: M2.3 占位素材准备完成（commit 85dda76）—— 使用免费兔子素材包
+- **2026-06-25**: 尝试 AI 生成猫咪动画素材，4 种方案均不理想，决策延后到 v1.0
+- **2026-06-25**: 整理项目，AI 素材归档到 experiments/，更新 progress.md 记录困难和决策
+
+## 下一步计划
+
+**进入 M3 UI 与交互**（不依赖素材质量，可立即推进）：
+1. Task 3.1 PanelSystem Autoload
+2. Task 3.2 Panel 场景（薪资数字显示 + 悬停展开）
+3. Task 3.3 DragResizeSystem 完善右键菜单
+4. Task 3.4 Main 场景整合（角色 + 面板 + 窗口管理）
+
+M3 完成后即可在桌面上看到完整的桌面宠物雏形（兔子在桌面上动 + 薪资数字显示 + 可拖拽 + 右键菜单）。
 
