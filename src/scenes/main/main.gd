@@ -6,9 +6,9 @@ extends Node2D
 @onready var debug_status: Label = $DebugStatus
 @onready var debug_input_area: ColorRect = $DebugInputArea
 
-const WINDOW_SIZE := Vector2i(720, 360)
-const PET_POSITION := Vector2(56, 120)
-const PANEL_POSITION := Vector2(250, 90)
+const WINDOW_SIZE := Vector2i(900, 500)
+const PET_POSITION := Vector2(72, 168)
+const PANEL_POSITION := Vector2(340, 140)
 const DEBUG_PET_HIT_RECT := Rect2(PET_POSITION, Vector2(160, 160))
 const DRAG_THRESHOLD := 4.0
 const DOUBLE_CLICK_WINDOW := 0.3
@@ -33,6 +33,8 @@ func _ready() -> void:
 	SalaryEngine.reload()
 	debug_input_area.gui_input.connect(_on_debug_input_area_gui_input)
 	_set_debug_status("Debug: ready. Left/right click the pet area.")
+	if not Config.has_config():
+		call_deferred("_show_wizard")
 
 
 func _setup_window() -> void:
@@ -177,6 +179,29 @@ func _handle_debug_key(event: InputEventKey) -> void:
 func _set_debug_status(text: String) -> void:
 	if debug_status != null:
 		debug_status.text = text
+		debug_status.add_theme_font_size_override("font_size", 18)
+
+
+func _show_wizard() -> void:
+	await get_tree().process_frame
+	var wizard_scene := load("res://src/scenes/wizard/wizard_dialog.tscn")
+	if wizard_scene == null:
+		push_error("Wizard scene not found")
+		return
+	var dlg: ConfirmationDialog = wizard_scene.instantiate()
+	get_window().add_child(dlg)
+	if dlg.has_signal("finished"):
+		dlg.finished.connect(_on_wizard_done)
+	dlg.popup_centered()
+	dlg.grab_focus()
+
+
+func _on_wizard_done() -> void:
+	SalaryEngine.reload()
+	_apply_scale_opacity()
+	_position_panel()
+	if panel != null:
+		panel.refresh_values()
 
 
 func _register_debug_click() -> void:

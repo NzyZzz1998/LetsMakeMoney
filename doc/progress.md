@@ -4,7 +4,7 @@
 
 **最后更新**: 2026-06-26
 **当前阶段**: v0.1 Beta 开发期  
-**当前里程碑**: M3 自动验证通过，待手动交互验证
+**当前里程碑**: M4 设置与首次启动向导自动验证通过，待最终手动交互验证与 M5 打包
 
 ---
 
@@ -12,7 +12,7 @@
 
 | 版本 | 阶段 | 平台 | 状态 |
 |------|------|------|------|
-| v0.1 | Beta | Windows | ⏳ 开发中（M1+M2 完成） |
+| v0.1 | Beta | Windows | ⏳ 开发中（M1-M4 代码完成） |
 | v1.0 | 正式版 | Windows | 🗓 未开始 |
 | v2.0 | 跨平台 | + macOS | 🗓 未开始 |
 | v3.0 | 移动端 | + iOS/Android | 🗓 未开始 |
@@ -36,11 +36,11 @@
 | **M3** | Panel 场景 | 🧪 自动验证通过，待手动验证 | 6/6 |
 | **M3** | DragResizeSystem | 🧪 自动验证通过，待手动验证 | 5/5 |
 | **M3** | Main 场景整合 | 🧪 自动验证通过，待手动验证 | 6/6 |
-| **M4** | 设置对话框 | ⏳ 未开始 | 0/7 |
-| **M4** | 首次启动向导 | ⏳ 未开始 | 0/6 |
+| **M4** | 设置对话框 | 🧪 自动验证通过，待手动验证 | 7/7 |
+| **M4** | 首次启动向导 | 🧪 自动验证通过，待手动验证 | 6/6 |
 | **M5** | 打包发布 | ⏳ 未开始 | 0/3 |
 
-**v0.1 总进度**: 59/75 任务代码完成（79%），M1 + M2 完成，M3 自动验证通过、待手动交互验证
+**v0.1 总进度**: 72/75 任务代码完成（96%），M1-M4 代码完成，M3/M4 自动验证通过、待最终手动交互验证
 
 ### v0.1 M1. 基础设施
 
@@ -144,22 +144,22 @@
 
 #### 模块 4.1: 设置对话框
 
-- [ ] 4.1.1 在编辑器中创建 `src/scenes/settings/settings_dialog.tscn`（ConfirmationDialog + TabContainer 5 标签页，含取消按钮）
-- [ ] 4.1.2 搭建 Salary 标签页 UI（月薪 SpinBox / 休息模式 OptionButton / 时数 / 上下班时间 HBox）
-- [ ] 4.1.3 搭建 Pet 标签页 UI（角色 ItemList + 缩放 HSlider 50-200）
-- [ ] 4.1.4 搭建 Display 标签页 UI（透明度 HSlider 20-100 + 窗口模式 OptionButton）
-- [ ] 4.1.5 搭建 Panel 标签页 UI（5 个 CheckBox 控制展开项可见性）
-- [ ] 4.1.6 搭建 General 标签页 UI（开机自启 disabled CheckBox + 语言 OptionButton）
-- [ ] 4.1.7 编写 `settings_dialog.gd`，实现 `_load_current_values()` / 确认保存 / 取消放弃，保存后触发 Config.config_changed 信号
+- [x] 4.1.1 在编辑器中创建 `src/scenes/settings/settings_dialog.tscn`（ConfirmationDialog + TabContainer 5 标签页，含取消按钮）
+- [x] 4.1.2 搭建 Salary 标签页 UI（月薪 SpinBox / 休息模式 OptionButton / 时数 / 上下班时间 HBox）
+- [x] 4.1.3 搭建 Pet 标签页 UI（角色 ItemList + 缩放 HSlider 50-200）
+- [x] 4.1.4 搭建 Display 标签页 UI（透明度 HSlider 20-100 + 窗口模式 OptionButton）
+- [x] 4.1.5 搭建 Panel 标签页 UI（5 个 CheckBox 控制展开项可见性）
+- [x] 4.1.6 搭建 General 标签页 UI（开机自启 disabled CheckBox + 语言 OptionButton）
+- [x] 4.1.7 编写 `settings_dialog.gd`，实现 `_load_current_values()` / 确认保存 / 取消放弃，保存后触发 Config.config_changed 信号
 
 #### 模块 4.2: 首次启动向导
 
-- [ ] 4.2.1 在编辑器中创建 `src/scenes/wizard/wizard_dialog.tscn`（ConfirmationDialog + 4 个 Control 页 + NavBar）
-- [ ] 4.2.2 搭建 Step 1 欢迎页（标题 + 副标题 + 大尺寸角色 IDLE 预览）
-- [ ] 4.2.3 搭建 Step 2 薪资页（复用设置对话框薪资页结构）
-- [ ] 4.2.4 搭建 Step 3 选角色页（ItemList + 选中实时调用 PetManager.switch_pet 预览）
-- [ ] 4.2.5 搭建 Step 4 完成页（SummaryLabel 摘要 + "开始赚钱！"按钮）
-- [ ] 4.2.6 编写 `wizard_dialog.gd`，实现步骤切换 / 上一步 / 下一步 / `_finish()` 保存并通过 `finished` 信号通知 main.gd reload
+- [x] 4.2.1 在编辑器中创建 `src/scenes/wizard/wizard_dialog.tscn`（ConfirmationDialog + 4 个 Control 页 + NavBar）
+- [x] 4.2.2 搭建 Step 1 欢迎页（标题 + 副标题 + 大尺寸角色 IDLE 预览）
+- [x] 4.2.3 搭建 Step 2 薪资页（复用设置对话框薪资页结构）
+- [x] 4.2.4 搭建 Step 3 选角色页（ItemList + 选中实时调用 PetManager.switch_pet 预览）
+- [x] 4.2.5 搭建 Step 4 完成页（SummaryLabel 摘要 + "开始赚钱！"按钮）
+- [x] 4.2.6 编写 `wizard_dialog.gd`，实现步骤切换 / 上一步 / 下一步 / `_finish()` 保存并通过 `finished` 信号通知 main.gd reload
 
 ### v0.1 M5. 打包发布
 
@@ -262,11 +262,18 @@
 - **2026-06-26**: 调试阶段临时关闭透明背景并增加可见 DebugInputArea，避免 Windows 透明窗口按像素命中导致点击事件不稳定
 - **2026-06-26**: 确认普通窗口模式下输入链路可用：左键单击、右键菜单、窗口拖拽保存均通过；后续再逐步恢复无边框/透明/置顶桌宠模式
 - **2026-06-26**: 修复调试交互问题——双击改为 0.3s 点击窗口判定，拖拽改用屏幕绝对鼠标差值避免速度过快，折叠金额栏去掉重复人民币符号
+- **2026-06-26**: 完成 M4 设置对话框与首次启动向导；新增 `scripts/verify_m4.ps1` / `scripts/verify_m4.gd` 覆盖设置保存和向导完成保存，M3/M4 自动验证通过
+- **2026-06-26**: 根据 M3/M4 手动验证反馈优化——放大调试窗口和菜单字号，工作进度显示百分比/时间段/每日小时数；每日工作小时数改为由上下班时间自动推导，避免薪资计算和工作状态来源冲突
+- **2026-06-26**: 继续修复 M4 手动验证反馈——首次向导改为主窗口稳定后延后一帧弹出，并在右键菜单增加 `重新运行向导` 入口；新增自动验证覆盖缺少配置时 Main 场景弹出 WizardDialog；重排展开面板内容宽度和对齐方式
+- **2026-06-26**: 修复折叠金额栏垂直居中问题——折叠容器改为占满面板高度，金额 Label 显式设置 vertical center，并将该布局约束加入 `verify_m4.gd`
+- **2026-06-26**: 继续优化折叠金额栏观感——折叠容器改为 `CenterContainer`，金额在完整 `150x54` 折叠面板内水平/垂直居中，自动验证同步检查容器尺寸和对齐
 
 ## 下一步计划
 
-**手动验证 M3 UI 与交互**：
+**最终手动验证 M3/M4 UI 与交互**：
 1. 用 Godot 4.7 打开项目并运行主场景
 2. 按 `doc/m3-verification.md` 验证 Pet/Panel 可见、面板悬停展开/离开收起
-3. 验证拖拽保存窗口位置、右键菜单可打开
-4. 修复手动交互问题后进入 M4 设置与首次启动向导
+3. 验证拖拽保存窗口位置、双击识别、右键菜单可打开
+4. 从右键菜单打开设置，修改薪资/窗口/面板项并确认主界面即时刷新
+5. 临时移走用户配置后验证首次启动向导，确认完成后写入配置并进入主界面
+6. 手动验证通过后进入 M5 Windows 打包

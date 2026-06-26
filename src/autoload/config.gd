@@ -48,7 +48,7 @@ func _defaults() -> Dictionary:
 		_defaults_cache = {
 			"monthly_salary": 0,
 			"rest_mode": "double",
-			"work_hours_per_day": 8,
+			"work_hours_per_day": 8.0,
 			"work_start_time": "09:00",
 			"work_end_time": "18:00",
 			"pet_id": "cat",

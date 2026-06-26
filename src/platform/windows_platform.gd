@@ -21,8 +21,8 @@ func setup_window(window: Window) -> void:
 	window.transparent_bg = false
 	window.unresizable = true
 	window.always_on_top = false
-	window.size = Vector2i(720, 360)
-	window.min_size = Vector2i(720, 360)
+	window.size = Vector2i(900, 500)
+	window.min_size = Vector2i(900, 500)
 
 func set_window_topmost(window: Window, topmost: bool) -> void:
 	window.always_on_top = topmost

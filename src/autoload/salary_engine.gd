@@ -4,7 +4,7 @@ extends Node
 # 输入参数
 var monthly_salary: float = 0.0
 var rest_mode: String = "double"
-var work_hours_per_day: int = 8
+var work_hours_per_day: float = 8.0
 var work_start_time: String = "09:00"
 var work_end_time: String = "18:00"
 
@@ -36,9 +36,9 @@ func _process(_delta: float) -> void:
 func _load_from_config() -> void:
 	monthly_salary = float(Config.get_value("monthly_salary", 0))
 	rest_mode = String(Config.get_value("rest_mode", "double"))
-	work_hours_per_day = int(Config.get_value("work_hours_per_day", 8))
 	work_start_time = String(Config.get_value("work_start_time", "09:00"))
 	work_end_time = String(Config.get_value("work_end_time", "18:00"))
+	work_hours_per_day = _calc_work_hours_from_times(work_start_time, work_end_time)
 	_recalculate()
 
 
@@ -112,6 +112,14 @@ func _time_str_to_minutes(s: String) -> int:
 	return int(parts[0]) * 60 + int(parts[1])
 
 
+func _calc_work_hours_from_times(start_time: String, end_time: String) -> float:
+	var start_min := _time_str_to_minutes(start_time)
+	var end_min := _time_str_to_minutes(end_time)
+	if start_min < 0 or end_min < 0 or end_min <= start_min:
+		return 0.0
+	return float(end_min - start_min) / 60.0
+
+
 func get_earnings_today() -> float:
 	if monthly_salary <= 0:
 		return 0.0
@@ -170,6 +178,14 @@ func get_hourly_rate() -> float:
 
 func get_work_days_this_month() -> int:
 	return work_days_this_month
+
+
+func get_work_hours_per_day() -> float:
+	return work_hours_per_day
+
+
+func get_work_time_range_text() -> String:
+	return "%s-%s" % [work_start_time, work_end_time]
 
 
 func get_state_text() -> String:

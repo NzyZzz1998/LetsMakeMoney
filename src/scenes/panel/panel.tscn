@@ -3,46 +3,47 @@
 [ext_resource type="Script" path="res://src/scenes/panel/panel.gd" id="1_panel"]
 
 [node name="Panel" type="Control"]
-custom_minimum_size = Vector2(112, 42)
+custom_minimum_size = Vector2(150, 54)
 layout_mode = 3
 anchors_preset = 0
-offset_right = 112.0
-offset_bottom = 42.0
+offset_right = 150.0
+offset_bottom = 54.0
 mouse_filter = 1
 script = ExtResource("1_panel")
 
 [node name="Background" type="Panel" parent="."]
 layout_mode = 0
-offset_right = 112.0
-offset_bottom = 42.0
+offset_right = 150.0
+offset_bottom = 54.0
 mouse_filter = 2
 
-[node name="Collapsed" type="HBoxContainer" parent="."]
+[node name="Collapsed" type="CenterContainer" parent="."]
 layout_mode = 0
-offset_left = 12.0
-offset_top = 8.0
-offset_right = 100.0
-offset_bottom = 34.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 150.0
+offset_bottom = 54.0
 mouse_filter = 2
-theme_override_constants/separation = 6
-alignment = 1
 
 [node name="EarningsToday" type="Label" parent="Collapsed"]
 layout_mode = 2
 mouse_filter = 2
 text = "¥0.00"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="Expanded" type="VBoxContainer" parent="."]
 visible = false
 layout_mode = 0
-offset_left = 12.0
-offset_top = 10.0
-offset_right = 208.0
-offset_bottom = 138.0
+offset_left = 16.0
+offset_top = 14.0
+offset_right = 286.0
+offset_bottom = 194.0
 mouse_filter = 2
 theme_override_constants/separation = 8
 
 [node name="TodayRow" type="HBoxContainer" parent="Expanded"]
+custom_minimum_size = Vector2(270, 0)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 16
@@ -60,6 +61,7 @@ text = "¥0.00"
 horizontal_alignment = 2
 
 [node name="MonthRow" type="HBoxContainer" parent="Expanded"]
+custom_minimum_size = Vector2(270, 0)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 16
@@ -77,6 +79,7 @@ text = "¥0.00"
 horizontal_alignment = 2
 
 [node name="RateRow" type="HBoxContainer" parent="Expanded"]
+custom_minimum_size = Vector2(270, 0)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 16
@@ -94,6 +97,7 @@ text = "¥0.00/小时"
 horizontal_alignment = 2
 
 [node name="ProgressRow" type="VBoxContainer" parent="Expanded"]
+custom_minimum_size = Vector2(270, 0)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 4
@@ -109,7 +113,14 @@ mouse_filter = 2
 max_value = 100.0
 show_percentage = false
 
+[node name="ProgressText" type="Label" parent="Expanded/ProgressRow"]
+layout_mode = 2
+mouse_filter = 2
+text = "0% · 09:00-18:00"
+horizontal_alignment = 0
+
 [node name="StateRow" type="HBoxContainer" parent="Expanded"]
+custom_minimum_size = Vector2(270, 0)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 16

@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/scenes/settings/settings_dialog.gd" id="1_settings"]
+
+[node name="SettingsDialog" type="ConfirmationDialog"]
+title = "设置"
+size = Vector2i(560, 460)
+script = ExtResource("1_settings")

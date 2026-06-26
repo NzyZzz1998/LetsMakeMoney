@@ -1,6 +1,5 @@
 param(
-    [string]$GodotExe = "",
-    [int]$QuitAfterFrames = 30
+    [string]$GodotExe = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -73,33 +72,13 @@ function Invoke-GodotCheck {
 }
 
 $projectRoot = Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")
-$projectFile = Join-Path $projectRoot "project.godot"
-$mainScene = "res://src/scenes/main/main.tscn"
-
-if (-not (Test-Path -LiteralPath $projectFile)) {
-    throw "project.godot not found at $projectFile"
-}
-
-$projectText = Get-Content -Encoding UTF8 -Raw -LiteralPath $projectFile
-if ($projectText -notmatch [regex]::Escape("run/main_scene=`"$mainScene`"")) {
-    throw "project.godot does not set run/main_scene to $mainScene"
-}
-if ($projectText -notmatch 'PanelSystem="\*res://src/autoload/panel_system.gd"') {
-    throw "project.godot does not register PanelSystem autoload."
-}
-
 $resolvedGodot = Resolve-GodotExe -ExplicitPath $GodotExe
+$scriptPath = Join-Path $projectRoot "scripts\verify_m4.gd"
+
 Write-Host "Using Godot: $resolvedGodot"
 Write-Host "Project: $projectRoot"
 
 Invoke-GodotCheck `
     -Exe $resolvedGodot `
-    -Arguments @("--headless", "--path", $projectRoot, "--quit") `
-    -Label "Project load"
-
-Invoke-GodotCheck `
-    -Exe $resolvedGodot `
-    -Arguments @("--headless", "--path", $projectRoot, "--scene", $mainScene, "--quit-after", "$QuitAfterFrames") `
-    -Label "Main scene smoke test"
-
-Write-Host "M3 automated verification passed."
+    -Arguments @("--headless", "--path", $projectRoot, "--script", $scriptPath) `
+    -Label "M4 settings and wizard"

@@ -8,21 +8,21 @@
 script = ExtResource("1_main")
 
 [node name="Pet" parent="." instance=ExtResource("2_pet")]
-position = Vector2(56, 120)
+position = Vector2(72, 168)
 
 [node name="DebugInputArea" type="ColorRect" parent="."]
-offset_left = 48.0
-offset_top = 96.0
-offset_right = 224.0
-offset_bottom = 288.0
+offset_left = 64.0
+offset_top = 136.0
+offset_right = 260.0
+offset_bottom = 348.0
 color = Color(0.2, 0.55, 1, 0.45)
 
 [node name="Panel" parent="." instance=ExtResource("3_panel")]
-position = Vector2(250, 90)
+position = Vector2(340, 140)
 
 [node name="DebugStatus" type="Label" parent="."]
 offset_left = 24.0
-offset_top = 314.0
-offset_right = 690.0
-offset_bottom = 342.0
+offset_top = 450.0
+offset_right = 860.0
+offset_bottom = 482.0
 text = "Debug: ready"

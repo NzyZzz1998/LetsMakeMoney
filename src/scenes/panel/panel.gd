@@ -2,13 +2,14 @@
 extends Control
 
 @onready var background: Panel = $Background
-@onready var collapsed_container: HBoxContainer = $Collapsed
+@onready var collapsed_container: CenterContainer = $Collapsed
 @onready var expanded_container: VBoxContainer = $Expanded
 @onready var earnings_today_label: Label = $Collapsed/EarningsToday
 @onready var exp_today_label: Label = $Expanded/TodayRow/TodayValue
 @onready var exp_month_label: Label = $Expanded/MonthRow/MonthValue
 @onready var exp_rate_label: Label = $Expanded/RateRow/RateValue
 @onready var exp_progress_bar: ProgressBar = $Expanded/ProgressRow/ProgressBar
+@onready var exp_progress_text: Label = $Expanded/ProgressRow/ProgressText
 @onready var exp_state_label: Label = $Expanded/StateRow/StateValue
 @onready var exp_today_row: Control = $Expanded/TodayRow
 @onready var exp_month_row: Control = $Expanded/MonthRow
@@ -21,7 +22,7 @@ var _tween: Tween = null
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
-	custom_minimum_size = Vector2(112, 42)
+	custom_minimum_size = Vector2(150, 54)
 	expanded_container.visible = false
 	collapsed_container.visible = true
 	_apply_style()
@@ -35,7 +36,8 @@ func expand() -> void:
 	_kill_tween()
 	collapsed_container.visible = false
 	expanded_container.visible = true
-	custom_minimum_size = Vector2(220, 148)
+	custom_minimum_size = Vector2(300, 206)
+	expanded_container.size = Vector2(270, 180)
 	expanded_container.scale = Vector2(0.9, 0.9)
 	_tween = create_tween()
 	_tween.set_ease(Tween.EASE_OUT)
@@ -50,7 +52,9 @@ func collapse() -> void:
 	_kill_tween()
 	expanded_container.visible = false
 	collapsed_container.visible = true
-	custom_minimum_size = Vector2(112, 42)
+	custom_minimum_size = Vector2(150, 54)
+	collapsed_container.position = Vector2.ZERO
+	collapsed_container.size = custom_minimum_size
 	collapsed_container.scale = Vector2(0.9, 0.9)
 	_tween = create_tween()
 	_tween.set_ease(Tween.EASE_OUT)
@@ -65,7 +69,13 @@ func refresh_values() -> void:
 	exp_today_label.text = "¥%.2f" % today
 	exp_month_label.text = "¥%.2f" % SalaryEngine.get_earnings_this_month()
 	exp_rate_label.text = "¥%.2f/小时" % SalaryEngine.get_hourly_rate()
-	exp_progress_bar.value = SalaryEngine.get_work_progress() * 100.0
+	var progress := SalaryEngine.get_work_progress() * 100.0
+	exp_progress_bar.value = progress
+	exp_progress_text.text = "%.0f%% · %s · %.2f小时" % [
+		progress,
+		SalaryEngine.get_work_time_range_text(),
+		SalaryEngine.get_work_hours_per_day()
+	]
 	exp_state_label.text = SalaryEngine.get_state_text()
 
 
@@ -89,6 +99,7 @@ func _apply_style() -> void:
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(8)
 	background.add_theme_stylebox_override("panel", style)
+	add_theme_font_size_override("font_size", 18)
 
 
 func _update_background() -> void:
@@ -97,7 +108,7 @@ func _update_background() -> void:
 	if expanded_container.visible:
 		target_size = Vector2(max(target_size.x, expanded_container.size.x + 24), max(target_size.y, expanded_container.size.y + 24))
 	else:
-		target_size = Vector2(max(target_size.x, collapsed_container.size.x + 24), max(target_size.y, collapsed_container.size.y + 16))
+		target_size = custom_minimum_size
 	size = target_size
 	background.size = target_size
 

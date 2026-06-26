@@ -3,10 +3,15 @@ extends Node
 
 var _window: Window = null
 var _active_popups: Array[PopupMenu] = []
+var _config_connected: bool = false
 
 
 func register_window(window: Window) -> void:
 	_window = window
+	if not _config_connected:
+		Config.config_changed.connect(_on_config_changed)
+		_config_connected = true
+	_apply_window_mode(String(Config.get_value("window_mode", "top")))
 
 
 func move_window_to(pos: Vector2i) -> void:
@@ -36,10 +41,13 @@ func show_tray_menu() -> void:
 
 
 func _build_main_menu(menu: PopupMenu) -> void:
+	_apply_menu_readability(menu)
 	menu.add_item("设置", 100)
+	menu.add_item("重新运行向导", 101)
 
 	var pet_menu := PopupMenu.new()
 	pet_menu.name = "PetMenu"
+	_apply_menu_readability(pet_menu)
 	var pets := PetManager.get_available_pets()
 	var current_id := String(Config.get_value("pet_id", "cat"))
 	for i in range(pets.size()):
@@ -51,6 +59,7 @@ func _build_main_menu(menu: PopupMenu) -> void:
 
 	var mode_menu := PopupMenu.new()
 	mode_menu.name = "ModeMenu"
+	_apply_menu_readability(mode_menu)
 	mode_menu.add_check_item("置顶悬浮", 300)
 	mode_menu.add_check_item("融入桌面", 301)
 	var window_mode := String(Config.get_value("window_mode", "top"))
@@ -67,6 +76,11 @@ func _build_main_menu(menu: PopupMenu) -> void:
 	pet_menu.id_pressed.connect(_on_menu_id)
 	mode_menu.id_pressed.connect(_on_menu_id)
 	menu.id_pressed.connect(_on_menu_id)
+
+
+func _apply_menu_readability(menu: PopupMenu) -> void:
+	menu.add_theme_font_size_override("font_size", 18)
+	menu.add_theme_constant_override("v_separation", 8)
 
 
 func _popup_at_mouse(popup: PopupMenu) -> void:
@@ -94,6 +108,8 @@ func _on_menu_id(id: int) -> void:
 	match id:
 		100:
 			_open_settings()
+		101:
+			_open_wizard()
 		300:
 			Config.set_value("window_mode", "top")
 			_apply_window_mode("top")
@@ -138,8 +154,33 @@ func _apply_window_mode(mode: String) -> void:
 		Platform.set_window_topmost(_window, true)
 
 
+func _on_config_changed() -> void:
+	_apply_window_mode(String(Config.get_value("window_mode", "top")))
+
+
 func _open_settings() -> void:
-	OS.alert("设置面板将在 M4 实现。当前可以先通过配置默认值继续开发 M3。", "LetsMakeMoney")
+	if _window == null:
+		return
+	var settings_scene := load("res://src/scenes/settings/settings_dialog.tscn")
+	if settings_scene == null:
+		OS.alert("设置面板加载失败。", "LetsMakeMoney")
+		return
+	var dlg: ConfirmationDialog = settings_scene.instantiate()
+	_window.add_child(dlg)
+	dlg.popup_centered()
+
+
+func _open_wizard() -> void:
+	if _window == null:
+		return
+	var wizard_scene := load("res://src/scenes/wizard/wizard_dialog.tscn")
+	if wizard_scene == null:
+		OS.alert("首次启动向导加载失败。", "LetsMakeMoney")
+		return
+	var dlg: ConfirmationDialog = wizard_scene.instantiate()
+	_window.add_child(dlg)
+	dlg.popup_centered()
+	dlg.grab_focus()
 
 
 func _show_about() -> void:

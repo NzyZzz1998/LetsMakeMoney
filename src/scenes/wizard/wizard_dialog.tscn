@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/scenes/wizard/wizard_dialog.gd" id="1_wizard"]
+
+[node name="WizardDialog" type="ConfirmationDialog"]
+title = "欢迎来到 LetsMakeMoney"
+size = Vector2i(520, 380)
+script = ExtResource("1_wizard")
