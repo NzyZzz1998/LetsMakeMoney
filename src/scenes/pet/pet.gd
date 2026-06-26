@@ -19,12 +19,14 @@ var _drag_start_mouse: Vector2i = Vector2i.ZERO
 const DRAG_THRESHOLD := 5.0  # 像素，超过则判定为拖拽
 const LONG_PRESS_THRESHOLD := 0.5  # 秒
 const DOUBLE_CLICK_WINDOW := 0.3  # 秒
+const HIT_RECT := Rect2(Vector2.ZERO, Vector2(120, 120))
 
 
 func _ready() -> void:
 	_setup_from_resource()
 	PetManager.pet_changed.connect(_on_pet_changed)
 	PetManager.state_changed.connect(_on_state_changed)
+	click_area.input_pickable = true
 	click_area.mouse_entered.connect(_on_mouse_entered)
 	click_area.mouse_exited.connect(_on_mouse_exited)
 
@@ -81,13 +83,23 @@ func _play_anim(anim_name: String) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if not _hover_entered and not _dragging:
+	var pointer_over_pet := _is_pointer_over_pet()
+	if pointer_over_pet and not _hover_entered:
+		_on_mouse_entered()
+	elif not pointer_over_pet and _hover_entered and not _mouse_pressed and not _dragging:
+		_on_mouse_exited()
+
+	if not pointer_over_pet and not _dragging:
 		return
 
 	if event is InputEventMouseButton:
 		_handle_mouse_button(event)
 	elif event is InputEventMouseMotion:
 		_handle_mouse_motion(event)
+
+
+func _is_pointer_over_pet() -> bool:
+	return HIT_RECT.has_point(to_local(get_global_mouse_position()))
 
 
 func _handle_mouse_button(event: InputEventMouseButton) -> void:
@@ -114,19 +126,25 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 		DragResizeSystem.show_context_menu()
 
 
-func _handle_mouse_motion(_event: InputEventMouseMotion) -> void:
-	if _mouse_pressed and not _dragging:
-		var mouse_pos := DisplayServer.mouse_get_position()
-		if (mouse_pos - _drag_start_mouse).length() > DRAG_THRESHOLD:
+func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
+	var left_button_down := (event.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0
+	if left_button_down and not _mouse_pressed:
+		_mouse_pressed = true
+		_drag_start_mouse = DisplayServer.mouse_get_position()
+		_drag_start_pos = get_window().position
+
+	if (_mouse_pressed or left_button_down) and not _dragging:
+		if (DisplayServer.mouse_get_position() - _drag_start_mouse).length() > DRAG_THRESHOLD or event.relative.length() > DRAG_THRESHOLD:
 			_start_drag()
 	if _dragging:
-		var mouse_pos := DisplayServer.mouse_get_position()
-		var new_pos: Vector2i = _drag_start_pos + (mouse_pos - _drag_start_mouse)
-		DragResizeSystem.move_window_to(new_pos)
+		var delta := Vector2i(roundi(event.relative.x), roundi(event.relative.y))
+		if delta != Vector2i.ZERO:
+			DragResizeSystem.move_window_to(get_window().position + delta)
 
 
 func _start_drag() -> void:
 	_dragging = true
+	print("[Pet] drag started")
 
 
 func _end_drag() -> void:

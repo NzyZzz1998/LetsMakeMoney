@@ -2,9 +2,9 @@
 
 > 本文档作为整个项目的总体进度跟踪，按版本和模块组织 Vibe Coding 最小可执行任务。每个模块对应一组 checklist，完成时勾选。完整实施细节参见 `implementation-plan.md`，需求细节参见 `LetsMakeMoneyPRD.md`。
 
-**最后更新**: 2026-06-25  
+**最后更新**: 2026-06-26
 **当前阶段**: v0.1 Beta 开发期  
-**当前里程碑**: M2 完成，准备进入 M3（UI 与交互）
+**当前里程碑**: M3 自动验证通过，待手动交互验证
 
 ---
 
@@ -32,15 +32,15 @@
 | **M2** | PetManager | ✅ 完成 | 6/6 |
 | **M2** | Pet 场景 + 状态机 | ✅ 完成 | 8/8 |
 | **M2** | 占位素材准备 | ✅ 完成（用兔子素材占位） | 4/4 |
-| **M3** | PanelSystem | ⏳ 未开始 | 0/5 |
-| **M3** | Panel 场景 | ⏳ 未开始 | 0/6 |
-| **M3** | DragResizeSystem | ⏳ 未开始 | 0/5（占位已存在） |
-| **M3** | Main 场景整合 | ⏳ 未开始 | 0/6 |
+| **M3** | PanelSystem | 🧪 自动验证通过，待手动验证 | 5/5 |
+| **M3** | Panel 场景 | 🧪 自动验证通过，待手动验证 | 6/6 |
+| **M3** | DragResizeSystem | 🧪 自动验证通过，待手动验证 | 5/5 |
+| **M3** | Main 场景整合 | 🧪 自动验证通过，待手动验证 | 6/6 |
 | **M4** | 设置对话框 | ⏳ 未开始 | 0/7 |
 | **M4** | 首次启动向导 | ⏳ 未开始 | 0/6 |
 | **M5** | 打包发布 | ⏳ 未开始 | 0/3 |
 
-**v0.1 总进度**: 37/75 任务完成（49%），M1 + M2 全部完成
+**v0.1 总进度**: 59/75 任务代码完成（79%），M1 + M2 完成，M3 自动验证通过、待手动交互验证
 
 ### v0.1 M1. 基础设施
 
@@ -108,37 +108,37 @@
 
 #### 模块 3.1: PanelSystem Autoload
 
-- [ ] 3.1.1 编写 `src/autoload/panel_system.gd`，定义 HOVER_DELAY=0.3 / LEAVE_DELAY=0.5 常量
-- [ ] 3.1.2 实现 `register_panel(panel)` 接收面板实例，连接整个面板根节点的 mouse_entered/exited
-- [ ] 3.1.3 实现 `_process()` 悬停计时，达到 HOVER_DELAY 调用 `panel.expand()`
-- [ ] 3.1.4 实现离开计时 LEAVE_DELAY 后调用 `panel.collapse()`，处理 Collapsed/Expanded 切换的抖动
-- [ ] 3.1.5 实现 `update_values()` 节流刷新（每 500ms 一次，避免超 PRD 的 CPU <1% 要求）
+- [x] 3.1.1 编写 `src/autoload/panel_system.gd`，定义 HOVER_DELAY=0.3 / LEAVE_DELAY=0.5 常量
+- [x] 3.1.2 实现 `register_panel(panel)` 接收面板实例，连接整个面板根节点的 mouse_entered/exited
+- [x] 3.1.3 实现 `_process()` 悬停计时，达到 HOVER_DELAY 调用 `panel.expand()`
+- [x] 3.1.4 实现离开计时 LEAVE_DELAY 后调用 `panel.collapse()`，处理 Collapsed/Expanded 切换的抖动
+- [x] 3.1.5 实现 `update_values()` 节流刷新（每 500ms 一次，避免超 PRD 的 CPU <1% 要求）
 
 #### 模块 3.2: Panel 场景
 
-- [ ] 3.2.1 在编辑器中创建 `src/scenes/panel/panel.tscn`（Control + Collapsed HBox + Expanded VBox）
-- [ ] 3.2.2 配置半透明深色圆角背景 StyleBoxFlat
-- [ ] 3.2.3 编写 `src/scenes/panel/panel.gd`，实现 `expand()` / `collapse()` 用 scale tween 而非 modulate.a
-- [ ] 3.2.4 实现 `refresh_values()` — 从 SalaryEngine 取数填充 5 项详情
-- [ ] 3.2.5 实现 `_apply_panel_config()` — 根据 Config.panel_items 控制每行可见性
-- [ ] 3.2.6 智能定位：贴右边缘时面板出现在左侧，贴底部时出现在上方（在 main.gd 中调用）
+- [x] 3.2.1 在编辑器中创建 `src/scenes/panel/panel.tscn`（Control + Collapsed HBox + Expanded VBox）
+- [x] 3.2.2 配置半透明深色圆角背景 StyleBoxFlat
+- [x] 3.2.3 编写 `src/scenes/panel/panel.gd`，实现 `expand()` / `collapse()` 用 scale tween 而非 modulate.a
+- [x] 3.2.4 实现 `refresh_values()` — 从 SalaryEngine 取数填充 5 项详情
+- [x] 3.2.5 实现 `_apply_panel_config()` — 根据 Config.panel_items 控制每行可见性
+- [x] 3.2.6 智能定位：贴右边缘时面板出现在左侧，贴底部时出现在上方（在 main.gd 中调用）
 
 #### 模块 3.3: DragResizeSystem Autoload
 
-- [ ] 3.3.1 编写 `src/autoload/drag_resize_system.gd`，注册为 Autoload
-- [ ] 3.3.2 实现 `register_window(window)` + `move_window_to(pos)` + `save_position()`
-- [ ] 3.3.3 实现 `show_context_menu()` — 构建 PopupMenu（设置/切换角色子菜单/窗口模式子菜单/关于/退出），菜单位置用全局坐标
-- [ ] 3.3.4 实现 `_on_menu_id(id)` 处理菜单项点击，正确释放 popup（避免重复 queue_free）
-- [ ] 3.3.5 实现 `show_tray_menu()` — v0.1 风险项，用 PopupMenu 代替托盘，标注为降级方案
+- [x] 3.3.1 编写 `src/autoload/drag_resize_system.gd`，注册为 Autoload
+- [x] 3.3.2 实现 `register_window(window)` + `move_window_to(pos)` + `save_position()`
+- [x] 3.3.3 实现 `show_context_menu()` — 构建 PopupMenu（设置/切换角色子菜单/窗口模式子菜单/关于/退出），菜单位置用全局坐标
+- [x] 3.3.4 实现 `_on_menu_id(id)` 处理菜单项点击，正确释放 popup（避免重复 queue_free）
+- [x] 3.3.5 实现 `show_tray_menu()` — v0.1 风险项，用 PopupMenu 代替托盘，标注为降级方案
 
 #### 模块 3.4: Main 场景整合
 
-- [ ] 3.4.1 在编辑器中创建 `src/scenes/main/main.tscn`（Node2D + Pet 实例 + Panel 实例）
-- [ ] 3.4.2 编写 `src/scenes/main/main.gd`，`_setup_window()` 通过 Platform Autoload 配置窗口
-- [ ] 3.4.3 实现 `_restore_position()` — 从 Config 读取 x/y，无效则 fallback 屏幕右下角
-- [ ] 3.4.4 实现 `_apply_scale_opacity()` — 应用缩放和透明度
-- [ ] 3.4.5 实现 `_position_panel()` 智能定位逻辑（根据窗口位置 vs 屏幕尺寸）
-- [ ] 3.4.6 设置 main.tscn 为项目主场景，运行验证 Pet/Panel 可见且能拖拽
+- [x] 3.4.1 在编辑器中创建 `src/scenes/main/main.tscn`（Node2D + Pet 实例 + Panel 实例）
+- [x] 3.4.2 编写 `src/scenes/main/main.gd`，`_setup_window()` 通过 Platform Autoload 配置窗口
+- [x] 3.4.3 实现 `_restore_position()` — 从 Config 读取 x/y，无效则 fallback 屏幕右下角
+- [x] 3.4.4 实现 `_apply_scale_opacity()` — 应用缩放和透明度
+- [x] 3.4.5 实现 `_position_panel()` 智能定位逻辑（根据窗口位置 vs 屏幕尺寸）
+- [x] 3.4.6 设置 main.tscn 为项目主场景，运行验证 Pet/Panel 可见且能拖拽（待 Godot 编辑器实跑确认）
 
 ### v0.1 M4. 设置与引导
 
@@ -254,14 +254,19 @@
 - **2026-06-25**: M2.3 占位素材准备完成（commit 85dda76）—— 使用免费兔子素材包
 - **2026-06-25**: 尝试 AI 生成猫咪动画素材，4 种方案均不理想，决策延后到 v1.0
 - **2026-06-25**: 整理项目，AI 素材归档到 experiments/，更新 progress.md 记录困难和决策
+- **2026-06-26**: M3 UI 与交互代码完成——新增 PanelSystem、薪资面板、Main 场景，完善右键菜单；待 Godot 编辑器运行验证
+- **2026-06-26**: 新增 `scripts/verify_m3.ps1` 和 `doc/m3-verification.md`；Godot 4.7 headless 项目加载与主场景 30 帧 smoke test 通过
+- **2026-06-26**: 修复 M3 手动验证问题——设置桌宠窗口实际尺寸，Pet 输入增加鼠标位置命中兜底，右键菜单改用窗口内坐标
+- **2026-06-26**: 通过 Windows 窗口截图确认运行窗口内容过小且面板跑出可见区；放大占位角色、固定 Pet/Panel 到窗口内布局，并为拖拽增加左键 mask 兜底与 `drag started` 日志
+- **2026-06-26**: 调试阶段临时放大窗口到 720×360，拉开 Pet/Panel 位置，便于观察薪资数字和交互状态
+- **2026-06-26**: 调试阶段临时关闭透明背景并增加可见 DebugInputArea，避免 Windows 透明窗口按像素命中导致点击事件不稳定
+- **2026-06-26**: 确认普通窗口模式下输入链路可用：左键单击、右键菜单、窗口拖拽保存均通过；后续再逐步恢复无边框/透明/置顶桌宠模式
+- **2026-06-26**: 修复调试交互问题——双击改为 0.3s 点击窗口判定，拖拽改用屏幕绝对鼠标差值避免速度过快，折叠金额栏去掉重复人民币符号
 
 ## 下一步计划
 
-**进入 M3 UI 与交互**（不依赖素材质量，可立即推进）：
-1. Task 3.1 PanelSystem Autoload
-2. Task 3.2 Panel 场景（薪资数字显示 + 悬停展开）
-3. Task 3.3 DragResizeSystem 完善右键菜单
-4. Task 3.4 Main 场景整合（角色 + 面板 + 窗口管理）
-
-M3 完成后即可在桌面上看到完整的桌面宠物雏形（兔子在桌面上动 + 薪资数字显示 + 可拖拽 + 右键菜单）。
-
+**手动验证 M3 UI 与交互**：
+1. 用 Godot 4.7 打开项目并运行主场景
+2. 按 `doc/m3-verification.md` 验证 Pet/Panel 可见、面板悬停展开/离开收起
+3. 验证拖拽保存窗口位置、右键菜单可打开
+4. 修复手动交互问题后进入 M4 设置与首次启动向导

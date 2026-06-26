@@ -12,6 +12,9 @@ test_*.tscn
 test_*.gd
 test_*.gd.uid
 
+# Archived experiments should not add Godot import metadata noise
+experiments/**/*.import
+
 # OS
 .DS_Store
 Thumbs.db

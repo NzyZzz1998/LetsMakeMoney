@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="LetsMakeMoney"
+run/main_scene="res://src/scenes/main/main.tscn"
 config/features=PackedStringArray("4.7")
 config/icon="res://icon.svg"
 
@@ -20,6 +21,7 @@ Platform="*res://src/autoload/platform.gd"
 Config="*res://src/autoload/config.gd"
 SalaryEngine="*res://src/autoload/salary_engine.gd"
 PetManager="*res://src/autoload/pet_manager.gd"
+PanelSystem="*res://src/autoload/panel_system.gd"
 DragResizeSystem="*res://src/autoload/drag_resize_system.gd"
 
 [display]
