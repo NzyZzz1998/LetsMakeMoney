@@ -2,7 +2,7 @@
 extends ConfirmationDialog
 
 var salary_input: SpinBox
-var rest_mode_option: OptionButton
+var rest_mode_toggle: CheckButton
 var hours_input: SpinBox
 var start_hour_input: SpinBox
 var start_min_input: SpinBox
@@ -10,8 +10,10 @@ var end_hour_input: SpinBox
 var end_min_input: SpinBox
 var pet_list: ItemList
 var scale_slider: HSlider
+var scale_value_label: Label
 var opacity_slider: HSlider
-var window_mode_option: OptionButton
+var opacity_value_label: Label
+var window_mode_toggle: CheckButton
 var show_today: CheckBox
 var show_month: CheckBox
 var show_rate: CheckBox
@@ -47,10 +49,9 @@ func _build_salary_tab() -> Control:
 	_add_label(box, "月薪 (元)")
 	salary_input = _add_spin(box, 0, 999999, 1)
 	_add_label(box, "休息模式")
-	rest_mode_option = OptionButton.new()
-	rest_mode_option.add_item("双休")
-	rest_mode_option.add_item("单休")
-	box.add_child(rest_mode_option)
+	rest_mode_toggle = CheckButton.new()
+	rest_mode_toggle.text = "单休（关闭则为双休）"
+	box.add_child(rest_mode_toggle)
 	_add_label(box, "每日工作小时数（由上下班时间自动计算）")
 	hours_input = _add_spin(box, 0, 24, 0.25)
 	hours_input.editable = false
@@ -74,7 +75,9 @@ func _build_pet_tab() -> Control:
 	pet_list.custom_minimum_size = Vector2(0, 140)
 	box.add_child(pet_list)
 	_add_label(box, "缩放 (50%-200%)")
-	scale_slider = _add_slider(box, 50, 200, 1)
+	var scale_row := _add_slider_row(box, 50, 200, 1)
+	scale_slider = scale_row[0]
+	scale_value_label = scale_row[1]
 	return root
 
 
@@ -82,12 +85,13 @@ func _build_display_tab() -> Control:
 	var root := _new_tab("Display")
 	var box := _new_vbox(root)
 	_add_label(box, "透明度 (20%-100%)")
-	opacity_slider = _add_slider(box, 20, 100, 1)
+	var opacity_row := _add_slider_row(box, 20, 100, 1)
+	opacity_slider = opacity_row[0]
+	opacity_value_label = opacity_row[1]
 	_add_label(box, "窗口模式")
-	window_mode_option = OptionButton.new()
-	window_mode_option.add_item("置顶悬浮")
-	window_mode_option.add_item("融入桌面")
-	box.add_child(window_mode_option)
+	window_mode_toggle = CheckButton.new()
+	window_mode_toggle.text = "融入桌面（关闭则为置顶悬浮）"
+	box.add_child(window_mode_toggle)
 	return root
 
 
@@ -156,6 +160,20 @@ func _add_slider(parent: Control, min_value: float, max_value: float, step: floa
 	return slider
 
 
+func _add_slider_row(parent: Control, min_value: float, max_value: float, step: float) -> Array:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	parent.add_child(row)
+	var slider := _add_slider(row, min_value, max_value, step)
+	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var value_label := Label.new()
+	value_label.custom_minimum_size = Vector2(72, 0)
+	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(value_label)
+	return [slider, value_label]
+
+
 func _add_checkbox(parent: Control, text: String) -> CheckBox:
 	var checkbox := CheckBox.new()
 	checkbox.text = text
@@ -201,7 +219,7 @@ func _calculate_work_hours() -> float:
 func _load_current_values() -> void:
 	salary_input.value = float(Config.get_value("monthly_salary", 0))
 	var rm := String(Config.get_value("rest_mode", "double"))
-	rest_mode_option.select(0 if rm == "double" else 1)
+	rest_mode_toggle.button_pressed = rm == "single"
 	var st := String(Config.get_value("work_start_time", "09:00")).split(":")
 	start_hour_input.value = int(st[0]) if st.size() > 0 else 9
 	start_min_input.value = int(st[1]) if st.size() > 1 else 0
@@ -211,9 +229,12 @@ func _load_current_values() -> void:
 
 	scale_slider.value = float(Config.get_value("scale", 1.0)) * 100.0
 	opacity_slider.value = float(Config.get_value("opacity", 1.0)) * 100.0
+	scale_slider.value_changed.connect(_on_scale_slider_changed)
+	opacity_slider.value_changed.connect(_on_opacity_slider_changed)
+	_update_slider_labels()
 
 	var wm := String(Config.get_value("window_mode", "top"))
-	window_mode_option.select(0 if wm == "top" else 1)
+	window_mode_toggle.button_pressed = wm == "embed"
 
 	_populate_pet_list()
 	_load_panel_checkboxes()
@@ -239,14 +260,15 @@ func _load_panel_checkboxes() -> void:
 
 
 func _on_save() -> void:
+	_update_slider_labels()
 	Config.set_value("monthly_salary", float(salary_input.value))
-	Config.set_value("rest_mode", "single" if rest_mode_option.selected == 1 else "double")
+	Config.set_value("rest_mode", "single" if rest_mode_toggle.button_pressed else "double")
 	Config.set_value("work_start_time", "%02d:%02d" % [int(start_hour_input.value), int(start_min_input.value)])
 	Config.set_value("work_end_time", "%02d:%02d" % [int(end_hour_input.value), int(end_min_input.value)])
 	Config.set_value("work_hours_per_day", _calculate_work_hours())
 	Config.set_value("scale", scale_slider.value / 100.0)
 	Config.set_value("opacity", opacity_slider.value / 100.0)
-	Config.set_value("window_mode", "top" if window_mode_option.selected == 0 else "embed")
+	Config.set_value("window_mode", "embed" if window_mode_toggle.button_pressed else "top")
 
 	Config.set_panel_item("earnings_today", show_today.button_pressed)
 	Config.set_panel_item("earnings_month", show_month.button_pressed)
@@ -268,3 +290,26 @@ func _on_save() -> void:
 
 func _on_cancel() -> void:
 	queue_free()
+
+
+func _on_scale_slider_changed(value: float) -> void:
+	_update_scale_label(value)
+
+
+func _on_opacity_slider_changed(value: float) -> void:
+	_update_opacity_label(value)
+
+
+func _update_slider_labels() -> void:
+	_update_scale_label(scale_slider.value)
+	_update_opacity_label(opacity_slider.value)
+
+
+func _update_scale_label(value: float) -> void:
+	if scale_value_label != null:
+		scale_value_label.text = "%d%%" % int(round(value))
+
+
+func _update_opacity_label(value: float) -> void:
+	if opacity_value_label != null:
+		opacity_value_label.text = "%d%%" % int(round(value))

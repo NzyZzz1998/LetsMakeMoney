@@ -47,14 +47,18 @@ func _verify_settings_dialog() -> bool:
 	await process_frame
 
 	dlg.salary_input.value = 23456
-	dlg.rest_mode_option.select(1)
+	dlg.rest_mode_toggle.button_pressed = true
 	dlg.start_hour_input.value = 10
 	dlg.start_min_input.value = 15
 	dlg.end_hour_input.value = 19
 	dlg.end_min_input.value = 30
 	dlg.scale_slider.value = 125
 	dlg.opacity_slider.value = 80
-	dlg.window_mode_option.select(1)
+	dlg.window_mode_toggle.button_pressed = true
+	dlg._update_slider_labels()
+	await process_frame
+	var scale_label_ok := _expect("settings scale label", dlg.scale_value_label.text, "125%")
+	var opacity_label_ok := _expect("settings opacity label", dlg.opacity_value_label.text, "80%")
 	dlg.show_today.button_pressed = false
 	dlg.show_month.button_pressed = true
 	dlg.show_rate.button_pressed = false
@@ -63,7 +67,8 @@ func _verify_settings_dialog() -> bool:
 	dlg._on_save()
 	await process_frame
 
-	return _expect("settings monthly_salary", _config.call("get_value", "monthly_salary"), 23456.0) and \
+	return scale_label_ok and opacity_label_ok and \
+		_expect("settings monthly_salary", _config.call("get_value", "monthly_salary"), 23456.0) and \
 		_expect("settings rest_mode", _config.call("get_value", "rest_mode"), "single") and \
 		_expect("settings work_hours_per_day", _config.call("get_value", "work_hours_per_day"), 9.25) and \
 		_expect("settings work_start_time", _config.call("get_value", "work_start_time"), "10:15") and \

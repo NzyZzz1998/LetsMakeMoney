@@ -5,7 +5,7 @@
 # Build output
 build/
 *.exe
-export_presets.cfg
+export_credentials.cfg
 
 # Test files (temporary, should not be committed)
 test_*.tscn

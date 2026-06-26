@@ -4,7 +4,7 @@
 
 **最后更新**: 2026-06-26
 **当前阶段**: v0.1 Beta 开发期  
-**当前里程碑**: M4 设置与首次启动向导自动验证通过，待最终手动交互验证与 M5 打包
+**当前里程碑**: M5 Windows release exe 已导出并通过启动冒烟验证
 
 ---
 
@@ -12,7 +12,7 @@
 
 | 版本 | 阶段 | 平台 | 状态 |
 |------|------|------|------|
-| v0.1 | Beta | Windows | ⏳ 开发中（M1-M4 代码完成） |
+| v0.1 | Beta | Windows | 🧪 Beta 打包完成，待发布前人工验收 |
 | v1.0 | 正式版 | Windows | 🗓 未开始 |
 | v2.0 | 跨平台 | + macOS | 🗓 未开始 |
 | v3.0 | 移动端 | + iOS/Android | 🗓 未开始 |
@@ -38,9 +38,9 @@
 | **M3** | Main 场景整合 | 🧪 自动验证通过，待手动验证 | 6/6 |
 | **M4** | 设置对话框 | 🧪 自动验证通过，待手动验证 | 7/7 |
 | **M4** | 首次启动向导 | 🧪 自动验证通过，待手动验证 | 6/6 |
-| **M5** | 打包发布 | ⏳ 未开始 | 0/3 |
+| **M5** | 打包发布 | 🧪 导出与启动冒烟验证通过 | 3/3 |
 
-**v0.1 总进度**: 72/75 任务代码完成（96%），M1-M4 代码完成，M3/M4 自动验证通过、待最终手动交互验证
+**v0.1 总进度**: 75/75 任务代码完成（100%），M1-M5 代码完成，M3/M4/M5 自动验证通过、待发布前人工验收
 
 ### v0.1 M1. 基础设施
 
@@ -165,9 +165,9 @@
 
 #### 模块 5.1: Windows 打包
 
-- [ ] 5.1.1 配置 Godot 导出预设（Windows Desktop，设置图标和描述）
-- [ ] 5.1.2 下载安装 Windows 导出模板
-- [ ] 5.1.3 导出 exe 到 `<PROJECT_ROOT>\build\LetsMakeMoney.exe`，双击运行验证全流程
+- [x] 5.1.1 配置 Godot 导出预设（Windows Desktop，设置图标和描述）
+- [x] 5.1.2 下载安装 Windows 导出模板
+- [x] 5.1.3 导出 exe 到 `<PROJECT_ROOT>\build\LetsMakeMoney.exe`，启动冒烟验证通过
 
 ---
 
@@ -180,7 +180,7 @@
 | 小猫 PetResource | `assets/pets/cat/cat_resource.tres` | 1.4 | ⚠ 待创建 |
 | 小狗 SpriteFrames | `assets/pets/dog/dog_sprite_frames.tres` | 2.3 | ⚠ v0.1 延后 |
 | 仓鼠 SpriteFrames | `assets/pets/hamster/hamster_sprite_frames.tres` | 2.3 | ⚠ v0.1 延后 |
-| 应用图标 | `icons/app_icon.ico` | 5.1 | ⚠ 待创建 |
+| 应用图标 | `icons/app_icon.ico` | 5.1 | ✅ v0.1 占位图标已创建 |
 
 ---
 
@@ -267,13 +267,14 @@
 - **2026-06-26**: 继续修复 M4 手动验证反馈——首次向导改为主窗口稳定后延后一帧弹出，并在右键菜单增加 `重新运行向导` 入口；新增自动验证覆盖缺少配置时 Main 场景弹出 WizardDialog；重排展开面板内容宽度和对齐方式
 - **2026-06-26**: 修复折叠金额栏垂直居中问题——折叠容器改为占满面板高度，金额 Label 显式设置 vertical center，并将该布局约束加入 `verify_m4.gd`
 - **2026-06-26**: 继续优化折叠金额栏观感——折叠容器改为 `CenterContainer`，金额在完整 `150x54` 折叠面板内水平/垂直居中，自动验证同步检查容器尺寸和对齐
+- **2026-06-26**: 完成 M5 Windows 打包——安装 Godot 4.7 Windows x86_64 export templates，新增 `export_presets.cfg`、`icons/app_icon.ico` 和 `scripts/verify_m5.ps1`；导出 `build/LetsMakeMoney.exe` 并通过启动冒烟验证
 
 ## 下一步计划
 
-**最终手动验证 M3/M4 UI 与交互**：
+**发布前人工验收**：
 1. 用 Godot 4.7 打开项目并运行主场景
 2. 按 `doc/m3-verification.md` 验证 Pet/Panel 可见、面板悬停展开/离开收起
 3. 验证拖拽保存窗口位置、双击识别、右键菜单可打开
 4. 从右键菜单打开设置，修改薪资/窗口/面板项并确认主界面即时刷新
 5. 临时移走用户配置后验证首次启动向导，确认完成后写入配置并进入主界面
-6. 手动验证通过后进入 M5 Windows 打包
+6. 运行 `scripts/verify_m5.ps1` 或双击 `build/LetsMakeMoney.exe` 做发布前最终检查
