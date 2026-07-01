@@ -1,0 +1,226 @@
+[gd_resource type="SpriteFrames" load_steps=31 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/idle/idle_01.png" id="tex_01"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/idle/idle_02.png" id="tex_02"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/idle/idle_03.png" id="tex_03"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/idle/idle_04.png" id="tex_04"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/working/working_01.png" id="tex_05"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/working/working_02.png" id="tex_06"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/working/working_03.png" id="tex_07"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/working/working_04.png" id="tex_08"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/resting/resting_01.png" id="tex_09"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/resting/resting_02.png" id="tex_10"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/idle_clicked_single/idle_clicked_single_01.png" id="tex_11"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/idle_clicked_single/idle_clicked_single_02.png" id="tex_12"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/idle_clicked_single/idle_clicked_single_03.png" id="tex_13"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/idle_clicked_double/idle_clicked_double_01.png" id="tex_14"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/idle_clicked_double/idle_clicked_double_02.png" id="tex_15"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/idle_clicked_double/idle_clicked_double_03.png" id="tex_16"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/working_clicked_single/working_clicked_single_01.png" id="tex_17"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/working_clicked_single/working_clicked_single_02.png" id="tex_18"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/working_clicked_single/working_clicked_single_03.png" id="tex_19"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/working_clicked_double/working_clicked_double_01.png" id="tex_20"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/working_clicked_double/working_clicked_double_02.png" id="tex_21"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/working_clicked_double/working_clicked_double_03.png" id="tex_22"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/resting_clicked_single/resting_clicked_single_01.png" id="tex_23"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/resting_clicked_single/resting_clicked_single_02.png" id="tex_24"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/resting_clicked_single/resting_clicked_single_03.png" id="tex_25"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/resting_clicked_double/resting_clicked_double_01.png" id="tex_26"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/resting_clicked_double/resting_clicked_double_02.png" id="tex_27"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/resting_clicked_double/resting_clicked_double_03.png" id="tex_28"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/clicked_hold/clicked_hold_01.png" id="tex_29"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/clicked_hold/clicked_hold_02.png" id="tex_30"]
+
+[resource]
+animations = [
+{
+"frames": [
+{
+"duration": 1.0,
+"texture": ExtResource("tex_01")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_02")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_03")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_04")
+}
+],
+"loop": 1,
+"name": &"idle",
+"speed": 2.0
+},
+{
+"frames": [
+{
+"duration": 1.0,
+"texture": ExtResource("tex_05")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_06")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_07")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_08")
+}
+],
+"loop": 1,
+"name": &"working",
+"speed": 5.0
+},
+{
+"frames": [
+{
+"duration": 1.0,
+"texture": ExtResource("tex_09")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_10")
+}
+],
+"loop": 1,
+"name": &"resting",
+"speed": 0.67
+},
+{
+"frames": [
+{
+"duration": 1.0,
+"texture": ExtResource("tex_11")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_12")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_13")
+}
+],
+"loop": 0,
+"name": &"idle_clicked_single",
+"speed": 5.0
+},
+{
+"frames": [
+{
+"duration": 1.0,
+"texture": ExtResource("tex_14")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_15")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_16")
+}
+],
+"loop": 0,
+"name": &"idle_clicked_double",
+"speed": 3.75
+},
+{
+"frames": [
+{
+"duration": 1.0,
+"texture": ExtResource("tex_17")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_18")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_19")
+}
+],
+"loop": 0,
+"name": &"working_clicked_single",
+"speed": 5.0
+},
+{
+"frames": [
+{
+"duration": 1.0,
+"texture": ExtResource("tex_20")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_21")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_22")
+}
+],
+"loop": 0,
+"name": &"working_clicked_double",
+"speed": 3.75
+},
+{
+"frames": [
+{
+"duration": 1.0,
+"texture": ExtResource("tex_23")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_24")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_25")
+}
+],
+"loop": 0,
+"name": &"resting_clicked_single",
+"speed": 5.0
+},
+{
+"frames": [
+{
+"duration": 1.0,
+"texture": ExtResource("tex_26")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_27")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_28")
+}
+],
+"loop": 0,
+"name": &"resting_clicked_double",
+"speed": 3.75
+},
+{
+"frames": [
+{
+"duration": 1.0,
+"texture": ExtResource("tex_29")
+},
+{
+"duration": 1.0,
+"texture": ExtResource("tex_30")
+}
+],
+"loop": 1,
+"name": &"clicked_hold",
+"speed": 1.0
+}
+]

@@ -2,9 +2,9 @@
 
 > 本文档作为整个项目的总体进度跟踪，按版本和模块组织 Vibe Coding 最小可执行任务。每个模块对应一组 checklist，完成时勾选。完整实施细节参见 `implementation-plan.md`，需求细节参见 `LetsMakeMoneyPRD.md`。
 
-**最后更新**: 2026-06-27
-**当前阶段**: v0.2 Beta 需求与实施计划完成，待进入开发
-**当前里程碑**: V02-M1 Debug/桌宠模式拆分待启动
+**最后更新**: 2026-07-01
+**当前阶段**: v0.2 Beta 稳定候选整理中
+**当前里程碑**: V02-DOC 文档与用户可见文案整理；下一步为 v0.2 最终手动复测与 GitHub 提交
 
 ---
 
@@ -13,7 +13,7 @@
 | 版本 | 阶段 | 平台 | 状态 |
 |------|------|------|------|
 | v0.1 | Beta | Windows | ✅ Beta 调试窗口版已打包归档 |
-| v0.2 | Beta | Windows | 📝 PRD 与实施计划完成，待开发 |
+| v0.2 | Beta | Windows | 🧪 稳定候选；核心交互/设置/自启/素材/验证已完成，真实托盘与透明穿透暂缓 |
 | v1.0 | 正式版 | Windows | 🗓 未开始 |
 | v2.0 | 跨平台 | + macOS | 🗓 未开始 |
 | v3.0 | 移动端 | + iOS/Android | 🗓 未开始 |
@@ -269,141 +269,165 @@
 
 | 里程碑 | 模块 | 状态 | 完成度 |
 |--------|------|------|--------|
-| **V02-M1** | Config 兼容与新增字段 | 🗓 未开始 | 0/4 |
-| **V02-M1** | Debug/桌宠运行模式拆分 | 🗓 未开始 | 0/5 |
-| **V02-M2** | 紧凑桌宠窗口与交互区域 | 🗓 未开始 | 0/4 |
-| **V02-M2** | 透明空白区域点击穿透 | 🗓 未开始 | 0/4 |
-| **V02-M2** | 拖拽/双击/长按手感回归 | 🗓 未开始 | 0/4 |
-| **V02-M3** | Platform 托盘接口与 Windows 实现 | 🗓 未开始 | 0/5 |
-| **V02-M3** | 托盘菜单与窗口显隐 | 🗓 未开始 | 0/5 |
-| **V02-M3** | 关闭按钮隐藏到托盘 | 🗓 未开始 | 0/3 |
-| **V02-M4** | Platform 开机自启接口与 Windows 实现 | 🗓 未开始 | 0/4 |
-| **V02-M4** | 设置对话框通用项升级 | 🗓 未开始 | 0/5 |
-| **V02-M4** | 重置位置与恢复默认设置 | 🗓 未开始 | 0/4 |
-| **V02-M5** | v0.2 自动验证脚本 | 🗓 未开始 | 0/4 |
-| **V02-M5** | v0.2 手动验证文档 | 🗓 未开始 | 0/3 |
-| **V02-M5** | v0.2 Windows 打包与冒烟测试 | 🗓 未开始 | 0/3 |
-| **V02-S1** | 素材 Spike | 🗓 未开始（非阻塞） | 0/4 |
+| **V02-M1** | Config 兼容与新增字段 | ✅ 完成 | 4/4 |
+| **V02-M1** | Debug/桌宠运行模式拆分 | ✅ 完成 | 5/5 |
+| **V02-M2** | 紧凑桌宠窗口与交互区域 | ✅ 完成 | 4/4 |
+| **V02-M2** | 透明空白区域点击穿透 | ⏸ 暂缓 | 1/4 |
+| **V02-M2** | 拖拽/双击/长按手感回归 | ✅ 完成 | 4/4 |
+| **V02-M3** | Platform 托盘接口与 Windows 实现 | ⏸ 接口完成，真实托盘暂缓 | 3/5 |
+| **V02-M3** | 托盘菜单与窗口显隐 | ✅ 降级路径完成 | 5/5 |
+| **V02-M3** | 关闭按钮隐藏到托盘 | ⏸ 暂缓 | 1/3 |
+| **V02-M4** | Platform 开机自启接口与 Windows 实现 | ✅ 完成 | 4/4 |
+| **V02-M4** | 设置对话框通用项升级 | ✅ 完成 | 5/5 |
+| **V02-M4** | 重置位置与恢复默认设置 | ✅ 完成 | 4/4 |
+| **V02-M5** | v0.2 自动验证脚本 | ✅ 完成 | 4/4 |
+| **V02-M5** | v0.2 手动验证文档 | ✅ 完成 | 3/3 |
+| **V02-M5** | v0.2 Windows 打包与冒烟测试 | ✅ 完成 | 3/3 |
+| **V02-S1** | 素材 Spike | ✅ 完成当前接入 | 4/4 |
+| **V02-DOC** | 文档与用户可见文案整理 | 🔄 进行中 | 5/6 |
 
-**v0.2 总进度**: 0/61 任务完成（0%），PRD 与 implementation plan 已完成，代码开发尚未开始
+**v0.2 总进度**: 54/61 原计划任务完成或稳定降级（约 89%）。核心可用性、设置、自启、素材接入、验证和导出链路已完成；真实系统托盘、透明无边框窗口、空白点击穿透因 Godot 4.7 Windows 原生访问违例暂缓到 v0.3 技术预研。
 
 ### v0.2 V02-M1. Debug/桌宠模式拆分
 
 #### 模块 V02-M1.1: Config 兼容与新增字段
 
-- [ ] V02-M1.1.1 在 `src/autoload/config.gd` 默认值中新增 `debug_mode=false`
-- [ ] V02-M1.1.2 在默认值中新增 `auto_start=false` 与 `minimize_to_tray=true`
-- [ ] V02-M1.1.3 实现配置 defaults 深合并，兼容旧 `config.json` 缺字段场景
-- [ ] V02-M1.1.4 增加自动验证：缺少 v0.2 字段时读取默认值，保存后补齐字段
+- [x] V02-M1.1.1 在 `src/autoload/config.gd` 默认值中新增 `debug_mode=false`
+- [x] V02-M1.1.2 在默认值中新增 `auto_start=false` 与 `minimize_to_tray=true`
+- [x] V02-M1.1.3 实现配置 defaults 深合并，兼容旧 `config.json` 缺字段场景
+- [x] V02-M1.1.4 增加自动验证：缺少 v0.2 字段时读取默认值，保存后补齐字段
 
 #### 模块 V02-M1.2: Debug/桌宠运行模式拆分
 
-- [ ] V02-M1.2.1 扩展 `PlatformInterface.setup_window(window, debug_mode)` 并更新 `Platform` 转发
-- [ ] V02-M1.2.2 在 `WindowsPlatform.setup_window()` 中实现 Debug 模式窗口属性（普通 900×500、不透明、不置顶）
-- [ ] V02-M1.2.3 在 `WindowsPlatform.setup_window()` 中实现桌宠模式窗口属性（无边框、透明、置顶、紧凑尺寸）
-- [ ] V02-M1.2.4 在 `main.gd` 中读取 `debug_mode` 并控制 `DebugInputArea` / `DebugStatus` 可见性
-- [ ] V02-M1.2.5 验证默认桌宠模式、`debug_mode=true` Debug 模式、改回 `false` 后恢复桌宠模式
+- [x] V02-M1.2.1 扩展 `PlatformInterface.setup_window(window, debug_mode)` 并更新 `Platform` 转发
+- [x] V02-M1.2.2 在 `WindowsPlatform.setup_window()` 中实现 Debug 模式窗口属性（普通 900×500、不透明、不置顶）
+- [x] V02-M1.2.3 在 `WindowsPlatform.setup_window()` 中实现桌宠模式窗口属性（当前稳定候选为紧凑普通窗口；透明无边框通过安全开关暂缓）
+- [x] V02-M1.2.4 在 `main.gd` 中读取 `debug_mode` 并控制 `DebugInputArea` / `DebugStatus` 可见性
+- [x] V02-M1.2.5 验证默认桌宠模式、`debug_mode=true` Debug 模式、改回 `false` 后恢复桌宠模式
 
 ### v0.2 V02-M2. 透明窗口与输入穿透
 
 #### 模块 V02-M2.1: 紧凑桌宠窗口与交互区域
 
-- [ ] V02-M2.1.1 在 `main.gd` 定义 Debug / Pet 两套窗口尺寸常量
-- [ ] V02-M2.1.2 调整桌宠模式 Pet 与 Panel 布局，使窗口不再使用 900×500 调试尺寸
-- [ ] V02-M2.1.3 校准 `pet.tscn` 中 Area2D / CollisionShape2D，使小猫可见区域稳定命中
-- [ ] V02-M2.1.4 验证桌宠模式只显示小猫和 Panel，Panel 悬停展开/收起仍可用
+- [x] V02-M2.1.1 在 `main.gd` 定义 Debug / Pet 两套窗口尺寸常量
+- [x] V02-M2.1.2 调整桌宠模式 Pet 与 Panel 布局，使窗口不再使用 900×500 调试尺寸
+- [x] V02-M2.1.3 校准 `pet.tscn` 中 Area2D / CollisionShape2D，使小猫可见区域稳定命中
+- [x] V02-M2.1.4 验证桌宠模式只显示小猫和 Panel，Panel 悬停展开/收起仍可用
 
 #### 模块 V02-M2.2: 透明空白区域点击穿透
 
-- [ ] V02-M2.2.1 在 `PlatformInterface` / `Platform` 增加 `set_mouse_passthrough(window, enabled, interactive_rects)` 接口
-- [ ] V02-M2.2.2 在 `WindowsPlatform` 中实现或降级鼠标穿透能力，返回明确成功/失败
-- [ ] V02-M2.2.3 在 `main.gd` 中根据 Pet / Panel 区域计算 interactive rects 并应用穿透
-- [ ] V02-M2.2.4 验证桌宠模式空白区域尽量穿透，Debug 模式禁用穿透且可稳定点击
+- [x] V02-M2.2.1 在 `PlatformInterface` / `Platform` 增加 `set_mouse_passthrough(window, enabled, interactive_rects)` 接口
+- [ ] V02-M2.2.2 在 `WindowsPlatform` 中实现或降级鼠标穿透能力，返回明确成功/失败（当前默认关闭，v0.3 继续）
+- [ ] V02-M2.2.3 在 `main.gd` 中根据 Pet / Panel 区域计算 interactive rects 并应用穿透（当前默认关闭，v0.3 继续）
+- [ ] V02-M2.2.4 验证桌宠模式空白区域尽量穿透，Debug 模式禁用穿透且可稳定点击（当前暂缓）
 
 #### 模块 V02-M2.3: 拖拽/双击/长按手感回归
 
-- [ ] V02-M2.3.1 将拖拽逻辑统一为屏幕绝对鼠标位移，避免窗口移动速度异常
-- [ ] V02-M2.3.2 明确点击与拖拽互斥：超过拖拽阈值后不触发单击/双击
-- [ ] V02-M2.3.3 保持 0.3s 左右双击识别窗口，第二次点击后立即触发双击反馈
-- [ ] V02-M2.3.4 手动验证单击、双击、长按、拖拽保存位置均可用
+- [x] V02-M2.3.1 将拖拽逻辑统一为屏幕绝对鼠标位移，避免窗口移动速度异常
+- [x] V02-M2.3.2 明确点击与拖拽互斥：超过拖拽阈值后不触发单击/双击
+- [x] V02-M2.3.3 保持 0.3s 左右双击识别窗口，第二次点击后立即触发双击反馈
+- [x] V02-M2.3.4 手动验证单击、双击、长按、拖拽保存位置均可用
 
 ### v0.2 V02-M3. 系统托盘正式集成
 
 #### 模块 V02-M3.1: Platform 托盘接口与 Windows 实现
 
-- [ ] V02-M3.1.1 在 `PlatformInterface` / `Platform` 增加 `is_tray_supported()`、`setup_tray()`、`update_tray_menu()`、`shutdown_tray()`
-- [ ] V02-M3.1.2 在 `Platform` 暴露 `tray_toggle_requested`、`tray_settings_requested`、`tray_about_requested`、`tray_exit_requested` 信号
-- [ ] V02-M3.1.3 调研并确定 Godot 原生 API / GDExtension / 插件 / 轻量桥接中的托盘实现方案
-- [ ] V02-M3.1.4 在 `WindowsPlatform` 中实现真实系统托盘图标和托盘事件映射
-- [ ] V02-M3.1.5 验证托盘图标出现在 Windows 托盘区，初始化失败时应用仍可使用
+- [x] V02-M3.1.1 在 `PlatformInterface` / `Platform` 增加 `is_tray_supported()`、`setup_tray()`、`update_tray_menu()`、`shutdown_tray()`
+- [x] V02-M3.1.2 在 `Platform` 暴露 `tray_toggle_requested`、`tray_settings_requested`、`tray_about_requested`、`tray_exit_requested` 信号
+- [x] V02-M3.1.3 调研并确定 Godot 原生 API / GDExtension / 插件 / 轻量桥接中的托盘实现方案（Godot `StatusIndicator` 路线已验证存在风险，转入 v0.3 替代方案）
+- [ ] V02-M3.1.4 在 `WindowsPlatform` 中实现真实系统托盘图标和托盘事件映射（暂缓）
+- [ ] V02-M3.1.5 验证托盘图标出现在 Windows 托盘区，初始化失败时应用仍可使用（暂缓）
 
 #### 模块 V02-M3.2: 托盘菜单与窗口显隐
 
-- [ ] V02-M3.2.1 实现托盘菜单：显示/隐藏、设置、关于 LetsMakeMoney、退出
-- [ ] V02-M3.2.2 在 `DragResizeSystem` 中新增 `set_window_visible()` 与 `toggle_window_visible()`
-- [ ] V02-M3.2.3 托盘显示/隐藏菜单项能恢复窗口到上次位置，并同步菜单文案
-- [ ] V02-M3.2.4 托盘设置/关于入口复用现有设置窗口和关于窗口逻辑
-- [ ] V02-M3.2.5 统一 `quit_app()`：保存位置、保存配置、关闭托盘资源、结束进程
+- [x] V02-M3.2.1 实现托盘菜单：显示/隐藏、设置、关于 LetsMakeMoney、退出（接口与降级菜单路径完成）
+- [x] V02-M3.2.2 在 `DragResizeSystem` 中新增 `set_window_visible()` 与 `toggle_window_visible()`
+- [x] V02-M3.2.3 托盘显示/隐藏菜单项能恢复窗口到上次位置，并同步菜单文案（真实托盘暂缓，降级路径保留）
+- [x] V02-M3.2.4 托盘设置/关于入口复用现有设置窗口和关于窗口逻辑
+- [x] V02-M3.2.5 统一 `quit_app()`：保存位置、保存配置、关闭托盘资源、结束进程
 
 #### 模块 V02-M3.3: 关闭按钮隐藏到托盘
 
-- [ ] V02-M3.3.1 在 `main.gd` 监听窗口 close/request 事件
-- [ ] V02-M3.3.2 当 `minimize_to_tray=true` 且托盘可用时，关闭按钮隐藏窗口而不退出进程
-- [ ] V02-M3.3.3 当 `minimize_to_tray=false` 或托盘不可用时，关闭按钮保存配置并退出或保留可找回入口
+- [x] V02-M3.3.1 在 `main.gd` 监听窗口 close/request 事件
+- [ ] V02-M3.3.2 当 `minimize_to_tray=true` 且托盘可用时，关闭按钮隐藏窗口而不退出进程（真实托盘暂缓）
+- [ ] V02-M3.3.3 当 `minimize_to_tray=false` 或托盘不可用时，关闭按钮保存配置并退出或保留可找回入口（待最终手动复测确认）
 
 ### v0.2 V02-M4. 开机自启与设置打磨
 
 #### 模块 V02-M4.1: Platform 开机自启接口与 Windows 实现
 
-- [ ] V02-M4.1.1 在 `PlatformInterface` / `Platform` 增加 `get_executable_path()`、`is_auto_start_enabled()`、`set_auto_start()`
-- [ ] V02-M4.1.2 在 `WindowsPlatform` 中实现 HKCU 当前用户自启动写入/查询/移除，键名固定为 `LetsMakeMoney`
-- [ ] V02-M4.1.3 编辑器运行或 exe 路径非 `LetsMakeMoney.exe` 时返回失败并给出可理解提示
-- [ ] V02-M4.1.4 手动验证导出 exe 开启/关闭自启动能正确写入/移除注册表项
+- [x] V02-M4.1.1 在 `PlatformInterface` / `Platform` 增加 `get_executable_path()`、`is_auto_start_enabled()`、`set_auto_start()`
+- [x] V02-M4.1.2 在 `WindowsPlatform` 中实现 HKCU 当前用户自启动写入/查询/移除，键名固定为 `LetsMakeMoney`
+- [x] V02-M4.1.3 编辑器运行或 exe 路径非 `LetsMakeMoney.exe` 时返回失败并给出可理解提示
+- [x] V02-M4.1.4 手动验证导出 exe 开启/关闭自启动能正确写入/移除注册表项
 
 #### 模块 V02-M4.2: 设置对话框通用项升级
 
-- [ ] V02-M4.2.1 将 v0.1 禁用的“开机自启”控件改为可用 CheckButton
-- [ ] V02-M4.2.2 新增“关闭时隐藏到托盘”开关，默认读取 `minimize_to_tray=true`
-- [ ] V02-M4.2.3 新增“重置窗口位置”按钮与“恢复默认设置”按钮
-- [ ] V02-M4.2.4 打开设置时以系统状态加载开机自启开关，保存失败时不显示假成功
-- [ ] V02-M4.2.5 保存设置后即时应用缩放、透明度、窗口模式、自启动和托盘关闭行为
+- [x] V02-M4.2.1 将 v0.1 禁用的“开机自启”控件改为可用 CheckButton
+- [x] V02-M4.2.2 新增“关闭时隐藏到托盘”开关，默认读取 `minimize_to_tray=true`
+- [x] V02-M4.2.3 新增“重置窗口位置”按钮与“恢复默认设置”按钮
+- [x] V02-M4.2.4 打开设置时以系统状态加载开机自启开关，保存失败时不显示假成功
+- [x] V02-M4.2.5 保存设置后即时应用缩放、透明度、窗口模式、自启动和托盘关闭行为
 
 #### 模块 V02-M4.3: 重置位置与恢复默认设置
 
-- [ ] V02-M4.3.1 在 `DragResizeSystem` 实现 `reset_window_position()`，移动到当前主屏右下角并保存
-- [ ] V02-M4.3.2 在 `Config` 实现 `reset_display_defaults()`，恢复显示/窗口/托盘/自启动配置
-- [ ] V02-M4.3.3 恢复默认设置前弹出二次确认，且不清空薪资、休息模式、上下班时间和角色选择
-- [ ] V02-M4.3.4 验证恢复默认会同步关闭开机自启并移除系统自启动配置
+- [x] V02-M4.3.1 在 `DragResizeSystem` 实现 `reset_window_position()`，移动到当前主屏右下角并保存
+- [x] V02-M4.3.2 在 `Config` 实现 `reset_display_defaults()`，恢复显示/窗口/托盘/自启动配置
+- [x] V02-M4.3.3 恢复默认设置前弹出二次确认，且不清空薪资、休息模式、上下班时间和角色选择
+- [x] V02-M4.3.4 验证恢复默认会同步关闭开机自启并移除系统自启动配置
 
 ### v0.2 V02-M5. 验证与打包
 
 #### 模块 V02-M5.1: v0.2 自动验证脚本
 
-- [ ] V02-M5.1.1 新增 `scripts/verify_v02.ps1`，默认使用 Godot 4.7 exe 路径并执行 headless 验证
-- [ ] V02-M5.1.2 新增 `scripts/verify_v02.gd`，验证 Config 默认字段与旧配置兼容
-- [ ] V02-M5.1.3 自动验证 Main 场景关键节点、Debug UI 默认隐藏、`debug_mode=true` 可见
-- [ ] V02-M5.1.4 自动验证 SettingsDialog 控件和 Platform 托盘/自启动/穿透接口存在
+- [x] V02-M5.1.1 新增 `scripts/verify_v02.ps1`，默认使用 Godot 4.7 exe 路径并执行 headless 验证
+- [x] V02-M5.1.2 新增 `scripts/verify_v02.gd`，验证 Config 默认字段与旧配置兼容
+- [x] V02-M5.1.3 自动验证 Main 场景关键节点、Debug UI 默认隐藏、`debug_mode=true` 可见
+- [x] V02-M5.1.4 自动验证 SettingsDialog 控件和 Platform 托盘/自启动/穿透接口存在
+- [x] V02-M5.1.5 自动验证设置保存不会在自启动状态未变化时重复调用注册表删除
+- [x] V02-M5.1.6 自动验证核心用户可见文案不含常见乱码标记
 
 #### 模块 V02-M5.2: v0.2 手动验证文档
 
-- [ ] V02-M5.2.1 新增 `doc/v0.2-manual-verification.md`，覆盖桌宠模式、Debug 模式和交互验证
-- [ ] V02-M5.2.2 文档覆盖托盘菜单、关闭隐藏到托盘、退出流程和开机自启注册表验证
-- [ ] V02-M5.2.3 文档包含测试后清理步骤：移除自启动、关闭进程、按需删除配置
+- [x] V02-M5.2.1 新增 `doc/v0.2-manual-verification.md`，覆盖桌宠模式、Debug 模式和交互验证
+- [x] V02-M5.2.2 文档覆盖托盘菜单、关闭隐藏到托盘、退出流程和开机自启注册表验证，并明确当前暂缓项
+- [x] V02-M5.2.3 文档包含测试后清理步骤：移除自启动、关闭进程、按需删除配置
+- [x] V02-M5.2.4 文档改为可填写表格样式，支持标注结果、备注和证据
 
 #### 模块 V02-M5.3: v0.2 Windows 打包与冒烟测试
 
-- [ ] V02-M5.3.1 使用 Godot 4.7 导出 `build/LetsMakeMoney.exe`
-- [ ] V02-M5.3.2 双击 exe 冒烟验证默认桌宠模式、右键菜单、托盘图标、关闭隐藏到托盘
-- [ ] V02-M5.3.3 验证设置中开机自启可写入/移除，`debug_mode=true` 可进入 Debug 模式
+- [x] V02-M5.3.1 使用 Godot 4.7 导出 `build/LetsMakeMoney.exe`
+- [x] V02-M5.3.2 双击 exe 冒烟验证默认桌宠模式、右键菜单、核心交互可用；托盘图标和关闭隐藏到托盘暂缓
+- [x] V02-M5.3.3 验证设置中开机自启可写入/移除，`debug_mode=true` 可进入 Debug 模式
+- [x] V02-M5.3.4 2026-07-01 重新导出 exe：`<PROJECT_ROOT>\build\LetsMakeMoney.exe`，时间 `2026/7/1 22:03:59`
 
 ### v0.2 V02-S1. 素材 Spike（非阻塞）
 
 #### 模块 V02-S1.1: SpriteCook/同类动画生成探索
 
-- [ ] V02-S1.1.1 新增 `doc/v0.2-asset-spike.md`，记录输入素材来源、路径、尺寸、目标风格
-- [ ] V02-S1.1.2 尝试生成 idle / working / resting 三类动作，必要时扩展 hover / clicked
-- [ ] V02-S1.1.3 按帧间一致性、透明背景、SpriteFrames 适配度、风格一致性评估输出
-- [ ] V02-S1.1.4 质量达标才记录接入方案；质量不达标则只记录结论，不阻塞 v0.2 Beta
+- [x] V02-S1.1.1 新增/更新素材相关文档，记录输入素材来源、路径、尺寸、目标风格
+- [x] V02-S1.1.2 接入 idle / working / resting，并扩展 clicked_single / clicked_double / clicked_hold
+- [x] V02-S1.1.3 按帧间一致性、透明背景、SpriteFrames 适配度、风格一致性评估输出
+- [x] V02-S1.1.4 质量达标后接入 `cat_orange_v1`，并新增自动验证脚本
+
+### v0.2 V02-DOC. 文档与用户可见文案整理
+
+#### 模块 V02-DOC.1: 核心文档实际状态更新
+
+- [x] V02-DOC.1.1 恢复并保留 PRD、Implementation Plan、Progress 的详细颗粒度，不再压缩为短版总结
+- [x] V02-DOC.1.2 在 PRD 中补充 v0.2 当前实际交付状态、稳定候选安全暂缓项和验收调整
+- [x] V02-DOC.1.3 在 Implementation Plan 中补充 2026-07-01 执行后状态覆盖层，保留后文详细任务计划
+- [x] V02-DOC.1.4 在 Progress 中将 v0.2 总览和各模块 checklist 更新为真实完成/暂缓状态
+- [x] V02-DOC.1.5 更新手动验证文档为可填写表格，包含结果、备注、证据列
+- [ ] V02-DOC.1.6 继续清理 implementation-plan 中历史段落可能残留的编码乱码，确保整篇在 Typora/GitHub 中均可读
+
+#### 模块 V02-DOC.2: 用户可见中文文案清理
+
+- [x] V02-DOC.2.1 清理设置窗口标题、标签、按钮、提示文案乱码
+- [x] V02-DOC.2.2 清理 Panel 金额、时薪、工作进度、状态文案乱码
+- [x] V02-DOC.2.3 清理右键菜单、关于弹窗、托盘菜单接口文案乱码
+- [x] V02-DOC.2.4 清理 SalaryEngine 状态文案乱码
+- [x] V02-DOC.2.5 在 v0.2 自动验证中增加用户可见文案乱码扫描
 
 ---
 
@@ -411,11 +435,12 @@
 
 | 资源 | 路径 | 负责模块 | 状态 |
 |------|------|---------|------|
-| v0.2 自动验证脚本 | `scripts/verify_v02.ps1` / `scripts/verify_v02.gd` | V02-M5.1 | 🗓 待创建 |
-| v0.2 手动验证文档 | `doc/v0.2-manual-verification.md` | V02-M5.2 | 🗓 待创建 |
-| v0.2 素材 Spike 记录 | `doc/v0.2-asset-spike.md` | V02-S1.1 | 🗓 待创建 |
-| Windows 托盘实现方案记录 | `doc/v0.2-manual-verification.md` 或实现注释 | V02-M3.1 | 🗓 待调研 |
-| 小猫动画探索输出 | `experiments/v0.2_cat_assets/` | V02-S1.1 | 🗓 非阻塞 |
+| v0.2 自动验证脚本 | `scripts/verify_v02.ps1` / `scripts/verify_v02.gd` | V02-M5.1 | ✅ 已创建并通过 |
+| v0.2 手动验证文档 | `doc/v0.2-manual-verification.md` | V02-M5.2 | ✅ 已创建并改为可填写表格 |
+| v0.2 素材 Spike 记录 | `doc/v0.2-asset-spike.md` 等素材文档 | V02-S1.1 | ✅ 已记录 |
+| Windows 托盘实现方案记录 | `doc/LetsMakeMoneyPRD.md` / `doc/implementation-plan.md` / 手动验证文档 | V02-M3.1 | ⏸ Godot `StatusIndicator` 路线暂缓，v0.3 继续 |
+| 小猫动画探索输出 | `assets/pets/cat_orange_v1/` | V02-S1.1 | ✅ 已接入当前版本 |
+| 用户可见文案乱码扫描 | `scripts/verify_v02.gd` | V02-DOC.2 | ✅ 已加入自动验证 |
 
 ---
 
@@ -429,6 +454,8 @@
 | 关闭隐藏到托盘导致用户找不到窗口 | 仅托盘可用时启用隐藏；托盘不可用时关闭按钮直接退出或保留任务栏入口 |
 | 自启动注册表残留旧路径 | 写入前查询，关闭时移除固定键名 `LetsMakeMoney`；手动验证文档提供清理命令 |
 | 素材生成质量不可控 | 作为非阻塞 Spike，失败只记录结论，不影响 v0.2 Beta 发布 |
+| Godot 4.7 原生托盘/透明窗口访问违例 | 默认关闭 `system_tray_enabled`、`transparent_pet_window_enabled`、`mouse_passthrough_enabled`；v0.3 调研替代实现 |
+| 文档历史段落编码不一致 | 优先保留详细内容，再分批清理乱码；不得用短版摘要替代详细计划 |
 
 ---
 
@@ -476,13 +503,26 @@
 - **2026-06-27**: 丰富 v0.2 Beta 实施计划颗粒度——补充目标文件结构、Platform/Config/Main/Settings/DragResizeSystem 接口骨架、托盘/自启动实现约束、验证脚本骨架和手动验证模板
 - **2026-06-27**: 根据 v0.2 PRD 与实施计划 review 更新 `doc/progress.md`，新增 v0.2 总体进度、模块级最小任务 checklist、资源准备清单、已知风险、待实现前验证项和开发启动顺序
 - **2026-06-27**: 根据当前代码实际状态回写 PRD、implementation-plan 和 progress，明确 v0.1 是调试窗口版 Beta；透明桌宠、真实系统托盘、关闭隐藏到托盘、开机自启和正式猫咪动画均未在 v0.1 落地，作为 v0.2 或后续任务继续推进
+- **2026-06-30**: 合并临时素材分支 `temp/cat-orange-v1-assets-20260630`，接入橘猫素材并补充素材验证脚本
+- **2026-06-30**: 调整宠物动画状态模型：idle / working / resting 作为基础状态，单击、双击、长按作为交互叠加状态
+- **2026-07-01**: 完成 v0.2 核心实现：Config v0.2 字段、Debug/普通模式切换、紧凑桌宠窗口、设置通用项、开机自启、重置位置、恢复默认设置、v0.2 自动验证和导出链路
+- **2026-07-01**: 发现 Godot 4.7 Windows 原生托盘、透明窗口和鼠标穿透能力存在访问违例风险，默认关闭 `system_tray_enabled`、`transparent_pet_window_enabled`、`mouse_passthrough_enabled`，转入 v0.3 技术预研
+- **2026-07-01**: 根据手动验证修复 `debug_mode=false` 后窗口未恢复紧凑模式的问题；设置弹窗关闭后延迟重应用运行模式
+- **2026-07-01**: 优化设置保存性能：自启动状态未变化时不再重复调用注册表删除，解决保存设置耗时过长的问题
+- **2026-07-01**: 清理设置、Panel、右键菜单、托盘菜单接口、关于弹窗和薪资状态的用户可见中文乱码，并在 `verify_v02.gd` 中加入乱码扫描
+- **2026-07-01**: 重新导出 `build\LetsMakeMoney.exe`，导出时间 `2026/7/1 22:03:59`，v0.2/M4/动画状态/橘猫素材自动验证均通过
+- **2026-07-01**: 文档整理方向修正：恢复 PRD、Implementation Plan、Progress 的详细颗粒度，在原详细计划上补充当前状态覆盖层，而不是压缩为短版摘要
 
 ## 下一步计划
 
-**v0.2 Beta 开发启动顺序**：
-1. 从 `V02-M1.1` 开始，实现 Config v0.2 字段与旧配置兼容
-2. 完成 `V02-M1.2`，拆出默认桌宠模式和 `debug_mode=true` Debug 模式
-3. 推进 `V02-M2`，先收紧窗口和回归输入手感，再尝试透明区域点击穿透
-4. 推进 `V02-M3`，调研并落地真实系统托盘，随后接入关闭隐藏到托盘
-5. 推进 `V02-M4`，实现开机自启、设置通用项、重置位置和恢复默认设置
-6. 完成 `V02-M5` 自动验证、手动验证文档和 v0.2 Beta exe 冒烟测试
+**v0.2 Beta 收尾顺序**：
+1. 继续清理 implementation-plan 历史段落中残留的编码乱码，但保留原详细任务颗粒度
+2. 用户按 `doc/v0.2-manual-verification.md` 对最新导出 exe 做最终手动复测
+3. 若复测无新问题，提交并推送 GitHub
+4. 为 v0.2 Beta 打 tag 或整理 release notes
+
+**v0.3 技术预研顺序**：
+1. 调研真实系统托盘替代方案：外部 helper、GDExtension、Win32 桥接或其他 Godot 插件
+2. 在隔离分支验证透明窗口和鼠标穿透，不直接影响 v0.2 稳定候选
+3. 恢复关闭隐藏到托盘验收
+4. 继续打磨橘猫正式动画素材

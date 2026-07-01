@@ -1,19 +1,16 @@
 # src/autoload/salary_engine.gd
 extends Node
 
-# 输入参数
 var monthly_salary: float = 0.0
 var rest_mode: String = "double"
 var work_hours_per_day: float = 8.0
 var work_start_time: String = "09:00"
 var work_end_time: String = "18:00"
 
-# 派生值
 var rate_per_second: float = 0.0
 var hourly_rate: float = 0.0
 var work_days_this_month: int = 0
 
-# 跨日/跨月检测
 var _last_year: int = 0
 var _last_month: int = 0
 var _last_day: int = 0
@@ -24,7 +21,6 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	# 每帧检查日期变化——任何一天进入都重算（跨月必然重算，同月也只是低开销计算）
 	var today := Time.get_datetime_dict_from_system()
 	var t_year: int = int(today.year)
 	var t_month: int = int(today.month)
@@ -67,7 +63,6 @@ func _calc_work_days(year: int, month: int, mode: String) -> int:
 		var date_str := "%04d-%02d-%02dT12:00:00" % [year, month, d]
 		var unix_time := Time.get_unix_time_from_datetime_string(date_str)
 		var dt := Time.get_date_dict_from_unix_time(int(unix_time))
-		# dt.weekday: 0=Sunday, 6=Saturday
 		var weekday: int = int(dt.weekday)
 		match mode:
 			"double":
@@ -77,7 +72,7 @@ func _calc_work_days(year: int, month: int, mode: String) -> int:
 				if weekday != 0:
 					count += 1
 			_:
-				count += 1  # 未知模式按全工作日算（防御）
+				count += 1
 	return count
 
 
@@ -133,11 +128,9 @@ func get_earnings_today() -> float:
 	var end_seconds := end_min * 60
 
 	if now_seconds < start_seconds:
-		return 0.0  # 上班前
+		return 0.0
 	if now_seconds >= end_seconds:
-		var total := end_seconds - start_seconds
-		return float(total) * rate_per_second  # 下班后封顶
-	# 工作中
+		return float(end_seconds - start_seconds) * rate_per_second
 	var elapsed: int = now_seconds - start_seconds
 	return float(elapsed) * rate_per_second
 

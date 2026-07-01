@@ -14,28 +14,117 @@
 
 ## 0. 通用项目结构与架构约束
 
-### 0.0 实际开发状态基线（2026-06-27）
+### 0.0 实际开发状态基线（2026-07-01）
 
 本实施计划包含两类内容：
 
 - **v0.1 Beta**：历史实施计划 + 当前实际完成状态。v0.1 已打包，但真实形态是“普通调试窗口版产品雏形”，不是完整透明桌宠版。
-- **v0.2 Beta**：待执行实施计划。v0.2 尚未进入代码开发，所有 V02-M* 任务均未完成。
+- **v0.2 Beta**：实施中并进入稳定候选。V02-M1、V02-M2 核心交互、V02-M4 设置与开机自启、V02-M5 验证导出、V02-S1 橘猫素材接入已完成；V02-M3 真系统托盘与 V02-M2 透明穿透因 Godot 4.7 Windows 原生访问违例暂缓。
 
 当前代码事实：
 
 | 模块 | 当前状态 | 与早期预期不一致之处 |
 |------|----------|----------------------|
-| Config | 已实现默认值、配置读写、深合并、panel_items | 尚未包含 `debug_mode`、`auto_start`、`minimize_to_tray` |
-| WindowsPlatform | 已封装配置路径、窗口设置、置顶/嵌入降级 | 当前 `setup_window()` 固定普通 900×500 调试窗口：`borderless=false`、`transparent_bg=false`、`always_on_top=false` |
-| Main | 已整合 Pet、Panel、设置/向导、DebugInputArea、DebugStatus | 依赖可见 DebugInputArea 兜底交互；默认透明桌宠模式未实现 |
-| Pet / Drag | 已支持单击、双击、长按、拖拽、右键菜单 | v0.1 最可靠输入路径在 debug 区域；真实透明窗口角色区域命中仍待 v0.2 |
-| Panel | 已支持折叠/展开、配置项隐藏、金额居中优化 | 已按手动验证反馈修正；仍在调试窗口布局中运行 |
-| Settings | 已支持薪资、休息模式、时间、缩放、透明度、窗口模式、Panel 项 | 休息模式/窗口模式实际为 CheckButton；开机自启仍禁用 |
+| Config | 已实现默认值、配置读写、深合并、panel_items、v0.2 新字段、显示默认恢复 | `system_tray_enabled`、`transparent_pet_window_enabled`、`mouse_passthrough_enabled` 默认关闭，用于隔离原生崩溃风险 |
+| WindowsPlatform | 已封装配置路径、窗口设置、置顶/嵌入降级、鼠标穿透接口、自启动注册表接口 | 透明窗口和穿透接口保留但默认不启用；真系统托盘路线暂缓 |
+| Main | 已整合 Pet、Panel、设置/向导、DebugInputArea、DebugStatus、运行模式重应用 | `debug_mode=true/false` 可切换；设置弹窗关闭后延迟重应用窗口尺寸，避免被弹窗最小尺寸卡住 |
+| Pet / Drag | 已支持单击、双击、长按、拖拽、右键菜单、窗口显隐辅助、重置位置 | 拖拽已改用屏幕绝对位移；长按作为交互叠加状态，不再替代基础状态 |
+| Panel | 已支持折叠/展开、配置项隐藏、金额居中、边缘定位、中文文案清理 | 折叠态金额垂直居中；金额和小时文案使用正常中文与 `¥` |
+| Settings | 已支持薪资、休息模式、时间、缩放、透明度、窗口模式、Panel 项、Debug、自启、关闭隐藏到托盘、重置位置、恢复默认 | 保存时比较自启期望/实际状态，避免未修改自启时重复调用注册表导致卡顿 |
 | Wizard | 已支持首次启动和重新运行向导 | 已延后一帧弹出，避免主窗口未稳定时弹窗 |
-| Tray | 仅有 PopupMenu 降级方法 `show_tray_menu()` | 真系统托盘未实现，v0.2 必做 |
-| Build | 已有 export preset、app icon、`verify_m5.ps1`，exe 已导出冒烟验证 | `build/LetsMakeMoney.exe` 不入库 |
+| Tray | 接口和菜单文案已保留，真实系统托盘默认关闭 | Godot `StatusIndicator` 存在访问违例风险，转入 v0.3 替代方案调研 |
+| Build | 已有 export preset、app icon、`verify_v02.ps1/gd`，exe 已重新导出 | `build/LetsMakeMoney.exe` 不入库；当前导出时间见 progress |
 
-执行 v0.2 前必须接受以上基线：不要按 v0.1 原计划假设已经存在真实托盘、透明桌宠、开机自启或 `debug_mode` 配置。
+继续执行 v0.2 或进入 v0.3 前必须接受以上基线：当前稳定候选优先保证导出 exe 不崩溃，真系统托盘、透明无边框和空白点击穿透不再作为 v0.2 硬阻塞。
+
+### 0.0.1 v0.2 当前实施状态补充（2026-07-01）
+
+> 本节是 2026-07-01 的执行后状态覆盖层。后文 v0.1 与 v0.2 的详细任务计划仍保留，用于追溯原始设计和最小任务拆分；若后文个别旧任务仍写“待实现”或“必须完成”，以本节和 `doc/progress.md` 的当前状态为准。
+
+| 里程碑 | 原始目标 | 当前状态 | 结果说明 |
+|--------|----------|----------|----------|
+| V02-M1 | Config 兼容、`debug_mode`、桌宠/Debug 模式拆分 | 已完成 | 新增 v0.2 配置字段；旧配置可合并默认值；普通模式为紧凑桌宠窗口，Debug 模式为 900×500 调试窗口 |
+| V02-M2 | 透明窗口、输入穿透、角色区域交互 | 部分完成 | 小猫交互、拖拽、双击、长按、橘猫展示已完成；透明无边框和点击穿透因原生崩溃暂缓 |
+| V02-M3 | 系统托盘、托盘菜单、关闭隐藏到托盘 | 接口完成，真实托盘暂缓 | `Platform` 信号、托盘菜单文案、窗口显隐辅助保留；Godot `StatusIndicator` 路线不稳定 |
+| V02-M4 | 开机自启、设置通用项、重置位置、恢复默认 | 已完成 | 注册表自启动、设置项、保存性能优化、中文文案清理已完成 |
+| V02-M5 | 自动验证、手动验证、导出 exe | 已完成当前轮 | `verify_v02.ps1/gd`、手动验证文档、导出 exe 均可用 |
+| V02-S1 | 素材 Spike | 已完成当前接入 | 橘猫素材已合并接入；动画状态模型改为基础状态 + 交互叠加状态 |
+| V02-DOC | 文档与用户可见文案整理 | 进行中 | 目标是保留详细颗粒度，更新实际状态，清理用户可见乱码；不是缩写文档 |
+
+#### V02-M1 当前完成清单
+
+- [x] `Config` 默认值新增 `debug_mode=false`。
+- [x] `Config` 默认值新增 `auto_start=false`。
+- [x] `Config` 默认值新增 `minimize_to_tray=true`。
+- [x] `Config` 默认值新增 `system_tray_enabled=false`，用于关闭不稳定的真实托盘路径。
+- [x] `Config` 默认值新增 `transparent_pet_window_enabled=false`，用于关闭不稳定透明窗口路径。
+- [x] `Config` 默认值新增 `mouse_passthrough_enabled=false`，用于关闭不稳定点击穿透路径。
+- [x] 旧配置缺字段时按默认值运行。
+- [x] 主场景根据 `debug_mode` 切换普通桌宠窗口和 Debug 窗口。
+- [x] 修复从 `debug_mode=true` 改回 `false` 后仍保持大窗口的问题。
+
+#### V02-M2 当前完成清单
+
+- [x] 紧凑桌宠窗口尺寸调整为能容纳橘猫和展开 Panel。
+- [x] 小猫 hover 可用。
+- [x] 小猫单击可用。
+- [x] 小猫双击可用。
+- [x] 小猫长按可用，松开后恢复基础状态。
+- [x] 拖拽使用屏幕绝对鼠标位移，不再出现窗口移动速度远大于鼠标的问题。
+- [x] 拖拽后保存窗口位置，重启恢复。
+- [x] 橘猫素材在窗口内完整展示。
+- [x] Panel 折叠态金额垂直居中。
+- [x] Panel 金额不再出现两个人民币符号。
+- [x] Panel 用户可见文案无乱码。
+- [ ] 透明无边框窗口默认启用：暂缓到 v0.3。
+- [ ] 空白区域点击穿透默认启用：暂缓到 v0.3。
+
+#### V02-M3 当前完成清单
+
+- [x] `PlatformInterface` / `Platform` 保留托盘相关接口。
+- [x] `Platform` 保留 `tray_toggle_requested`、`tray_settings_requested`、`tray_about_requested`、`tray_exit_requested` 信号。
+- [x] `DragResizeSystem` 提供窗口显示/隐藏辅助。
+- [x] 右键菜单与托盘菜单文案已清理为正常中文。
+- [x] 角色右键菜单退出路径保存配置并退出。
+- [ ] 真系统托盘图标：暂缓到 v0.3。
+- [ ] 关闭按钮隐藏到托盘：真实托盘恢复前暂缓。
+
+#### V02-M4 当前完成清单
+
+- [x] `PlatformInterface` / `WindowsPlatform` 增加 `get_executable_path()`、`is_auto_start_enabled()`、`set_auto_start()`。
+- [x] Windows 自启动使用 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`，键名 `LetsMakeMoney`。
+- [x] 自启动开启时写入导出 exe 路径。
+- [x] 自启动关闭时删除注册表项。
+- [x] 缺少注册表项时关闭自启动视为成功。
+- [x] 设置页新增 `Debug 模式`。
+- [x] 设置页新增 `开机自启`。
+- [x] 设置页新增 `关闭时隐藏到托盘`。
+- [x] 设置页新增 `重置窗口位置`。
+- [x] 设置页新增 `恢复默认显示设置`。
+- [x] 缩放和透明度显示当前百分比。
+- [x] 保存设置时仅在自启动状态变化时调用平台注册表操作，避免无意义卡顿。
+- [x] 设置页用户可见中文文案已清理。
+
+#### V02-M5 当前完成清单
+
+- [x] 新增 `scripts/verify_v02.ps1`。
+- [x] 新增 `scripts/verify_v02.gd`。
+- [x] 自动验证覆盖 v0.2 配置默认值和旧配置兼容。
+- [x] 自动验证覆盖主场景关键节点和窗口尺寸常量。
+- [x] 自动验证覆盖平台接口。
+- [x] 自动验证覆盖设置保存自启动性能模型。
+- [x] 自动验证覆盖用户可见中文乱码扫描。
+- [x] 新增并更新 `doc/v0.2-manual-verification.md`。
+- [x] 重新导出 `build\LetsMakeMoney.exe`。
+
+#### V02-S1 当前完成清单
+
+- [x] 合并临时素材分支中的橘猫素材。
+- [x] 接入 `cat_orange_v1` 资源。
+- [x] 调整动画状态模型：基础状态为 idle / working / resting。
+- [x] 单击、双击、长按作为基础状态上的交互叠加表现。
+- [x] 新增橘猫素材验证脚本。
+- [ ] 更自然的正式动画帧继续作为后续打磨项。
 
 ### 0.1 项目文件结构
 

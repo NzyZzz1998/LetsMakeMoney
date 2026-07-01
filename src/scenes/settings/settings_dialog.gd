@@ -14,6 +14,12 @@ var scale_value_label: Label
 var opacity_slider: HSlider
 var opacity_value_label: Label
 var window_mode_toggle: CheckButton
+var debug_mode_toggle: CheckButton
+var auto_start_toggle: CheckButton
+var minimize_to_tray_toggle: CheckButton
+var reset_position_button: Button
+var restore_defaults_button: Button
+var general_message_label: Label
 var show_today: CheckBox
 var show_month: CheckBox
 var show_rate: CheckBox
@@ -46,7 +52,7 @@ func _build_ui() -> void:
 func _build_salary_tab() -> Control:
 	var root := _new_tab("Salary")
 	var box := _new_vbox(root)
-	_add_label(box, "月薪 (元)")
+	_add_label(box, "月薪（元）")
 	salary_input = _add_spin(box, 0, 999999, 1)
 	_add_label(box, "休息模式")
 	rest_mode_toggle = CheckButton.new()
@@ -74,7 +80,7 @@ func _build_pet_tab() -> Control:
 	pet_list = ItemList.new()
 	pet_list.custom_minimum_size = Vector2(0, 140)
 	box.add_child(pet_list)
-	_add_label(box, "缩放 (50%-200%)")
+	_add_label(box, "缩放（50%-200%）")
 	var scale_row := _add_slider_row(box, 50, 200, 1)
 	scale_slider = scale_row[0]
 	scale_value_label = scale_row[1]
@@ -84,7 +90,7 @@ func _build_pet_tab() -> Control:
 func _build_display_tab() -> Control:
 	var root := _new_tab("Display")
 	var box := _new_vbox(root)
-	_add_label(box, "透明度 (20%-100%)")
+	_add_label(box, "透明度（20%-100%）")
 	var opacity_row := _add_slider_row(box, 20, 100, 1)
 	opacity_slider = opacity_row[0]
 	opacity_value_label = opacity_row[1]
@@ -109,9 +115,27 @@ func _build_panel_tab() -> Control:
 func _build_general_tab() -> Control:
 	var root := _new_tab("General")
 	var box := _new_vbox(root)
-	_add_label(box, "开机自启 (v0.1 暂不支持)")
-	var auto_start := _add_checkbox(box, "启用")
-	auto_start.disabled = true
+	debug_mode_toggle = CheckButton.new()
+	debug_mode_toggle.text = "Debug 模式"
+	box.add_child(debug_mode_toggle)
+	auto_start_toggle = CheckButton.new()
+	auto_start_toggle.text = "开机自启"
+	box.add_child(auto_start_toggle)
+	minimize_to_tray_toggle = CheckButton.new()
+	minimize_to_tray_toggle.text = "关闭时隐藏到托盘"
+	box.add_child(minimize_to_tray_toggle)
+	reset_position_button = Button.new()
+	reset_position_button.text = "重置窗口位置"
+	reset_position_button.pressed.connect(_on_reset_position_pressed)
+	box.add_child(reset_position_button)
+	restore_defaults_button = Button.new()
+	restore_defaults_button.text = "恢复默认显示设置"
+	restore_defaults_button.pressed.connect(_on_restore_defaults_pressed)
+	box.add_child(restore_defaults_button)
+	general_message_label = Label.new()
+	general_message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	general_message_label.custom_minimum_size = Vector2(0, 42)
+	box.add_child(general_message_label)
 	_add_label(box, "语言：中文")
 	return root
 
@@ -229,12 +253,17 @@ func _load_current_values() -> void:
 
 	scale_slider.value = float(Config.get_value("scale", 1.0)) * 100.0
 	opacity_slider.value = float(Config.get_value("opacity", 1.0)) * 100.0
-	scale_slider.value_changed.connect(_on_scale_slider_changed)
-	opacity_slider.value_changed.connect(_on_opacity_slider_changed)
+	if not scale_slider.value_changed.is_connected(_on_scale_slider_changed):
+		scale_slider.value_changed.connect(_on_scale_slider_changed)
+	if not opacity_slider.value_changed.is_connected(_on_opacity_slider_changed):
+		opacity_slider.value_changed.connect(_on_opacity_slider_changed)
 	_update_slider_labels()
 
 	var wm := String(Config.get_value("window_mode", "top"))
 	window_mode_toggle.button_pressed = wm == "embed"
+	debug_mode_toggle.button_pressed = bool(Config.get_value("debug_mode", false))
+	auto_start_toggle.button_pressed = bool(Config.get_value("auto_start", false))
+	minimize_to_tray_toggle.button_pressed = bool(Config.get_value("minimize_to_tray", true))
 
 	_populate_pet_list()
 	_load_panel_checkboxes()
@@ -269,6 +298,8 @@ func _on_save() -> void:
 	Config.set_value("scale", scale_slider.value / 100.0)
 	Config.set_value("opacity", opacity_slider.value / 100.0)
 	Config.set_value("window_mode", "embed" if window_mode_toggle.button_pressed else "top")
+	Config.set_value("debug_mode", debug_mode_toggle.button_pressed)
+	Config.set_value("minimize_to_tray", minimize_to_tray_toggle.button_pressed)
 
 	Config.set_panel_item("earnings_today", show_today.button_pressed)
 	Config.set_panel_item("earnings_month", show_month.button_pressed)
@@ -284,8 +315,10 @@ func _on_save() -> void:
 			Config.set_value("pet_id", pet_id)
 			PetManager.switch_pet(pet_id)
 
+	var auto_start_saved := _apply_auto_start_setting()
 	Config.save()
-	queue_free()
+	if auto_start_saved:
+		queue_free()
 
 
 func _on_cancel() -> void:
@@ -313,3 +346,51 @@ func _update_scale_label(value: float) -> void:
 func _update_opacity_label(value: float) -> void:
 	if opacity_value_label != null:
 		opacity_value_label.text = "%d%%" % int(round(value))
+
+
+func get_v02_control_names() -> Array[String]:
+	return [
+		"auto_start_toggle",
+		"debug_mode_toggle",
+		"minimize_to_tray_toggle",
+		"reset_position_button",
+		"restore_defaults_button"
+	]
+
+
+func _apply_auto_start_setting() -> bool:
+	var desired := auto_start_toggle.button_pressed
+	var actual := bool(Config.get_value("auto_start", false))
+	if desired == actual:
+		return true
+	if not desired:
+		if Platform.set_auto_start(false):
+			Config.set_value("auto_start", false)
+			return true
+		if not Platform.is_auto_start_supported():
+			Config.set_value("auto_start", false)
+			return true
+	if Platform.set_auto_start(desired):
+		Config.set_value("auto_start", desired)
+		return true
+	actual = Platform.is_auto_start_enabled()
+	Config.set_value("auto_start", actual)
+	auto_start_toggle.button_pressed = actual
+	if general_message_label != null:
+		general_message_label.text = "开机自启设置失败：请使用导出的 LetsMakeMoney.exe 再试。"
+	return false
+
+
+func _on_reset_position_pressed() -> void:
+	DragResizeSystem.reset_window_position()
+	if general_message_label != null:
+		general_message_label.text = "窗口位置已重置。"
+
+
+func _on_restore_defaults_pressed() -> void:
+	Config.reset_display_defaults()
+	Platform.set_auto_start(false)
+	_load_current_values()
+	if general_message_label != null:
+		general_message_label.text = "显示、窗口、托盘和自启动设置已恢复默认。"
+	Config.save()

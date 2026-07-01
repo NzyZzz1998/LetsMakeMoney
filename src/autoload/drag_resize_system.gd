@@ -1,4 +1,3 @@
-# src/autoload/drag_resize_system.gd
 extends Node
 
 var _window: Window = null
@@ -26,6 +25,30 @@ func save_position() -> void:
 		Config.save()
 
 
+func reset_window_position() -> void:
+	if _window == null:
+		return
+	var size := _window.size
+	var screen := Platform.get_screen_size()
+	var pos := Vector2i(max(0, screen.x - size.x - 20), max(0, screen.y - size.y - 80))
+	move_window_to(pos)
+	save_position()
+
+
+func set_window_visible(visible: bool) -> void:
+	if _window == null:
+		return
+	_window.visible = visible
+	if visible:
+		_window.grab_focus()
+	Platform.update_tray_menu(visible)
+
+
+func toggle_window_visible() -> void:
+	if _window != null:
+		set_window_visible(not _window.visible)
+
+
 func show_context_menu() -> void:
 	var popup := PopupMenu.new()
 	_build_main_menu(popup)
@@ -45,36 +68,26 @@ func _build_main_menu(menu: PopupMenu) -> void:
 	menu.add_item("设置", 100)
 	menu.add_item("重新运行向导", 101)
 
-	var pet_menu := PopupMenu.new()
-	pet_menu.name = "PetMenu"
-	_apply_menu_readability(pet_menu)
+	menu.add_separator()
 	var pets := PetManager.get_available_pets()
 	var current_id := String(Config.get_value("pet_id", "cat"))
 	for i in range(pets.size()):
-		pet_menu.add_check_item(pets[i].display_name, 200 + i)
+		menu.add_check_item("角色：%s" % pets[i].display_name, 200 + i)
 		if pets[i].pet_id == current_id:
-			pet_menu.set_item_checked(i, true)
-	menu.add_child(pet_menu)
-	menu.add_submenu_item("切换角色", "PetMenu")
+			menu.set_item_checked(menu.item_count - 1, true)
 
-	var mode_menu := PopupMenu.new()
-	mode_menu.name = "ModeMenu"
-	_apply_menu_readability(mode_menu)
-	mode_menu.add_check_item("置顶悬浮", 300)
-	mode_menu.add_check_item("融入桌面", 301)
+	menu.add_separator()
 	var window_mode := String(Config.get_value("window_mode", "top"))
-	mode_menu.set_item_checked(0, window_mode == "top")
-	mode_menu.set_item_checked(1, window_mode == "embed")
-	menu.add_child(mode_menu)
-	menu.add_submenu_item("窗口模式", "ModeMenu")
+	menu.add_check_item("窗口模式：置顶悬浮", 300)
+	menu.set_item_checked(menu.item_count - 1, window_mode == "top")
+	menu.add_check_item("窗口模式：融入桌面", 301)
+	menu.set_item_checked(menu.item_count - 1, window_mode == "embed")
 
 	menu.add_separator()
 	menu.add_item("关于 LetsMakeMoney", 400)
 	menu.add_separator()
 	menu.add_item("退出", 500)
 
-	pet_menu.id_pressed.connect(_on_menu_id)
-	mode_menu.id_pressed.connect(_on_menu_id)
 	menu.id_pressed.connect(_on_menu_id)
 
 
@@ -107,7 +120,7 @@ func _cleanup_popup(popup: PopupMenu) -> void:
 func _on_menu_id(id: int) -> void:
 	match id:
 		100:
-			_open_settings()
+			open_settings()
 		101:
 			_open_wizard()
 		300:
@@ -119,12 +132,11 @@ func _on_menu_id(id: int) -> void:
 			_apply_window_mode("embed")
 			Config.save()
 		400:
-			_show_about()
+			show_about()
 		500:
-			_quit_app()
+			quit_app()
 		600:
-			if _window != null:
-				_window.visible = not _window.visible
+			toggle_window_visible()
 		_:
 			if id >= 200 and id < 300:
 				_switch_pet_by_menu_id(id)
@@ -158,9 +170,10 @@ func _on_config_changed() -> void:
 	_apply_window_mode(String(Config.get_value("window_mode", "top")))
 
 
-func _open_settings() -> void:
+func open_settings() -> void:
 	if _window == null:
 		return
+	set_window_visible(true)
 	var settings_scene := load("res://src/scenes/settings/settings_dialog.tscn")
 	if settings_scene == null:
 		OS.alert("设置面板加载失败。", "LetsMakeMoney")
@@ -173,6 +186,7 @@ func _open_settings() -> void:
 func _open_wizard() -> void:
 	if _window == null:
 		return
+	set_window_visible(true)
 	var wizard_scene := load("res://src/scenes/wizard/wizard_dialog.tscn")
 	if wizard_scene == null:
 		OS.alert("首次启动向导加载失败。", "LetsMakeMoney")
@@ -183,10 +197,13 @@ func _open_wizard() -> void:
 	dlg.grab_focus()
 
 
-func _show_about() -> void:
-	OS.alert("LetsMakeMoney v0.1 Beta\n赚钱模拟器桌面宠物", "关于")
+func show_about() -> void:
+	set_window_visible(true)
+	OS.alert("LetsMakeMoney v0.2 Beta\n赚钱模拟器桌面宠物", "关于")
 
 
-func _quit_app() -> void:
+func quit_app() -> void:
+	save_position()
 	Config.save()
+	Platform.shutdown_tray()
 	get_tree().quit()

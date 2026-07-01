@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="PetResource" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/resources/pet_resource.gd" id="1_script"]
+[ext_resource type="SpriteFrames" path="res://assets/pets/cat_orange_v1/cat_orange_v1_sprite_frames.tres" id="2_frames"]
+[ext_resource type="Texture2D" path="res://assets/pets/cat_orange_v1/frames/idle/idle_01.png" id="3_thumb"]
+
+[resource]
+script = ExtResource("1_script")
+pet_id = "cat_orange_v1"
+display_name = "橘猫 v1"
+sprite_frames = ExtResource("2_frames")
+thumbnail = ExtResource("3_thumb")
+animation_speeds = {
+"clicked_hold": 1.0,
+"idle": 2.0,
+"idle_clicked_double": 3.75,
+"idle_clicked_single": 5.0,
+"resting": 0.67,
+"resting_clicked_double": 3.75,
+"resting_clicked_single": 5.0,
+"working": 5.0,
+"working_clicked_double": 3.75,
+"working_clicked_single": 5.0
+}
