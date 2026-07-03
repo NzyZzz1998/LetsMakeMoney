@@ -1,8 +1,9 @@
 # src/scenes/settings/settings_dialog.gd
-extends ConfirmationDialog
+extends Control
 
 var salary_input: SpinBox
-var rest_mode_toggle: CheckButton
+var rest_mode_option: OptionButton
+var rest_mode_single_toggle: CheckButton
 var hours_input: SpinBox
 var start_hour_input: SpinBox
 var start_min_input: SpinBox
@@ -13,12 +14,17 @@ var scale_slider: HSlider
 var scale_value_label: Label
 var opacity_slider: HSlider
 var opacity_value_label: Label
-var window_mode_toggle: CheckButton
+var window_mode_option: OptionButton
+var window_mode_embed_toggle: CheckButton
+var pure_pet_mode_toggle: CheckButton
+var native_status_label: Label
 var debug_mode_toggle: CheckButton
 var auto_start_toggle: CheckButton
 var minimize_to_tray_toggle: CheckButton
 var reset_position_button: Button
 var restore_defaults_button: Button
+var save_button: Button
+var cancel_button: Button
 var general_message_label: Label
 var show_today: CheckBox
 var show_month: CheckBox
@@ -28,19 +34,45 @@ var show_state: CheckBox
 
 
 func _ready() -> void:
-	title = "设置"
-	min_size = Vector2i(700, 560)
-	confirmed.connect(_on_save)
-	canceled.connect(_on_cancel)
-	close_requested.connect(_on_cancel)
+	custom_minimum_size = Vector2(700, 560)
 	_build_ui()
 	_load_current_values()
 
 
 func _build_ui() -> void:
+	var root := VBoxContainer.new()
+	root.name = "SettingsRoot"
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.offset_left = 14
+	root.offset_top = 14
+	root.offset_right = -14
+	root.offset_bottom = -14
+	root.add_theme_constant_override("separation", 12)
+	add_child(root)
+
+	var top_action_row := HBoxContainer.new()
+	top_action_row.name = "TopActionRow"
+	top_action_row.alignment = BoxContainer.ALIGNMENT_END
+	top_action_row.add_theme_constant_override("separation", 10)
+	root.add_child(top_action_row)
+
+	var top_cancel_button := Button.new()
+	top_cancel_button.text = "取消"
+	top_cancel_button.custom_minimum_size = Vector2(96, 32)
+	top_cancel_button.pressed.connect(_on_cancel)
+	top_action_row.add_child(top_cancel_button)
+
+	var top_save_button := Button.new()
+	top_save_button.text = "保存"
+	top_save_button.custom_minimum_size = Vector2(112, 32)
+	top_save_button.pressed.connect(_on_save)
+	top_action_row.add_child(top_save_button)
+
 	var tabs := TabContainer.new()
 	tabs.name = "TabContainer"
-	add_child(tabs)
+	tabs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_child(tabs)
 
 	tabs.add_child(_build_salary_tab())
 	tabs.add_child(_build_pet_tab())
@@ -48,16 +80,48 @@ func _build_ui() -> void:
 	tabs.add_child(_build_panel_tab())
 	tabs.add_child(_build_general_tab())
 
+	var action_row := HBoxContainer.new()
+	action_row.name = "ActionRow"
+	action_row.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	action_row.offset_left = 14
+	action_row.offset_top = -50
+	action_row.offset_right = -14
+	action_row.offset_bottom = -14
+	action_row.alignment = BoxContainer.ALIGNMENT_END
+	action_row.add_theme_constant_override("separation", 10)
+	action_row.visible = false
+	add_child(action_row)
+
+	cancel_button = Button.new()
+	cancel_button.name = "CancelButton"
+	cancel_button.text = "取消"
+	cancel_button.custom_minimum_size = Vector2(96, 34)
+	cancel_button.pressed.connect(_on_cancel)
+	action_row.add_child(cancel_button)
+
+	save_button = Button.new()
+	save_button.name = "SaveButton"
+	save_button.text = "保存"
+	save_button.custom_minimum_size = Vector2(112, 34)
+	save_button.pressed.connect(_on_save)
+	action_row.add_child(save_button)
+
 
 func _build_salary_tab() -> Control:
 	var root := _new_tab("Salary")
 	var box := _new_vbox(root)
+	_add_inline_actions(box)
 	_add_label(box, "月薪（元）")
 	salary_input = _add_spin(box, 0, 999999, 1)
 	_add_label(box, "休息模式")
-	rest_mode_toggle = CheckButton.new()
-	rest_mode_toggle.text = "单休（关闭则为双休）"
-	box.add_child(rest_mode_toggle)
+	rest_mode_option = OptionButton.new()
+	rest_mode_option.add_item("双休", 0)
+	rest_mode_option.add_item("单休", 1)
+	box.add_child(rest_mode_option)
+	rest_mode_single_toggle = CheckButton.new()
+	rest_mode_single_toggle.text = "单休（关闭则为双休）"
+	rest_mode_single_toggle.visible = false
+	box.add_child(rest_mode_single_toggle)
 	_add_label(box, "每日工作小时数（由上下班时间自动计算）")
 	hours_input = _add_spin(box, 0, 24, 0.25)
 	hours_input.editable = false
@@ -76,6 +140,7 @@ func _build_salary_tab() -> Control:
 func _build_pet_tab() -> Control:
 	var root := _new_tab("Pet")
 	var box := _new_vbox(root)
+	_add_inline_actions(box)
 	_add_label(box, "选择角色")
 	pet_list = ItemList.new()
 	pet_list.custom_minimum_size = Vector2(0, 140)
@@ -90,20 +155,34 @@ func _build_pet_tab() -> Control:
 func _build_display_tab() -> Control:
 	var root := _new_tab("Display")
 	var box := _new_vbox(root)
+	_add_inline_actions(box)
 	_add_label(box, "透明度（20%-100%）")
 	var opacity_row := _add_slider_row(box, 20, 100, 1)
 	opacity_slider = opacity_row[0]
 	opacity_value_label = opacity_row[1]
 	_add_label(box, "窗口模式")
-	window_mode_toggle = CheckButton.new()
-	window_mode_toggle.text = "融入桌面（关闭则为置顶悬浮）"
-	box.add_child(window_mode_toggle)
+	window_mode_option = OptionButton.new()
+	window_mode_option.add_item("置顶悬浮", 0)
+	window_mode_option.add_item("融入桌面（实验）", 1)
+	box.add_child(window_mode_option)
+	window_mode_embed_toggle = CheckButton.new()
+	window_mode_embed_toggle.text = "融入桌面（关闭则为置顶悬浮，实验）"
+	window_mode_embed_toggle.visible = false
+	box.add_child(window_mode_embed_toggle)
+	pure_pet_mode_toggle = CheckButton.new()
+	pure_pet_mode_toggle.text = "纯桌宠模式（隐藏任务栏 / Alt+Tab，需托盘可用）"
+	box.add_child(pure_pet_mode_toggle)
+	native_status_label = Label.new()
+	native_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	native_status_label.custom_minimum_size = Vector2(0, 52)
+	box.add_child(native_status_label)
 	return root
 
 
 func _build_panel_tab() -> Control:
 	var root := _new_tab("Panel")
 	var box := _new_vbox(root)
+	_add_inline_actions(box)
 	show_today = _add_checkbox(box, "今日已赚")
 	show_month = _add_checkbox(box, "本月累计")
 	show_rate = _add_checkbox(box, "时薪")
@@ -115,6 +194,7 @@ func _build_panel_tab() -> Control:
 func _build_general_tab() -> Control:
 	var root := _new_tab("General")
 	var box := _new_vbox(root)
+	_add_inline_actions(box)
 	debug_mode_toggle = CheckButton.new()
 	debug_mode_toggle.text = "Debug 模式"
 	box.add_child(debug_mode_toggle)
@@ -205,6 +285,10 @@ func _add_checkbox(parent: Control, text: String) -> CheckBox:
 	return checkbox
 
 
+func _add_inline_actions(_parent: Control) -> void:
+	return
+
+
 func _add_time_row(parent: Control) -> Array[SpinBox]:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
@@ -243,7 +327,8 @@ func _calculate_work_hours() -> float:
 func _load_current_values() -> void:
 	salary_input.value = float(Config.get_value("monthly_salary", 0))
 	var rm := String(Config.get_value("rest_mode", "double"))
-	rest_mode_toggle.button_pressed = rm == "single"
+	rest_mode_option.select(1 if rm == "single" else 0)
+	rest_mode_single_toggle.button_pressed = rm == "single"
 	var st := String(Config.get_value("work_start_time", "09:00")).split(":")
 	start_hour_input.value = int(st[0]) if st.size() > 0 else 9
 	start_min_input.value = int(st[1]) if st.size() > 1 else 0
@@ -260,7 +345,10 @@ func _load_current_values() -> void:
 	_update_slider_labels()
 
 	var wm := String(Config.get_value("window_mode", "top"))
-	window_mode_toggle.button_pressed = wm == "embed"
+	window_mode_option.select(1 if wm == "embed" else 0)
+	window_mode_embed_toggle.button_pressed = wm == "embed"
+	pure_pet_mode_toggle.button_pressed = bool(Config.get_value("pure_pet_mode", false))
+	_update_native_status_label()
 	debug_mode_toggle.button_pressed = bool(Config.get_value("debug_mode", false))
 	auto_start_toggle.button_pressed = bool(Config.get_value("auto_start", false))
 	minimize_to_tray_toggle.button_pressed = bool(Config.get_value("minimize_to_tray", true))
@@ -291,13 +379,14 @@ func _load_panel_checkboxes() -> void:
 func _on_save() -> void:
 	_update_slider_labels()
 	Config.set_value("monthly_salary", float(salary_input.value))
-	Config.set_value("rest_mode", "single" if rest_mode_toggle.button_pressed else "double")
+	Config.set_value("rest_mode", "single" if rest_mode_option.selected == 1 else "double")
 	Config.set_value("work_start_time", "%02d:%02d" % [int(start_hour_input.value), int(start_min_input.value)])
 	Config.set_value("work_end_time", "%02d:%02d" % [int(end_hour_input.value), int(end_min_input.value)])
 	Config.set_value("work_hours_per_day", _calculate_work_hours())
 	Config.set_value("scale", scale_slider.value / 100.0)
 	Config.set_value("opacity", opacity_slider.value / 100.0)
-	Config.set_value("window_mode", "embed" if window_mode_toggle.button_pressed else "top")
+	Config.set_value("window_mode", "embed" if window_mode_option.selected == 1 else "top")
+	Config.set_value("pure_pet_mode", pure_pet_mode_toggle.button_pressed and not pure_pet_mode_toggle.disabled)
 	Config.set_value("debug_mode", debug_mode_toggle.button_pressed)
 	Config.set_value("minimize_to_tray", minimize_to_tray_toggle.button_pressed)
 
@@ -315,10 +404,9 @@ func _on_save() -> void:
 			Config.set_value("pet_id", pet_id)
 			PetManager.switch_pet(pet_id)
 
-	var auto_start_saved := _apply_auto_start_setting()
+	_apply_auto_start_setting()
 	Config.save()
-	if auto_start_saved:
-		queue_free()
+	queue_free()
 
 
 func _on_cancel() -> void:
@@ -346,6 +434,26 @@ func _update_scale_label(value: float) -> void:
 func _update_opacity_label(value: float) -> void:
 	if opacity_value_label != null:
 		opacity_value_label.text = "%d%%" % int(round(value))
+
+
+func _update_native_status_label() -> void:
+	if native_status_label == null or pure_pet_mode_toggle == null:
+		return
+	var health := Platform.get_native_health()
+	var tray_ok := bool(health.get("tray_supported", false))
+	var passthrough_ok := bool(health.get("passthrough_supported", false))
+	var host_window := DragResizeSystem.get_registered_window()
+	var pure_ok := host_window != null and Platform.can_enable_pure_pet_mode(host_window)
+	native_status_label.text = "原生能力：托盘 %s，点击穿透 %s，纯桌宠 %s。" % [
+		"可用" if tray_ok else "不可用",
+		"可用" if passthrough_ok else "不可用",
+		"可用" if pure_ok else "不可用"
+	]
+	if not pure_ok:
+		pure_pet_mode_toggle.disabled = true
+		pure_pet_mode_toggle.button_pressed = false
+	else:
+		pure_pet_mode_toggle.disabled = false
 
 
 func get_v02_control_names() -> Array[String]:

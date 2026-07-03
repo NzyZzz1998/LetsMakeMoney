@@ -9,6 +9,9 @@ signal tray_exit_requested
 var impl: PlatformInterface = null
 var _status_indicator: Node = null
 var _tray_menu: PopupMenu = null
+var _last_tray_toggle_msec: int = 0
+
+const TRAY_TOGGLE_DEBOUNCE_MSEC := 350
 
 
 func _ready() -> void:
@@ -29,12 +32,18 @@ func write_boot_log(message: String) -> void:
 	var dir_path := appdata.path_join("LetsMakeMoney")
 	if not DirAccess.dir_exists_absolute(dir_path):
 		DirAccess.make_dir_recursive_absolute(dir_path)
-	var file := FileAccess.open(dir_path.path_join("debug.log"), FileAccess.READ_WRITE)
+	var log_path := dir_path.path_join("debug.log")
+	var mode := FileAccess.READ_WRITE if FileAccess.file_exists(log_path) else FileAccess.WRITE
+	var file := FileAccess.open(log_path, mode)
 	if file == null:
 		return
 	file.seek_end()
 	file.store_line("%s | %s" % [Time.get_datetime_string_from_system(), message])
 	file.close()
+
+
+func _process(_delta: float) -> void:
+	_poll_native_tray()
 
 
 func _create_platform_impl() -> PlatformInterface:
@@ -75,48 +84,32 @@ func set_mouse_passthrough(window: Window, enabled: bool, interactive_rects: Arr
 	return impl.set_mouse_passthrough(window, enabled, interactive_rects)
 
 
+func set_window_visible(window: Window, visible: bool) -> bool:
+	return impl.set_window_visible(window, visible)
+
+
+func get_native_health() -> Dictionary:
+	return impl.get_native_health()
+
+
+func get_native_window_handle(window: Window) -> int:
+	return impl.get_native_window_handle(window)
+
+
 func is_tray_supported() -> bool:
 	return impl.is_tray_supported()
 
 
 func setup_tray(icon_path: String) -> bool:
-	if not is_tray_supported():
-		return false
-	shutdown_tray()
-
-	_status_indicator = ClassDB.instantiate("StatusIndicator") as Node
-	if _status_indicator == null:
-		return false
-	_status_indicator.tooltip = "LetsMakeMoney"
-	var icon := load(icon_path)
-	if icon is Texture2D:
-		_status_indicator.icon = icon
-	_status_indicator.pressed.connect(_on_status_indicator_pressed)
-	add_child(_status_indicator)
-	update_tray_menu(true)
-	_status_indicator.visible = true
-	return true
+	return impl.setup_tray(icon_path)
 
 
 func update_tray_menu(window_visible: bool) -> void:
-	if _status_indicator == null:
-		return
-	if _tray_menu != null and is_instance_valid(_tray_menu):
-		_tray_menu.queue_free()
-	_tray_menu = PopupMenu.new()
-	_tray_menu.name = "TrayMenu"
-	_tray_menu.add_item("隐藏窗口" if window_visible else "显示窗口", 1)
-	_tray_menu.add_separator()
-	_tray_menu.add_item("设置", 2)
-	_tray_menu.add_item("关于 LetsMakeMoney", 3)
-	_tray_menu.add_separator()
-	_tray_menu.add_item("退出", 4)
-	_tray_menu.id_pressed.connect(_on_tray_menu_id_pressed)
-	add_child(_tray_menu)
-	_status_indicator.menu = _tray_menu.get_path()
+	impl.update_tray_menu(window_visible)
 
 
 func shutdown_tray() -> void:
+	impl.shutdown_tray()
 	if _status_indicator != null and is_instance_valid(_status_indicator):
 		_status_indicator.visible = false
 		_status_indicator.queue_free()
@@ -124,6 +117,10 @@ func shutdown_tray() -> void:
 	if _tray_menu != null and is_instance_valid(_tray_menu):
 		_tray_menu.queue_free()
 	_tray_menu = null
+
+
+func poll_tray_command() -> int:
+	return impl.poll_tray_command()
 
 
 func get_executable_path() -> String:
@@ -140,6 +137,36 @@ func is_auto_start_enabled(exe_path: String = "") -> bool:
 
 func set_auto_start(enabled: bool, exe_path: String = "") -> bool:
 	return impl.set_auto_start(enabled, exe_path)
+
+
+func set_taskbar_visible(window: Window, visible: bool) -> bool:
+	return impl.set_taskbar_visible(window, visible)
+
+
+func can_enable_pure_pet_mode(window: Window) -> bool:
+	return impl.can_enable_pure_pet_mode(window)
+
+
+func _poll_native_tray() -> void:
+	if impl == null:
+		return
+	var command := impl.poll_tray_command()
+	if command != 0:
+		write_boot_log("Platform._poll_native_tray: command=%d" % command)
+	match command:
+		1:
+			var now := Time.get_ticks_msec()
+			if now - _last_tray_toggle_msec < TRAY_TOGGLE_DEBOUNCE_MSEC:
+				write_boot_log("Platform._poll_native_tray: ignored duplicate toggle")
+				return
+			_last_tray_toggle_msec = now
+			tray_toggle_requested.emit()
+		2:
+			tray_settings_requested.emit()
+		3:
+			tray_about_requested.emit()
+		4:
+			tray_exit_requested.emit()
 
 
 func _on_status_indicator_pressed(_button: int = 0, _position: Vector2i = Vector2i.ZERO) -> void:

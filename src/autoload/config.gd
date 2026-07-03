@@ -15,9 +15,9 @@ func _ready() -> void:
 	_load()
 	Platform.write_boot_log("Config._ready: loaded debug_mode=%s transparent=%s passthrough=%s tray=%s" % [
 		str(get_value("debug_mode", false)),
-		str(get_value("transparent_pet_window_enabled", false)),
-		str(get_value("mouse_passthrough_enabled", false)),
-		str(get_value("system_tray_enabled", false))
+		str(get_value("transparent_pet_window_enabled", true)),
+		str(get_value("mouse_passthrough_enabled", true)),
+		str(get_value("system_tray_enabled", true))
 	])
 
 
@@ -64,20 +64,23 @@ func _defaults() -> Dictionary:
 	if _defaults_cache.is_empty():
 		_defaults_cache = {
 			"monthly_salary": 0,
+			"config_version": 3,
 			"rest_mode": "double",
 			"work_hours_per_day": 8.0,
 			"work_start_time": "09:00",
 			"work_end_time": "18:00",
-			"pet_id": "cat",
+			"pet_id": "cat_orange_v1",
 			"window_x": -1,
 			"window_y": -1,
 			"window_mode": "top",
 			"debug_mode": false,
 			"auto_start": false,
 			"minimize_to_tray": true,
-			"system_tray_enabled": false,
-			"mouse_passthrough_enabled": false,
-			"transparent_pet_window_enabled": false,
+			"native_integration_enabled": true,
+			"system_tray_enabled": true,
+			"mouse_passthrough_enabled": true,
+			"transparent_pet_window_enabled": true,
+			"pure_pet_mode": false,
 			"opacity": 1.0,
 			"scale": 1.0,
 			"panel_items": {
@@ -138,9 +141,11 @@ func reset_display_defaults() -> void:
 		"debug_mode",
 		"auto_start",
 		"minimize_to_tray",
+		"native_integration_enabled",
 		"system_tray_enabled",
 		"mouse_passthrough_enabled",
 		"transparent_pet_window_enabled",
+		"pure_pet_mode",
 		"opacity",
 		"scale"
 	]:

@@ -47,14 +47,14 @@ func _verify_settings_dialog() -> bool:
 	await process_frame
 
 	dlg.salary_input.value = 23456
-	dlg.rest_mode_toggle.button_pressed = true
+	dlg.rest_mode_option.select(1)
 	dlg.start_hour_input.value = 10
 	dlg.start_min_input.value = 15
 	dlg.end_hour_input.value = 19
 	dlg.end_min_input.value = 30
 	dlg.scale_slider.value = 125
 	dlg.opacity_slider.value = 80
-	dlg.window_mode_toggle.button_pressed = true
+	dlg.window_mode_option.select(1)
 	dlg._update_slider_labels()
 	await process_frame
 	var scale_label_ok := _expect("settings scale label", dlg.scale_value_label.text, "125%")

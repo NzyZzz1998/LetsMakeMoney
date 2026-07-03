@@ -14,7 +14,12 @@ const PET_MODE_PET_POSITION := Vector2(28, 88)
 const PET_MODE_PANEL_POSITION := Vector2(300, 104)
 const PET_MODE_PANEL_LEFT_POSITION := Vector2(12, 104)
 const PET_MODE_PANEL_TOP_POSITION := Vector2(300, 12)
-const PET_HIT_SIZE := Vector2(224, 224)
+const PET_HIT_OFFSET := Vector2(62, 80)
+const PET_HIT_SIZE := Vector2(98, 86)
+const PET_HIT_MAX_SCALE := 1.25
+const PET_CONTEXT_OFFSET := Vector2(30, 34)
+const PET_CONTEXT_SIZE := Vector2(172, 186)
+const PET_CONTEXT_MAX_SCALE := 1.65
 const PANEL_HIT_SIZE := Vector2(160, 90)
 const DRAG_THRESHOLD := 4.0
 const DOUBLE_CLICK_WINDOW := 0.3
@@ -29,12 +34,18 @@ var _debug_drag_start_window_pos: Vector2i = Vector2i.ZERO
 var _debug_click_count: int = 0
 var _debug_click_timer_active: bool = false
 var _runtime_mode_reapply_pending: bool = false
+var _native_health: Dictionary = {}
+var _last_passthrough_rects_hash: int = 0
+var _modal_open: bool = false
 
 
 func _ready() -> void:
 	Platform.write_boot_log("Main._ready: begin")
+	get_tree().auto_accept_quit = false
 	_debug_mode = bool(Config.get_value("debug_mode", false))
 	Platform.write_boot_log("Main._ready: debug_mode=%s" % str(_debug_mode))
+	_native_health = Platform.get_native_health()
+	Platform.write_boot_log("Main._ready: native_health=%s" % str(_native_health))
 	_setup_window()
 	Platform.write_boot_log("Main._ready: setup_window done")
 	_restore_position()
@@ -47,6 +58,7 @@ func _ready() -> void:
 	_position_panel()
 	_setup_tray()
 	Platform.write_boot_log("Main._ready: setup_tray done ready=%s" % str(_tray_ready))
+	_apply_pure_pet_mode()
 	_apply_mouse_passthrough()
 	Platform.write_boot_log("Main._ready: mouse_passthrough done")
 
@@ -56,6 +68,11 @@ func _ready() -> void:
 	if not Config.has_config():
 		call_deferred("_show_wizard")
 	Platform.write_boot_log("Main._ready: end")
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		_on_window_close_requested()
 
 
 func get_debug_window_size() -> Vector2i:
@@ -68,7 +85,11 @@ func get_pet_window_size() -> Vector2i:
 
 func apply_runtime_mode(debug_mode: bool) -> void:
 	_debug_mode = debug_mode
-	var transparent_pet_window := bool(Config.get_value("transparent_pet_window_enabled", false))
+	_native_health = Platform.get_native_health()
+	var transparent_pet_window := bool(Config.get_value("transparent_pet_window_enabled", true)) \
+		and bool(Config.get_value("native_integration_enabled", true)) \
+		and bool(_native_health.get("window_supported", false))
+	_apply_viewport_transparency(transparent_pet_window and not _debug_mode)
 	Platform.setup_window(get_window(), _debug_mode, transparent_pet_window)
 	debug_input_area.visible = _debug_mode
 	debug_input_area.mouse_filter = Control.MOUSE_FILTER_STOP if _debug_mode else Control.MOUSE_FILTER_IGNORE
@@ -92,6 +113,16 @@ func _setup_window() -> void:
 
 func _connect_signals() -> void:
 	Config.config_changed.connect(_on_config_changed)
+	if not DragResizeSystem.modal_closed.is_connected(_on_modal_closed):
+		DragResizeSystem.modal_closed.connect(_on_modal_closed)
+	if not DragResizeSystem.modal_opened.is_connected(_on_modal_opened):
+		DragResizeSystem.modal_opened.connect(_on_modal_opened)
+	if not DragResizeSystem.popup_opened.is_connected(_on_popup_opened):
+		DragResizeSystem.popup_opened.connect(_on_popup_opened)
+	if not DragResizeSystem.popup_closed.is_connected(_on_popup_closed):
+		DragResizeSystem.popup_closed.connect(_on_popup_closed)
+	if panel != null and panel.has_signal("layout_changed") and not panel.layout_changed.is_connected(_on_panel_layout_changed):
+		panel.layout_changed.connect(_on_panel_layout_changed)
 	if not debug_input_area.gui_input.is_connected(_on_debug_input_area_gui_input):
 		debug_input_area.gui_input.connect(_on_debug_input_area_gui_input)
 	var window := get_window()
@@ -103,7 +134,14 @@ func _setup_tray() -> void:
 	if _debug_mode:
 		_tray_ready = false
 		return
-	if not bool(Config.get_value("system_tray_enabled", false)):
+	if not bool(Config.get_value("native_integration_enabled", true)):
+		_tray_ready = false
+		return
+	if not bool(Config.get_value("system_tray_enabled", true)):
+		_tray_ready = false
+		return
+	_native_health = Platform.get_native_health()
+	if not bool(_native_health.get("tray_supported", false)):
 		_tray_ready = false
 		return
 	_tray_ready = Platform.setup_tray("res://icons/app_icon.png")
@@ -155,16 +193,93 @@ func _position_panel() -> void:
 
 
 func _apply_mouse_passthrough() -> void:
+	if _modal_open:
+		_last_passthrough_rects_hash = 0
+		Platform.set_mouse_passthrough(get_window(), false, [])
+		return
 	if _debug_mode:
+		_last_passthrough_rects_hash = 0
 		return
-	if not bool(Config.get_value("mouse_passthrough_enabled", false)):
+	if not bool(Config.get_value("native_integration_enabled", true)):
+		Platform.set_mouse_passthrough(get_window(), false, [])
+		_last_passthrough_rects_hash = 0
 		return
+	if not bool(Config.get_value("mouse_passthrough_enabled", true)):
+		Platform.set_mouse_passthrough(get_window(), false, [])
+		_last_passthrough_rects_hash = 0
+		return
+	_native_health = Platform.get_native_health()
+	if not bool(_native_health.get("passthrough_supported", false)):
+		Platform.set_mouse_passthrough(get_window(), false, [])
+		_last_passthrough_rects_hash = 0
+		return
+	var rects := get_interactive_rects()
+	var rects_hash := hash(rects)
+	if rects_hash == _last_passthrough_rects_hash:
+		return
+	Platform.write_boot_log("Main._apply_mouse_passthrough: rects=%s" % str(rects))
+	var ok := Platform.set_mouse_passthrough(get_window(), true, rects)
+	if not ok:
+		Platform.write_boot_log("Main._apply_mouse_passthrough: fallback disabled")
+		_last_passthrough_rects_hash = 0
+	else:
+		_last_passthrough_rects_hash = rects_hash
+
+
+func get_interactive_rects() -> Array[Rect2]:
 	var s := float(Config.get_value("scale", 1.0))
-	var rects: Array[Rect2] = [
-		Rect2(PET_MODE_PET_POSITION, PET_HIT_SIZE * s),
-		Rect2(PET_MODE_PANEL_POSITION, PANEL_HIT_SIZE)
+	var pet_hit_scale: float = min(s, PET_HIT_MAX_SCALE)
+	var pet_hit_center := pet.position + (PET_HIT_OFFSET + PET_HIT_SIZE * 0.5) * s
+	var pet_hit_size := PET_HIT_SIZE * pet_hit_scale
+	var panel_size := PANEL_HIT_SIZE
+	if panel is Control:
+		var panel_control := panel as Control
+		panel_size = Vector2(max(PANEL_HIT_SIZE.x, panel_control.size.x), max(PANEL_HIT_SIZE.y, panel_control.size.y))
+	return [
+		Rect2(pet_hit_center - pet_hit_size * 0.5, pet_hit_size),
+		Rect2(panel.position, panel_size)
 	]
-	Platform.set_mouse_passthrough(get_window(), true, rects)
+
+
+func get_pet_context_rect() -> Rect2:
+	var s := float(Config.get_value("scale", 1.0))
+	var context_scale: float = min(s, PET_CONTEXT_MAX_SCALE)
+	var context_center := pet.position + (PET_CONTEXT_OFFSET + PET_CONTEXT_SIZE * 0.5) * s
+	var context_size := PET_CONTEXT_SIZE * context_scale
+	return Rect2(context_center - context_size * 0.5, context_size)
+
+
+func suspend_mouse_passthrough() -> void:
+	_last_passthrough_rects_hash = 0
+	Platform.set_mouse_passthrough(get_window(), false, [])
+
+
+func _apply_viewport_transparency(enabled: bool) -> void:
+	get_viewport().transparent_bg = enabled
+	RenderingServer.set_default_clear_color(Color(0, 0, 0, 0) if enabled else Color(0, 0, 0, 1))
+
+
+func _apply_pure_pet_mode() -> void:
+	if _debug_mode:
+		Platform.set_taskbar_visible(get_window(), true)
+		return
+
+	var desired := bool(Config.get_value("pure_pet_mode", false))
+	if not desired:
+		Platform.set_taskbar_visible(get_window(), true)
+		return
+
+	if not _tray_ready or not Platform.can_enable_pure_pet_mode(get_window()):
+		Config.set_value("pure_pet_mode", false)
+		Platform.set_taskbar_visible(get_window(), true)
+		Platform.write_boot_log("Main._apply_pure_pet_mode: disabled because tray/native health failed")
+		return
+
+	var ok := Platform.set_taskbar_visible(get_window(), false)
+	if not ok:
+		Config.set_value("pure_pet_mode", false)
+		Platform.set_taskbar_visible(get_window(), true)
+		Platform.write_boot_log("Main._apply_pure_pet_mode: failed and restored taskbar visibility")
 
 
 func _on_config_changed() -> void:
@@ -178,11 +293,12 @@ func _on_config_changed() -> void:
 	SalaryEngine.reload()
 	_apply_scale_opacity()
 	_position_panel()
+	_apply_pure_pet_mode()
 	_apply_mouse_passthrough()
 	if panel != null:
 		panel.refresh_values()
 		panel._apply_panel_config()
-	Platform.update_tray_menu(get_window().visible)
+	Platform.update_tray_menu(DragResizeSystem.is_window_visible())
 
 
 func _schedule_runtime_mode_reapply() -> void:
@@ -195,18 +311,70 @@ func _schedule_runtime_mode_reapply() -> void:
 func _reapply_runtime_mode_after_popups() -> void:
 	await get_tree().process_frame
 	_runtime_mode_reapply_pending = false
+	_modal_open = false
+	_set_primary_content_visible(true)
 	_setup_window()
 	_restore_position()
 	_apply_scale_opacity()
 	_position_panel()
+	_apply_pure_pet_mode()
+	_apply_mouse_passthrough()
+
+
+func _on_modal_opened() -> void:
+	_modal_open = true
+	_last_passthrough_rects_hash = 0
+	_set_primary_content_visible(false)
+	_apply_viewport_transparency(false)
+	Platform.set_mouse_passthrough(get_window(), false, [])
+
+
+func _on_modal_closed() -> void:
+	_schedule_runtime_mode_reapply()
+
+
+func _on_popup_opened() -> void:
+	_last_passthrough_rects_hash = 0
+	Platform.set_mouse_passthrough(get_window(), false, [])
+
+
+func _on_popup_closed() -> void:
+	_apply_mouse_passthrough()
+
+
+func _set_primary_content_visible(visible: bool) -> void:
+	if pet != null:
+		pet.visible = visible
+	if panel != null:
+		panel.visible = visible
+	if debug_input_area != null:
+		debug_input_area.visible = visible and _debug_mode
+	if debug_status != null:
+		debug_status.visible = visible and _debug_mode
+
+
+func _on_panel_layout_changed() -> void:
 	_apply_mouse_passthrough()
 
 
 func _process(_delta: float) -> void:
+	if _modal_open:
+		return
+	var old_panel_position: Vector2 = panel.position
 	_position_panel()
+	if panel.position != old_panel_position:
+		_apply_mouse_passthrough()
 
 
 func _input(event: InputEvent) -> void:
+	if not _debug_mode and not _modal_open and event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			var context_rect := get_pet_context_rect()
+			if context_rect.has_point(event.position):
+				Platform.write_boot_log("Main._input: context menu via pet context rect pos=%s rect=%s" % [str(event.position), str(context_rect)])
+				DragResizeSystem.show_context_menu()
+				get_viewport().set_input_as_handled()
+				return
 	if _debug_mode and event is InputEventKey:
 		_handle_debug_key(event)
 
@@ -303,12 +471,14 @@ func _set_debug_status(text: String) -> void:
 
 func _show_wizard() -> void:
 	await get_tree().process_frame
+	DragResizeSystem.prepare_modal_window()
 	var wizard_scene := load("res://src/scenes/wizard/wizard_dialog.tscn")
 	if wizard_scene == null:
 		push_error("Wizard scene not found")
 		return
 	var dlg: ConfirmationDialog = wizard_scene.instantiate()
 	get_window().add_child(dlg)
+	dlg.tree_exited.connect(_on_modal_closed)
 	if dlg.has_signal("finished"):
 		dlg.finished.connect(_on_wizard_done)
 	dlg.popup_centered()
@@ -352,8 +522,16 @@ func _trigger_debug_click(interaction: PetManager.PetInteraction, label: String)
 
 
 func _on_tray_toggle_requested() -> void:
+	var visible_before := DragResizeSystem.is_window_visible()
+	Platform.write_boot_log("Main._on_tray_toggle_requested: visible_before=%s window_prop=%s" % [str(visible_before), str(get_window().visible)])
+	if visible_before:
+		DragResizeSystem.save_position()
 	DragResizeSystem.toggle_window_visible()
-	Platform.update_tray_menu(get_window().visible)
+	var visible_after := DragResizeSystem.is_window_visible()
+	if visible_after:
+		_schedule_runtime_mode_reapply()
+	Platform.update_tray_menu(visible_after)
+	Platform.write_boot_log("Main._on_tray_toggle_requested: visible_after=%s window_prop=%s" % [str(visible_after), str(get_window().visible)])
 
 
 func _open_settings() -> void:
@@ -361,11 +539,19 @@ func _open_settings() -> void:
 
 
 func _on_window_close_requested() -> void:
-	if bool(Config.get_value("minimize_to_tray", true)) and _tray_ready:
+	if _modal_open:
+		DragResizeSystem.close_active_modal()
+		return
+	if can_hide_to_tray():
+		DragResizeSystem.save_position()
 		DragResizeSystem.set_window_visible(false)
 		Platform.update_tray_menu(false)
 	else:
 		_exit_app()
+
+
+func can_hide_to_tray() -> bool:
+	return bool(Config.get_value("minimize_to_tray", true)) and _tray_ready
 
 
 func _exit_app() -> void:

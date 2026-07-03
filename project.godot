@@ -26,10 +26,14 @@ DragResizeSystem="*res://src/autoload/drag_resize_system.gd"
 
 [display]
 
+window/size/transparent=true
+window/per_pixel_transparency/allowed=true
+window/per_pixel_transparency/enabled=true
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
 [rendering]
 
+viewport/transparent_background=true
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"

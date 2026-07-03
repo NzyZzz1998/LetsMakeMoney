@@ -6,6 +6,16 @@
 build/
 *.exe
 export_credentials.cfg
+native/windows/godot-cpp/
+native/windows/bin/win64/*.dll
+native/windows/bin/win64/*.lib
+native/windows/bin/win64/*.exp
+native/windows/.sconsign.dblite
+native/windows/*.obj
+native/windows/**/*.o
+native/windows/**/*.os
+native/windows/**/*.obj
+.tmp_appdata/
 
 # Test files (temporary, should not be committed)
 test_*.tscn
@@ -14,6 +24,7 @@ test_*.gd.uid
 
 # Archived experiments should not add Godot import metadata noise
 experiments/**/*.import
+temp/**/*.import
 
 # OS
 .DS_Store

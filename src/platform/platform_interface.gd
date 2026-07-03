@@ -34,7 +34,50 @@ func set_mouse_passthrough(_window: Window, _enabled: bool, _interactive_rects: 
 	return false
 
 
+func set_window_visible(_window: Window, _visible: bool) -> bool:
+	return false
+
+
+func get_native_health() -> Dictionary:
+	return {
+		"native_loaded": false,
+		"tray_supported": false,
+		"window_supported": false,
+		"passthrough_supported": false,
+		"taskbar_supported": false,
+		"last_error": "Native bridge is not available on this platform."
+	}
+
+
+func get_native_window_handle(_window: Window) -> int:
+	return 0
+
+
 func is_tray_supported() -> bool:
+	return false
+
+
+func setup_tray(_icon_path: String) -> bool:
+	return false
+
+
+func update_tray_menu(_window_visible: bool) -> void:
+	pass
+
+
+func shutdown_tray() -> void:
+	pass
+
+
+func poll_tray_command() -> int:
+	return 0
+
+
+func set_taskbar_visible(_window: Window, _visible: bool) -> bool:
+	return false
+
+
+func can_enable_pure_pet_mode(_window: Window) -> bool:
 	return false
 
 

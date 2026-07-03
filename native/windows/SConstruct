@@ -1,0 +1,19 @@
+import os
+
+env = SConscript("godot-cpp/SConstruct")
+
+env.Append(CPPPATH=["src"])
+env.Append(CPPDEFINES=["WINDOWS_ENABLED"])
+env.Append(LIBS=["gdi32"])
+
+sources = [
+    "src/register_types.cpp",
+    "src/lmm_native_bridge.cpp",
+    "src/tray_controller.cpp",
+    "src/window_controller.cpp",
+]
+
+target = "bin/win64/letsmakemoney_native"
+library = env.SharedLibrary(target=target, source=sources)
+
+Default(library)

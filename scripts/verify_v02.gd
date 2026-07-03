@@ -40,9 +40,9 @@ func _check_config_defaults() -> void:
 	_assert(_config.call("get_value", "debug_mode", null) == false, "debug_mode default should be false")
 	_assert(_config.call("get_value", "auto_start", null) == false, "auto_start default should be false")
 	_assert(_config.call("get_value", "minimize_to_tray", null) == true, "minimize_to_tray default should be true")
-	_assert(_config.call("get_value", "system_tray_enabled", null) == false, "system_tray_enabled default should be false while Godot StatusIndicator is unstable")
-	_assert(_config.call("get_value", "mouse_passthrough_enabled", null) == false, "mouse_passthrough_enabled default should be false while exported transparent window is being stabilized")
-	_assert(_config.call("get_value", "transparent_pet_window_enabled", null) == false, "transparent_pet_window_enabled default should be false while exported transparent window is being stabilized")
+	_assert(_config.call("get_value", "system_tray_enabled", null) == true, "system_tray_enabled default should be true after v0.3 native bridge gate")
+	_assert(_config.call("get_value", "mouse_passthrough_enabled", null) == true, "mouse_passthrough_enabled default should be true after v0.3 native bridge gate")
+	_assert(_config.call("get_value", "transparent_pet_window_enabled", null) == true, "transparent_pet_window_enabled default should be true after v0.3 native bridge gate")
 
 	var old_config := {
 		"monthly_salary": 12000,
@@ -57,9 +57,9 @@ func _check_config_defaults() -> void:
 	_assert(merged.get("debug_mode") == false, "old config should merge debug_mode=false")
 	_assert(merged.get("auto_start") == false, "old config should merge auto_start=false")
 	_assert(merged.get("minimize_to_tray") == true, "old config should merge minimize_to_tray=true")
-	_assert(merged.get("system_tray_enabled") == false, "old config should merge system_tray_enabled=false")
-	_assert(merged.get("mouse_passthrough_enabled") == false, "old config should merge mouse_passthrough_enabled=false")
-	_assert(merged.get("transparent_pet_window_enabled") == false, "old config should merge transparent_pet_window_enabled=false")
+	_assert(merged.get("system_tray_enabled") == true, "old config should merge system_tray_enabled=true after v0.3 native bridge gate")
+	_assert(merged.get("mouse_passthrough_enabled") == true, "old config should merge mouse_passthrough_enabled=true after v0.3 native bridge gate")
+	_assert(merged.get("transparent_pet_window_enabled") == true, "old config should merge transparent_pet_window_enabled=true after v0.3 native bridge gate")
 	_assert(merged.get("monthly_salary") == 12000, "old config values should be preserved")
 	_assert(merged.get("panel_items", {}).get("earnings_today") == false, "nested old config values should be preserved")
 	_assert(merged.get("panel_items", {}).has("earnings_month"), "nested defaults should be filled")

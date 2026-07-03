@@ -7,6 +7,13 @@ const PET_WINDOW_SIZE := Vector2i(620, 380)
 const AUTOSTART_REG_PATH := "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
 const AUTOSTART_VALUE_NAME := "LetsMakeMoney"
 
+var _native_bridge: Object = null
+var _native_health: Dictionary = {}
+
+
+func _init() -> void:
+	_load_native_bridge()
+
 
 func get_config_path() -> String:
 	var appdata := OS.get_environment("APPDATA")
@@ -16,23 +23,47 @@ func get_config_path() -> String:
 
 
 func setup_window(window: Window, debug_mode: bool = false, transparent_pet_window: bool = false) -> void:
+	Platform.write_boot_log("WindowsPlatform.setup_window: begin debug=%s transparent=%s" % [str(debug_mode), str(transparent_pet_window)])
 	var config_path := get_config_path()
 	if not DirAccess.dir_exists_absolute(config_path.get_base_dir()):
 		DirAccess.make_dir_recursive_absolute(config_path.get_base_dir())
 
+	window.title = "LetsMakeMoney"
 	window.unresizable = true
+	var native_window_available := bool(_native_health.get("window_supported", false))
+	var use_transparent_window := transparent_pet_window and native_window_available
+
 	if debug_mode:
 		window.borderless = false
 		window.transparent_bg = false
+		_set_transparent_window_flag(window, false)
 		window.always_on_top = false
-		window.size = DEBUG_WINDOW_SIZE
 		window.min_size = DEBUG_WINDOW_SIZE
+		window.size = DEBUG_WINDOW_SIZE
 	else:
-		window.borderless = transparent_pet_window
-		window.transparent_bg = transparent_pet_window
+		window.borderless = use_transparent_window
+		window.transparent_bg = use_transparent_window
+		_set_transparent_window_flag(window, use_transparent_window)
 		window.always_on_top = true
-		window.size = PET_WINDOW_SIZE
 		window.min_size = PET_WINDOW_SIZE
+		window.size = PET_WINDOW_SIZE
+		if use_transparent_window and _native_bridge != null:
+			var hwnd := get_native_window_handle(window)
+			Platform.write_boot_log("WindowsPlatform.setup_window: setup_pet_window hwnd=%s" % str(hwnd))
+			var ok := bool(_native_bridge.call("setup_pet_window", hwnd, true, true))
+			Platform.write_boot_log("WindowsPlatform.setup_window: setup_pet_window ok=%s" % str(ok))
+			if not ok:
+				_native_health["window_supported"] = false
+				_native_health["last_error"] = _read_native_error("setup_pet_window failed")
+				window.borderless = false
+				window.transparent_bg = false
+	Platform.write_boot_log("WindowsPlatform.setup_window: end")
+
+
+func _set_transparent_window_flag(window: Window, enabled: bool) -> void:
+	if window == null or not DisplayServer.has_method("window_set_flag"):
+		return
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_TRANSPARENT, enabled, window.get_window_id())
 
 
 func set_window_topmost(window: Window, topmost: bool) -> void:
@@ -52,36 +83,104 @@ func is_embed_desktop_supported() -> bool:
 
 
 func set_mouse_passthrough(window: Window, enabled: bool, interactive_rects: Array[Rect2]) -> bool:
-	if not _window_has_property(window, "mouse_passthrough_polygon"):
-		return false
-	if not enabled:
-		window.mouse_passthrough_polygon = PackedVector2Array()
-		return true
-	if interactive_rects.is_empty():
-		window.mouse_passthrough_polygon = PackedVector2Array()
-		return false
+	Platform.write_boot_log("WindowsPlatform.set_mouse_passthrough: begin enabled=%s count=%d" % [str(enabled), interactive_rects.size()])
+	if _native_bridge != null and bool(_native_health.get("passthrough_supported", false)):
+		var hwnd := get_native_window_handle(window)
+		if enabled:
+			Platform.write_boot_log("WindowsPlatform.set_mouse_passthrough: native set hwnd=%s" % str(hwnd))
+			var set_ok := bool(_native_bridge.call("set_mouse_passthrough", hwnd, interactive_rects))
+			Platform.write_boot_log("WindowsPlatform.set_mouse_passthrough: native set ok=%s" % str(set_ok))
+			return set_ok
+		Platform.write_boot_log("WindowsPlatform.set_mouse_passthrough: native clear hwnd=%s" % str(hwnd))
+		var clear_ok := bool(_native_bridge.call("clear_mouse_passthrough", hwnd))
+		Platform.write_boot_log("WindowsPlatform.set_mouse_passthrough: native clear ok=%s" % str(clear_ok))
+		return clear_ok
 
-	var bounds := interactive_rects[0]
-	for rect in interactive_rects:
-		bounds = bounds.merge(rect)
-	window.mouse_passthrough_polygon = PackedVector2Array([
-		bounds.position,
-		Vector2(bounds.end.x, bounds.position.y),
-		bounds.end,
-		Vector2(bounds.position.x, bounds.end.y)
-	])
-	return true
-
-
-func _window_has_property(window: Window, property_name: String) -> bool:
-	for prop in window.get_property_list():
-		if String(prop.get("name", "")) == property_name:
-			return true
+	Platform.write_boot_log("WindowsPlatform.set_mouse_passthrough: no passthrough backend")
 	return false
 
 
+func set_window_visible(window: Window, visible: bool) -> bool:
+	if _native_bridge == null or not bool(_native_health.get("window_supported", false)):
+		return false
+	var hwnd := get_native_window_handle(window)
+	Platform.write_boot_log("WindowsPlatform.set_window_visible: hwnd=%s visible=%s" % [str(hwnd), str(visible)])
+	var ok := bool(_native_bridge.call("set_window_visible", hwnd, visible))
+	Platform.write_boot_log("WindowsPlatform.set_window_visible: ok=%s" % str(ok))
+	if not ok:
+		_native_health["last_error"] = _read_native_error("set_window_visible failed")
+	return ok
+
+
 func is_tray_supported() -> bool:
-	return OS.get_name() == "Windows" and DisplayServer.get_name() == "windows" and ClassDB.class_exists("StatusIndicator") and ClassDB.class_exists("NativeMenu")
+	return bool(_native_health.get("tray_supported", false))
+
+
+func get_native_health() -> Dictionary:
+	return _native_health.duplicate(true)
+
+
+func get_native_window_handle(window: Window) -> int:
+	var target_window := window
+	if target_window == null:
+		var main_loop := Engine.get_main_loop()
+		if main_loop is SceneTree:
+			target_window = main_loop.root
+	if target_window == null or not DisplayServer.has_method("window_get_native_handle"):
+		return 0
+	var handle = DisplayServer.window_get_native_handle(DisplayServer.WINDOW_HANDLE, target_window.get_window_id())
+	if typeof(handle) == TYPE_INT:
+		return int(handle)
+	return 0
+
+
+func setup_tray(icon_path: String) -> bool:
+	if _native_bridge == null or not bool(_native_health.get("tray_supported", false)):
+		Platform.write_boot_log("WindowsPlatform.setup_tray: skipped")
+		return false
+	Platform.write_boot_log("WindowsPlatform.setup_tray: begin icon=%s" % icon_path)
+	var ok := bool(_native_bridge.call("setup_tray", icon_path))
+	Platform.write_boot_log("WindowsPlatform.setup_tray: native_last_error=%s" % _read_native_error(""))
+	Platform.write_boot_log("WindowsPlatform.setup_tray: ok=%s" % str(ok))
+	if not ok:
+		_native_health["tray_supported"] = false
+		_native_health["last_error"] = _read_native_error("setup_tray failed")
+		Platform.write_boot_log("WindowsPlatform.setup_tray: error=%s" % str(_native_health["last_error"]))
+	return ok
+
+
+func update_tray_menu(window_visible: bool) -> void:
+	if _native_bridge != null and bool(_native_health.get("tray_supported", false)):
+		_native_bridge.call("update_tray_menu", window_visible)
+
+
+func shutdown_tray() -> void:
+	if _native_bridge != null:
+		_native_bridge.call("shutdown_tray")
+
+
+func poll_tray_command() -> int:
+	if _native_bridge == null or not _native_bridge.has_method("poll_tray_command"):
+		return 0
+	return int(_native_bridge.call("poll_tray_command"))
+
+
+func set_taskbar_visible(window: Window, visible: bool) -> bool:
+	if _native_bridge == null or not bool(_native_health.get("taskbar_supported", false)):
+		return false
+	var hwnd := get_native_window_handle(window)
+	var ok := bool(_native_bridge.call("set_taskbar_visible", hwnd, visible))
+	if not ok:
+		_native_health["taskbar_supported"] = false
+		_native_health["last_error"] = _read_native_error("set_taskbar_visible failed")
+	return ok
+
+
+func can_enable_pure_pet_mode(window: Window) -> bool:
+	return _native_bridge != null \
+		and bool(_native_health.get("tray_supported", false)) \
+		and bool(_native_health.get("taskbar_supported", false)) \
+		and get_native_window_handle(window) != 0
 
 
 func get_executable_path() -> String:
@@ -127,3 +226,40 @@ func set_auto_start(enabled: bool, exe_path: String = "") -> bool:
 func _has_auto_start_entry() -> bool:
 	var output: Array = []
 	return OS.execute("reg", ["query", AUTOSTART_REG_PATH, "/v", AUTOSTART_VALUE_NAME], output, true, true) == 0
+
+
+func _load_native_bridge() -> void:
+	Platform.write_boot_log("WindowsPlatform._load_native_bridge: begin")
+	_native_health = {
+		"native_loaded": false,
+		"tray_supported": false,
+		"window_supported": false,
+		"passthrough_supported": false,
+		"taskbar_supported": false,
+		"last_error": "LMMNativeBridge class is not loaded."
+	}
+	if not ClassDB.class_exists("LMMNativeBridge"):
+		Platform.write_boot_log("WindowsPlatform._load_native_bridge: class missing")
+		return
+	_native_bridge = ClassDB.instantiate("LMMNativeBridge")
+	if _native_bridge == null:
+		_native_health["last_error"] = "Failed to instantiate LMMNativeBridge."
+		Platform.write_boot_log("WindowsPlatform._load_native_bridge: instantiate failed")
+		return
+	if _native_bridge.has_method("get_health"):
+		var health = _native_bridge.call("get_health")
+		if health is Dictionary:
+			_native_health = health
+			Platform.write_boot_log("WindowsPlatform._load_native_bridge: health=%s" % str(_native_health))
+			return
+	_native_health["native_loaded"] = true
+	_native_health["last_error"] = "LMMNativeBridge loaded but get_health returned invalid data."
+	Platform.write_boot_log("WindowsPlatform._load_native_bridge: health invalid")
+
+
+func _read_native_error(fallback: String) -> String:
+	if _native_bridge != null and _native_bridge.has_method("get_last_error"):
+		var err := String(_native_bridge.call("get_last_error"))
+		if not err.is_empty():
+			return err
+	return fallback

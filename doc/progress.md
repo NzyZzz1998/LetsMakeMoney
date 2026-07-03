@@ -2,9 +2,9 @@
 
 > 本文档作为整个项目的总体进度跟踪，按版本和模块组织 Vibe Coding 最小可执行任务。每个模块对应一组 checklist，完成时勾选。完整实施细节参见 `implementation-plan.md`，需求细节参见 `LetsMakeMoneyPRD.md`。
 
-**最后更新**: 2026-07-01
-**当前阶段**: v0.2 Beta 稳定候选整理中
-**当前里程碑**: V02-DOC 文档与用户可见文案整理；下一步为 v0.2 最终手动复测与 GitHub 提交
+**最后更新**: 2026-07-03
+**当前阶段**: v0.3 Beta 已完成导出 exe 手动验证与 Codex 辅助复测，进入 `v0.3beta` 发布状态；v0.4 Beta 已建立大型体验优化规划
+**当前里程碑**: Windows native bridge 已可通过 MSYS2 UCRT64 构建，真托盘、透明窗口、点击穿透、右键菜单、关闭隐藏到托盘、设置入口、导出烟测和手动复测均已通过；v0.4 下一步从橘猫动画规格与体验优化启动
 
 ---
 
@@ -14,6 +14,8 @@
 |------|------|------|------|
 | v0.1 | Beta | Windows | ✅ Beta 调试窗口版已打包归档 |
 | v0.2 | Beta | Windows | 🧪 稳定候选；核心交互/设置/自启/素材/验证已完成，真实托盘与透明穿透暂缓 |
+| v0.3 | Beta | Windows x86_64 | ✅ 已完成 native bridge、真托盘控制器、透明窗口控制器、点击穿透区域模型、右键菜单修复、纯桌宠门禁、设置修正、构建脚本、导出烟测和手动验证复测；发布 tag 为 `v0.3beta` |
+| v0.4 | Beta | Windows x86_64 | 🧭 规划草案；大型体验优化版本，聚焦橘猫动画、交互手感、窗口/点击穿透、Panel、设置体验、性能和发布包 |
 | v1.0 | 正式版 | Windows | 🗓 未开始 |
 | v2.0 | 跨平台 | + macOS | 🗓 未开始 |
 | v3.0 | 移动端 | + iOS/Android | 🗓 未开始 |
@@ -263,7 +265,7 @@
 - **必须完成项明确**：系统托盘正式集成、开机自启正式支持、关闭隐藏到托盘均为 v0.2 必做项，不再作为降级或 Spike。
 - **可降级项明确**：透明空白区域完全穿透可按平台能力降级为紧凑窗口；“融入桌面”仍为实验能力；素材更新仅为非阻塞 Spike。
 - **实现边界明确**：Windows 专属能力必须通过 PlatformInterface / WindowsPlatform 封装，Main、Settings、DragResizeSystem 不直接写注册表或平台命令。
-- **验证路径明确**：新增 `verify_v02.ps1` / `verify_v02.gd`、`doc/v0.2-manual-verification.md`，并保留 M3/M4/M5 回归验证。
+- **验证路径明确**：新增 `verify_v02.ps1` / `verify_v02.gd`、`doc/verification/v0.2.md`，并保留 M3/M4/M5 回归验证。
 
 ### v0.2 总体进度概览
 
@@ -389,7 +391,7 @@
 
 #### 模块 V02-M5.2: v0.2 手动验证文档
 
-- [x] V02-M5.2.1 新增 `doc/v0.2-manual-verification.md`，覆盖桌宠模式、Debug 模式和交互验证
+- [x] V02-M5.2.1 新增 `doc/verification/v0.2.md`，覆盖桌宠模式、Debug 模式和交互验证
 - [x] V02-M5.2.2 文档覆盖托盘菜单、关闭隐藏到托盘、退出流程和开机自启注册表验证，并明确当前暂缓项
 - [x] V02-M5.2.3 文档包含测试后清理步骤：移除自启动、关闭进程、按需删除配置
 - [x] V02-M5.2.4 文档改为可填写表格样式，支持标注结果、备注和证据
@@ -436,7 +438,7 @@
 | 资源 | 路径 | 负责模块 | 状态 |
 |------|------|---------|------|
 | v0.2 自动验证脚本 | `scripts/verify_v02.ps1` / `scripts/verify_v02.gd` | V02-M5.1 | ✅ 已创建并通过 |
-| v0.2 手动验证文档 | `doc/v0.2-manual-verification.md` | V02-M5.2 | ✅ 已创建并改为可填写表格 |
+| v0.2 验证文档 | `doc/verification/v0.2.md` | V02-M5.2 | ✅ 已创建并改为可填写表格 |
 | v0.2 素材 Spike 记录 | `doc/v0.2-asset-spike.md` 等素材文档 | V02-S1.1 | ✅ 已记录 |
 | Windows 托盘实现方案记录 | `doc/LetsMakeMoneyPRD.md` / `doc/implementation-plan.md` / 手动验证文档 | V02-M3.1 | ⏸ Godot `StatusIndicator` 路线暂缓，v0.3 继续 |
 | 小猫动画探索输出 | `assets/pets/cat_orange_v1/` | V02-S1.1 | ✅ 已接入当前版本 |
@@ -468,6 +470,356 @@
 - v0.1 “开机自启”在设置中为禁用占位，v0.2 必须升级为正式可用项。
 - v0.1 `show_tray_menu()` 是 PopupMenu 降级方案，v0.2 必须实现真实系统托盘图标。
 
+## v0.3 Beta
+
+### v0.3 计划 Review 结论
+
+根据 `doc/LetsMakeMoneyPRD.md` 与 `doc/implementation-plan.md` review，v0.3 Beta 的范围已经从“技术预研”明确升级为一个完整 Beta 增量版本：目标不是继续增加业务功能，而是把 v0.2 为稳定性暂缓的桌宠原生能力恢复为可交付、可导出、可回退的正式能力。
+
+- **主线目标清晰**：v0.3 聚焦 Windows x86_64 原生桌宠能力，必须完成 GDExtension / native bridge、真系统托盘、透明无边框窗口、点击穿透、关闭隐藏到托盘和可找回优先的纯桌宠模式。
+- **必须完成项明确**：真托盘、透明窗口、点击穿透、关闭隐藏到托盘、纯桌宠模式、设置控件修正、v0.3 验证与发布文档均为正式里程碑，不再作为 Spike。
+- **安全边界明确**：默认仍保留任务栏 / Alt+Tab；只有托盘健康检查通过后，用户才能手动启用纯桌宠模式；任何原生能力失败都必须回退到 v0.2 紧凑普通窗口或保留可找回入口。
+- **技术边界明确**：Win32 能力集中在 GDExtension / 原生插件中；Godot 侧只通过 `PlatformInterface`、`WindowsPlatform` 和 `Platform` Autoload 调用，Main / Settings / DragResizeSystem 不直接写 Win32 细节。
+- **版本边界明确**：橘猫动画打磨、更多动作帧、macOS / Linux 原生能力、多角色、云同步、统计报表等不进入 v0.3；动画打磨进入 v0.4。
+- **验证路径明确**：v0.3 需要新增 `verify_v03.ps1/gd`、`verify_v03_export.ps1`、`doc/verification/v0.3.md`、`releases/CHANGELOG.md`、`releases/v0.3-beta-notes.md`，并保留 v0.2 回归验证。
+
+### v0.3 总体进度概览
+
+| 里程碑 | 模块 | 状态 | 完成度 |
+|--------|------|------|--------|
+| **V03-M1** | GDExtension / Native Bridge 骨架 | ✅ 完成 | 8/8 |
+| **V03-M1** | Godot 侧 native health 接入 | ✅ 完成 | 7/7 |
+| **V03-M2** | 原生系统托盘控制器 | ✅ 完成 | 8/8 |
+| **V03-M2** | Main 托盘健康门禁 | ✅ 完成 | 5/5 |
+| **V03-M3** | 透明无边框窗口与窗口句柄 | ✅ 完成 | 7/7 |
+| **V03-M4** | 点击穿透与交互区域刷新 | ✅ 完成 | 8/8 |
+| **V03-M5** | 关闭隐藏到托盘健康门禁 | ✅ 完成 | 4/4 |
+| **V03-M5** | 可找回优先的纯桌宠模式 | ✅ 完成 | 7/7 |
+| **V03-M6** | 设置控件体验修正 | ✅ 完成 | 8/8 |
+| **V03-M6** | 配置迁移与默认值 | ✅ 完成 | 5/5 |
+| **V03-M7** | v0.3 验证与发布文档 | ✅ 完成 | 16/16 |
+| **V03-DOC** | 文档编码与进度维护 | 🔄 进行中 | 5/6 |
+
+**v0.3 总进度**: 89/89 任务完成或已落地（100%）。已完成 PRD、implementation-plan 和 progress 的 v0.3 规划，并完成 native bridge 骨架、Godot 侧 native health 接口、v0.3 配置默认值迁移、Win32 托盘控制器源码、托盘命令轮询模型、Win32 窗口控制器源码、Godot 窗口句柄入口、点击穿透区域模型、右键菜单命中修复、关闭隐藏到托盘门禁、纯桌宠模式安全门禁、设置控件修正、手动验证文档、发布说明、MSYS2 UCRT64 native 构建脚本、导出 exe、自动验证和 `v0.3beta` 发布收尾。当前 `native/windows/bin/win64/letsmakemoney_native.dll` 已可本地构建，`verify_v02.ps1`、`verify_v03.ps1`、`verify_m4.ps1`、`verify_m5.ps1` 和 `verify_v03_export.ps1` 均已通过。
+
+### v0.3 V03-M1. GDExtension / Native Bridge 骨架
+
+#### 模块 V03-M1.1: 建立 native/windows 插件目录与构建说明
+
+- [x] V03-M1.1.1 创建 `native/windows/`、`native/windows/src/`、`native/windows/bin/win64/` 目录结构
+- [x] V03-M1.1.2 新增 `native/windows/README.md`，说明 native bridge 负责托盘、透明窗口、穿透、任务栏/Alt+Tab 控制和健康检查，不承载薪资/动画/UI/配置业务
+- [x] V03-M1.1.3 新增 `native/windows/letsmakemoney_native.gdextension`，声明入口 `letsmakemoney_library_init` 和 Windows x86_64 debug/release dll 路径
+- [x] V03-M1.1.4 新增 `native/windows/SConstruct`，记录 Godot 4.7 / godot-cpp / Windows x86_64 构建入口
+- [x] V03-M1.1.5 新增 `register_types.h/cpp`，注册 `LMMNativeBridge`
+- [x] V03-M1.1.6 新增 `lmm_native_bridge.h/cpp` 最小类，暴露 `get_health()`、`setup_tray()`、`setup_pet_window()`、`set_mouse_passthrough()`、`set_taskbar_visible()` 等方法
+- [x] V03-M1.1.7 验证 `.gdextension` 与 C++ 源文件路径存在，构建产物路径不误提交或明确放行
+- [x] V03-M1.1.8 native bridge scaffold 已纳入 v0.3 整体收尾提交范围
+
+#### 模块 V03-M1.2: Godot 侧接入 native bridge 健康检查
+
+- [x] V03-M1.2.1 在 `Config._defaults()` 新增 `native_integration_enabled=true` 与 `pure_pet_mode=false`
+- [x] V03-M1.2.2 将 v0.3 目标默认值设为 `system_tray_enabled=true`、`transparent_pet_window_enabled=true`、`mouse_passthrough_enabled=true`
+- [x] V03-M1.2.3 在 `reset_display_defaults()` 同步纳入 v0.3 原生能力字段，但不清空薪资、角色和 Panel 配置
+- [x] V03-M1.2.4 在 `PlatformInterface` 增加 `get_native_health()`、`get_native_window_handle()`、`set_taskbar_visible()`、`can_enable_pure_pet_mode()` 安全默认实现
+- [x] V03-M1.2.5 在 `WindowsPlatform` 中加载 `LMMNativeBridge`，构造 `_native_health`，插件缺失时返回可读 `last_error`
+- [x] V03-M1.2.6 在 `Platform` Autoload 转发 native health、窗口句柄、任务栏显示和纯桌宠可用性接口
+- [x] V03-M1.2.7 新增 `scripts/verify_v03.ps1/gd`，验证 v0.3 默认值、平台接口和 health 字段存在
+
+### v0.3 V03-M2. 真系统托盘
+
+#### 模块 V03-M2.1: 原生系统托盘控制器
+
+- [x] V03-M2.1.1 新增 `native/windows/src/tray_controller.h/cpp`，封装 Windows 托盘图标、菜单和命令轮询
+- [x] V03-M2.1.2 定义托盘命令 ID：显示/隐藏、设置、关于、退出
+- [x] V03-M2.1.3 使用 Win32 托盘能力创建图标，tooltip 至少包含 `LetsMakeMoney`
+- [x] V03-M2.1.4 构建托盘菜单：显示/隐藏、设置、关于 LetsMakeMoney、退出
+- [x] V03-M2.1.5 将托盘命令映射为 Godot 侧 `1/2/3/4`，供 `Platform` 轮询并发射现有信号
+- [x] V03-M2.1.6 在 `LMMNativeBridge` 暴露 `poll_tray_command()`，并实现 `setup_tray()` / `update_tray_menu()` / `shutdown_tray()`
+- [x] V03-M2.1.7 在 `WindowsPlatform` 调用 native bridge 托盘接口，Godot `StatusIndicator` 仅作为回退或废弃路径记录
+- [x] V03-M2.1.8 手动验证托盘图标、左键显示/隐藏、右键菜单、设置、关于和退出全部可用
+
+#### 模块 V03-M2.2: Main 接入托盘健康门禁
+
+- [x] V03-M2.2.1 在 `main.gd` 中记录 `_native_health`、`_native_ready`、`_tray_ready`（当前已记录 `_native_health` 与 `_tray_ready`，`_native_ready` 暂未单独拆出）
+- [x] V03-M2.2.2 `_setup_tray()` 按顺序检查 `debug_mode`、`native_integration_enabled`、`system_tray_enabled`、`tray_supported`
+- [x] V03-M2.2.3 托盘初始化成功后连接 `tray_toggle_requested`、`tray_settings_requested`、`tray_about_requested`、`tray_exit_requested`
+- [x] V03-M2.2.4 托盘初始化失败时保留任务栏入口和角色右键菜单，不隐藏窗口到不可找回状态
+- [x] V03-M2.2.5 在 `verify_v03.gd` 增加托盘健康门禁脚本扫描或场景检查
+
+### v0.3 V03-M3. 透明无边框桌宠窗口
+
+#### 模块 V03-M3.1: 原生窗口控制器与窗口句柄获取
+
+- [x] V03-M3.1.1 新增 `native/windows/src/window_controller.h/cpp`，封装窗口样式、透明、穿透和任务栏/Alt+Tab 控制
+- [x] V03-M3.1.2 实现 `setup_pet_window(HWND hwnd, transparent, borderless)`，设置无边框、置顶、透明相关 Win32 样式
+- [x] V03-M3.1.3 在 `LMMNativeBridge` 转发 `setup_pet_window()`
+- [x] V03-M3.1.4 在 `WindowsPlatform.get_native_window_handle(window)` 中获取 Godot 主窗口 native handle
+- [x] V03-M3.1.5 `WindowsPlatform.setup_window()` 先设置 Godot 窗口属性，再调用 native `setup_pet_window()`
+- [x] V03-M3.1.6 原生透明窗口初始化失败时自动回退：`borderless=false`、`transparent_bg=false`、紧凑普通窗口继续可用
+- [x] V03-M3.1.7 手动验证 `debug_mode=false` 下无边框透明窗口可见，`debug_mode=true` 下仍为 900×500 调试窗口
+
+### v0.3 V03-M4. 点击穿透与交互区域刷新
+
+#### 模块 V03-M4.1: 原生鼠标穿透区域
+
+- [x] V03-M4.1.1 在 `WindowController` 实现 `set_mouse_passthrough(hwnd, interactive_rects)` 和 `clear_mouse_passthrough(hwnd)`
+- [x] V03-M4.1.2 明确命中规则：小猫、Panel、菜单和设置窗口可交互；其他透明空白区域尽量穿透到桌面或下层窗口
+- [x] V03-M4.1.3 在 `LMMNativeBridge` 转发穿透接口，并返回明确成功/失败
+- [x] V03-M4.1.4 在 `WindowsPlatform.set_mouse_passthrough()` 中优先调用 native bridge，失败时清空穿透并返回 `false`
+- [x] V03-M4.1.5 在 `main.gd` 增加 `get_interactive_rects()`，统一计算 Pet 和 Panel 区域
+- [x] V03-M4.1.6 在缩放、Panel 展开/收起、窗口拖拽、设置保存后刷新穿透区域
+- [x] V03-M4.1.7 增加 `_last_passthrough_rects_hash`，避免每帧重复 native 调用导致性能或稳定性问题
+- [x] V03-M4.1.8 手动验证空白区域点击穿透，小猫 hover/单击/双击/长按/拖拽、Panel hover 和设置窗口点击均不回退
+
+### v0.3 V03-M5. 关闭隐藏到托盘与纯桌宠模式
+
+#### 模块 V03-M5.1: 关闭按钮隐藏到托盘健康门禁
+
+- [x] V03-M5.1.1 在 `main.gd` 增加 `can_hide_to_tray()`，要求 `minimize_to_tray=true` 且 `_tray_ready=true`
+- [x] V03-M5.1.2 改造 `_on_window_close_requested()`：托盘健康时隐藏窗口，否则保存配置并退出或保留可找回入口
+- [x] V03-M5.1.3 `DragResizeSystem.set_window_visible(false)` 前保存窗口位置，避免隐藏后丢失坐标
+- [x] V03-M5.1.4 手动验证托盘健康时关闭隐藏、托盘恢复；托盘不可用时不隐藏到不可找回状态（脚本门禁已覆盖，真实托盘恢复待 native DLL 构建后手动验证）
+
+#### 模块 V03-M5.2: 可找回优先的纯桌宠模式
+
+- [x] V03-M5.2.1 在 `WindowController` 实现 `set_taskbar_visible(hwnd, visible)`，切换任务栏 / Alt+Tab 相关窗口扩展样式
+- [x] V03-M5.2.2 在 `LMMNativeBridge` 转发 `set_taskbar_visible()`
+- [x] V03-M5.2.3 在 `WindowsPlatform` 实现 `can_enable_pure_pet_mode(window)`，要求 native bridge 可用、托盘支持、任务栏控制支持、窗口句柄有效
+- [x] V03-M5.2.4 在 `main.gd` 增加 `_apply_pure_pet_mode()`，默认保持任务栏 / Alt+Tab 可见
+- [x] V03-M5.2.5 托盘健康且用户开启 `pure_pet_mode=true` 时隐藏任务栏 / Alt+Tab
+- [x] V03-M5.2.6 原生失败、托盘失败或 Debug 模式下自动 `pure_pet_mode=false` 并恢复任务栏 / Alt+Tab
+- [x] V03-M5.2.7 手动验证纯桌宠模式可启用、可通过托盘找回、失败时自动恢复可找回入口
+
+### v0.3 V03-M6. 设置体验与配置迁移
+
+#### 模块 V03-M6.1: 休息模式与窗口模式改为明确选择控件
+
+- [x] V03-M6.1.1 将 `settings_dialog.gd` 中 `rest_mode_toggle: CheckButton` 替换为 `rest_mode_option: OptionButton`
+- [x] V03-M6.1.2 休息模式选项明确显示“双休 / 单休”，加载和保存仍写入 `rest_mode=double/single`
+- [x] V03-M6.1.3 将 `window_mode_toggle: CheckButton` 替换为 `window_mode_option: OptionButton`
+- [x] V03-M6.1.4 窗口模式选项明确显示“置顶悬浮 / 融入桌面（实验）”
+- [x] V03-M6.1.5 新增 `pure_pet_mode_toggle`，文案说明“隐藏任务栏 / Alt+Tab，需托盘可用”
+- [x] V03-M6.1.6 新增 `native_status_label`，显示托盘、点击穿透、纯桌宠能力可用/不可用状态
+- [x] V03-M6.1.7 托盘或 native health 不满足时禁用纯桌宠开关并强制不保存假成功
+- [x] V03-M6.1.8 更新 `verify_v03.gd`，确保设置中不再使用含糊的 rest/window CheckButton
+
+#### 模块 V03-M6.2: 配置迁移与恢复默认范围
+
+- [x] V03-M6.2.1 在默认配置中新增 `config_version=3`
+- [x] V03-M6.2.2 `merge_with_defaults()` 兼容 v0.2 旧配置，补齐 v0.3 字段但保留薪资、窗口位置、缩放、透明度、自启动和 Panel 项
+- [x] V03-M6.2.3 `reset_display_defaults()` 只重置窗口、显示、原生能力、自启动、托盘和纯桌宠字段
+- [x] V03-M6.2.4 确认恢复默认不清空 `monthly_salary`、`rest_mode`、`work_start_time`、`work_end_time`、`pet_id`、`panel_items`
+- [x] V03-M6.2.5 在 `verify_v03.gd` 增加旧配置迁移测试和恢复默认范围检查
+
+### v0.3 V03-M7. 验证、发布与文档
+
+#### 模块 V03-M7.1: v0.3 手动验证文档
+
+- [x] V03-M7.1.1 新增 `doc/verification/v0.3.md`
+- [x] V03-M7.1.2 文档包含基础信息表：验证日期、Windows 版本、Godot 版本、exe 路径、配置路径、是否清空旧配置、验证结论
+- [x] V03-M7.1.3 文档覆盖真系统托盘：图标、左键显示/隐藏、右键菜单、设置、关于、退出
+- [x] V03-M7.1.4 文档覆盖透明无边框窗口：无普通边框、背景透明、设置窗口不受影响
+- [x] V03-M7.1.5 文档覆盖点击穿透：空白区域穿透、小猫交互、Panel hover、设置窗口可点击
+- [x] V03-M7.1.6 文档覆盖关闭隐藏到托盘与纯桌宠模式：默认可找回、开启后隐藏任务栏 / Alt+Tab、托盘恢复
+- [x] V03-M7.1.7 每个验证项都包含“结果”和“备注”列，便于用户标注
+- [x] V03-M7.1.8 文档包含错误记录模板：问题编号、第一条错误、复现步骤、期望行为、实际行为、截图/录屏
+
+#### 模块 V03-M7.2: 自动验证、导出验证与 release notes
+
+- [x] V03-M7.2.1 完善 `scripts/verify_v03.gd`，覆盖配置默认值、迁移、平台接口、Main 门禁、设置控件、穿透模型和纯桌宠模式门禁
+- [x] V03-M7.2.2 完善 `scripts/verify_v03.ps1`，默认使用本机 Godot 4.7 路径执行 headless 验证
+- [x] V03-M7.2.3 新增 `scripts/verify_v03_export.ps1`，检查 `build/LetsMakeMoney.exe`、`.gdextension` 和 native dll 是否存在
+- [x] V03-M7.2.4 导出验证脚本启动 exe 做短时间冒烟测试，确认进程不会立即崩溃（native DLL 缺失时会在启动前阻塞）
+- [x] V03-M7.2.5 新增 `releases/CHANGELOG.md`，记录 v0.3 新增、变更、延后内容
+- [x] V03-M7.2.6 新增 `releases/v0.3-beta-notes.md`，记录必须验证项和已知边界
+- [x] V03-M7.2.7 发布前运行 `verify_v02.ps1`、`verify_v03.ps1`、`verify_v03_export.ps1`
+- [x] V03-M7.2.8 用户完成 `doc/verification/v0.3.md` 且无阻塞问题后，允许进入 `v0.3beta` 发布准备
+
+### v0.3 V03-DOC. 文档编码与进度维护
+
+#### 模块 V03-DOC.1: PRD / Plan / Progress 平级维护
+
+- [x] V03-DOC.1.1 在 `doc/LetsMakeMoneyPRD.md` 中新增 v0.3 Beta PRD，与 v0.1 / v0.2 平级维护
+- [x] V03-DOC.1.2 在 `doc/implementation-plan.md` 中新增 v0.3 Beta 实施计划，与 v0.1 / v0.2 平级维护
+- [x] V03-DOC.1.3 在 `doc/progress.md` 顶部版本总览中新增 v0.3 Beta 状态
+- [x] V03-DOC.1.4 在 `doc/progress.md` 中新增 v0.3 Review 结论、总体进度概览和模块级 checklist
+- [x] V03-DOC.1.5 清理并标注 `implementation-plan.md` 中历史嵌套 markdown 片段导致的标题层级噪声，保留详细内容并以 v0.4 平级章节继续维护
+- [x] V03-DOC.1.6 检查 PRD、Plan、Progress 在 GitHub/Typora 中均无乱码、无错位标题、无过度压缩
+
+### v0.3 资源准备清单（并行进行）
+
+| 资源 | 路径 | 负责模块 | 状态 |
+|------|------|---------|------|
+| Windows native bridge 目录 | `native/windows/` | V03-M1.1 | ✅ 已创建 |
+| GDExtension 描述文件 | `native/windows/letsmakemoney_native.gdextension` | V03-M1.1 | ✅ 已创建 |
+| Native bridge C++ 源码 | `native/windows/src/` | V03-M1/V03-M2/V03-M3/V03-M4/V03-M5 | ✅ 已有 `LMMNativeBridge`、`TrayController`、`WindowController`，脚本验证、导出烟测和手动复测均已通过 |
+| Native dll 构建产物 | `native/windows/bin/win64/letsmakemoney_native.dll` | V03-M1/V03-M7 | ✅ 已通过 MSYS2 UCRT64 本地构建，产物为本机生成文件，不提交第三方构建输出 |
+| v0.3 自动验证脚本 | `scripts/verify_v03.ps1` / `scripts/verify_v03.gd` | V03-M1/V03-M7 | ✅ 已创建并通过验证 |
+| v0.3 native 构建脚本 | `scripts/build_native_windows.ps1` | V03-M7.2 | ✅ 已支持本机 MSYS2 UCRT64，并通过构建自测 |
+| v0.3 导出验证脚本 | `scripts/verify_v03_export.ps1` | V03-M7.2 | ✅ 已创建并通过导出 exe 冒烟测试 |
+| v0.3 验证文档 | `doc/verification/v0.3.md` | V03-M7.1 | ✅ 已创建 |
+| v0.3 发布记录 | `releases/CHANGELOG.md` / `releases/v0.3-beta-notes.md` | V03-M7.2 | ✅ 已创建 |
+
+### v0.3 已知风险（降级方案）
+
+| 风险 | 降级方案 |
+|------|---------|
+| GDExtension 加载失败 | `native_integration_enabled` 视为不可用，回退 v0.2 紧凑普通窗口，保留任务栏入口 |
+| Native dll 缺失或未随 exe 分发 | `verify_v03_export.ps1` 阻塞发布；release notes 明确分发文件 |
+| 托盘初始化失败 | `_tray_ready=false`，关闭按钮不得隐藏到托盘，纯桌宠模式禁用 |
+| 透明无边框初始化失败 | 回退 `borderless=false` / `transparent_bg=false` 的紧凑普通窗口 |
+| 点击穿透区域错误 | Debug 模式默认关闭穿透；穿透失败时清空穿透区域，优先保证小猫、Panel、设置可交互 |
+| 纯桌宠模式导致窗口不可找回 | 只有托盘健康时才允许开启；失败时自动 `pure_pet_mode=false` 并恢复任务栏 / Alt+Tab |
+| 设置控件保存假成功 | 保存前读取 native health，能力不可用时禁用或回写真实状态 |
+| 文档整理被误压缩 | 只清理乱码和标题结构，不删除关键设计依据、验收记录和风险说明 |
+
+### v0.3 已关闭问题 / Bug 跟踪
+
+#### v0.3 收尾关闭项（2026-07-03）
+
+- `system_tray_enabled`、`transparent_pet_window_enabled`、`mouse_passthrough_enabled` 已从 v0.2 安全关闭状态恢复为 v0.3 默认能力，并通过 native health 与失败降级保护。
+- Godot `StatusIndicator` 旧路线不再作为主路径，真托盘改由 Windows native bridge 负责，避免继续触发 Godot 4.7 Windows 原生访问违例。
+- 休息模式和窗口模式已从含糊的 CheckButton 改为 `OptionButton` 下拉选择，保存仍写入 `rest_mode=double/single`、`window_mode=top/embed`。
+- 设置进入 Display 页后影响其他选项卡保存的问题已修复，设置打开时会临时清空穿透区域，关闭后恢复。
+- 关闭按钮已改为托盘健康时隐藏窗口，托盘左键可显示/隐藏，托盘右键菜单可打开设置、关于和退出。
+- 小猫右键菜单偶发不弹的问题已通过右键专用上下文区域修复；普通无按键状态下扩展区仍保持点击穿透。
+- `scripts/build_native_windows.ps1` 已支持本机 MSYS2 UCRT64 构建，`native/windows/bin/win64/letsmakemoney_native.dll` 可本地生成。
+- `verify_v02.ps1`、`verify_v03.ps1`、`verify_m4.ps1`、`verify_m5.ps1`、`verify_v03_export.ps1` 在收尾阶段均已通过。
+
+### v0.4 已知问题 / Bug 跟踪
+
+#### v0.4 需要承接的问题（2026-07-03）
+
+- 橘猫动画仍偏基础，idle / working / resting / clicked_hold 的动作节奏、帧数、状态差异和角色锚点需要系统打磨。
+- 当前点击穿透基于交互矩形和 native hit-test，不是像素级命中；v0.4 需要增加可视化或日志调试，继续校准多缩放、多边缘位置和右键上下文区域。
+- Panel 在边缘定位、展开方向、与小猫距离、内容密度方面仍有体验优化空间。
+- 设置窗口功能已可用，但信息架构、保存反馈、错误提示、平台能力禁用原因和恢复入口仍偏工程化。
+- 纯桌宠模式已经可找回，但用户对任务栏、Alt+Tab、托盘之间关系仍可能困惑，需要更清晰的说明和状态反馈。
+- native DLL、exe 和导出脚本已经形成链路，但发布包仍是本地脚本式流程，v0.4 需要整理分发清单、升级说明和 release 产物规范。
+
+## v0.4 Beta
+
+### v0.4 计划 Review 结论
+
+v0.4 Beta 是 v0.3 原生能力完成后的大型体验优化版本。根据 PRD 和 implementation-plan，v0.4 不再把主要风险放在“能否创建托盘/透明窗口/点击穿透”，而是围绕用户长期使用时最容易感知到的细节进行系统打磨。
+
+- **动画是主线之一**：橘猫动画需要从“能显示”升级为“状态可感知、动作自然、帧间稳定”。
+- **交互手感是主线之一**：单击、双击、长按、拖拽、右键菜单要形成清晰优先级，不能靠偶然命中。
+- **窗口体验仍需继续打磨**：v0.3 已实现点击穿透和透明窗口，v0.4 需要加入可观测调试能力，校准边界场景。
+- **设置体验需要从工程可用升级到用户可理解**：保存状态、禁用原因、恢复默认、纯桌宠模式说明都要更清楚。
+- **发布体验要规范化**：native DLL、exe、版本号、验证脚本、手动验证和 release notes 需要形成稳定流程。
+
+### v0.4 总体进度概览
+
+| 里程碑 | 模块 | 状态 | 完成度 |
+|--------|------|------|--------|
+| **V04-M1** | 橘猫动画与素材管线 | 🗓 规划中 | 0/18 |
+| **V04-M2** | 交互手感优化 | 🗓 规划中 | 0/10 |
+| **V04-M3** | 窗口、点击穿透与 Panel 打磨 | 🗓 规划中 | 0/10 |
+| **V04-M4** | 设置体验与保存反馈 | 🗓 规划中 | 0/10 |
+| **V04-M5** | 性能、稳定性与发布包 | 🗓 规划中 | 0/10 |
+| **V04-DOC** | v0.4 验证文档与发布记录 | 🗓 规划中 | 0/6 |
+
+**v0.4 总进度**: 0/64（规划草案已建立，尚未进入实现）。
+
+### v0.4 V04-M1. 橘猫动画与素材管线
+
+#### 模块 V04-M1.1: 动画素材规格
+
+- [ ] V04-M1.1.1 定义统一画布尺寸、透明边界、角色锚点、脚底基线和视觉中心
+- [ ] V04-M1.1.2 定义基础状态 `idle` / `working` / `resting`
+- [ ] V04-M1.1.3 定义交互叠加状态 `clicked_single` / `clicked_double` / `clicked_hold`
+- [ ] V04-M1.1.4 定义每个动画的帧数、FPS、循环/单次播放规则和恢复规则
+- [ ] V04-M1.1.5 建立素材命名规则和素材来源记录格式
+- [ ] V04-M1.1.6 建立动画验收标准：不裁切、不漂移、不闪烁、尺寸一致、透明边界干净
+
+#### 模块 V04-M1.2: 橘猫 v2 动画素材接入
+
+- [ ] V04-M1.2.1 生成或筛选 idle 动画
+- [ ] V04-M1.2.2 生成或筛选 working 动画
+- [ ] V04-M1.2.3 生成或筛选 resting 动画
+- [ ] V04-M1.2.4 生成或筛选 clicked_hold 动画
+- [ ] V04-M1.2.5 生成或筛选 clicked_single / clicked_double 短反馈动画
+- [ ] V04-M1.2.6 接入 SpriteFrames 并保留旧素材可回退
+
+#### 模块 V04-M1.3: 动画验证
+
+- [ ] V04-M1.3.1 新增 v0.4 动画自动验证脚本
+- [ ] V04-M1.3.2 自动检查动画名称、帧数、FPS 和 loop 配置
+- [ ] V04-M1.3.3 手动验证文档增加动画预览和状态切换项
+- [ ] V04-M1.3.4 记录素材工具、输入提示词、筛选结论和接入成本
+
+### v0.4 V04-M2. 交互手感优化
+
+- [ ] V04-M2.1.1 梳理 hover、单击、双击、长按、拖拽、右键菜单优先级
+- [ ] V04-M2.1.2 拖拽阈值触发后不进入 clicked_hold
+- [ ] V04-M2.1.3 双击识别不被两次单击反馈提前吞掉
+- [ ] V04-M2.1.4 右键菜单弹出不触发左键交互状态
+- [ ] V04-M2.1.5 交互结束后恢复进入交互前的基础状态
+- [ ] V04-M2.2.1 单击反馈短促明确
+- [ ] V04-M2.2.2 双击反馈更明显
+- [ ] V04-M2.2.3 长按反馈稳定出现并可自然恢复
+- [ ] V04-M2.2.4 拖拽开始和结束不造成动画卡死
+- [ ] V04-M2.2.5 Panel hover 展开与小猫 hover 不互相抢状态
+
+### v0.4 V04-M3. 窗口、点击穿透与 Panel 打磨
+
+- [ ] V04-M3.1.1 Debug 模式增加交互矩形可视化或详细日志
+- [ ] V04-M3.1.2 日志输出小猫核心区、右键上下文区、Panel 折叠区、Panel 展开区
+- [ ] V04-M3.1.3 缩放变化后交互矩形同步刷新
+- [ ] V04-M3.1.4 Panel 展开/收起后交互矩形同步刷新
+- [ ] V04-M3.1.5 设置/向导打开时穿透区域清空，关闭后恢复
+- [ ] V04-M3.2.1 优化窗口靠右时 Panel 左侧展开阈值
+- [ ] V04-M3.2.2 优化窗口靠底时 Panel 上方展开阈值
+- [ ] V04-M3.2.3 验证 50%-200% 缩放下小猫不裁切
+- [ ] V04-M3.2.4 验证不同缩放下 Panel 文字不溢出
+- [ ] V04-M3.2.5 验证不同缩放下点击穿透区域接近视觉区域
+
+### v0.4 V04-M4. 设置体验与保存反馈
+
+- [ ] V04-M4.1.1 保留 Salary / Pet / Display / Panel / General 大类并优化内容布局
+- [ ] V04-M4.1.2 Display 页解释透明度、窗口模式、纯桌宠模式、点击穿透关系
+- [ ] V04-M4.1.3 General 页解释开机自启、关闭隐藏到托盘、Debug 模式和恢复默认
+- [ ] V04-M4.1.4 平台不可用能力显示禁用原因
+- [ ] V04-M4.1.5 设置窗口不再出现窗口套窗口的观感
+- [ ] V04-M4.2.1 保存前对比配置差异，避免重复写入
+- [ ] V04-M4.2.2 自启动注册表只在状态变化时写入或删除
+- [ ] V04-M4.2.3 native 能力只在相关配置变化时重新应用
+- [ ] V04-M4.2.4 保存成功后显示轻量状态提示
+- [ ] V04-M4.2.5 保存失败时显示可读错误并保留用户输入
+
+### v0.4 V04-M5. 性能、稳定性与发布包
+
+- [ ] V04-M5.1.1 减少高频日志，只保留错误和关键状态变化
+- [ ] V04-M5.1.2 限制 native region 更新频率，避免无变化重复调用
+- [ ] V04-M5.1.3 确认 Panel 刷新仍按节流执行
+- [ ] V04-M5.1.4 长时间运行后托盘、穿透、窗口位置和设置保存仍正常
+- [ ] V04-M5.2.1 v0.4 发布前继续运行 v0.2/v0.3 回归验证
+- [ ] V04-M5.2.2 新增 v0.4 动画、交互、窗口、设置体验验证脚本
+- [ ] V04-M5.2.3 发布包清单明确 exe、native dll、版本号和配置路径
+- [ ] V04-M5.2.4 Release Notes 说明 v0.4 体验变化、已知限制和升级建议
+- [ ] V04-M5.2.5 手动验证文档保留可标注结果和备注列
+
+### v0.4 资源准备清单
+
+| 资源 | 路径 | 负责模块 | 状态 |
+|------|------|---------|------|
+| v0.4 动画规格 | `doc/v0.4-animation-spec.md` | V04-M1.1 | 🗓 待创建 |
+| 橘猫 v2 素材 | `assets/pets/cat/orange_v2/` | V04-M1.2 | 🗓 待准备 |
+| v0.4 自动验证 | `scripts/verify_v04.ps1` / `scripts/verify_v04.gd` | V04-M1/V04-M5 | 🗓 待创建 |
+| v0.4 验证文档 | `doc/verification/v0.4.md` | V04-DOC | 🗓 待创建 |
+| v0.4 发布说明 | `releases/v0.4-beta-notes.md` | V04-DOC | 🗓 待创建 |
+
+### v0.4 已知风险（降级方案）
+
+| 风险 | 降级方案 |
+|------|---------|
+| 新动画素材质量不稳定 | 保留 v0.3 橘猫素材可回退，不让素材质量阻塞已有功能 |
+| 动画接入导致状态机回退 | 保持基础状态 + 交互叠加状态模型，新增自动验证覆盖状态恢复 |
+| 点击穿透调优破坏右键菜单 | 保留右键专用上下文区域并增加调试视图，按场景逐项验证 |
+| 设置体验重构引入保存回归 | 保存逻辑先加差异对比和测试，再调整 UI 布局 |
+| 发布包遗漏 native DLL | 继续用导出验证脚本阻塞发布，并在 release notes 列出分发文件 |
+
 ---
 
 ## 开发日志
@@ -485,7 +837,7 @@
 - **2026-06-25**: 尝试 AI 生成猫咪动画素材，4 种方案均不理想，决策延后到 v1.0
 - **2026-06-25**: 整理项目，AI 素材归档到 experiments/，更新 progress.md 记录困难和决策
 - **2026-06-26**: M3 UI 与交互代码完成——新增 PanelSystem、薪资面板、Main 场景，完善右键菜单；待 Godot 编辑器运行验证
-- **2026-06-26**: 新增 `scripts/verify_m3.ps1` 和 `doc/m3-verification.md`；Godot 4.7 headless 项目加载与主场景 30 帧 smoke test 通过
+- **2026-06-26**: 新增 `scripts/verify_m3.ps1` 和 M3 验证清单；Godot 4.7 headless 项目加载与主场景 30 帧 smoke test 通过（后续已并入 `doc/verification/v0.1.md`）
 - **2026-06-26**: 修复 M3 手动验证问题——设置桌宠窗口实际尺寸，Pet 输入增加鼠标位置命中兜底，右键菜单改用窗口内坐标
 - **2026-06-26**: 通过 Windows 窗口截图确认运行窗口内容过小且面板跑出可见区；放大占位角色、固定 Pet/Panel 到窗口内布局，并为拖拽增加左键 mask 兜底与 `drag started` 日志
 - **2026-06-26**: 调试阶段临时放大窗口到 720×360，拉开 Pet/Panel 位置，便于观察薪资数字和交互状态
@@ -512,17 +864,26 @@
 - **2026-07-01**: 清理设置、Panel、右键菜单、托盘菜单接口、关于弹窗和薪资状态的用户可见中文乱码，并在 `verify_v02.gd` 中加入乱码扫描
 - **2026-07-01**: 重新导出 `build\LetsMakeMoney.exe`，导出时间 `2026/7/1 22:03:59`，v0.2/M4/动画状态/橘猫素材自动验证均通过
 - **2026-07-01**: 文档整理方向修正：恢复 PRD、Implementation Plan、Progress 的详细颗粒度，在原详细计划上补充当前状态覆盖层，而不是压缩为短版摘要
+- **2026-07-02**: 根据 v0.2 暂缓项和当前项目状态补充 v0.3 Beta PRD，明确 v0.3 定位为桌宠原生能力修复版，动画打磨单独放入 v0.4
+- **2026-07-02**: 根据 v0.3 PRD 更新 implementation-plan，新增 V03-M1 至 V03-M7 平级实施计划，路线为 Windows x86_64 GDExtension / 原生插件随 exe 发布
+- **2026-07-02**: 启动 v0.3 实现并完成 V03-M1 首轮落地：新增 `native/windows/` GDExtension 骨架、`LMMNativeBridge` 最小 C++ 类、v0.3 配置默认值、Godot 侧 native health 接口和 `scripts/verify_v03.ps1/gd`；当前 native DLL 尚未构建，真实托盘和窗口原生能力仍待 V03-M2 之后继续实现
+- **2026-07-02**: 推进 V03-M2 真系统托盘：新增 `TrayController` Win32 源码，使用 `Shell_NotifyIconW`、隐藏消息窗口和原生菜单承接托盘点击；`LMMNativeBridge` 暴露 `poll_tray_command()`，`Platform` 每帧轮询并转发为现有托盘信号；`verify_v03` 已覆盖托盘桥接模型，真实托盘显示仍等待 native DLL 构建后手动验证
+- **2026-07-02**: 推进 V03-M3 透明无边框窗口：新增 `WindowController` Win32 源码，封装窗口样式、透明 layered window、置顶和任务栏可见性基础能力；`WindowsPlatform.get_native_window_handle()` 增加 Godot 主窗口句柄入口，`setup_window()` 在 native 失败时回退普通紧凑窗口；`verify_v03` 已覆盖窗口桥接模型，透明窗口仍等待 native DLL 构建后手动验证
+- **2026-07-02**: 推进 V03-M4 点击穿透：`WindowController` 使用 `SetWindowRgn` 和交互矩形 union 保留小猫/Panel 可点击区域，透明空白区域从窗口区域剔除以穿透到下层；`Main.get_interactive_rects()` 统一计算交互区域并加入 hash 缓存，避免重复 native 调用；`verify_v03` 已覆盖穿透桥接模型，真实点击穿透仍等待 native DLL 构建后手动验证
+- **2026-07-02**: 推进 V03-M5 关闭隐藏与纯桌宠安全门禁：`Main.can_hide_to_tray()` 只允许托盘健康时关闭隐藏，隐藏前保存窗口位置；`_apply_pure_pet_mode()` 要求托盘、任务栏控制和窗口句柄均可用；失败、Debug 模式或 native 不健康时自动恢复任务栏入口并写回 `pure_pet_mode=false`；`verify_v03` 已覆盖可找回门禁模型
+- **2026-07-02**: 完成 V03-M6 设置体验与配置迁移：休息模式和窗口模式改为明确 `OptionButton`，新增纯桌宠模式开关和原生能力状态说明；`verify_v03` 覆盖旧配置迁移、恢复默认范围、设置控件替换和纯桌宠禁用门禁，`verify_m4` 回归通过
+- **2026-07-02**: 推进 V03-M7 验证与发布材料：新增 `doc/verification/v0.3.md`、`scripts/verify_v03_export.ps1`、`releases/CHANGELOG.md` 和 `releases/v0.3-beta-notes.md`；导出验证脚本会在 native DLL 缺失时阻塞发布，符合当前门禁预期
+- **2026-07-02**: 补充并调通 native 构建脚本 `scripts/build_native_windows.ps1`，优先使用本机 MSYS2 UCRT64，修复 MSYS2 HOME/TMP 权限问题、`LoadIconW` fallback 类型问题、`WindowController` 缺少 `<cstdint>` 和 `gdi32` 链接问题；`native/windows/bin/win64/letsmakemoney_native.dll` 已成功构建，`verify_v02`、`verify_v03`、`verify_m4` 和 `verify_v03_export` 均通过
+- **2026-07-02**: 重新导出 v0.3 Beta Windows 包：`build\LetsMakeMoney.exe` 与 `build\letsmakemoney_native.dll` 更新时间 `2026/7/2 16:02:34`，文件版本 / 产品版本均为 `0.3.0`，`verify_v03_export` 冒烟验证通过；Godot 导出末尾仍提示无法保存编辑器设置 `editor_settings-4.7.tres`，不影响导出产物
+- **2026-07-02**: 根据 `doc/verification/v0.3.md` 手动验证反馈修复 v0.3 阻塞问题：`WindowsPlatform.get_native_window_handle()` 改用 `DisplayServer.WINDOW_HANDLE`，避免 Win32 透明窗口/任务栏控制拿到 display handle；打开设置/向导前清空 `SetWindowRgn` 穿透区域，弹窗关闭后恢复穿透，解决设置控件无法更改；主场景设置 `auto_accept_quit=false` 并处理 `NOTIFICATION_WM_CLOSE_REQUEST`，关闭按钮改为托盘隐藏；托盘 native 层补充 `NIN_SELECT` / `NIN_KEYSELECT` 左键事件；新增 per-pixel transparency 项目设置。重新构建 native DLL 并导出 `build\LetsMakeMoney.exe` / `build\letsmakemoney_native.dll`，更新时间 `2026/7/2 16:25:29`，`verify_v02`、`verify_v03`、`verify_m4`、`verify_v03_export` 均通过
+- **2026-07-03**: 完成 v0.3 收尾复测：修复小猫右键菜单偶发不弹出问题，保留普通点击穿透小命中框，同时新增右键专用上下文区域；native 层仅在 `VK_RBUTTON` 按下时放宽小猫 hit-test，Godot 主场景用 `get_pet_context_rect()` 兜底弹出右键菜单。已重新构建 native DLL、导出 `build\LetsMakeMoney.exe`、同步 `build\letsmakemoney_native.dll`，并通过 `verify_v02`、`verify_v03`、`verify_m4`、`verify_m5`、`verify_v03_export`。Codex 辅助复测确认猫头右键可弹菜单，无按键状态下猫头扩展区仍返回 `HTTRANSPARENT=-1`，不影响普通点击穿透
+- **2026-07-03**: 统一 doc 验证文档结构和命名：每个版本只保留一个验证文档，现为 `doc/verification/v0.1.md`、`doc/verification/v0.2.md`、`doc/verification/v0.3.md`；原 M3/M4 零散验证文档已并入 v0.1，v0.4 后续验证文档路径预留为 `doc/verification/v0.4.md`。
+
+---
 
 ## 下一步计划
 
-**v0.2 Beta 收尾顺序**：
-1. 继续清理 implementation-plan 历史段落中残留的编码乱码，但保留原详细任务颗粒度
-2. 用户按 `doc/v0.2-manual-verification.md` 对最新导出 exe 做最终手动复测
-3. 若复测无新问题，提交并推送 GitHub
-4. 为 v0.2 Beta 打 tag 或整理 release notes
-
-**v0.3 技术预研顺序**：
-1. 调研真实系统托盘替代方案：外部 helper、GDExtension、Win32 桥接或其他 Godot 插件
-2. 在隔离分支验证透明窗口和鼠标穿透，不直接影响 v0.2 稳定候选
-3. 恢复关闭隐藏到托盘验收
-4. 继续打磨橘猫正式动画素材
+**v0.4 Beta 启动顺序**：
+1. 先做橘猫动画规格和素材验收文档，避免直接把新素材接进主场景导致状态机回归。
+2. 再做交互优先级和点击穿透调试视图，让后续窗口/Panel 优化有可观测依据。
+3. 最后进入设置体验、保存反馈、发布包清单和 v0.4 手动验证文档。

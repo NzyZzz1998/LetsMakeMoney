@@ -1,0 +1,9 @@
+[configuration]
+entry_symbol = "letsmakemoney_library_init"
+compatibility_minimum = "4.7"
+reloadable = false
+
+[libraries]
+windows.debug.x86_64 = "res://native/windows/bin/win64/letsmakemoney_native.dll"
+windows.release.x86_64 = "res://native/windows/bin/win64/letsmakemoney_native.dll"
+

@@ -1,6 +1,8 @@
 # src/scenes/panel/panel.gd
 extends Control
 
+signal layout_changed
+
 @onready var background: Panel = $Background
 @onready var collapsed_container: CenterContainer = $Collapsed
 @onready var expanded_container: VBoxContainer = $Expanded
@@ -111,6 +113,7 @@ func _update_background() -> void:
 		target_size = custom_minimum_size
 	size = target_size
 	background.size = target_size
+	layout_changed.emit()
 
 
 func _kill_tween() -> void:

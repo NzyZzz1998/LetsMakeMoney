@@ -13,13 +13,14 @@ var _long_press_triggered: bool = false
 var _dragging: bool = false
 var _drag_start_window_pos: Vector2i = Vector2i.ZERO
 var _drag_start_screen_mouse: Vector2i = Vector2i.ZERO
+var _return_token: int = 0
 var _visual_tween: Tween = null
 var _base_anim_scale: Vector2 = Vector2.ONE
 
 const DRAG_THRESHOLD := 5.0
 const LONG_PRESS_THRESHOLD := 0.35
 const DOUBLE_CLICK_WINDOW := 0.3
-const HIT_RECT := Rect2(Vector2(-42, -48), Vector2(270, 270))
+const HIT_RECT := Rect2(Vector2(62, 80), Vector2(98, 86))
 
 
 func _ready() -> void:
@@ -151,6 +152,7 @@ func _is_pointer_over_pet() -> bool:
 func _handle_mouse_button(event: InputEventMouseButton) -> void:
 	if event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
+			_cancel_pending_return()
 			_mouse_pressed = true
 			_press_timer = 0.0
 			_long_press_triggered = false
@@ -160,7 +162,7 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 			if _dragging:
 				_end_drag()
 			elif _long_press_triggered:
-				PetManager.return_to_auto_state()
+				_schedule_return_after_hold()
 			else:
 				_click_count += 1
 				_click_timer = 0.0
@@ -173,6 +175,7 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
 	var left_button_down := (event.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0
 	if left_button_down and not _mouse_pressed:
+		_cancel_pending_return()
 		_mouse_pressed = true
 		_drag_start_screen_mouse = DisplayServer.mouse_get_position()
 		_drag_start_window_pos = get_window().position
@@ -183,22 +186,29 @@ func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
 			_start_drag()
 
 	if _dragging:
+		if _long_press_triggered and PetManager.current_interaction != PetManager.PetInteraction.CLICKED_HOLD:
+			PetManager.request_interaction(PetManager.PetInteraction.CLICKED_HOLD)
 		var delta := DisplayServer.mouse_get_position() - _drag_start_screen_mouse
 		DragResizeSystem.move_window_to(_drag_start_window_pos + delta)
 		get_viewport().set_input_as_handled()
 
 
 func _start_drag() -> void:
+	_cancel_pending_return()
 	_dragging = true
-	_long_press_triggered = false
 	_click_count = 0
 	_click_timer = 0.0
-	PetManager.request_interaction(PetManager.PetInteraction.HOVER)
+	if _long_press_triggered:
+		PetManager.request_interaction(PetManager.PetInteraction.CLICKED_HOLD)
+	else:
+		PetManager.request_interaction(PetManager.PetInteraction.HOVER)
 
 
 func _end_drag() -> void:
 	_dragging = false
 	DragResizeSystem.save_position()
+	if _long_press_triggered:
+		_schedule_return_after_hold()
 
 
 func _process(delta: float) -> void:
@@ -206,6 +216,7 @@ func _process(delta: float) -> void:
 		_press_timer += delta
 		if _press_timer >= LONG_PRESS_THRESHOLD and not _long_press_triggered:
 			_long_press_triggered = true
+			_cancel_pending_return()
 			PetManager.request_interaction(PetManager.PetInteraction.CLICKED_HOLD)
 
 	if _click_count > 0 and not _mouse_pressed:
@@ -221,12 +232,27 @@ func _process(delta: float) -> void:
 
 
 func _schedule_return_after_click() -> void:
+	_return_token += 1
+	var token := _return_token
 	var timer := get_tree().create_timer(0.8)
-	timer.timeout.connect(_on_click_return)
+	timer.timeout.connect(_on_click_return.bind(token, true))
 
 
-func _on_click_return() -> void:
-	if _hover_entered:
+func _schedule_return_after_hold() -> void:
+	_return_token += 1
+	var token := _return_token
+	var timer := get_tree().create_timer(0.45)
+	timer.timeout.connect(_on_click_return.bind(token, false))
+
+
+func _cancel_pending_return() -> void:
+	_return_token += 1
+
+
+func _on_click_return(token: int, prefer_hover: bool) -> void:
+	if token != _return_token or _mouse_pressed or _dragging:
+		return
+	if prefer_hover and _hover_entered:
 		PetManager.request_interaction(PetManager.PetInteraction.HOVER)
 	else:
 		PetManager.return_to_auto_state()
