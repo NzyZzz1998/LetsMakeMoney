@@ -25,7 +25,9 @@ func _exit_tree() -> void:
 	shutdown_tray()
 
 
-func write_boot_log(message: String) -> void:
+func write_boot_log(message: String, level: String = "info") -> void:
+	if level == "debug" and not _should_write_debug_log():
+		return
 	var appdata := OS.get_environment("APPDATA")
 	if appdata.is_empty():
 		appdata = OS.get_user_data_dir()
@@ -38,8 +40,19 @@ func write_boot_log(message: String) -> void:
 	if file == null:
 		return
 	file.seek_end()
-	file.store_line("%s | %s" % [Time.get_datetime_string_from_system(), message])
+	file.store_line("%s | %s | %s" % [Time.get_datetime_string_from_system(), level, message])
 	file.close()
+
+
+func write_debug_log(message: String) -> void:
+	write_boot_log(message, "debug")
+
+
+func _should_write_debug_log() -> bool:
+	var config := get_node_or_null("/root/Config")
+	if config != null and config.has_method("get_value"):
+		return bool(config.call("get_value", "debug_mode", false))
+	return false
 
 
 func _process(_delta: float) -> void:
@@ -152,7 +165,7 @@ func _poll_native_tray() -> void:
 		return
 	var command := impl.poll_tray_command()
 	if command != 0:
-		write_boot_log("Platform._poll_native_tray: command=%d" % command)
+		write_debug_log("Platform._poll_native_tray: command=%d" % command)
 	match command:
 		1:
 			var now := Time.get_ticks_msec()

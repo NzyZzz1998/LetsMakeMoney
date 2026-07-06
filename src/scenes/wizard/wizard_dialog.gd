@@ -20,9 +20,22 @@ var summary_label: Label
 var prev_btn: Button
 var next_btn: Button
 
+const SURFACE_APP := Color(1.0, 0.972, 0.914, 0.98)
+const SURFACE_CARD := Color(1.0, 0.988, 0.952, 0.99)
+const SURFACE_SELECTED := Color(1.0, 0.945, 0.792, 1.0)
+const TEXT_INK := Color(0.227, 0.153, 0.098, 1.0)
+const TEXT_MUTED := Color(0.550, 0.420, 0.298, 1.0)
+const ACCENT_COIN := Color(0.965, 0.714, 0.243, 1.0)
+const ACCENT_ORANGE := Color(0.780, 0.420, 0.137, 1.0)
+const BORDER_WARM := Color(0.416, 0.263, 0.122, 0.16)
+const SHADOW_WARM := Color(0.360, 0.184, 0.047, 0.16)
+
 
 func _ready() -> void:
-	title = "欢迎来到 LetsMakeMoney"
+	theme = _build_wizard_theme()
+	title = "开始配置桌面小挂件"
+	transparent_bg = true
+	borderless = true
 	min_size = Vector2i(680, 520)
 	get_ok_button().visible = false
 	get_cancel_button().visible = false
@@ -33,10 +46,29 @@ func _ready() -> void:
 	_show_step(1)
 
 
+func _new_page(page_name: String) -> VBoxContainer:
+	var page := VBoxContainer.new()
+	page.name = page_name
+	page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	page.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	page.add_theme_constant_override("separation", 12)
+	page.add_theme_stylebox_override("panel", _stylebox(SURFACE_CARD, BORDER_WARM, 1, 16, 16, Color(0.360, 0.184, 0.047, 0.08), 4))
+	return page
+
+
 func _build_ui() -> void:
+	var surface := PanelContainer.new()
+	surface.name = "WizardSurface"
+	surface.set_anchors_preset(Control.PRESET_FULL_RECT)
+	surface.add_theme_stylebox_override("panel", _stylebox(SURFACE_APP, BORDER_WARM, 1, 20, 18, SHADOW_WARM, 12))
+	add_child(surface)
+
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 12)
-	add_child(box)
+	box.name = "WizardRoot"
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_theme_constant_override("separation", 14)
+	surface.add_child(box)
 
 	var welcome := _build_welcome_page()
 	var salary := _build_salary_page()
@@ -54,30 +86,113 @@ func _build_ui() -> void:
 	prev_btn.text = "上一步"
 	next_btn = Button.new()
 	next_btn.text = "下一步"
+	prev_btn.custom_minimum_size = Vector2(110, 42)
+	next_btn.custom_minimum_size = Vector2(126, 42)
+	_style_button(prev_btn)
+	_style_button(next_btn, true)
 	nav.add_child(prev_btn)
 	nav.add_child(next_btn)
 	prev_btn.pressed.connect(_on_prev)
 	next_btn.pressed.connect(_on_next)
 
 
+func _stylebox(
+	bg: Color,
+	border: Color,
+	border_width: int,
+	radius: int,
+	padding: int,
+	shadow_color: Color = Color(0, 0, 0, 0),
+	shadow_size: int = 0
+) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg
+	style.border_color = border
+	style.set_border_width_all(border_width)
+	style.set_corner_radius_all(radius)
+	style.shadow_color = shadow_color
+	style.shadow_size = shadow_size
+	style.shadow_offset = Vector2(0, 3)
+	style.content_margin_left = padding
+	style.content_margin_top = padding
+	style.content_margin_right = padding
+	style.content_margin_bottom = padding
+	return style
+
+
+func _build_wizard_theme() -> Theme:
+	var wizard_theme := Theme.new()
+	var font := SystemFont.new()
+	font.font_names = PackedStringArray(["Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI"])
+	font.antialiasing = TextServer.FONT_ANTIALIASING_LCD
+	font.hinting = TextServer.HINTING_NORMAL
+	font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_AUTO
+	wizard_theme.default_font = font
+	wizard_theme.default_font_size = 16
+	return wizard_theme
+
+
+func _style_button(button: Button, primary: bool = false) -> void:
+	var normal_bg := SURFACE_CARD
+	var hover_bg := Color(1.0, 0.962, 0.842, 1.0)
+	var pressed_bg := Color(0.986, 0.900, 0.720, 1.0)
+	var border := BORDER_WARM
+	if primary:
+		normal_bg = ACCENT_COIN
+		hover_bg = Color(1.0, 0.780, 0.310, 1.0)
+		pressed_bg = ACCENT_ORANGE
+		border = Color(0.780, 0.420, 0.137, 0.32)
+	button.add_theme_stylebox_override("normal", _stylebox(normal_bg, border, 1, 12, 10))
+	button.add_theme_stylebox_override("hover", _stylebox(hover_bg, Color(0.780, 0.420, 0.137, 0.28), 1, 12, 10, Color(0.360, 0.184, 0.047, 0.10), 3))
+	button.add_theme_stylebox_override("pressed", _stylebox(pressed_bg, Color(0.780, 0.420, 0.137, 0.38), 1, 12, 10))
+	button.add_theme_stylebox_override("focus", _stylebox(Color(0, 0, 0, 0), ACCENT_COIN, 2, 12, 10))
+	button.add_theme_color_override("font_color", TEXT_INK)
+	button.add_theme_color_override("font_hover_color", TEXT_INK)
+	button.add_theme_color_override("font_pressed_color", TEXT_INK)
+	button.add_theme_font_size_override("font_size", 15)
+
+
+func _style_form_control(control: Control) -> void:
+	if control is OptionButton:
+		var option := control as OptionButton
+		_style_button(option)
+		option.custom_minimum_size = Vector2(maxf(option.custom_minimum_size.x, 220), maxf(option.custom_minimum_size.y, 40))
+	elif control is SpinBox:
+		var spin := control as SpinBox
+		spin.add_theme_font_size_override("font_size", 16)
+		spin.add_theme_color_override("font_color", TEXT_INK)
+		spin.get_line_edit().add_theme_stylebox_override("normal", _stylebox(Color(1.0, 0.990, 0.964, 1.0), BORDER_WARM, 1, 12, 8))
+		spin.get_line_edit().add_theme_color_override("font_color", TEXT_INK)
+	elif control is ItemList:
+		var item_list := control as ItemList
+		item_list.add_theme_stylebox_override("panel", _stylebox(Color(1.0, 0.990, 0.964, 1.0), BORDER_WARM, 1, 14, 10))
+		item_list.add_theme_stylebox_override("focus", _stylebox(Color(0, 0, 0, 0), ACCENT_COIN, 2, 14, 10))
+		item_list.add_theme_font_size_override("font_size", 16)
+		item_list.add_theme_color_override("font_color", TEXT_INK)
+		item_list.add_theme_color_override("font_selected_color", TEXT_INK)
+
+
 func _build_welcome_page() -> Control:
-	var page := VBoxContainer.new()
+	var page := _new_page("Welcome")
 	page.name = "Welcome"
-	_add_label(page, "欢迎来到 LetsMakeMoney").add_theme_font_size_override("font_size", 24)
-	_add_label(page, "让一只小伙伴陪你一起看见今天赚了多少钱。")
+	var title_label := _add_label(page, "开始配置桌面小挂件")
+	title_label.add_theme_font_size_override("font_size", 26)
+	title_label.add_theme_color_override("font_color", TEXT_INK)
+	_add_label(page, "让橘猫陪你看见今天赚了多少，也让金币小票保持轻巧顺手。")
 	welcome_preview = _add_pet_preview(page)
 	return page
 
 
 func _build_salary_page() -> Control:
-	var page := VBoxContainer.new()
+	var page := _new_page("Salary")
 	page.name = "Salary"
-	_add_label(page, "月薪 (元)")
+	_add_label(page, "月薪（元）")
 	salary_input = _add_spin(page, 0, 999999, 1)
 	_add_label(page, "休息模式")
 	rest_mode_option = OptionButton.new()
 	rest_mode_option.add_item("双休")
 	rest_mode_option.add_item("单休")
+	_style_form_control(rest_mode_option)
 	page.add_child(rest_mode_option)
 	_add_label(page, "每日工作小时数（由上下班时间自动计算）")
 	hours_input = _add_spin(page, 0, 24, 0.25)
@@ -95,23 +210,26 @@ func _build_salary_page() -> Control:
 
 
 func _build_pet_page() -> Control:
-	var page := VBoxContainer.new()
+	var page := _new_page("PetSelect")
 	page.name = "PetSelect"
 	_add_label(page, "选择你的伙伴")
 	pet_preview = _add_pet_preview(page)
 	pet_list = ItemList.new()
 	pet_list.custom_minimum_size = Vector2(0, 160)
+	_style_form_control(pet_list)
 	page.add_child(pet_list)
 	pet_list.item_selected.connect(_on_pet_selected)
 	return page
 
 
 func _build_confirm_page() -> Control:
-	var page := VBoxContainer.new()
+	var page := _new_page("Confirm")
 	page.name = "Confirm"
 	_add_label(page, "确认设置")
 	summary_label = Label.new()
 	summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	summary_label.add_theme_font_size_override("font_size", 17)
+	summary_label.add_theme_color_override("font_color", TEXT_INK)
 	page.add_child(summary_label)
 	return page
 
@@ -119,6 +237,9 @@ func _build_confirm_page() -> Control:
 func _add_label(parent: Control, text: String) -> Label:
 	var label := Label.new()
 	label.text = text
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.add_theme_font_size_override("font_size", 16)
+	label.add_theme_color_override("font_color", TEXT_MUTED)
 	parent.add_child(label)
 	return label
 
@@ -128,7 +249,8 @@ func _add_spin(parent: Control, min_value: float, max_value: float, step: float)
 	spin.min_value = min_value
 	spin.max_value = max_value
 	spin.step = step
-	spin.custom_minimum_size = Vector2(120, 0)
+	spin.custom_minimum_size = Vector2(142, 40)
+	_style_form_control(spin)
 	parent.add_child(spin)
 	return spin
 
@@ -170,7 +292,7 @@ func _calculate_work_hours() -> float:
 
 func _add_pet_preview(parent: Control) -> TextureRect:
 	var preview := TextureRect.new()
-	preview.custom_minimum_size = Vector2(0, 96)
+	preview.custom_minimum_size = Vector2(0, 126)
 	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	parent.add_child(preview)
 	return preview

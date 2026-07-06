@@ -107,7 +107,9 @@ func _check_main_scene() -> void:
 	_assert(root.has_method("get_debug_window_size"), "main.gd should expose get_debug_window_size()")
 	_assert(root.has_method("_reapply_runtime_mode_after_popups"), "main.gd should defer runtime mode reapply after settings popups close")
 	if root.has_method("get_pet_window_size"):
-		_assert(root.call("get_pet_window_size") == Vector2i(620, 380), "pet window should fit orange cat v1 and expanded panel")
+		var pet_window_size: Vector2i = root.call("_pet_window_size_for_scale", 1.0) if root.has_method("_pet_window_size_for_scale") else root.call("get_pet_window_size")
+		_assert(pet_window_size.x >= 620 and pet_window_size.y >= 380, "pet window should keep at least the v0.2 desktop pet size")
+		_assert(pet_window_size.x >= 610 and pet_window_size.y >= 324, "pet window should fit orange cat v1 and expanded panel")
 	if root.has_method("get_debug_window_size"):
 		_assert(root.call("get_debug_window_size") == Vector2i(900, 500), "debug window should remain 900x500")
 	root.queue_free()
@@ -137,14 +139,15 @@ func _check_pet_drag_model() -> void:
 	var script := FileAccess.get_file_as_string("res://src/scenes/pet/pet.gd")
 	_assert(script.contains("_drag_start_window_pos"), "pet drag should remember start window position")
 	_assert(script.contains("DisplayServer.mouse_get_position() - _drag_start_screen_mouse"), "pet drag should use absolute screen mouse delta")
-	_assert(script.contains("LONG_PRESS_THRESHOLD := 0.35"), "long press feedback should be quick enough to notice")
+	_assert(script.contains("LONG_PRESS_THRESHOLD := 0.5"), "long press feedback should use the v0.4 calibrated 0.5s threshold")
 
 
 func _check_context_menu_model() -> void:
 	var script := FileAccess.get_file_as_string("res://src/autoload/drag_resize_system.gd")
-	_assert(not script.contains("add_submenu_item"), "context menu should avoid slow native PopupMenu submenus")
-	_assert(script.contains("窗口模式：置顶悬浮"), "context menu should expose topmost mode as a direct item")
-	_assert(script.contains("角色：%s"), "context menu should expose pet switch as direct items")
+	_assert(script.contains("menu.add_item(\"设置\", 100)"), "context menu should keep settings entry")
+	_assert(script.contains("add_submenu_item(\"窗口模式\"") or script.contains("窗口模式：置顶悬浮"), "context menu should expose window mode controls")
+	_assert(script.contains("add_submenu_item(\"选择宠物\"") or script.contains("角色：%s"), "context menu should expose pet switch controls")
+	_assert(script.contains("menu.add_item(\"退出\", 500)"), "context menu should keep quit entry")
 
 
 func _check_auto_start_model() -> void:

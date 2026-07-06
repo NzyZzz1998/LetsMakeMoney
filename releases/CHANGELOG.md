@@ -1,5 +1,39 @@
 # 更新日志
 
+## v0.4 Beta - 大型体验优化版（2026-07-04）
+
+### 新增
+
+- 新增 v0.4 橘猫动画规格、素材提示词执行集、orange_v2 staging 目录和 asset manifest。
+- 新增 Debug 命中区可视化能力，可显示 Pet core、Pet context 和 Panel 命中区域。
+- 新增 v0.4 自动验证脚本和发布包烟测脚本。
+- 新增正式 Zip beta 打包脚本，发布包包含 exe、native dll、README、release notes、manifest 和 checksums。
+
+### 变更
+
+- 小猫交互优先级调整为右键菜单、拖拽、长按、双击、单击、hover、自动状态，减少误触和状态卡住。
+- 单击/双击反馈改为基础状态延伸动作模型，避免把 clicked_single / clicked_double 当作独立基础状态。
+- 长按阈值校准为约 0.5 秒，拖拽开始后不再触发长按语义。
+- Panel 边缘定位改为候选位置 + 溢出评分，靠右、靠底和右下角更容易保持可见。
+- 设置页信息架构调整：缩放移动到 Display 页，Display 页集中管理窗口体验，General 页集中管理应用级设置。
+- 设置保存增加差异检测、无变化提示、保存成功/失败反馈，并减少重复写配置和注册表。
+- 普通模式减少高频 debug.log；命中区、native passthrough 和托盘轮询细节只在 debug_mode=true 时写入。
+
+### 验证
+
+- `scripts\verify_v02.ps1` 通过。
+- `scripts\verify_v03.ps1` 通过。
+- `scripts\verify_m4.ps1` 通过。
+- `scripts\verify_v04.ps1` 通过。
+- `scripts\verify_v04_package.ps1` 通过，并校验 manifest / checksums。
+- `scripts\verify_v04_stability.ps1 -DurationSeconds 60` 通过。
+
+### 已知边界
+
+- 橘猫 v2 已作为 v0.4 beta 默认资源接入，cat_orange_v1 仍保留为稳定 fallback。
+- 多缩放观感、真实桌面长时间体验和完整手动验证仍需继续复测。
+- 主题系统、安装器、自动更新和多平台正式支持不包含在 v0.4 Beta 范围内。
+
 ## v0.3 Beta - 桌宠原生能力修复版（2026-07-03）
 
 ### 新增

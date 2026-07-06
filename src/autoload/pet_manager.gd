@@ -1,7 +1,7 @@
 # src/autoload/pet_manager.gd
 extends Node
 
-# 兼容旧调用的单层状态枚举。v0.2 起内部使用“基础状态 + 交互覆盖”模型。
+# Compatibility state enum. Internally v0.2+ uses base state + interaction overlay.
 enum PetState {
 	IDLE,
 	WORKING,
@@ -29,56 +29,89 @@ enum PetInteraction {
 signal pet_changed(pet_id: String)
 signal state_changed(new_state: PetState)
 
+const PETS_DIR = "res://assets/pets/"
+const DEFAULT_PET_ID = "cat_orange_v2"
+const FALLBACK_PET_ID = "cat_orange_v1"
+const BUILTIN_PET_RESOURCE_PATHS: Array[String] = [
+	"res://assets/pets/cat/orange_v2/cat_orange_v2_resource.tres",
+	"res://assets/pets/cat_orange_v1/cat_orange_v1_resource.tres",
+	"res://assets/pets/cat/cat_resource.tres"
+]
+
 var available_pets: Array[PetResource] = []
 var current_pet: PetResource = null
 var current_state: PetState = PetState.IDLE
 var current_base_state: PetBaseState = PetBaseState.IDLE
 var current_interaction: PetInteraction = PetInteraction.NONE
 
-# 当前是否处于交互覆盖层，交互状态优先于工作时间自动切换
 var _interacting: bool = false
-
-const PETS_DIR = "res://assets/pets/"
+var _interaction_base_state: PetBaseState = PetBaseState.IDLE
 
 
 func _ready() -> void:
 	Platform.write_boot_log("PetManager._ready: begin")
 	_scan_pets()
 	Platform.write_boot_log("PetManager._ready: scanned pets=%d" % available_pets.size())
-	var saved_id := String(Config.get_value("pet_id", "cat"))
+	var saved_id := String(Config.get_value("pet_id", DEFAULT_PET_ID))
 	switch_pet(saved_id)
 	Platform.write_boot_log("PetManager._ready: current_pet=%s" % (current_pet.pet_id if current_pet != null else "null"))
 
 
 func _scan_pets() -> void:
 	available_pets.clear()
-	var dir := DirAccess.open(PETS_DIR)
+	_scan_pet_resources_in_dir(PETS_DIR)
+	_scan_builtin_pet_resources()
+	_sort_available_pets()
+
+
+func _scan_pet_resources_in_dir(path: String) -> void:
+	var dir := DirAccess.open(path)
 	if dir == null:
-		push_warning("Pets directory not found: %s" % PETS_DIR)
+		push_warning("Pets directory not found: %s" % path)
 		return
+
 	dir.list_dir_begin()
-	var dir_name := dir.get_next()
-	while dir_name != "":
-		if dir.current_is_dir() and not dir_name.begins_with(".") and dir_name != "raw":
-			var res_path := PETS_DIR.path_join(dir_name).path_join(dir_name + "_resource.tres")
-			if ResourceLoader.exists(res_path):
-				var pet_res := load(res_path) as PetResource
-				if pet_res:
-					available_pets.append(pet_res)
-		dir_name = dir.get_next()
+	var entry_name := dir.get_next()
+	while not entry_name.is_empty():
+		var child_path := path.path_join(entry_name)
+		if dir.current_is_dir():
+			if not _should_skip_pet_dir(entry_name):
+				_scan_pet_resources_in_dir(child_path)
+		elif entry_name.ends_with("_resource.tres") and ResourceLoader.exists(child_path):
+			var pet_res := load(child_path) as PetResource
+			if pet_res != null:
+				_add_available_pet(pet_res)
+		entry_name = dir.get_next()
 	dir.list_dir_end()
 
 
+func _scan_builtin_pet_resources() -> void:
+	for resource_path in BUILTIN_PET_RESOURCE_PATHS:
+		_load_pet_resource(resource_path)
+
+
+func _load_pet_resource(resource_path: String) -> void:
+	if not ResourceLoader.exists(resource_path):
+		Platform.write_boot_log("PetManager._load_pet_resource: missing %s" % resource_path)
+		return
+	var pet_res := load(resource_path) as PetResource
+	if pet_res == null:
+		Platform.write_boot_log("PetManager._load_pet_resource: invalid %s" % resource_path)
+		return
+	_add_available_pet(pet_res)
+
+
 func switch_pet(pet_id: String) -> void:
-	for pet in available_pets:
-		if pet.pet_id == pet_id:
-			current_pet = pet
-			Config.set_value("pet_id", pet_id)
-			pet_changed.emit(pet_id)
-			return
-	# 找不到指定的，回退到第一个
-	if available_pets.size() > 0:
-		current_pet = available_pets[0]
+	var next_pet := _find_pet_by_id(pet_id)
+	if next_pet == null and pet_id != DEFAULT_PET_ID:
+		next_pet = _find_pet_by_id(DEFAULT_PET_ID)
+	if next_pet == null:
+		next_pet = _find_pet_by_id(FALLBACK_PET_ID)
+	if next_pet == null and available_pets.size() > 0:
+		next_pet = available_pets[0]
+
+	if next_pet != null:
+		current_pet = next_pet
 		Config.set_value("pet_id", current_pet.pet_id)
 		pet_changed.emit(current_pet.pet_id)
 
@@ -91,7 +124,6 @@ func get_available_pets() -> Array[PetResource]:
 	return available_pets
 
 
-# 统一状态入口——由 pet.gd 调用
 func request_state(new_state: PetState) -> void:
 	match new_state:
 		PetState.IDLE:
@@ -117,6 +149,7 @@ func set_state(new_state: PetState) -> void:
 func set_base_state(new_base_state: PetBaseState) -> void:
 	var changed := current_base_state != new_base_state or current_interaction != PetInteraction.NONE
 	current_base_state = new_base_state
+	_interaction_base_state = new_base_state
 	current_interaction = PetInteraction.NONE
 	_interacting = false
 	current_state = _base_to_pet_state(new_base_state)
@@ -126,6 +159,8 @@ func set_base_state(new_base_state: PetBaseState) -> void:
 
 func request_interaction(interaction: PetInteraction) -> void:
 	var changed := current_interaction != interaction
+	if interaction != PetInteraction.NONE:
+		_interaction_base_state = current_base_state
 	current_interaction = interaction
 	_interacting = interaction != PetInteraction.NONE
 	current_state = _interaction_to_pet_state(interaction)
@@ -133,7 +168,10 @@ func request_interaction(interaction: PetInteraction) -> void:
 		state_changed.emit(current_state)
 
 
-# 交互结束后回到工作/休息/待机状态
+func return_to_interaction_base_state() -> void:
+	set_base_state(_interaction_base_state)
+
+
 func return_to_auto_state() -> void:
 	_interacting = false
 	if SalaryEngine.monthly_salary <= 0:
@@ -148,8 +186,7 @@ func _process(_delta: float) -> void:
 	if current_pet == null:
 		return
 	if _interacting:
-		return  # 交互状态由 pet.gd 显式控制
-	# 自动切换 WORKING / RESTING / IDLE
+		return
 	if SalaryEngine.monthly_salary <= 0:
 		set_base_state(PetBaseState.IDLE)
 	elif SalaryEngine.is_working_hours():
@@ -158,16 +195,22 @@ func _process(_delta: float) -> void:
 		set_base_state(PetBaseState.RESTING)
 
 
-# 将旧状态枚举映射到通用 SpriteFrames 动画名，保留给旧素材和旧调用使用。
 func state_to_anim_name(state: PetState) -> String:
 	match state:
-		PetState.IDLE: return "idle"
-		PetState.WORKING: return "working"
-		PetState.RESTING: return "resting"
-		PetState.HOVER: return "hover"
-		PetState.CLICKED_SINGLE: return "clicked_single"
-		PetState.CLICKED_DOUBLE: return "clicked_double"
-		PetState.CLICKED_HOLD: return "clicked_hold"
+		PetState.IDLE:
+			return "idle"
+		PetState.WORKING:
+			return "working"
+		PetState.RESTING:
+			return "resting"
+		PetState.HOVER:
+			return "hover"
+		PetState.CLICKED_SINGLE:
+			return "clicked_single"
+		PetState.CLICKED_DOUBLE:
+			return "clicked_double"
+		PetState.CLICKED_HOLD:
+			return "clicked_hold"
 	return "idle"
 
 
@@ -235,3 +278,35 @@ func _interaction_to_pet_state(interaction: PetInteraction) -> PetState:
 		PetInteraction.CLICKED_HOLD:
 			return PetState.CLICKED_HOLD
 	return _base_to_pet_state(current_base_state)
+
+
+func _should_skip_pet_dir(dir_name: String) -> bool:
+	return dir_name.begins_with(".") or dir_name.begins_with("_") or dir_name == "raw"
+
+
+func _add_available_pet(pet: PetResource) -> void:
+	for existing in available_pets:
+		if existing.pet_id == pet.pet_id:
+			return
+	available_pets.append(pet)
+
+
+func _find_pet_by_id(pet_id: String) -> PetResource:
+	for pet in available_pets:
+		if pet.pet_id == pet_id:
+			return pet
+	return null
+
+
+func _sort_available_pets() -> void:
+	available_pets.sort_custom(func(a: PetResource, b: PetResource) -> bool:
+		if a.pet_id == DEFAULT_PET_ID:
+			return true
+		if b.pet_id == DEFAULT_PET_ID:
+			return false
+		if a.pet_id == FALLBACK_PET_ID:
+			return true
+		if b.pet_id == FALLBACK_PET_ID:
+			return false
+		return a.pet_id < b.pet_id
+	)

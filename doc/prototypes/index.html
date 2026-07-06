@@ -800,6 +800,847 @@
       gap: 8px;
     }
 
+    .warm-desktop {
+      background:
+        linear-gradient(90deg, rgba(235, 168, 90, 0.08) 1px, transparent 1px),
+        linear-gradient(rgba(72, 151, 140, 0.08) 1px, transparent 1px),
+        linear-gradient(135deg, #f7fbf8, #fff6e9 55%, #eef7fb);
+      background-size: 32px 32px, 32px 32px, auto;
+    }
+
+    .warm-pet-window {
+      position: absolute;
+      left: 74px;
+      top: 72px;
+      width: 500px;
+      height: 330px;
+      border: 1px dashed rgba(205, 142, 67, 0.38);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .warm-cat-stage {
+      position: absolute;
+      left: 56px;
+      top: 116px;
+      width: 168px;
+      height: 168px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      border: 1px solid rgba(244, 164, 49, 0.22);
+      background: rgba(255,255,255,0.34);
+    }
+
+    .warm-cat-stage img {
+      width: 136px;
+      height: 136px;
+    }
+
+    .warm-panel-compact {
+      position: absolute;
+      left: 262px;
+      top: 164px;
+      width: 178px;
+      height: 58px;
+      border-radius: 8px;
+      background: rgba(42, 37, 31, 0.9);
+      color: #fff8ed;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 14px;
+      box-shadow: 0 14px 30px rgba(114, 72, 28, 0.18);
+    }
+
+    .warm-panel-amount {
+      font-size: 19px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .warm-panel-status {
+      color: #d7cbb9;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .warm-panel-expanded {
+      position: absolute;
+      width: 248px;
+      padding: 14px;
+      border-radius: 8px;
+      background: rgba(42, 37, 31, 0.92);
+      color: #fff8ed;
+      box-shadow: 0 14px 34px rgba(114, 72, 28, 0.18);
+    }
+
+    .warm-panel-expanded .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 8px 0;
+      font-size: 13px;
+    }
+
+    .warm-panel-expanded .bar div {
+      background: linear-gradient(90deg, #f4a431, #4cae9d);
+    }
+
+    .ui-polish-grid {
+      display: grid;
+      grid-template-columns: minmax(360px, 1.1fr) minmax(320px, 0.9fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .ui-polish-card {
+      border: 1px solid #d7dee6;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.84);
+      box-shadow: 0 10px 28px rgba(51, 65, 85, 0.08);
+      overflow: hidden;
+      min-height: 424px;
+      position: relative;
+    }
+
+    .ui-polish-card.dark {
+      background: #20242e;
+      border-color: #303744;
+      color: #ededed;
+    }
+
+    .ui-polish-card.wide {
+      grid-column: 1 / -1;
+      min-height: 300px;
+    }
+
+    .ui-polish-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 44px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+      color: #4a5565;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .ui-polish-card.dark .ui-polish-card-header {
+      color: #ededed;
+      border-bottom-color: #333a48;
+      background: #1a1f29;
+    }
+
+    .ui-polish-stage {
+      height: 380px;
+      position: relative;
+      background:
+        linear-gradient(90deg, rgba(235,168,90,0.07) 1px, transparent 1px),
+        linear-gradient(rgba(76,174,157,0.07) 1px, transparent 1px),
+        linear-gradient(135deg, #fbfdfb, #fff7ec 62%, #eef7fb);
+      background-size: 28px 28px, 28px 28px, auto;
+    }
+
+    .ui-polish-stage[data-panel-mode="compact"] .ui-polish-panel-expanded {
+      display: none;
+    }
+
+    .ui-polish-stage[data-panel-mode="expanded"] .ui-polish-panel-compact {
+      display: none;
+    }
+
+    .ui-polish-stage[data-work-state="resting"] .ui-polish-progress div {
+      width: 0;
+      background: #c8c0b2;
+    }
+
+    .ui-polish-stage[data-work-state="unconfigured"] .ui-polish-progress div {
+      width: 0;
+      background: #e6b450;
+    }
+
+    .ui-polish-cat {
+      position: absolute;
+      left: 44px;
+      bottom: 54px;
+      width: 148px;
+      height: 148px;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 14px rgba(113, 63, 18, 0.16));
+    }
+
+    .ui-polish-panel-compact {
+      position: absolute;
+      left: 198px;
+      bottom: 108px;
+      width: 184px;
+      height: 54px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(25, 24, 22, 0.84);
+      color: #f7f3ea;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 14px;
+      box-shadow: 0 14px 30px rgba(114, 72, 28, 0.16);
+    }
+
+    .ui-polish-panel-expanded {
+      position: absolute;
+      left: 198px;
+      bottom: 36px;
+      width: 286px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(32, 30, 27, 0.9);
+      color: #f7f3ea;
+      padding: 14px;
+      box-shadow: 0 16px 32px rgba(114, 72, 28, 0.16);
+    }
+
+    .ui-polish-panel-expanded .primary-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 6px;
+    }
+
+    .ui-polish-panel-expanded .primary-line span {
+      color: #c8c0b2;
+      font-size: 12px;
+    }
+
+    .ui-polish-panel-expanded .primary-line strong {
+      font-size: 20px;
+      color: #fff8ed;
+    }
+
+    .ui-polish-detail-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 8px;
+      color: #d7cbb9;
+      font-size: 12px;
+    }
+
+    .ui-polish-detail-row strong {
+      color: #f7f3ea;
+      font-weight: 700;
+    }
+
+    .ui-polish-progress {
+      height: 7px;
+      margin-top: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.14);
+      overflow: hidden;
+    }
+
+    .ui-polish-progress div {
+      width: 56%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #f2a23a, #7ccb8a);
+    }
+
+    .win-settings-preview {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      min-height: 376px;
+      background: #20242e;
+    }
+
+    .win-settings-top {
+      display: grid;
+      grid-template-columns: 26px 1fr minmax(160px, 46%);
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #303744;
+    }
+
+    .win-back {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      color: #dbe4f0;
+      background: transparent;
+      border: 0;
+      font-size: 18px;
+    }
+
+    .win-settings-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #eef4fb;
+    }
+
+    .win-search {
+      min-height: 30px;
+      border-radius: 999px;
+      background: #2a303d;
+      border: 1px solid #374151;
+      color: #b8c2cf;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      font-size: 12px;
+    }
+
+    .win-search::before {
+      content: "";
+      width: 11px;
+      height: 11px;
+      border: 2px solid #aeb8c6;
+      border-radius: 50%;
+      box-shadow: 5px 5px 0 -3px #aeb8c6;
+    }
+
+    .win-settings-shell {
+      display: grid;
+      grid-template-columns: 132px minmax(0, 1fr);
+      min-height: 282px;
+    }
+
+    .win-settings-nav {
+      padding: 10px 8px;
+      background: #171b24;
+      border-right: 1px solid #303744;
+    }
+
+    .win-nav-item {
+      width: 100%;
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 0;
+      border-radius: 5px;
+      padding: 0 9px;
+      margin-bottom: 4px;
+      background: transparent;
+      color: #c8d2df;
+      text-align: left;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .win-nav-item:hover {
+      background: #252b37;
+    }
+
+    .win-nav-item.active {
+      background: #2f3746;
+      color: #fff;
+      box-shadow: inset 3px 0 0 #60a5fa;
+    }
+
+    .win-nav-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, #60a5fa, #f2a23a);
+      flex: 0 0 auto;
+    }
+
+    .win-settings-main {
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .win-page-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .win-page-heading h4 {
+      margin: 0;
+      font-size: 21px;
+      color: #f3f6fb;
+      font-weight: 650;
+    }
+
+    .win-page-heading span {
+      color: #95a3b8;
+      font-size: 11px;
+    }
+
+    .win-setting-row {
+      min-height: 52px;
+      border: 1px solid #353d4b;
+      border-radius: 7px;
+      background: #2a303d;
+      color: #e8edf5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 11px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .win-setting-label {
+      min-width: 0;
+    }
+
+    .win-setting-label span {
+      display: block;
+      color: #f1f5f9;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .win-setting-label small {
+      display: block;
+      color: #a8b3c2;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .win-setting-value {
+      min-width: 86px;
+      text-align: right;
+      color: #f5d89c;
+      white-space: nowrap;
+      font-weight: 650;
+    }
+
+    .tool-feedback {
+      margin: 0 14px 12px;
+      padding: 9px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(124, 203, 138, 0.38);
+      background: rgba(124, 203, 138, 0.12);
+      color: #9be0a8;
+      font-size: 12px;
+    }
+
+    .tool-feedback.neutral {
+      border-color: rgba(168,168,168,0.34);
+      background: rgba(168,168,168,0.1);
+      color: #c8c8c8;
+    }
+
+    .tool-feedback.warn {
+      border-color: rgba(230,180,80,0.42);
+      background: rgba(230,180,80,0.13);
+      color: #ffd37a;
+    }
+
+    .tool-feedback.danger {
+      border-color: rgba(224,108,117,0.42);
+      background: rgba(224,108,117,0.13);
+      color: #ff9ca3;
+    }
+
+    .prototype-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-top: 1px solid rgba(148, 163, 184, 0.24);
+      background: rgba(255,255,255,0.72);
+    }
+
+    .ui-polish-card.dark .prototype-actions {
+      background: #1a1f29;
+      border-top-color: #303744;
+    }
+
+    .polish-context-layout {
+      display: grid;
+      grid-template-columns: minmax(360px, 1fr) minmax(300px, 0.8fr);
+      gap: 16px;
+      padding: 16px;
+      background:
+        linear-gradient(90deg, rgba(96,165,250,0.04) 1px, transparent 1px),
+        linear-gradient(rgba(96,165,250,0.04) 1px, transparent 1px),
+        #f7faf8;
+      background-size: 28px 28px;
+    }
+
+    .polish-context-stage {
+      min-height: 220px;
+      position: relative;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 8px;
+      background: linear-gradient(135deg, #fffaf0, #eef7fb);
+      overflow: hidden;
+    }
+
+    .polish-context-cat {
+      position: absolute;
+      left: 30px;
+      bottom: 26px;
+      width: 126px;
+      height: 126px;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 14px rgba(113, 63, 18, 0.18));
+    }
+
+    .polish-context-menu {
+      position: absolute;
+      left: 170px;
+      top: 34px;
+      width: 174px;
+      border-radius: 7px;
+      border: 1px solid #313846;
+      background: #20242e;
+      color: #ecf1f7;
+      box-shadow: 0 16px 34px rgba(15, 23, 42, 0.25);
+      padding: 5px;
+      font-size: 12px;
+    }
+
+    .polish-menu-item {
+      min-height: 31px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 9px;
+      color: #e7edf6;
+    }
+
+    .polish-menu-item:hover,
+    .polish-menu-item.active {
+      background: #303847;
+    }
+
+    .polish-menu-item.danger {
+      color: #ff9ca3;
+    }
+
+    .polish-menu-arrow {
+      color: #aab6c5;
+    }
+
+    .polish-submenu {
+      position: absolute;
+      left: 166px;
+      top: 39px;
+      width: 132px;
+      border-radius: 7px;
+      border: 1px solid #313846;
+      background: #20242e;
+      box-shadow: 0 16px 34px rgba(15, 23, 42, 0.25);
+      padding: 5px;
+      display: none;
+    }
+
+    .polish-context-stage[data-submenu="pet"] .submenu-pet,
+    .polish-context-stage[data-submenu="window"] .submenu-window {
+      display: block;
+    }
+
+    .submenu-pet {
+      top: 70px;
+    }
+
+    .polish-submenu .polish-menu-item {
+      min-height: 30px;
+    }
+
+    .polish-check {
+      color: #7ccb8a;
+      font-weight: 800;
+    }
+
+    .icon-preview-panel {
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 8px;
+      background: #20242e;
+      color: #eef4fb;
+      padding: 14px;
+      min-height: 220px;
+    }
+
+    .icon-preview-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .icon-size-card {
+      min-height: 72px;
+      border-radius: 7px;
+      border: 1px solid #353d4b;
+      background: #2a303d;
+      display: grid;
+      place-items: center;
+      gap: 4px;
+      padding: 8px;
+      font-size: 11px;
+      color: #a8b3c2;
+    }
+
+    .icon-size-card img {
+      object-fit: contain;
+      image-rendering: auto;
+    }
+
+    .icon-size-card.tray {
+      background: linear-gradient(180deg, #10151d, #20242e);
+    }
+
+    .interaction-button {
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 6px;
+      border: 1px solid #cfd8e3;
+      background: #fff;
+      color: #334155;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .interaction-button:hover {
+      border-color: #b7c4d2;
+      background: #f8fafc;
+    }
+
+    .interaction-button.active {
+      border-color: rgba(242,162,58,0.62);
+      background: #fff4df;
+      color: #805000;
+      font-weight: 700;
+    }
+
+    .ui-polish-card.dark .interaction-button {
+      border-color: #4b4b4b;
+      background: #383838;
+      color: #ededed;
+    }
+
+    .ui-polish-card.dark .interaction-button.active {
+      border-color: rgba(242,162,58,0.62);
+      background: rgba(242,162,58,0.16);
+      color: #ffd37a;
+    }
+
+    .interaction-guide {
+      margin-top: 12px;
+      border: 1px solid rgba(205, 142, 67, 0.28);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.78);
+      padding: 12px 14px;
+    }
+
+    .interaction-guide-title {
+      margin: 0 0 8px;
+      color: #4a3927;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .interaction-guide-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .interaction-guide-item {
+      color: #64513e;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .interaction-guide-item strong {
+      display: block;
+      color: #4a3927;
+      margin-bottom: 3px;
+    }
+
+    .ui-principle-list {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .ui-principle {
+      border: 1px solid rgba(205, 142, 67, 0.28);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.72);
+      padding: 10px;
+      color: #64513e;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .ui-principle strong {
+      display: block;
+      color: #4a3927;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .soft-note {
+      position: absolute;
+      border: 1px solid rgba(205, 142, 67, 0.32);
+      background: rgba(255,255,255,0.76);
+      color: #64513e;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      line-height: 1.45;
+      box-shadow: 0 10px 24px rgba(114,72,28,0.08);
+    }
+
+    .edge-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .edge-card {
+      height: 210px;
+      border: 1px solid #d7dee6;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #fbfcfd, #fff7eb);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .edge-card .edge-label {
+      position: absolute;
+      left: 10px;
+      top: 9px;
+      color: #607080;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .edge-cat {
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      filter: drop-shadow(0 7px 9px rgba(113,63,18,0.15));
+    }
+
+    .edge-panel {
+      position: absolute;
+      min-width: 112px;
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 8px;
+      background: rgba(42,37,31,0.9);
+      color: #fff8ed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .state-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .state-row {
+      display: grid;
+      grid-template-columns: 150px 1fr 132px;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid #dbe3ec;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .state-name {
+      font-weight: 700;
+      color: #2b3a4a;
+    }
+
+    .state-copy {
+      color: #607080;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .toast {
+      justify-self: end;
+      min-width: 118px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      border: 1px solid #cfd8e3;
+      background: #f8fafc;
+      font-size: 12px;
+      color: #405060;
+      text-align: center;
+    }
+
+    .toast.ok { border-color: #bde8d1; background: #e9f7f0; color: var(--ok); }
+    .toast.warn { border-color: #f3d28a; background: #fff5dd; color: var(--warn); }
+    .toast.danger { border-color: #f0b7b0; background: #fff0ee; color: var(--danger); }
+
+    .package-card {
+      width: 520px;
+      margin: 0 auto;
+      border: 1px solid #d7dee6;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.88);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .package-title {
+      padding: 14px 16px;
+      border-bottom: 1px solid #dbe3ec;
+      background: #fff8ed;
+      font-weight: 800;
+      color: #4a3927;
+    }
+
+    .file-list {
+      padding: 14px 16px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 8px 10px;
+      border: 1px solid #e3e8ef;
+      border-radius: 8px;
+      background: #fbfcfd;
+      font-size: 13px;
+    }
+
+    .file-item code {
+      font-family: Consolas, monospace;
+      color: #263443;
+    }
+
+    .file-item span {
+      color: #607080;
+    }
+
     @media (max-width: 1100px) {
       .app-shell {
         grid-template-columns: 220px 1fr;
@@ -821,7 +1662,7 @@
         <img src="../../icons/app_icon.png" alt="LetsMakeMoney icon">
         <div>
           <div class="brand-title">LetsMakeMoney</div>
-          <div class="brand-subtitle">Prototype v0.1-v0.3</div>
+          <div class="brand-subtitle">Prototype v0.1-v0.4</div>
         </div>
       </div>
       <div class="nav-section-label">Screens</div>
@@ -834,6 +1675,12 @@
       <button class="nav-button" data-screen="tray">系统托盘 <span class="nav-tag">v0.3</span></button>
       <button class="nav-button" data-screen="debug">Debug 模式 <span class="nav-tag">v0.1/v0.2</span></button>
       <button class="nav-button" data-screen="pure">纯桌宠 / 穿透 <span class="nav-tag">v0.3</span></button>
+      <div class="nav-section-label">v0.4 Beta</div>
+      <button class="nav-button" data-screen="v04-default">默认桌宠体验 <span class="nav-tag">v0.4</span></button>
+      <button class="nav-button" data-screen="v04-panel">Panel 边缘状态 <span class="nav-tag">v0.4</span></button>
+      <button class="nav-button" data-screen="v04-settings">设置关键状态 <span class="nav-tag">v0.4</span></button>
+      <button class="nav-button" data-screen="v04-ui">UI Polish 规格 <span class="nav-tag">v0.4</span></button>
+      <button class="nav-button" data-screen="v04-release">托盘与发布包 <span class="nav-tag">v0.4</span></button>
 
       <div class="nav-section-label">Interactions</div>
       <button class="nav-button" id="togglePanel">切换 Panel 展开</button>
@@ -863,7 +1710,7 @@
                 <p>优先验证薪资计算、Pet/Panel、设置、向导和打包链路。窗口保持普通形态，便于观察交互。</p>
                 <div class="mini-window">
                   <div class="window-titlebar">LetsMakeMoney (DEBUG)</div>
-                  <img src="../../assets/pets/cat_orange_v1/frames/idle/idle_01.png" alt="cat">
+                  <img src="../../assets/pets/cat/orange_v2/idle/cat_orange_v2_idle_00.png" alt="cat">
                   <div class="mini-panel">¥0.00</div>
                 </div>
               </div>
@@ -872,7 +1719,7 @@
                 <h3>紧凑桌宠候选</h3>
                 <p>橘猫素材、紧凑窗口、Panel、核心交互、设置、自启动和验证链路可用；托盘/透明/穿透安全暂缓。</p>
                 <div class="mini-window">
-                  <img src="../../assets/pets/cat_orange_v1/frames/working/working_01.png" alt="cat">
+                  <img src="../../assets/pets/cat/orange_v2/working/cat_orange_v2_working_00.png" alt="cat">
                   <div class="mini-panel">¥128.40</div>
                 </div>
               </div>
@@ -881,7 +1728,7 @@
                 <h3>原生桌宠修复版</h3>
                 <p>通过 GDExtension / 原生插件恢复真托盘、透明无边框、点击穿透、关闭隐藏和纯桌宠模式。</p>
                 <div class="mini-window" style="background:linear-gradient(135deg,#e6edf6,#f8fafc);border-style:dashed">
-                  <img src="../../assets/pets/cat_orange_v1/frames/idle/idle_02.png" alt="cat">
+                  <img src="../../assets/pets/cat/orange_v2/idle/cat_orange_v2_idle_01.png" alt="cat">
                   <div class="mini-panel">¥256.80</div>
                 </div>
               </div>
@@ -902,7 +1749,7 @@
               <div class="pet-window v3">
                 <div class="clickthrough">transparent blank area passes through in v0.3</div>
                 <div class="cat-stage">
-                  <img class="cat-img" src="../../assets/pets/cat_orange_v1/frames/idle/idle_01.png" alt="cat">
+                  <img class="cat-img" src="../../assets/pets/cat/orange_v2/idle/cat_orange_v2_idle_00.png" alt="cat">
                 </div>
                 <div class="panel-compact panel-live">¥128.40</div>
                 <div class="hotzone" style="left:32px;top:64px;width:154px;height:154px">Pet hit area</div>
@@ -928,7 +1775,7 @@
             <div class="desktop-surface">
               <div class="pet-window">
                 <div class="cat-stage">
-                  <img class="cat-img" src="../../assets/pets/cat_orange_v1/frames/working/working_02.png" alt="cat">
+                  <img class="cat-img" src="../../assets/pets/cat/orange_v2/working/cat_orange_v2_working_01.png" alt="cat">
                 </div>
                 <div class="panel-compact panel-live compact-panel">¥128.40</div>
                 <div class="panel-expanded expanded-panel" style="display:none">
@@ -960,7 +1807,7 @@
             <div class="desktop-surface">
               <div class="pet-window">
                 <div class="cat-stage">
-                  <img class="cat-img" src="../../assets/pets/cat_orange_v1/frames/idle_clicked_single/idle_clicked_single_01.png" alt="cat">
+                  <img class="cat-img" src="../../assets/pets/cat/orange_v2/idle_clicked_single/cat_orange_v2_idle_clicked_single_00.png" alt="cat">
                 </div>
                 <div class="panel-compact">¥128.40</div>
               </div>
@@ -1011,7 +1858,7 @@
                 </div>
                 <div class="tab-content" id="tab-pet" style="display:none">
                   <div class="form-grid">
-                    <div class="label">选择角色</div><div class="select">橘猫 cat_orange_v1 <span>active</span></div>
+                    <div class="label">选择角色</div><div class="select">橘猫 cat_orange_v2 <span>active</span></div>
                     <div class="label">缩放</div><div><div class="range"></div><p class="page-subtitle">当前 100%，保存后同步窗口与穿透区域。</p></div>
                   </div>
                 </div>
@@ -1070,7 +1917,7 @@
                 <div class="wizard-step">4 完成</div>
               </div>
               <div class="wizard-body">
-                <img class="cat-img" src="../../assets/pets/cat_orange_v1/frames/idle/idle_04.png" alt="cat">
+                <img class="cat-img" src="../../assets/pets/cat/orange_v2/idle/cat_orange_v2_idle_03.png" alt="cat">
                 <div>
                   <h2>欢迎使用 LetsMakeMoney</h2>
                   <p class="page-subtitle">用一只努力工作的小动物，把时间价值变成可见反馈。</p>
@@ -1131,7 +1978,7 @@
                   <div class="window-controls"><span></span><span></span><span></span></div>
                 </div>
                 <div class="debug-status">Debug: ready. Left/right click the pet area.</div>
-                <img class="cat-img debug-pet" src="../../assets/pets/cat_orange_v1/frames/working/working_03.png" alt="cat">
+                <img class="cat-img debug-pet" src="../../assets/pets/cat/orange_v2/working/cat_orange_v2_working_02.png" alt="cat">
                 <div class="panel-compact debug-panel">¥128.40</div>
                 <div class="debug-input">DebugInputArea receives click / drag / right-click fallback</div>
               </div>
@@ -1152,7 +1999,7 @@
               <div class="pet-window v3" style="left:92px;top:92px">
                 <div class="clickthrough">click-through blank region</div>
                 <div class="cat-stage">
-                  <img class="cat-img" src="../../assets/pets/cat_orange_v1/frames/resting/resting_01.png" alt="cat">
+                  <img class="cat-img" src="../../assets/pets/cat/orange_v2/resting/cat_orange_v2_resting_00.png" alt="cat">
                 </div>
                 <div class="panel-compact">¥128.40</div>
                 <div class="hotzone" style="left:32px;top:64px;width:154px;height:154px">interactive</div>
@@ -1164,6 +2011,341 @@
                 <span class="callout">Allowed only when tray health passed</span>
                 <span class="callout">Failure: restore taskbar and pure_pet_mode=false</span>
                 <span class="callout">Debug mode disables passthrough</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-v04-default">
+        <div class="prototype-card">
+          <div class="prototype-header">
+            <span>v0.4 Default Pet Experience</span>
+            <span>warm companion default</span>
+          </div>
+          <div class="prototype-body">
+            <div class="desktop-surface warm-desktop">
+              <div class="warm-pet-window">
+                <div class="clickthrough">transparent blank area passes clicks through</div>
+                <div class="warm-cat-stage">
+                  <img class="cat-img" src="../../assets/pets/cat/orange_v2/idle/cat_orange_v2_idle_00.png" alt="cat">
+                </div>
+                <div class="warm-panel-compact"><span class="warm-panel-amount">¥128.60</span><span class="warm-panel-status">工作中</span></div>
+                <div class="hotzone" style="left:54px;top:112px;width:172px;height:172px">pet core</div>
+                <div class="hotzone" style="left:42px;top:96px;width:196px;height:202px;border-style:dashed">right menu area</div>
+              </div>
+              <div class="tray-area">
+                <div class="tray-icon"><img src="../../icons/app_icon.png" alt="tray icon"></div>
+              </div>
+              <div class="soft-note" style="left:26px;top:24px;width:250px">
+                默认观感：柔和、轻量、低压力。保留薪资工具属性，不把桌宠做成纯装饰。
+              </div>
+              <div class="soft-note" style="right:30px;top:72px;width:230px">
+                找回路径：托盘、右键菜单、Debug 配置兜底。任何窗口隐藏都不能让用户失去入口。
+              </div>
+              <div class="legend">
+                <span class="callout">Collapsed Panel: amount + short status</span>
+                <span class="callout">Pet area: hover / click / drag / right menu</span>
+                <span class="callout">No visual style picker in v0.4</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-v04-panel">
+        <div class="prototype-card">
+          <div class="prototype-header">
+            <span>v0.4 Panel States</span>
+            <span>collapsed / expanded / edge-aware</span>
+          </div>
+          <div class="prototype-body">
+            <div class="edge-grid">
+              <div class="edge-card">
+                <span class="edge-label">Right edge: expand left</span>
+                <img class="edge-cat" style="right:24px;bottom:30px" src="../../assets/pets/cat/orange_v2/idle/cat_orange_v2_idle_01.png" alt="cat">
+                <div class="edge-panel" style="right:104px;bottom:46px">¥128.60 工作中</div>
+              </div>
+              <div class="edge-card">
+                <span class="edge-label">Left edge: expand right</span>
+                <img class="edge-cat" style="left:24px;bottom:30px" src="../../assets/pets/cat/orange_v2/idle/cat_orange_v2_idle_02.png" alt="cat">
+                <div class="edge-panel" style="left:104px;bottom:46px">¥128.60 工作中</div>
+              </div>
+              <div class="edge-card">
+                <span class="edge-label">Bottom edge: expand upward</span>
+                <img class="edge-cat" style="left:44px;bottom:12px" src="../../assets/pets/cat/orange_v2/working/cat_orange_v2_working_00.png" alt="cat">
+                <div class="warm-panel-expanded" style="left:130px;bottom:72px">
+                  <div class="row"><span>今日已赚</span><strong>¥128.60</strong></div>
+                  <div class="row"><span>本月累计</span><strong>¥3,842.00</strong></div>
+                  <div class="row"><span>时薪</span><strong>¥64.30</strong></div>
+                  <div class="bar"><div></div></div>
+                </div>
+              </div>
+              <div class="edge-card">
+                <span class="edge-label">Expanded: readable details</span>
+                <img class="edge-cat" style="left:38px;top:82px" src="../../assets/pets/cat/orange_v2/resting/cat_orange_v2_resting_00.png" alt="cat">
+                <div class="warm-panel-expanded" style="left:126px;top:50px">
+                  <div class="row"><span>今日已赚</span><strong>¥128.60</strong></div>
+                  <div class="row"><span>工作进度</span><strong>56%</strong></div>
+                  <div class="row"><span>状态</span><strong>休息中</strong></div>
+                  <div class="bar"><div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-v04-settings">
+        <div class="prototype-card">
+          <div class="prototype-header">
+            <span>v0.4 Settings States</span>
+            <span>single settings window, clear save feedback</span>
+          </div>
+          <div class="prototype-body">
+            <div class="settings-window">
+              <div class="window-titlebar">
+                <span>设置</span>
+                <div class="window-controls"><span></span><span></span><span></span></div>
+              </div>
+              <div class="tabs">
+                <button class="tab active">Salary</button>
+                <button class="tab">Pet</button>
+                <button class="tab">Display</button>
+                <button class="tab">Panel</button>
+                <button class="tab">General</button>
+              </div>
+              <div class="settings-content">
+                <div class="state-list">
+                  <div class="state-row">
+                    <div class="state-name">Display</div>
+                    <div class="state-copy">窗口模式、透明度、缩放、纯桌宠模式与点击穿透集中解释，先说明可见性和找回路径。</div>
+                    <div class="toast ok">已保存</div>
+                  </div>
+                  <div class="state-row">
+                    <div class="state-name">General</div>
+                    <div class="state-copy">开机自启、关闭隐藏到托盘、Debug 模式、重置窗口位置、恢复默认设置在同一页。</div>
+                    <div class="toast">没有更改</div>
+                  </div>
+                  <div class="state-row">
+                    <div class="state-name">平台能力</div>
+                    <div class="state-copy">native 或托盘不可用时显示原因，不静默失败，不显示假成功。</div>
+                    <div class="toast warn">托盘不可用</div>
+                  </div>
+                  <div class="state-row">
+                    <div class="state-name">保存失败</div>
+                    <div class="state-copy">保留用户输入，显示可读错误，允许再次保存或恢复默认。</div>
+                    <div class="toast danger">保存失败</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="soft-note" style="left:46px;bottom:34px;width:320px">
+              设置窗口是单一对话框，不再出现大宿主窗口里再套一个设置窗口的黑底观感。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-v04-ui">
+        <div class="prototype-card">
+          <div class="prototype-header">
+            <span>v0.4 UI Polish Spec</span>
+            <span>minimal productivity tool + pet companion</span>
+          </div>
+          <div class="prototype-body">
+            <div class="ui-polish-grid">
+              <div class="ui-polish-card">
+                <div class="ui-polish-card-header">
+                  <span>Panel / 桌宠主界面</span>
+                  <span>温暖陪伴，但信息清楚</span>
+                </div>
+                <div class="ui-polish-stage" id="uiPolishStage" data-panel-mode="both" data-work-state="working">
+                  <img class="ui-polish-cat" src="../../assets/pets/cat/orange_v2/idle/cat_orange_v2_idle_00.png" alt="cat">
+                  <div class="ui-polish-panel-compact">
+                    <span class="warm-panel-amount" data-ui-amount>¥128.60</span>
+                    <span class="warm-panel-status" data-ui-status>工作中</span>
+                  </div>
+                  <div class="ui-polish-panel-expanded">
+                    <div class="primary-line"><span>今日已赚</span><strong data-ui-amount>¥128.60</strong></div>
+                    <div class="ui-polish-detail-row"><span>状态</span><strong data-ui-status>工作中</strong></div>
+                    <div class="ui-polish-detail-row"><span>本月累计</span><strong>¥3,842.00</strong></div>
+                    <div class="ui-polish-detail-row"><span>时薪</span><strong>¥64.30 / 小时</strong></div>
+                    <div class="ui-polish-detail-row"><span>工作进度</span><strong data-ui-progress>56%</strong></div>
+                    <div class="ui-polish-progress"><div></div></div>
+                  </div>
+                </div>
+                <div class="prototype-actions">
+                  <button class="interaction-button active" data-ui-panel-mode="both">对照</button>
+                  <button class="interaction-button" data-ui-panel-mode="compact">折叠</button>
+                  <button class="interaction-button" data-ui-panel-mode="expanded">展开</button>
+                  <button class="interaction-button active" data-ui-work-state="working">工作中</button>
+                  <button class="interaction-button" data-ui-work-state="resting">休息中</button>
+                  <button class="interaction-button" data-ui-work-state="unconfigured">待配置</button>
+                </div>
+              </div>
+
+              <div class="ui-polish-card dark">
+                <div class="ui-polish-card-header">
+                  <span>设置窗口</span>
+                  <span>Win11 式导航 + 卡片设置</span>
+                </div>
+                <div class="win-settings-preview">
+                  <div class="win-settings-top">
+                    <button class="win-back" aria-label="返回设置">‹</button>
+                    <div class="win-settings-title">设置</div>
+                    <div class="win-search">查找设置（占位）</div>
+                  </div>
+                  <div class="win-settings-shell">
+                    <div class="win-settings-nav">
+                      <button class="win-nav-item" data-tool-tab="Salary"><span class="win-nav-icon"></span>Salary</button>
+                      <button class="win-nav-item" data-tool-tab="Pet"><span class="win-nav-icon"></span>Pet</button>
+                      <button class="win-nav-item active" data-tool-tab="Display"><span class="win-nav-icon"></span>Display</button>
+                      <button class="win-nav-item" data-tool-tab="Panel"><span class="win-nav-icon"></span>Panel</button>
+                      <button class="win-nav-item" data-tool-tab="General"><span class="win-nav-icon"></span>General</button>
+                    </div>
+                    <div class="win-settings-main">
+                      <div class="win-page-heading">
+                        <h4 id="winSettingsHeading">Display</h4>
+                        <span>工具化设置，不做主题页</span>
+                      </div>
+                      <div class="win-setting-row" data-tool-field="opacity">
+                        <div class="win-setting-label"><span>透明度</span><small>影响桌宠窗口整体观感</small></div>
+                        <div class="win-setting-value">92%</div>
+                      </div>
+                      <div class="win-setting-row" data-tool-field="scale">
+                        <div class="win-setting-label"><span>缩放</span><small>同时影响小猫与 Panel</small></div>
+                        <div class="win-setting-value">100%</div>
+                      </div>
+                      <div class="win-setting-row" data-tool-field="window_mode">
+                        <div class="win-setting-label"><span>窗口模式</span><small>下拉选择，保留置顶/融入桌面</small></div>
+                        <div class="win-setting-value">置顶悬浮</div>
+                      </div>
+                      <div class="win-setting-row" data-tool-field="passthrough">
+                        <div class="win-setting-label"><span>点击穿透</span><small>空白区域穿透，小猫与 Panel 可交互</small></div>
+                        <div class="win-setting-value">开启</div>
+                      </div>
+                      <div class="win-setting-row" data-tool-field="pure_pet">
+                        <div class="win-setting-label"><span>纯桌宠</span><small>隐藏任务栏入口前确认托盘可找回</small></div>
+                        <div class="win-setting-value">关闭</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tool-feedback" id="toolFeedback">已保存，重新显示窗口后完整生效。</div>
+                  <div class="prototype-actions">
+                    <button class="interaction-button active" data-tool-feedback="saved">已保存</button>
+                    <button class="interaction-button" data-tool-feedback="unchanged">无变化</button>
+                    <button class="interaction-button" data-tool-feedback="restart">需重显</button>
+                    <button class="interaction-button" data-tool-feedback="failed">保存失败</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ui-polish-card wide">
+                <div class="ui-polish-card-header">
+                  <span>右键菜单与图标</span>
+                  <span>二级入口 + 小尺寸识别</span>
+                </div>
+                <div class="polish-context-layout">
+                  <div>
+                    <div class="polish-context-stage" id="polishContextStage" data-submenu="window">
+                      <img class="polish-context-cat" src="../../assets/pets/cat/orange_v2/idle/cat_orange_v2_idle_01.png" alt="cat">
+                      <div class="polish-context-menu">
+                        <div class="polish-menu-item">设置</div>
+                        <div class="polish-menu-item active">窗口模式 <span class="polish-menu-arrow">›</span></div>
+                        <div class="polish-menu-item">选择宠物 <span class="polish-menu-arrow">›</span></div>
+                        <div class="polish-menu-item">关于 LetsMakeMoney</div>
+                        <div class="polish-menu-item danger">退出</div>
+                        <div class="polish-submenu submenu-window">
+                          <div class="polish-menu-item"><span>置顶悬浮</span><span class="polish-check">✓</span></div>
+                          <div class="polish-menu-item"><span>融入桌面</span><span>实验</span></div>
+                        </div>
+                        <div class="polish-submenu submenu-pet">
+                          <div class="polish-menu-item"><span>橘猫 v2</span><span class="polish-check">✓</span></div>
+                          <div class="polish-menu-item"><span>橘猫 v1</span><span>回退</span></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="prototype-actions">
+                      <button class="interaction-button active" data-context-submenu="window">窗口模式子菜单</button>
+                      <button class="interaction-button" data-context-submenu="pet">选择宠物子菜单</button>
+                    </div>
+                  </div>
+                  <div class="icon-preview-panel">
+                    <strong>图标规格预览</strong>
+                    <p style="margin:6px 0 0;color:#a8b3c2;font-size:12px;line-height:1.45">窗口、托盘、exe 和关于窗口保持同源。16/24 尺寸允许使用简化猫头，避免完整身体缩小后不可读。</p>
+                    <div class="icon-preview-row">
+                      <div class="icon-size-card tray"><img src="../../icons/app_icon.png" alt="16 icon" width="16" height="16"><span>16 托盘</span></div>
+                      <div class="icon-size-card tray"><img src="../../icons/app_icon.png" alt="24 icon" width="24" height="24"><span>24 高 DPI</span></div>
+                      <div class="icon-size-card"><img src="../../icons/app_icon.png" alt="32 icon" width="32" height="32"><span>32 标题栏</span></div>
+                      <div class="icon-size-card"><img src="../../icons/app_icon.png" alt="48 icon" width="48" height="48"><span>48 应用</span></div>
+                      <div class="icon-size-card"><img src="../../icons/app_icon.png" alt="64 icon" width="56" height="56"><span>64 关于</span></div>
+                      <div class="icon-size-card"><img src="../../icons/app_icon.png" alt="128 icon" width="62" height="62"><span>128 高清</span></div>
+                      <div class="icon-size-card"><img src="../../icons/app_icon.png" alt="256 icon" width="62" height="62"><span>256 ico 源</span></div>
+                      <div class="icon-size-card tray"><img src="../../icons/app_icon.png" alt="tray contrast" width="24" height="24"><span>深色任务栏</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="interaction-guide">
+              <p class="interaction-guide-title">交互说明</p>
+              <div class="interaction-guide-grid">
+                <div class="interaction-guide-item"><strong>Panel 状态</strong>点击“折叠 / 展开 / 对照”查看常驻态与详情态的信息层级，验证折叠态只保留金额和短状态。</div>
+                <div class="interaction-guide-item"><strong>工作状态</strong>点击“工作中 / 休息中 / 待配置”切换金额、状态和进度条，用来确认不同业务状态的文案和视觉权重。</div>
+                <div class="interaction-guide-item"><strong>设置反馈</strong>点击“已保存 / 无变化 / 需重显 / 保存失败”确认设置窗口内反馈，不依赖外部弹窗。</div>
+                <div class="interaction-guide-item"><strong>设置导航</strong>点击左侧 Salary / Pet / Display / Panel / General，验证 Win11 式分类导航和右侧卡片内容。</div>
+                <div class="interaction-guide-item"><strong>右键菜单</strong>点击“窗口模式子菜单 / 选择宠物子菜单”，验证二级入口替代平铺快捷项。</div>
+                <div class="interaction-guide-item"><strong>图标</strong>检查 16-256 尺寸预览，确认托盘小图标需要单独优化而不是简单缩小大图。</div>
+              </div>
+            </div>
+
+            <div class="ui-principle-list">
+              <div class="ui-principle"><strong>Panel 是薪资便签</strong>折叠态只放金额和短状态，展开态才显示完整明细。</div>
+              <div class="ui-principle"><strong>设置像系统工具</strong>保留五个分类，参考 Windows 11 设置窗口，不做宠物装饰化。</div>
+              <div class="ui-principle"><strong>右键菜单分层</strong>窗口模式和选择宠物进入二级菜单，一级菜单只保留清晰命令。</div>
+              <div class="ui-principle"><strong>主题系统后置</strong>v0.4 只统一默认体验，不提供 Theme 入口或外观切换。</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-v04-release">
+        <div class="prototype-card">
+          <div class="prototype-header">
+            <span>v0.4 Tray and Release Package</span>
+            <span>recoverable tray + zip beta package</span>
+          </div>
+          <div class="prototype-body">
+            <div class="desktop-surface warm-desktop">
+              <div class="tray-area">
+                <div class="tray-menu">
+                  <div class="menu-item">隐藏窗口</div>
+                  <div class="menu-item">设置</div>
+                  <div class="menu-item">关于 LetsMakeMoney</div>
+                  <div class="menu-item danger">退出</div>
+                </div>
+                <div class="tray-icon"><img src="../../icons/app_icon.png" alt="tray icon"></div>
+              </div>
+              <div class="package-card" style="position:absolute;left:44px;top:48px">
+                <div class="package-title">LetsMakeMoney-v0.4-beta-windows-x86_64.zip</div>
+                <div class="file-list">
+                  <div class="file-item"><code>LetsMakeMoney.exe</code><span>程序入口</span></div>
+                  <div class="file-item"><code>letsmakemoney_native.dll</code><span>Windows native bridge</span></div>
+                  <div class="file-item"><code>README.md</code><span>快速开始</span></div>
+                  <div class="file-item"><code>v0.4-beta-notes.md</code><span>发布说明</span></div>
+                  <div class="file-item"><code>manifest.json</code><span>版本和配置路径</span></div>
+                  <div class="file-item"><code>checksums.txt</code><span>文件校验</span></div>
+                </div>
+              </div>
+              <div class="soft-note" style="right:30px;top:256px;width:240px">
+                关闭隐藏到托盘时，需要说明程序仍在运行；托盘不可用时保留任务栏入口。
+              </div>
+              <div class="legend">
+                <span class="callout">No installer in v0.4</span>
+                <span class="callout">No auto update in v0.4</span>
+                <span class="callout">Config: %APPDATA%\LetsMakeMoney</span>
               </div>
             </div>
           </div>
@@ -1258,6 +2440,46 @@
         configs: ["pure_pet_mode", "mouse_passthrough_enabled", "native_integration_enabled"],
         acceptance: ["默认保留任务栏", "托盘健康后可开启纯桌宠", "空白区域穿透", "失败自动恢复任务栏"],
         risks: ["绝不允许窗口进入不可找回状态"]
+      },
+      "v04-default": {
+        title: "v0.4 默认桌宠体验",
+        subtitle: "采用温暖陪伴型默认体验，保留薪资工具属性，不引入风格切换能力。",
+        versions: ["v0.4"],
+        configs: ["debug_mode=false", "system_tray_enabled", "mouse_passthrough_enabled", "minimize_to_tray"],
+        acceptance: ["小猫、折叠 Panel、托盘入口同时可见", "薪资金额与工作状态仍是第一信息", "空白区域保持点击穿透预期", "不提供外观选择入口"],
+        risks: ["默认体验不能变成纯装饰", "隐藏窗口必须保留托盘或右键菜单找回路径"]
+      },
+      "v04-panel": {
+        title: "v0.4 Panel 边缘状态",
+        subtitle: "Panel 折叠态显示金额和短状态，展开态根据屏幕边缘选择方向。",
+        versions: ["v0.4"],
+        configs: ["scale", "opacity", "panel_items", "window_x", "window_y"],
+        acceptance: ["折叠金额和短状态垂直居中", "展开态明细可读", "靠右向左展开", "靠底向上展开", "50%-200% 缩放不裁切"],
+        risks: ["Panel 不应遮挡小猫主体", "Panel hover 不应抢占小猫状态"]
+      },
+      "v04-settings": {
+        title: "v0.4 设置关键状态",
+        subtitle: "设置窗口从工程可用升级到用户可理解：单一窗口、差异保存、明确反馈。",
+        versions: ["v0.4"],
+        configs: ["window_mode", "pure_pet_mode", "opacity", "scale", "auto_start", "debug_mode"],
+        acceptance: ["保留五类设置页", "Display 解释窗口可见性和穿透关系", "General 包含恢复与调试入口", "保存成功/失败/无变化均有反馈"],
+        risks: ["平台能力不可用不能显示假成功", "恢复默认不能误删薪资数据"]
+      },
+      "v04-ui": {
+        title: "v0.4 UI Polish 规格",
+        subtitle: "极简生产力小工具 + 宠物陪伴：Panel 温暖轻量，设置窗口参考 Windows 11，右键菜单分层，图标统一。",
+        versions: ["v0.4"],
+        configs: ["panel_items", "scale", "opacity", "window_mode", "debug_mode", "pet_id", "app_icon"],
+        acceptance: ["Panel 折叠态为金额 + 短状态", "设置窗口采用左侧分类 + 右侧卡片", "右键菜单使用窗口模式/选择宠物二级入口", "图标预览覆盖托盘和窗口尺寸"],
+        risks: ["不要把 UI polish 做成主题系统", "不要用可爱装饰削弱设置可读性", "不要回退到顶部 Tab 或平铺快捷菜单", "不要让 Panel 抢小猫主体"]
+      },
+      "v04-release": {
+        title: "v0.4 托盘与发布包",
+        subtitle: "托盘继续作为找回入口；发布形态为正式 Zip beta 包，不做安装器和自动更新。",
+        versions: ["v0.4"],
+        configs: ["system_tray_enabled", "minimize_to_tray", "native_integration_enabled"],
+        acceptance: ["托盘菜单包含显示/隐藏、设置、关于、退出", "关闭隐藏有提示", "Zip 包文件清单完整", "manifest/checksum 可核对"],
+        risks: ["native dll 缺失必须阻塞发布", "托盘不可用时禁止进入不可找回状态"]
       }
     };
 
@@ -1265,6 +2487,9 @@
     let panelExpanded = false;
     const settingsTabs = ["salary", "pet", "display", "panel", "general"];
     let activeSettingsTab = "salary";
+    let uiPanelMode = "both";
+    let uiWorkState = "working";
+    let uiToolFeedback = "saved";
 
     function renderMeta(key) {
       const data = screens[key];
@@ -1284,7 +2509,7 @@
       root.innerHTML = "";
       items.forEach(item => {
         const span = document.createElement("span");
-        span.className = "pill " + (item === "v0.3" ? "green" : item === "v0.2" ? "blue" : "warn");
+        span.className = "pill " + (item === "v0.4" ? "green" : item === "v0.3" ? "green" : item === "v0.2" ? "blue" : "warn");
         span.textContent = item;
         root.appendChild(span);
       });
@@ -1333,6 +2558,131 @@
       document.getElementById("tab-" + tab).style.display = "block";
     }
 
+    function setActiveButton(selector, value, attr) {
+      document.querySelectorAll(selector).forEach(btn => {
+        btn.classList.toggle("active", btn.dataset[attr] === value);
+      });
+    }
+
+    function setUiPanelMode(mode) {
+      uiPanelMode = mode;
+      const stage = document.getElementById("uiPolishStage");
+      if (stage) {
+        stage.dataset.panelMode = mode;
+      }
+      setActiveButton("[data-ui-panel-mode]", mode, "uiPanelMode");
+    }
+
+    function setUiWorkState(state) {
+      uiWorkState = state;
+      const stage = document.getElementById("uiPolishStage");
+      const stateMap = {
+        working: { amount: "¥128.60", status: "工作中", progress: "56%" },
+        resting: { amount: "¥128.60", status: "休息中", progress: "0%" },
+        unconfigured: { amount: "¥0.00", status: "待配置", progress: "0%" }
+      };
+      const data = stateMap[state] || stateMap.working;
+      if (stage) {
+        stage.dataset.workState = state;
+      }
+      document.querySelectorAll("[data-ui-amount]").forEach(el => el.textContent = data.amount);
+      document.querySelectorAll("[data-ui-status]").forEach(el => el.textContent = data.status);
+      document.querySelectorAll("[data-ui-progress]").forEach(el => el.textContent = data.progress);
+      setActiveButton("[data-ui-work-state]", state, "uiWorkState");
+    }
+
+    function setToolFeedback(state) {
+      uiToolFeedback = state;
+      const feedback = document.getElementById("toolFeedback");
+      if (!feedback) {
+        return;
+      }
+      const stateMap = {
+        saved: { text: "已保存，重新显示窗口后完整生效。", className: "tool-feedback" },
+        unchanged: { text: "没有需要保存的修改。", className: "tool-feedback neutral" },
+        restart: { text: "已保存，重新显示窗口后完整生效。", className: "tool-feedback warn" },
+        failed: { text: "保存失败：配置文件暂时不可写，保留当前输入。", className: "tool-feedback danger" }
+      };
+      const data = stateMap[state] || stateMap.saved;
+      feedback.className = data.className;
+      feedback.textContent = data.text;
+      setActiveButton("[data-tool-feedback]", state, "toolFeedback");
+    }
+
+    function setToolTab(tab) {
+      document.querySelectorAll("[data-tool-tab]").forEach(el => {
+        el.classList.toggle("active", el.dataset.toolTab === tab);
+      });
+      const heading = document.getElementById("winSettingsHeading");
+      if (heading) {
+        heading.textContent = tab;
+      }
+      const fieldsByTab = {
+        Salary: [
+          ["月薪", "12000 元", "用于计算今日已赚"],
+          ["休息模式", "双休", "下拉"],
+          ["上班时间", "09:00", "影响工作中状态"],
+          ["下班时间", "18:00", "自动计算工时"],
+          ["每日工时", "9.0 小时", "只读"]
+        ],
+        Pet: [
+          ["当前角色", "橘猫 v2", "默认"],
+          ["回退角色", "橘猫 v1", "素材异常时使用"],
+          ["交互动作", "单击 / 双击 / 长按", "按基础状态延伸"],
+          ["素材质量", "Beta 可用", "后续继续打磨"],
+          ["显示缩放", "100%", "跟随 Display"]
+        ],
+        Display: [
+          ["透明度", "92%", "即时预览"],
+          ["缩放", "100%", "影响小猫和 Panel"],
+          ["窗口模式", "置顶悬浮", "下拉"],
+          ["点击穿透", "开启", "空白区域穿透"],
+          ["纯桌宠", "关闭", "需托盘可用"]
+        ],
+        Panel: [
+          ["折叠态", "金额 + 短状态", "常驻"],
+          ["今日已赚", "显示", "展开态"],
+          ["本月累计", "显示", "展开态"],
+          ["时薪", "显示", "展开态"],
+          ["工作进度", "显示", "低对比"]
+        ],
+        General: [
+          ["Debug 模式", "关闭", "保存后重显"],
+          ["开机自启", "关闭", "HKCU Run"],
+          ["关闭隐藏到托盘", "开启", "需托盘健康"],
+          ["重置窗口位置", "可执行", "不清薪资"],
+          ["恢复默认显示", "需确认", "不清薪资"]
+        ]
+      };
+      const rows = fieldsByTab[tab] || fieldsByTab.Display;
+      document.querySelectorAll(".win-setting-row").forEach((row, index) => {
+        const item = rows[index];
+        if (!item) {
+          row.style.display = "none";
+          return;
+        }
+        row.style.display = "flex";
+        row.querySelector(".win-setting-label span").textContent = item[0];
+        row.querySelector(".win-setting-label small").textContent = item[2];
+        row.querySelector(".win-setting-value").textContent = item[1];
+      });
+    }
+
+    function setContextSubmenu(submenu) {
+      const stage = document.getElementById("polishContextStage");
+      if (stage) {
+        stage.dataset.submenu = submenu;
+      }
+      setActiveButton("[data-context-submenu]", submenu, "contextSubmenu");
+      document.querySelectorAll(".polish-context-menu > .polish-menu-item").forEach(item => {
+        const text = item.textContent;
+        item.classList.toggle("active",
+          (submenu === "window" && text.includes("窗口模式")) ||
+          (submenu === "pet" && text.includes("选择宠物"))
+        );
+      });
+    }
+
     document.querySelectorAll(".nav-button[data-screen]").forEach(btn => {
       btn.addEventListener("click", () => showScreen(btn.dataset.screen));
     });
@@ -1350,11 +2700,36 @@
       showScreen("settings");
     });
 
-    document.querySelectorAll(".tab").forEach(btn => {
+    document.querySelectorAll(".tab[data-tab]").forEach(btn => {
       btn.addEventListener("click", () => setSettingsTab(btn.dataset.tab));
     });
 
+    document.querySelectorAll("[data-ui-panel-mode]").forEach(btn => {
+      btn.addEventListener("click", () => setUiPanelMode(btn.dataset.uiPanelMode));
+    });
+
+    document.querySelectorAll("[data-ui-work-state]").forEach(btn => {
+      btn.addEventListener("click", () => setUiWorkState(btn.dataset.uiWorkState));
+    });
+
+    document.querySelectorAll("[data-tool-feedback]").forEach(btn => {
+      btn.addEventListener("click", () => setToolFeedback(btn.dataset.toolFeedback));
+    });
+
+    document.querySelectorAll("[data-tool-tab]").forEach(tab => {
+      tab.addEventListener("click", () => setToolTab(tab.dataset.toolTab));
+    });
+
+    document.querySelectorAll("[data-context-submenu]").forEach(btn => {
+      btn.addEventListener("click", () => setContextSubmenu(btn.dataset.contextSubmenu));
+    });
+
     renderMeta(activeScreen);
+    setUiPanelMode(uiPanelMode);
+    setUiWorkState(uiWorkState);
+    setToolFeedback(uiToolFeedback);
+    setToolTab("Display");
+    setContextSubmenu("window");
   </script>
 </body>
 </html>

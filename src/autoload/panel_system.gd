@@ -4,6 +4,7 @@ extends Node
 const HOVER_DELAY := 0.3
 const LEAVE_DELAY := 0.5
 const REFRESH_INTERVAL := 0.5
+const HOVER_HIT_PADDING := 10.0
 
 var _panel = null
 var _collapsed: bool = true
@@ -35,6 +36,7 @@ func _process(delta: float) -> void:
 	if _panel == null or not is_instance_valid(_panel):
 		return
 
+	_mouse_over = _is_mouse_over_panel()
 	if _mouse_over:
 		_hover_timer += delta
 		_leave_timer = 0.0
@@ -60,6 +62,14 @@ func _on_panel_mouse_entered() -> void:
 
 func _on_panel_mouse_exited() -> void:
 	_mouse_over = false
+
+
+func _is_mouse_over_panel() -> bool:
+	if _panel == null or not is_instance_valid(_panel):
+		return false
+	var local_mouse: Vector2 = _panel.get_local_mouse_position()
+	var panel_rect := Rect2(Vector2.ZERO, _panel.size).grow(HOVER_HIT_PADDING)
+	return panel_rect.has_point(local_mouse)
 
 
 func force_refresh() -> void:

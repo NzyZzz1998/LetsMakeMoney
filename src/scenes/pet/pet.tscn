@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://d3ynomlp33g1e" path="res://src/scenes/pet/pet.gd" id="1_pet"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
-size = Vector2(98, 86)
+size = Vector2(234, 230)
 
 [node name="Pet" type="Node2D" unique_id=342433039]
 script = ExtResource("1_pet")
@@ -15,5 +15,5 @@ scale = Vector2(0.82, 0.82)
 [node name="ClickArea" type="Area2D" parent="." unique_id=1963044041]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ClickArea" unique_id=1471983990]
-position = Vector2(111, 123)
+position = Vector2(112, 112)
 shape = SubResource("RectangleShape2D_1")

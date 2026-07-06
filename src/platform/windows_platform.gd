@@ -9,6 +9,9 @@ const AUTOSTART_VALUE_NAME := "LetsMakeMoney"
 
 var _native_bridge: Object = null
 var _native_health: Dictionary = {}
+var _last_topmost_by_window: Dictionary = {}
+var _last_embed_by_window: Dictionary = {}
+var _last_taskbar_visibility_by_window: Dictionary = {}
 
 
 func _init() -> void:
@@ -67,7 +70,11 @@ func _set_transparent_window_flag(window: Window, enabled: bool) -> void:
 
 
 func set_window_topmost(window: Window, topmost: bool) -> void:
+	var key := _window_cache_key(window)
+	if _last_topmost_by_window.get(key) == topmost:
+		return
 	window.always_on_top = topmost
+	_last_topmost_by_window[key] = topmost
 
 
 func get_screen_size() -> Vector2i:
@@ -75,7 +82,12 @@ func get_screen_size() -> Vector2i:
 
 
 func set_window_embed_desktop(window: Window, embed: bool) -> void:
+	var key := _window_cache_key(window)
+	if _last_embed_by_window.get(key) == embed:
+		return
 	window.always_on_top = not embed
+	_last_embed_by_window[key] = embed
+	_last_topmost_by_window[key] = not embed
 
 
 func is_embed_desktop_supported() -> bool:
@@ -83,20 +95,26 @@ func is_embed_desktop_supported() -> bool:
 
 
 func set_mouse_passthrough(window: Window, enabled: bool, interactive_rects: Array[Rect2]) -> bool:
-	Platform.write_boot_log("WindowsPlatform.set_mouse_passthrough: begin enabled=%s count=%d" % [str(enabled), interactive_rects.size()])
+	Platform.write_debug_log("WindowsPlatform.set_mouse_passthrough: begin enabled=%s count=%d" % [str(enabled), interactive_rects.size()])
 	if _native_bridge != null and bool(_native_health.get("passthrough_supported", false)):
 		var hwnd := get_native_window_handle(window)
 		if enabled:
-			Platform.write_boot_log("WindowsPlatform.set_mouse_passthrough: native set hwnd=%s" % str(hwnd))
+			Platform.write_debug_log("WindowsPlatform.set_mouse_passthrough: native set hwnd=%s" % str(hwnd))
 			var set_ok := bool(_native_bridge.call("set_mouse_passthrough", hwnd, interactive_rects))
-			Platform.write_boot_log("WindowsPlatform.set_mouse_passthrough: native set ok=%s" % str(set_ok))
+			Platform.write_debug_log("WindowsPlatform.set_mouse_passthrough: native set ok=%s" % str(set_ok))
+			if not set_ok:
+				_native_health["last_error"] = _read_native_error("set_mouse_passthrough failed")
+				Platform.write_boot_log("WindowsPlatform.set_mouse_passthrough: error=%s" % str(_native_health["last_error"]))
 			return set_ok
-		Platform.write_boot_log("WindowsPlatform.set_mouse_passthrough: native clear hwnd=%s" % str(hwnd))
+		Platform.write_debug_log("WindowsPlatform.set_mouse_passthrough: native clear hwnd=%s" % str(hwnd))
 		var clear_ok := bool(_native_bridge.call("clear_mouse_passthrough", hwnd))
-		Platform.write_boot_log("WindowsPlatform.set_mouse_passthrough: native clear ok=%s" % str(clear_ok))
+		Platform.write_debug_log("WindowsPlatform.set_mouse_passthrough: native clear ok=%s" % str(clear_ok))
+		if not clear_ok:
+			_native_health["last_error"] = _read_native_error("clear_mouse_passthrough failed")
+			Platform.write_boot_log("WindowsPlatform.set_mouse_passthrough: clear error=%s" % str(_native_health["last_error"]))
 		return clear_ok
 
-	Platform.write_boot_log("WindowsPlatform.set_mouse_passthrough: no passthrough backend")
+	Platform.write_debug_log("WindowsPlatform.set_mouse_passthrough: no passthrough backend")
 	return false
 
 
@@ -168,11 +186,16 @@ func poll_tray_command() -> int:
 func set_taskbar_visible(window: Window, visible: bool) -> bool:
 	if _native_bridge == null or not bool(_native_health.get("taskbar_supported", false)):
 		return false
+	var key := _window_cache_key(window)
+	if _last_taskbar_visibility_by_window.get(key) == visible:
+		return true
 	var hwnd := get_native_window_handle(window)
 	var ok := bool(_native_bridge.call("set_taskbar_visible", hwnd, visible))
 	if not ok:
 		_native_health["taskbar_supported"] = false
 		_native_health["last_error"] = _read_native_error("set_taskbar_visible failed")
+	else:
+		_last_taskbar_visibility_by_window[key] = visible
 	return ok
 
 
@@ -263,3 +286,9 @@ func _read_native_error(fallback: String) -> String:
 		if not err.is_empty():
 			return err
 	return fallback
+
+
+func _window_cache_key(window: Window) -> int:
+	if window == null:
+		return 0
+	return window.get_window_id()

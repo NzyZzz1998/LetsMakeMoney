@@ -6,6 +6,8 @@ signal config_changed
 var data: Dictionary = {}
 var _config_path: String = ""
 var _defaults_cache: Dictionary = {}
+var _pending_changed_keys: Array[String] = []
+var _last_changed_keys: Array[String] = []
 
 
 func _ready() -> void:
@@ -69,7 +71,7 @@ func _defaults() -> Dictionary:
 			"work_hours_per_day": 8.0,
 			"work_start_time": "09:00",
 			"work_end_time": "18:00",
-			"pet_id": "cat_orange_v1",
+			"pet_id": "cat_orange_v2",
 			"window_x": -1,
 			"window_y": -1,
 			"window_mode": "top",
@@ -101,6 +103,8 @@ func save() -> void:
 		return
 	file.store_string(JSON.stringify(data, "\t"))
 	file.close()
+	_last_changed_keys = _pending_changed_keys.duplicate()
+	_pending_changed_keys.clear()
 	config_changed.emit()
 
 
@@ -114,7 +118,10 @@ func get_value(key: String, default: Variant = null) -> Variant:
 
 
 func set_value(key: String, value: Variant) -> void:
+	if data.has(key) and data[key] == value:
+		return
 	data[key] = value
+	_mark_changed(key)
 
 
 func has_config() -> bool:
@@ -129,7 +136,10 @@ func get_panel_item(key: String) -> bool:
 func set_panel_item(key: String, visible: bool) -> void:
 	if not data.has("panel_items"):
 		data["panel_items"] = {}
+	if bool(data["panel_items"].get(key, true)) == visible:
+		return
 	data["panel_items"][key] = visible
+	_mark_changed("panel_items")
 
 
 func reset_display_defaults() -> void:
@@ -149,4 +159,15 @@ func reset_display_defaults() -> void:
 		"opacity",
 		"scale"
 	]:
-		data[key] = defaults[key]
+		if data.get(key) != defaults[key]:
+			data[key] = defaults[key]
+			_mark_changed(key)
+
+
+func get_last_changed_keys() -> Array[String]:
+	return _last_changed_keys.duplicate()
+
+
+func _mark_changed(key: String) -> void:
+	if not _pending_changed_keys.has(key):
+		_pending_changed_keys.append(key)

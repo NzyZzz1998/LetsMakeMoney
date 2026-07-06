@@ -23,116 +23,543 @@ var auto_start_toggle: CheckButton
 var minimize_to_tray_toggle: CheckButton
 var reset_position_button: Button
 var restore_defaults_button: Button
+var restore_defaults_confirm_dialog: ConfirmationDialog
 var save_button: Button
 var cancel_button: Button
+var save_feedback_panel: PanelContainer
+var save_status_label: Label
 var general_message_label: Label
 var show_today: CheckBox
 var show_month: CheckBox
 var show_rate: CheckBox
 var show_progress: CheckBox
 var show_state: CheckBox
+var settings_pages: Dictionary = {}
+var settings_nav_buttons: Dictionary = {}
+var _switch_proxies: Dictionary = {}
+var _header_dragging: bool = false
+var _header_drag_start_mouse: Vector2i = Vector2i.ZERO
+var _header_drag_start_window: Vector2i = Vector2i.ZERO
+
+const SURFACE_APP := Color(1.0, 0.980, 0.940, 1.0)
+const SURFACE_CARD := Color(1.0, 0.996, 0.978, 1.0)
+const SURFACE_NAV := Color(1.0, 0.952, 0.862, 1.0)
+const SURFACE_SELECTED := Color(1.0, 0.938, 0.760, 1.0)
+const TEXT_INK := Color(0.227, 0.153, 0.098, 1.0)
+const TEXT_MUTED := Color(0.550, 0.420, 0.298, 1.0)
+const ACCENT_COIN := Color(0.965, 0.714, 0.243, 1.0)
+const ACCENT_ORANGE := Color(0.780, 0.420, 0.137, 1.0)
+const ACCENT_MINT := Color(0.427, 0.624, 0.447, 1.0)
+const DANGER_SOFT := Color(0.640, 0.278, 0.220, 1.0)
+const BORDER_WARM := Color(0.416, 0.263, 0.122, 0.16)
+const SHADOW_WARM := Color(0.360, 0.184, 0.047, 0.16)
+const SETTINGS_SURFACE := SURFACE_APP
+const SETTINGS_CONTENT := Color(0.0, 0.0, 0.0, 0.0)
+const SETTINGS_CARD := SURFACE_CARD
+const SETTINGS_TEXT := TEXT_INK
+const SETTINGS_MUTED := TEXT_MUTED
+const SETTINGS_ACCENT := ACCENT_COIN
+const SETTINGS_WARN := ACCENT_ORANGE
+const SETTINGS_ERROR := DANGER_SOFT
+const SETTINGS_DIVIDER := Color(0.416, 0.263, 0.122, 0.10)
+const SETTINGS_OUTER_PADDING := 10
+const SETTINGS_SHEET_WIDTH := 680
+const SETTINGS_SHEET_HEIGHT := 510
+const SETTINGS_TAB_HEIGHT := 38
+const SETTINGS_CONTROL_WIDTH := 128
+const SETTINGS_HEADER_HEIGHT := 46
+const SECTION_LABELS := {
+	"Salary": "工资",
+	"Pet": "桌宠",
+	"Display": "显示",
+	"Panel": "面板",
+	"General": "通用"
+}
 
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(700, 560)
-	_build_ui()
+	theme = _build_settings_theme()
+	custom_minimum_size = Vector2(700, 530)
+	_build_compact_ui()
 	_load_current_values()
 
 
-func _build_ui() -> void:
-	var root := VBoxContainer.new()
+func _build_compact_ui() -> void:
+	var surface := Panel.new()
+	surface.name = "SettingsSurface"
+	surface.set_anchors_preset(Control.PRESET_FULL_RECT)
+	surface.add_theme_stylebox_override("panel", _stylebox(SETTINGS_SURFACE, Color(0, 0, 0, 0), 0, 16, 0))
+	add_child(surface)
+
+	var root := MarginContainer.new()
 	root.name = "SettingsRoot"
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.offset_left = 14
-	root.offset_top = 14
-	root.offset_right = -14
-	root.offset_bottom = -14
-	root.add_theme_constant_override("separation", 12)
+	root.add_theme_constant_override("margin_left", SETTINGS_OUTER_PADDING)
+	root.add_theme_constant_override("margin_top", SETTINGS_OUTER_PADDING)
+	root.add_theme_constant_override("margin_right", SETTINGS_OUTER_PADDING)
+	root.add_theme_constant_override("margin_bottom", SETTINGS_OUTER_PADDING)
 	add_child(root)
 
-	var top_action_row := HBoxContainer.new()
-	top_action_row.name = "TopActionRow"
-	top_action_row.alignment = BoxContainer.ALIGNMENT_END
-	top_action_row.add_theme_constant_override("separation", 10)
-	root.add_child(top_action_row)
+	var shell_center := CenterContainer.new()
+	shell_center.name = "SettingsShellCenter"
+	shell_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	shell_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_child(shell_center)
 
-	var top_cancel_button := Button.new()
-	top_cancel_button.text = "取消"
-	top_cancel_button.custom_minimum_size = Vector2(96, 32)
-	top_cancel_button.pressed.connect(_on_cancel)
-	top_action_row.add_child(top_cancel_button)
+	var shell := PanelContainer.new()
+	shell.name = "SettingsShell"
+	shell.custom_minimum_size = Vector2(SETTINGS_SHEET_WIDTH, SETTINGS_SHEET_HEIGHT)
+	shell.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	shell.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	shell.add_theme_stylebox_override("panel", _stylebox(SURFACE_CARD, Color(0.416, 0.263, 0.122, 0.10), 1, 18, 0, Color(0.360, 0.184, 0.047, 0.05), 3))
+	shell_center.add_child(shell)
 
-	var top_save_button := Button.new()
-	top_save_button.text = "保存"
-	top_save_button.custom_minimum_size = Vector2(112, 32)
-	top_save_button.pressed.connect(_on_save)
-	top_action_row.add_child(top_save_button)
+	var shell_box := VBoxContainer.new()
+	shell_box.name = "SettingsShellColumn"
+	shell_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	shell_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	shell_box.add_theme_constant_override("separation", 0)
+	shell.add_child(shell_box)
 
-	var tabs := TabContainer.new()
-	tabs.name = "TabContainer"
-	tabs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root.add_child(tabs)
+	var top_margin := MarginContainer.new()
+	top_margin.name = "SettingsTopMargin"
+	top_margin.custom_minimum_size = Vector2(0, 46)
+	top_margin.add_theme_constant_override("margin_left", 16)
+	top_margin.add_theme_constant_override("margin_top", 6)
+	top_margin.add_theme_constant_override("margin_right", 12)
+	top_margin.add_theme_constant_override("margin_bottom", 4)
+	shell_box.add_child(top_margin)
 
-	tabs.add_child(_build_salary_tab())
-	tabs.add_child(_build_pet_tab())
-	tabs.add_child(_build_display_tab())
-	tabs.add_child(_build_panel_tab())
-	tabs.add_child(_build_general_tab())
+	var top_bar := HBoxContainer.new()
+	top_bar.name = "SettingsTopBar"
+	top_bar.mouse_filter = Control.MOUSE_FILTER_STOP
+	top_bar.add_theme_constant_override("separation", 8)
+	top_bar.gui_input.connect(_on_header_gui_input)
+	top_margin.add_child(top_bar)
+
+	var nav_spacer_left := Control.new()
+	nav_spacer_left.custom_minimum_size = Vector2(8, 0)
+	top_bar.add_child(nav_spacer_left)
+
+	var nav_shell := PanelContainer.new()
+	nav_shell.name = "SettingsNavSegment"
+	nav_shell.custom_minimum_size = Vector2(0, SETTINGS_TAB_HEIGHT)
+	nav_shell.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	nav_shell.add_theme_stylebox_override("panel", _stylebox(Color(1.0, 0.952, 0.862, 0.42), Color(0.416, 0.263, 0.122, 0.08), 1, 17, 5))
+	top_bar.add_child(nav_shell)
+
+	var nav := HBoxContainer.new()
+	nav.name = "SettingsNav"
+	nav.add_theme_constant_override("separation", 4)
+	nav_shell.add_child(nav)
+
+	var top_fill := Control.new()
+	top_fill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top_bar.add_child(top_fill)
+
+	var close_button := Button.new()
+	close_button.name = "CloseButton"
+	close_button.text = "×"
+	close_button.custom_minimum_size = Vector2(28, 28)
+	close_button.pressed.connect(_on_cancel)
+	_style_window_button(close_button, true)
+	top_bar.add_child(close_button)
+
+	var header_divider := ColorRect.new()
+	header_divider.name = "ShellHeaderDivider"
+	header_divider.custom_minimum_size = Vector2(0, 1)
+	header_divider.color = SETTINGS_DIVIDER
+	shell_box.add_child(header_divider)
+
+	var content_margin := MarginContainer.new()
+	content_margin.name = "SettingsContentMargin"
+	content_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content_margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content_margin.add_theme_constant_override("margin_left", 24)
+	content_margin.add_theme_constant_override("margin_top", 4)
+	content_margin.add_theme_constant_override("margin_right", 24)
+	content_margin.add_theme_constant_override("margin_bottom", 0)
+	shell_box.add_child(content_margin)
+
+	var content_holder := Control.new()
+	content_holder.name = "SettingsContentPages"
+	content_holder.clip_contents = true
+	content_holder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content_holder.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content_margin.add_child(content_holder)
+
+	_add_settings_section(nav, content_holder, "Salary", _build_salary_tab())
+	_add_settings_section(nav, content_holder, "Pet", _build_pet_tab())
+	_add_settings_section(nav, content_holder, "Display", _build_display_tab())
+	_add_settings_section(nav, content_holder, "Panel", _build_panel_tab())
+	_add_settings_section(nav, content_holder, "General", _build_general_tab())
+	_select_settings_section("Salary")
+
+	save_status_label = Label.new()
+	save_status_label.name = "SaveStatusLabel"
+	save_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	save_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	save_status_label.add_theme_font_size_override("font_size", 13)
+	save_status_label.add_theme_color_override("font_color", ACCENT_MINT)
+
+	save_feedback_panel = PanelContainer.new()
+	save_feedback_panel.name = "SaveFeedbackPanel"
+	save_feedback_panel.visible = false
+	save_feedback_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	save_feedback_panel.add_theme_stylebox_override("panel", _stylebox(Color(0.918, 0.980, 0.886, 0.98), Color(0.427, 0.624, 0.447, 0.42), 1, 9, 8))
+	save_feedback_panel.add_child(save_status_label)
+	var feedback_margin := MarginContainer.new()
+	feedback_margin.name = "SaveFeedbackMargin"
+	feedback_margin.add_theme_constant_override("margin_left", 24)
+	feedback_margin.add_theme_constant_override("margin_top", 0)
+	feedback_margin.add_theme_constant_override("margin_right", 24)
+	feedback_margin.add_theme_constant_override("margin_bottom", 4)
+	feedback_margin.add_child(save_feedback_panel)
+	shell_box.add_child(feedback_margin)
+
+	var action_divider := ColorRect.new()
+	action_divider.name = "ActionDivider"
+	action_divider.custom_minimum_size = Vector2(0, 1)
+	action_divider.color = SETTINGS_DIVIDER
+	shell_box.add_child(action_divider)
+
+	var action_margin := MarginContainer.new()
+	action_margin.name = "ActionMargin"
+	action_margin.custom_minimum_size = Vector2(0, 46)
+	action_margin.add_theme_constant_override("margin_left", 24)
+	action_margin.add_theme_constant_override("margin_top", 5)
+	action_margin.add_theme_constant_override("margin_right", 24)
+	action_margin.add_theme_constant_override("margin_bottom", 5)
+	shell_box.add_child(action_margin)
 
 	var action_row := HBoxContainer.new()
 	action_row.name = "ActionRow"
-	action_row.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	action_row.offset_left = 14
-	action_row.offset_top = -50
-	action_row.offset_right = -14
-	action_row.offset_bottom = -14
+	action_row.custom_minimum_size = Vector2(0, 36)
+	action_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	action_row.alignment = BoxContainer.ALIGNMENT_END
 	action_row.add_theme_constant_override("separation", 10)
-	action_row.visible = false
-	add_child(action_row)
+	action_margin.add_child(action_row)
 
 	cancel_button = Button.new()
 	cancel_button.name = "CancelButton"
 	cancel_button.text = "取消"
-	cancel_button.custom_minimum_size = Vector2(96, 34)
+	cancel_button.custom_minimum_size = Vector2(88, 34)
 	cancel_button.pressed.connect(_on_cancel)
+	_style_button(cancel_button)
 	action_row.add_child(cancel_button)
 
 	save_button = Button.new()
 	save_button.name = "SaveButton"
 	save_button.text = "保存"
-	save_button.custom_minimum_size = Vector2(112, 34)
+	save_button.custom_minimum_size = Vector2(96, 34)
 	save_button.pressed.connect(_on_save)
+	_style_button(save_button, false, true)
 	action_row.add_child(save_button)
+
+	restore_defaults_confirm_dialog = ConfirmationDialog.new()
+	restore_defaults_confirm_dialog.name = "RestoreDefaultsConfirmDialog"
+	restore_defaults_confirm_dialog.title = "恢复默认显示设置"
+	restore_defaults_confirm_dialog.dialog_text = "恢复默认只会重置显示、窗口、托盘、自启动和 Debug 设置，不清空薪资、工时、角色和 Panel 项。"
+	restore_defaults_confirm_dialog.confirmed.connect(_restore_display_defaults)
+	add_child(restore_defaults_confirm_dialog)
+
+
+func _build_ui() -> void:
+	var surface := Panel.new()
+	surface.name = "SettingsSurface"
+	surface.set_anchors_preset(Control.PRESET_FULL_RECT)
+	surface.add_theme_stylebox_override("panel", _stylebox(SETTINGS_SURFACE, BORDER_WARM, 1, 20, 0, SHADOW_WARM, 10))
+	add_child(surface)
+
+	var root := MarginContainer.new()
+	root.name = "SettingsRoot"
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.add_theme_constant_override("margin_left", SETTINGS_OUTER_PADDING)
+	root.add_theme_constant_override("margin_top", SETTINGS_OUTER_PADDING)
+	root.add_theme_constant_override("margin_right", SETTINGS_OUTER_PADDING)
+	root.add_theme_constant_override("margin_bottom", SETTINGS_OUTER_PADDING)
+	add_child(root)
+
+	var shell_center := CenterContainer.new()
+	shell_center.name = "SettingsShellCenter"
+	shell_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	shell_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_child(shell_center)
+
+	var shell := PanelContainer.new()
+	shell.name = "SettingsShell"
+	shell.custom_minimum_size = Vector2(SETTINGS_SHEET_WIDTH, SETTINGS_SHEET_HEIGHT)
+	shell.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	shell.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	shell.add_theme_stylebox_override("panel", _stylebox(SURFACE_CARD, Color(0.416, 0.263, 0.122, 0.12), 1, 22, 0, Color(0.360, 0.184, 0.047, 0.10), 8))
+	shell_center.add_child(shell)
+
+	var shell_box := VBoxContainer.new()
+	shell_box.name = "SettingsShellColumn"
+	shell_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	shell_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	shell_box.add_theme_constant_override("separation", 0)
+	shell.add_child(shell_box)
+
+	var header_margin := MarginContainer.new()
+	header_margin.name = "SettingsHeaderMargin"
+	header_margin.custom_minimum_size = Vector2(0, 74)
+	header_margin.add_theme_constant_override("margin_left", 26)
+	header_margin.add_theme_constant_override("margin_top", 12)
+	header_margin.add_theme_constant_override("margin_right", 26)
+	header_margin.add_theme_constant_override("margin_bottom", 6)
+	shell_box.add_child(header_margin)
+
+	var header := HBoxContainer.new()
+	header.name = "WinSettingsHeader"
+	header.custom_minimum_size = Vector2(0, SETTINGS_HEADER_HEIGHT)
+	header.mouse_filter = Control.MOUSE_FILTER_STOP
+	header.add_theme_constant_override("separation", 10)
+	header.gui_input.connect(_on_header_gui_input)
+	header_margin.add_child(header)
+
+	var back_button := Button.new()
+	back_button.name = "BackButton"
+	back_button.text = "←"
+	back_button.custom_minimum_size = Vector2(34, 34)
+	back_button.pressed.connect(_on_cancel)
+	_style_window_button(back_button)
+	header.add_child(back_button)
+
+	var title_cluster := VBoxContainer.new()
+	title_cluster.name = "SettingsTitleCluster"
+	title_cluster.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_cluster.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	title_cluster.add_theme_constant_override("separation", 1)
+	header.add_child(title_cluster)
+
+	var title := Label.new()
+	title.name = "SettingsTitle"
+	title.text = "小工具设置"
+	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_color_override("font_color", SETTINGS_TEXT)
+	title_cluster.add_child(title)
+
+	var subtitle := Label.new()
+	subtitle.name = "SettingsSubtitle"
+	subtitle.text = "让橘猫、金币小票和桌面陪伴更顺手。"
+	subtitle.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	subtitle.add_theme_font_size_override("font_size", 13)
+	subtitle.add_theme_color_override("font_color", SETTINGS_MUTED)
+	title_cluster.add_child(subtitle)
+
+	var search_box := LineEdit.new()
+	search_box.name = "SearchPlaceholder"
+	search_box.placeholder_text = "查找设置"
+	search_box.editable = false
+	search_box.custom_minimum_size = Vector2(204, 38)
+	search_box.focus_mode = Control.FOCUS_NONE
+	search_box.add_theme_font_size_override("font_size", 15)
+	_style_line_edit(search_box)
+	header.add_child(search_box)
+
+	var close_button := Button.new()
+	close_button.name = "CloseButton"
+	close_button.text = "×"
+	close_button.custom_minimum_size = Vector2(34, 34)
+	close_button.pressed.connect(_on_cancel)
+	_style_window_button(close_button, true)
+	header.add_child(close_button)
+
+	var nav_margin := MarginContainer.new()
+	nav_margin.name = "SettingsNavMargin"
+	nav_margin.custom_minimum_size = Vector2(0, 46)
+	nav_margin.add_theme_constant_override("margin_left", 26)
+	nav_margin.add_theme_constant_override("margin_top", 0)
+	nav_margin.add_theme_constant_override("margin_right", 26)
+	nav_margin.add_theme_constant_override("margin_bottom", 4)
+	shell_box.add_child(nav_margin)
+
+	var nav_shell := PanelContainer.new()
+	nav_shell.name = "SettingsNavSegment"
+	nav_shell.custom_minimum_size = Vector2(0, SETTINGS_TAB_HEIGHT)
+	nav_shell.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	nav_shell.add_theme_stylebox_override("panel", _stylebox(Color(1.0, 0.952, 0.862, 0.58), Color(0.416, 0.263, 0.122, 0.10), 1, 18, 6))
+	nav_margin.add_child(nav_shell)
+
+	var nav := HBoxContainer.new()
+	nav.name = "SettingsNav"
+	nav.add_theme_constant_override("separation", 5)
+	nav_shell.add_child(nav)
+
+	var header_divider := ColorRect.new()
+	header_divider.name = "ShellHeaderDivider"
+	header_divider.custom_minimum_size = Vector2(0, 1)
+	header_divider.color = SETTINGS_DIVIDER
+	shell_box.add_child(header_divider)
+
+	var content_margin := MarginContainer.new()
+	content_margin.name = "SettingsContentMargin"
+	content_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content_margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content_margin.add_theme_constant_override("margin_left", 30)
+	content_margin.add_theme_constant_override("margin_top", 8)
+	content_margin.add_theme_constant_override("margin_right", 30)
+	content_margin.add_theme_constant_override("margin_bottom", 0)
+	shell_box.add_child(content_margin)
+
+	var content_holder := Control.new()
+	content_holder.name = "SettingsContentPages"
+	content_holder.clip_contents = true
+	content_holder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content_holder.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content_margin.add_child(content_holder)
+
+	_add_settings_section(nav, content_holder, "Salary", _build_salary_tab())
+	_add_settings_section(nav, content_holder, "Pet", _build_pet_tab())
+	_add_settings_section(nav, content_holder, "Display", _build_display_tab())
+	_add_settings_section(nav, content_holder, "Panel", _build_panel_tab())
+	_add_settings_section(nav, content_holder, "General", _build_general_tab())
+	_select_settings_section("Salary")
+
+	save_status_label = Label.new()
+	save_status_label.name = "SaveStatusLabel"
+	save_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	save_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	save_status_label.add_theme_font_size_override("font_size", 16)
+	save_status_label.add_theme_color_override("font_color", ACCENT_MINT)
+
+	save_feedback_panel = PanelContainer.new()
+	save_feedback_panel.name = "SaveFeedbackPanel"
+	save_feedback_panel.visible = false
+	save_feedback_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	save_feedback_panel.add_theme_stylebox_override("panel", _stylebox(Color(0.918, 0.980, 0.886, 0.98), Color(0.427, 0.624, 0.447, 0.42), 1, 12, 12))
+	save_feedback_panel.add_child(save_status_label)
+	var feedback_margin := MarginContainer.new()
+	feedback_margin.name = "SaveFeedbackMargin"
+	feedback_margin.add_theme_constant_override("margin_left", 30)
+	feedback_margin.add_theme_constant_override("margin_top", 0)
+	feedback_margin.add_theme_constant_override("margin_right", 30)
+	feedback_margin.add_theme_constant_override("margin_bottom", 8)
+	feedback_margin.add_child(save_feedback_panel)
+	shell_box.add_child(feedback_margin)
+
+	var action_divider := ColorRect.new()
+	action_divider.name = "ActionDivider"
+	action_divider.custom_minimum_size = Vector2(0, 1)
+	action_divider.color = SETTINGS_DIVIDER
+	shell_box.add_child(action_divider)
+
+	var action_margin := MarginContainer.new()
+	action_margin.name = "ActionMargin"
+	action_margin.custom_minimum_size = Vector2(0, 54)
+	action_margin.add_theme_constant_override("margin_left", 30)
+	action_margin.add_theme_constant_override("margin_top", 8)
+	action_margin.add_theme_constant_override("margin_right", 30)
+	action_margin.add_theme_constant_override("margin_bottom", 8)
+	shell_box.add_child(action_margin)
+
+	var action_row := HBoxContainer.new()
+	action_row.name = "ActionRow"
+	action_row.custom_minimum_size = Vector2(0, 44)
+	action_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	action_row.alignment = BoxContainer.ALIGNMENT_END
+	action_row.add_theme_constant_override("separation", 12)
+	action_margin.add_child(action_row)
+
+	cancel_button = Button.new()
+	cancel_button.name = "CancelButton"
+	cancel_button.text = "取消"
+	cancel_button.custom_minimum_size = Vector2(92, 38)
+	cancel_button.pressed.connect(_on_cancel)
+	_style_button(cancel_button)
+	action_row.add_child(cancel_button)
+
+	save_button = Button.new()
+	save_button.name = "SaveButton"
+	save_button.text = "保存"
+	save_button.custom_minimum_size = Vector2(104, 38)
+	save_button.pressed.connect(_on_save)
+	_style_button(save_button, false, true)
+	action_row.add_child(save_button)
+
+	restore_defaults_confirm_dialog = ConfirmationDialog.new()
+	restore_defaults_confirm_dialog.name = "RestoreDefaultsConfirmDialog"
+	restore_defaults_confirm_dialog.title = "恢复默认显示设置"
+	restore_defaults_confirm_dialog.dialog_text = "恢复默认只会重置显示、窗口、托盘、自启动和 Debug 设置，不清空薪资、工时、角色和 Panel 项。"
+	restore_defaults_confirm_dialog.confirmed.connect(_restore_display_defaults)
+	add_child(restore_defaults_confirm_dialog)
+
+
+func _add_settings_section(nav: BoxContainer, content_holder: Control, section_name: String, page: Control) -> void:
+	var button := Button.new()
+	button.name = "%sNavButton" % section_name
+	button.text = SECTION_LABELS.get(section_name, section_name)
+	button.toggle_mode = true
+	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.custom_minimum_size = Vector2(68, 30)
+	button.add_theme_font_size_override("font_size", 14)
+	button.pressed.connect(_select_settings_section.bind(section_name))
+	_style_nav_button(button, false)
+	nav.add_child(button)
+	settings_nav_buttons[section_name] = button
+
+	page.visible = false
+	page.set_anchors_preset(Control.PRESET_FULL_RECT)
+	page.offset_left = 0
+	page.offset_top = 0
+	page.offset_right = 0
+	page.offset_bottom = 0
+	content_holder.add_child(page)
+	settings_pages[section_name] = page
+
+
+func _select_settings_section(section_name: String) -> void:
+	for key in settings_pages:
+		var page: Control = settings_pages[key]
+		page.visible = key == section_name
+	for key in settings_nav_buttons:
+		var button: Button = settings_nav_buttons[key]
+		button.button_pressed = key == section_name
+		_style_nav_button(button, key == section_name)
+
+
+func _on_header_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_header_dragging = event.pressed
+		if _header_dragging:
+			_header_drag_start_mouse = DisplayServer.mouse_get_position()
+			_header_drag_start_window = get_window().position
+			get_viewport().set_input_as_handled()
+	elif event is InputEventMouseMotion and _header_dragging:
+		get_window().position = _header_drag_start_window + (DisplayServer.mouse_get_position() - _header_drag_start_mouse)
+		get_viewport().set_input_as_handled()
 
 
 func _build_salary_tab() -> Control:
 	var root := _new_tab("Salary")
 	var box := _new_vbox(root)
 	_add_inline_actions(box)
-	_add_label(box, "月薪（元）")
+	_add_page_heading(box, "工资设置", "收入小票的计算来源")
+	_add_section_heading(box, "基础收入")
 	salary_input = _add_spin(box, 0, 999999, 1)
-	_add_label(box, "休息模式")
+	_wrap_last_control_in_card(box, salary_input, "月薪", "用于计算今日已赚、本月累计和时薪。")
 	rest_mode_option = OptionButton.new()
 	rest_mode_option.add_item("双休", 0)
 	rest_mode_option.add_item("单休", 1)
-	box.add_child(rest_mode_option)
+	_add_control_card(box, "休息模式", "选择单休或双休，影响每月工作日和时薪计算。", rest_mode_option)
 	rest_mode_single_toggle = CheckButton.new()
 	rest_mode_single_toggle.text = "单休（关闭则为双休）"
 	rest_mode_single_toggle.visible = false
 	box.add_child(rest_mode_single_toggle)
-	_add_label(box, "每日工作小时数（由上下班时间自动计算）")
+	_add_section_heading(box, "工作时间")
 	hours_input = _add_spin(box, 0, 24, 0.25)
 	hours_input.editable = false
-	_add_label(box, "上班时间")
 	var start_row := _add_time_row(box)
 	start_hour_input = start_row[0]
 	start_min_input = start_row[1]
-	_add_label(box, "下班时间")
+	_wrap_last_control_in_card(box, start_row[2], "上班时间", "用于判断工作中状态和今日已赚起点。")
 	var end_row := _add_time_row(box)
 	end_hour_input = end_row[0]
 	end_min_input = end_row[1]
+	_wrap_last_control_in_card(box, end_row[2], "下班时间", "用于判断休息状态和今日收入封顶时间。")
+	_wrap_last_control_in_card(box, hours_input, "每日工作小时数", "根据上下班时间自动计算，只读展示。")
 	_connect_time_inputs()
 	return root
 
@@ -141,14 +568,14 @@ func _build_pet_tab() -> Control:
 	var root := _new_tab("Pet")
 	var box := _new_vbox(root)
 	_add_inline_actions(box)
-	_add_label(box, "选择角色")
+	_add_page_heading(box, "桌宠设置", "选择陪你工作的橘猫伙伴")
+	_add_section_heading(box, "角色")
 	pet_list = ItemList.new()
-	pet_list.custom_minimum_size = Vector2(0, 140)
-	box.add_child(pet_list)
-	_add_label(box, "缩放（50%-200%）")
-	var scale_row := _add_slider_row(box, 50, 200, 1)
-	scale_slider = scale_row[0]
-	scale_value_label = scale_row[1]
+	pet_list.custom_minimum_size = Vector2(0, 108)
+	_add_control_card(box, "选择角色", "", pet_list)
+	_add_note_block(box, "说明", [
+		"当前 v0.4 默认使用橘猫 v2，并保留旧素材作为回退。"
+	])
 	return root
 
 
@@ -156,26 +583,39 @@ func _build_display_tab() -> Control:
 	var root := _new_tab("Display")
 	var box := _new_vbox(root)
 	_add_inline_actions(box)
-	_add_label(box, "透明度（20%-100%）")
+	_add_page_heading(box, "显示设置", "桌面挂件的大小、透明和找回")
+	_add_section_heading(box, "视觉")
 	var opacity_row := _add_slider_row(box, 20, 100, 1)
 	opacity_slider = opacity_row[0]
 	opacity_value_label = opacity_row[1]
-	_add_label(box, "窗口模式")
+	_wrap_last_control_in_card(box, opacity_row[2], "透明度", "20%-100%，影响小猫和 Panel 的整体透明程度。")
+	var scale_row := _add_slider_row(box, 50, 200, 1)
+	scale_slider = scale_row[0]
+	scale_value_label = scale_row[1]
+	_wrap_last_control_in_card(box, scale_row[2], "缩放", "50%-200%，同时影响小猫、Panel 和点击穿透命中区域。")
+	_add_section_heading(box, "窗口")
 	window_mode_option = OptionButton.new()
 	window_mode_option.add_item("置顶悬浮", 0)
 	window_mode_option.add_item("融入桌面（实验）", 1)
-	box.add_child(window_mode_option)
+	_add_control_card(box, "窗口模式", "置顶悬浮为 v0.4 主要验证模式，融入桌面仍为实验能力。", window_mode_option)
 	window_mode_embed_toggle = CheckButton.new()
 	window_mode_embed_toggle.text = "融入桌面（关闭则为置顶悬浮，实验）"
 	window_mode_embed_toggle.visible = false
 	box.add_child(window_mode_embed_toggle)
 	pure_pet_mode_toggle = CheckButton.new()
 	pure_pet_mode_toggle.text = "纯桌宠模式（隐藏任务栏 / Alt+Tab，需托盘可用）"
-	box.add_child(pure_pet_mode_toggle)
+	_add_control_card(box, "纯桌宠模式", "隐藏任务栏 / Alt+Tab 前必须确认托盘可用，避免窗口不可找回。", pure_pet_mode_toggle)
 	native_status_label = Label.new()
+	native_status_label.name = "NativeStatusLabel"
 	native_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	native_status_label.custom_minimum_size = Vector2(0, 52)
-	box.add_child(native_status_label)
+	native_status_label.custom_minimum_size = Vector2(0, 32)
+	native_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	native_status_label.add_theme_font_size_override("font_size", 12)
+	native_status_label.add_theme_color_override("font_color", SETTINGS_MUTED)
+	_add_note_block(box, "说明", [
+		"点击穿透由透明窗口区域自动计算，小猫和 Panel 保持可交互。"
+	])
+	_add_note_label(box, "状态", native_status_label)
 	return root
 
 
@@ -183,11 +623,13 @@ func _build_panel_tab() -> Control:
 	var root := _new_tab("Panel")
 	var box := _new_vbox(root)
 	_add_inline_actions(box)
-	show_today = _add_checkbox(box, "今日已赚")
-	show_month = _add_checkbox(box, "本月累计")
-	show_rate = _add_checkbox(box, "时薪")
-	show_progress = _add_checkbox(box, "工作进度")
-	show_state = _add_checkbox(box, "状态")
+	_add_page_heading(box, "面板设置", "金币小票上显示哪些信息")
+	_add_section_heading(box, "展开态显示项")
+	show_today = _add_checkbox_row(box, "今日已赚", "显示当天累计收入。")
+	show_month = _add_checkbox_row(box, "本月累计", "显示本月累计收入。")
+	show_rate = _add_checkbox_row(box, "时薪", "显示折算后的当前时薪。")
+	show_progress = _add_checkbox_row(box, "工作进度", "显示今日工作进度条。")
+	show_state = _add_checkbox_row(box, "状态", "显示工作中、休息中等状态。")
 	return root
 
 
@@ -195,52 +637,592 @@ func _build_general_tab() -> Control:
 	var root := _new_tab("General")
 	var box := _new_vbox(root)
 	_add_inline_actions(box)
+	_add_page_heading(box, "通用设置", "启动、托盘和小工具维护")
+	_add_section_heading(box, "运行")
 	debug_mode_toggle = CheckButton.new()
 	debug_mode_toggle.text = "Debug 模式"
-	box.add_child(debug_mode_toggle)
+	_add_control_card(box, "Debug 模式", "用于显示调试窗口、日志和命中区。保存后必要时重新显示窗口或重启应用。", debug_mode_toggle)
 	auto_start_toggle = CheckButton.new()
 	auto_start_toggle.text = "开机自启"
-	box.add_child(auto_start_toggle)
+	_add_control_card(box, "开机自启", "使用当前导出的 LetsMakeMoney.exe 写入用户级启动项。", auto_start_toggle)
 	minimize_to_tray_toggle = CheckButton.new()
 	minimize_to_tray_toggle.text = "关闭时隐藏到托盘"
-	box.add_child(minimize_to_tray_toggle)
+	_add_control_card(box, "关闭时隐藏到托盘", "关闭窗口时保留后台进程，可通过系统托盘找回。", minimize_to_tray_toggle)
+	_add_section_heading(box, "维护")
 	reset_position_button = Button.new()
 	reset_position_button.text = "重置窗口位置"
 	reset_position_button.pressed.connect(_on_reset_position_pressed)
-	box.add_child(reset_position_button)
+	_add_control_card(box, "重置窗口位置", "把桌宠移动回当前屏幕的安全可见区域。", reset_position_button)
 	restore_defaults_button = Button.new()
 	restore_defaults_button.text = "恢复默认显示设置"
 	restore_defaults_button.pressed.connect(_on_restore_defaults_pressed)
-	box.add_child(restore_defaults_button)
+	_add_control_card(box, "恢复默认显示设置", "只重置显示、窗口、托盘、自启动和 Debug 设置，不清空薪资和角色。", restore_defaults_button)
 	general_message_label = Label.new()
+	general_message_label.name = "GeneralMessageLabel"
 	general_message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	general_message_label.custom_minimum_size = Vector2(0, 42)
+	general_message_label.custom_minimum_size = Vector2(0, 30)
+	general_message_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	general_message_label.visible = false
+	general_message_label.add_theme_font_size_override("font_size", 12)
+	general_message_label.add_theme_color_override("font_color", ACCENT_MINT)
 	box.add_child(general_message_label)
-	_add_label(box, "语言：中文")
+	_add_note_block(box, "调试说明", [
+		"配置文件：%APPDATA%\\LetsMakeMoney\\config.json。Debug 模式保存后必要时重启生效。",
+		"语言：中文（当前版本暂不提供切换）。"
+	])
 	return root
 
 
 func _new_tab(tab_name: String) -> Control:
-	var margin := MarginContainer.new()
-	margin.name = tab_name
-	margin.add_theme_constant_override("margin_left", 16)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 16)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	return margin
+	var scroll := ScrollContainer.new()
+	scroll.name = tab_name
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.follow_focus = true
+	scroll.mouse_filter = Control.MOUSE_FILTER_STOP
+	var vbar := scroll.get_v_scroll_bar()
+	vbar.custom_minimum_size = Vector2(5, 0)
+	vbar.add_theme_stylebox_override("scroll", _stylebox(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0, 3, 0))
+	vbar.add_theme_stylebox_override("grabber", _stylebox(Color(0.416, 0.263, 0.122, 0.18), Color(0, 0, 0, 0), 0, 3, 0))
+	vbar.add_theme_stylebox_override("grabber_highlight", _stylebox(Color(0.416, 0.263, 0.122, 0.30), Color(0, 0, 0, 0), 0, 3, 0))
+	vbar.add_theme_stylebox_override("grabber_pressed", _stylebox(Color(0.416, 0.263, 0.122, 0.38), Color(0, 0, 0, 0), 0, 3, 0))
+	return scroll
 
 
 func _new_vbox(parent: Control) -> VBoxContainer:
+	var container_parent := parent
+	if parent is ScrollContainer:
+		var margin := MarginContainer.new()
+		margin.name = "TabContentMargin"
+		margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		margin.add_theme_constant_override("margin_left", 0)
+		margin.add_theme_constant_override("margin_top", 0)
+		margin.add_theme_constant_override("margin_right", 8)
+		margin.add_theme_constant_override("margin_bottom", 4)
+		parent.add_child(margin)
+		container_parent = margin
 	var box := VBoxContainer.new()
 	box.name = "VBox"
-	box.add_theme_constant_override("separation", 8)
-	parent.add_child(box)
+	box.add_theme_constant_override("separation", 1)
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	container_parent.add_child(box)
 	return box
+
+
+func _add_card_grid(parent: Control) -> GridContainer:
+	var grid := GridContainer.new()
+	grid.name = "SettingsCardGrid"
+	grid.columns = 2
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grid.add_theme_constant_override("h_separation", 14)
+	grid.add_theme_constant_override("v_separation", 14)
+	parent.add_child(grid)
+	return grid
+
+
+func _add_page_heading(parent: Control, title: String, hint: String) -> void:
+	var row := VBoxContainer.new()
+	row.name = "%sPageHeading" % title
+	row.custom_minimum_size = Vector2(0, 34)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 2)
+	parent.add_child(row)
+
+	var title_label := Label.new()
+	title_label.text = title
+	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_label.add_theme_font_size_override("font_size", 20)
+	title_label.add_theme_color_override("font_color", SETTINGS_TEXT)
+	row.add_child(title_label)
+
+	var hint_label := Label.new()
+	hint_label.text = hint
+	hint_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint_label.add_theme_font_size_override("font_size", 12)
+	hint_label.add_theme_color_override("font_color", SETTINGS_MUTED)
+	row.add_child(hint_label)
+
+
+func _add_section_heading(parent: Control, title: String) -> void:
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(0, 3)
+	parent.add_child(spacer)
+
+	var label := Label.new()
+	label.name = "SettingsSectionHeading"
+	label.text = title
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_color_override("font_color", ACCENT_ORANGE)
+	parent.add_child(label)
+
+
+func _add_setting_card(parent: Control, title: String, description: String = "") -> VBoxContainer:
+	var card := PanelContainer.new()
+	card.name = "SettingCard"
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.custom_minimum_size = Vector2(0, 48)
+	card.add_theme_stylebox_override("panel", _stylebox(Color(1.0, 0.998, 0.988, 0.16), Color(0.416, 0.263, 0.122, 0.04), 0, 6, 4))
+	parent.add_child(card)
+
+	var box := VBoxContainer.new()
+	box.name = "SettingCardBody"
+	box.add_theme_constant_override("separation", 2)
+	card.add_child(box)
+
+	var title_label := Label.new()
+	title_label.name = "SettingCardTitle"
+	title_label.text = title
+	title_label.add_theme_font_size_override("font_size", 15)
+	title_label.add_theme_color_override("font_color", SETTINGS_TEXT)
+	title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(title_label)
+
+	if not description.is_empty():
+		var description_label := Label.new()
+		description_label.name = "SettingCardDescription"
+		description_label.text = description
+		description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		description_label.add_theme_font_size_override("font_size", 13)
+		description_label.add_theme_color_override("font_color", SETTINGS_MUTED)
+		box.add_child(description_label)
+	return box
+
+
+func _add_control_card(parent: Control, title: String, _description: String, control: Control) -> void:
+	var row_panel := PanelContainer.new()
+	row_panel.name = "SettingRow"
+	row_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row_panel.custom_minimum_size = Vector2(0, 38)
+	row_panel.add_theme_stylebox_override("panel", _stylebox(Color(1.0, 0.998, 0.988, 0.0), Color(0, 0, 0, 0), 0, 0, 2))
+	parent.add_child(row_panel)
+
+	var row := HBoxContainer.new()
+	row.name = "SettingControlRow"
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 10)
+	row_panel.add_child(row)
+
+	var copy := VBoxContainer.new()
+	copy.name = "SettingCopy"
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	copy.add_theme_constant_override("separation", 2)
+	row.add_child(copy)
+
+	var title_label := Label.new()
+	title_label.name = "SettingCardTitle"
+	title_label.text = title
+	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title_label.add_theme_font_size_override("font_size", 14)
+	title_label.add_theme_color_override("font_color", SETTINGS_TEXT)
+	copy.add_child(title_label)
+
+	if control is CheckButton or control is CheckBox:
+		_add_switch_proxy(row, control as BaseButton)
+		return
+	_style_form_control(control)
+	control.custom_minimum_size = _control_minimum_size(control)
+	control.size_flags_horizontal = Control.SIZE_SHRINK_END
+	control.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(control)
+
+
+func _add_switch_proxy(row: HBoxContainer, toggle: BaseButton) -> void:
+	toggle.text = ""
+	toggle.visible = false
+	toggle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	toggle.custom_minimum_size = Vector2.ZERO
+	row.add_child(toggle)
+
+	var proxy := Button.new()
+	proxy.name = "%sVisualSwitch" % toggle.name
+	proxy.toggle_mode = true
+	proxy.focus_mode = Control.FOCUS_ALL
+	proxy.custom_minimum_size = Vector2(42, 24)
+	proxy.size_flags_horizontal = Control.SIZE_SHRINK_END
+	proxy.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	proxy.pressed.connect(func() -> void:
+		if toggle.disabled:
+			proxy.button_pressed = toggle.button_pressed
+			_style_switch_proxy(proxy, toggle)
+			return
+		toggle.button_pressed = proxy.button_pressed
+		_style_switch_proxy(proxy, toggle)
+	)
+	toggle.toggled.connect(func(pressed: bool) -> void:
+		proxy.button_pressed = pressed
+		_style_switch_proxy(proxy, toggle)
+	)
+	_switch_proxies[toggle] = proxy
+	_style_switch_proxy(proxy, toggle)
+	row.add_child(proxy)
+
+
+func _style_switch_proxy(proxy: Button, toggle: BaseButton) -> void:
+	var on := toggle.button_pressed
+	var disabled := toggle.disabled
+	proxy.disabled = disabled
+	proxy.text = ""
+	proxy.flat = false
+	var track := Color(0.870, 0.760, 0.560, 0.48)
+	var border := Color(0.416, 0.263, 0.122, 0.18)
+	if on:
+		track = ACCENT_COIN
+		border = Color(0.780, 0.420, 0.137, 0.28)
+	if disabled:
+		track.a = 0.28
+		border.a = 0.10
+	var hover := track.lightened(0.08)
+	var pressed := track.darkened(0.06)
+	proxy.add_theme_stylebox_override("normal", _stylebox(track, border, 1, 12, 2))
+	proxy.add_theme_stylebox_override("hover", _stylebox(hover, border, 1, 12, 2))
+	proxy.add_theme_stylebox_override("pressed", _stylebox(pressed, border, 1, 12, 2))
+	proxy.add_theme_stylebox_override("disabled", _stylebox(track, border, 1, 12, 2))
+	proxy.add_theme_stylebox_override("focus", _stylebox(Color(0, 0, 0, 0), ACCENT_COIN, 1, 12, 2))
+	proxy.add_theme_icon_override("icon", _make_switch_knob_icon(on, disabled))
+	proxy.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT if on else HORIZONTAL_ALIGNMENT_LEFT
+	proxy.add_theme_constant_override("h_separation", 0)
+
+
+func _sync_switch_proxies() -> void:
+	for toggle in _switch_proxies.keys():
+		if not is_instance_valid(toggle):
+			continue
+		var proxy := _switch_proxies[toggle] as Button
+		if proxy == null or not is_instance_valid(proxy):
+			continue
+		proxy.button_pressed = (toggle as BaseButton).button_pressed
+		_style_switch_proxy(proxy, toggle as BaseButton)
+
+
+func _add_status_card(parent: Control, title: String, description: String, label: Label) -> void:
+	var card_body := _add_setting_card(parent, title, description)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	card_body.add_child(label)
+
+
+func _add_info_card(parent: Control, title: String, description: String) -> void:
+	_add_setting_card(parent, title, description)
+
+
+func _add_note_block(parent: Control, title: String, lines: Array[String]) -> void:
+	if lines.is_empty():
+		return
+	var block := VBoxContainer.new()
+	block.name = "SettingsNoteBlock"
+	block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	block.add_theme_constant_override("separation", 3)
+	parent.add_child(block)
+	_add_note_title(block, title)
+	for line in lines:
+		if line.is_empty():
+			continue
+		var label := _new_note_text(line)
+		block.add_child(label)
+
+
+func _add_note_label(parent: Control, title: String, label: Label) -> void:
+	var block := VBoxContainer.new()
+	block.name = "SettingsNoteBlock"
+	block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	block.add_theme_constant_override("separation", 3)
+	parent.add_child(block)
+	_add_note_title(block, title)
+	_style_note_label(label)
+	block.add_child(label)
+
+
+func _add_note_title(parent: Control, title: String) -> void:
+	var divider := ColorRect.new()
+	divider.name = "SettingsNoteDivider"
+	divider.custom_minimum_size = Vector2(0, 1)
+	divider.color = Color(0.416, 0.263, 0.122, 0.08)
+	parent.add_child(divider)
+
+	var label := Label.new()
+	label.name = "SettingsNoteTitle"
+	label.text = title
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_color_override("font_color", Color(0.550, 0.420, 0.298, 0.82))
+	parent.add_child(label)
+
+
+func _new_note_text(text: String) -> Label:
+	var label := Label.new()
+	label.text = text
+	_style_note_label(label)
+	return label
+
+
+func _style_note_label(label: Label) -> void:
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_color_override("font_color", Color(TEXT_MUTED.r, TEXT_MUTED.g, TEXT_MUTED.b, 0.84))
+
+
+func _wrap_last_control_in_card(parent: Control, control: Control, title: String, description: String) -> void:
+	parent.remove_child(control)
+	_add_control_card(parent, title, description, control)
+
+
+func _control_minimum_size(control: Control) -> Vector2:
+	if control is HBoxContainer and control.name == "SliderRow":
+		return Vector2(236, 32)
+	if control is HBoxContainer and control.name == "TimeRow":
+		return Vector2(148, 32)
+	if control is ItemList:
+		return Vector2(SETTINGS_CONTROL_WIDTH + 110, 98)
+	if control is Button:
+		return Vector2(104, 32)
+	if control is OptionButton:
+		return Vector2(SETTINGS_CONTROL_WIDTH, 32)
+	if control is SpinBox:
+		return Vector2(92, 32)
+	if control is CheckButton or control is CheckBox:
+		return Vector2(42, 24)
+	return Vector2(SETTINGS_CONTROL_WIDTH, 34)
+
+
+func _add_checkbox_row(parent: Control, title: String, description: String) -> CheckBox:
+	var checkbox := CheckBox.new()
+	checkbox.text = ""
+	_add_control_card(parent, title, description, checkbox)
+	return checkbox
+
+
+func _stylebox(
+	bg: Color,
+	border: Color,
+	border_width: int,
+	radius: int,
+	padding: int,
+	shadow_color: Color = Color(0, 0, 0, 0),
+	shadow_size: int = 0
+) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg
+	style.border_color = border
+	style.set_border_width_all(border_width)
+	style.set_corner_radius_all(radius)
+	style.shadow_color = shadow_color
+	style.shadow_size = shadow_size
+	style.shadow_offset = Vector2(0, 3)
+	style.content_margin_left = padding
+	style.content_margin_top = padding
+	style.content_margin_right = padding
+	style.content_margin_bottom = padding
+	return style
+
+
+func _style_button(button: Button, quiet: bool = false, primary: bool = false) -> void:
+	var normal_bg := SURFACE_CARD
+	var hover_bg := Color(1.0, 0.962, 0.842, 1.0)
+	var pressed_bg := Color(0.986, 0.900, 0.720, 1.0)
+	var normal_border := BORDER_WARM
+	if quiet:
+		normal_bg = Color(0.0, 0.0, 0.0, 0.0)
+		hover_bg = Color(1.0, 0.920, 0.730, 0.55)
+		pressed_bg = Color(0.965, 0.714, 0.243, 0.35)
+		normal_border = Color(0, 0, 0, 0)
+	if primary:
+		normal_bg = ACCENT_COIN
+		hover_bg = Color(1.0, 0.780, 0.310, 1.0)
+		pressed_bg = ACCENT_ORANGE
+		normal_border = Color(0.780, 0.420, 0.137, 0.32)
+	button.add_theme_stylebox_override("normal", _stylebox(normal_bg, normal_border, 1, 9, 6))
+	button.add_theme_stylebox_override("hover", _stylebox(hover_bg, Color(0.780, 0.420, 0.137, 0.28), 1, 9, 6, Color(0.360, 0.184, 0.047, 0.08), 2))
+	button.add_theme_stylebox_override("pressed", _stylebox(pressed_bg, Color(0.780, 0.420, 0.137, 0.38), 1, 9, 6))
+	button.add_theme_stylebox_override("focus", _stylebox(Color(0, 0, 0, 0), SETTINGS_ACCENT, 2, 9, 6))
+	button.add_theme_color_override("font_color", SETTINGS_TEXT)
+	button.add_theme_color_override("font_hover_color", SETTINGS_TEXT)
+	button.add_theme_color_override("font_pressed_color", SETTINGS_TEXT)
+	button.add_theme_font_size_override("font_size", 14)
+
+
+func _style_window_button(button: Button, destructive: bool = false) -> void:
+	var hover_bg := Color(1.0, 0.930, 0.760, 0.82)
+	var pressed_bg := Color(0.965, 0.714, 0.243, 0.36)
+	var hover_border := Color(0.780, 0.420, 0.137, 0.22)
+	var pressed_border := Color(0.780, 0.420, 0.137, 0.30)
+	if destructive:
+		hover_bg = Color(0.965, 0.830, 0.762, 0.92)
+		pressed_bg = Color(0.820, 0.512, 0.420, 0.88)
+		hover_border = Color(0.640, 0.278, 0.220, 0.26)
+		pressed_border = Color(0.640, 0.278, 0.220, 0.34)
+	button.flat = true
+	button.focus_mode = Control.FOCUS_ALL
+	button.add_theme_stylebox_override("normal", _stylebox(Color(0, 0, 0, 0), Color(1, 1, 1, 0), 0, 10, 5))
+	button.add_theme_stylebox_override("hover", _stylebox(hover_bg, hover_border, 1, 10, 5))
+	button.add_theme_stylebox_override("pressed", _stylebox(pressed_bg, pressed_border, 1, 10, 5))
+	button.add_theme_stylebox_override("focus", _stylebox(Color(0, 0, 0, 0), SETTINGS_ACCENT, 2, 10, 5))
+	button.add_theme_color_override("font_color", SETTINGS_TEXT)
+	button.add_theme_color_override("font_hover_color", SETTINGS_TEXT)
+	button.add_theme_color_override("font_pressed_color", SETTINGS_TEXT)
+	button.add_theme_font_size_override("font_size", 15)
+
+
+func _style_nav_button(button: Button, active: bool) -> void:
+	var normal_bg := Color(0.0, 0.0, 0.0, 0.0)
+	var hover_bg := Color(1.0, 0.972, 0.902, 1.0)
+	var pressed_bg := Color(1.0, 0.932, 0.742, 1.0)
+	var border := Color(0, 0, 0, 0)
+	var shadow := Color(0, 0, 0, 0)
+	if active:
+		normal_bg = Color(1.0, 0.998, 0.988, 1.0)
+		hover_bg = Color(1.0, 0.990, 0.948, 1.0)
+		border = Color(0.965, 0.714, 0.243, 0.74)
+		shadow = Color(0.360, 0.184, 0.047, 0.08)
+	button.add_theme_stylebox_override("normal", _stylebox(normal_bg, border, 1 if active else 0, 9, 5, shadow, 2 if active else 0))
+	button.add_theme_stylebox_override("hover", _stylebox(hover_bg, Color(0.780, 0.420, 0.137, 0.18), 1, 9, 5))
+	button.add_theme_stylebox_override("pressed", _stylebox(pressed_bg, SETTINGS_ACCENT, 1, 9, 5))
+	button.add_theme_stylebox_override("focus", _stylebox(Color(0, 0, 0, 0), SETTINGS_ACCENT, 2, 9, 5))
+	button.add_theme_color_override("font_color", SETTINGS_TEXT if active else SETTINGS_MUTED)
+	button.add_theme_color_override("font_hover_color", SETTINGS_TEXT)
+	button.add_theme_color_override("font_pressed_color", SETTINGS_TEXT)
+
+
+func _style_option_button(option: OptionButton) -> void:
+	var normal_bg := Color(1.0, 0.998, 0.990, 1.0)
+	var hover_bg := Color(1.0, 0.970, 0.900, 1.0)
+	var pressed_bg := Color(1.0, 0.936, 0.760, 1.0)
+	option.flat = false
+	option.add_theme_stylebox_override("normal", _stylebox(normal_bg, Color(0.416, 0.263, 0.122, 0.12), 1, 9, 5))
+	option.add_theme_stylebox_override("hover", _stylebox(hover_bg, Color(0.780, 0.420, 0.137, 0.20), 1, 9, 5))
+	option.add_theme_stylebox_override("pressed", _stylebox(pressed_bg, Color(0.965, 0.714, 0.243, 0.54), 1, 9, 5))
+	option.add_theme_stylebox_override("focus", _stylebox(Color(1.0, 0.998, 0.990, 1.0), Color(0.965, 0.714, 0.243, 0.76), 2, 9, 5))
+	option.add_theme_color_override("font_color", SETTINGS_TEXT)
+	option.add_theme_color_override("font_hover_color", SETTINGS_TEXT)
+	option.add_theme_color_override("font_pressed_color", SETTINGS_TEXT)
+	option.add_theme_color_override("font_focus_color", SETTINGS_TEXT)
+	option.add_theme_color_override("font_hover_pressed_color", SETTINGS_TEXT)
+	option.add_theme_color_override("font_disabled_color", Color(TEXT_MUTED.r, TEXT_MUTED.g, TEXT_MUTED.b, 0.55))
+	option.add_theme_font_size_override("font_size", 13)
+	option.add_theme_icon_override("arrow", _make_dropdown_arrow())
+	_style_option_popup(option)
+
+
+func _style_option_popup(option: OptionButton) -> void:
+	var popup := option.get_popup()
+	if popup == null:
+		return
+	popup.transparent_bg = true
+	popup.borderless = true
+	popup.min_size = Vector2i(int(maxf(option.size.x, option.custom_minimum_size.x)), 0)
+	popup.add_theme_stylebox_override("panel", _stylebox(Color(1.0, 0.992, 0.965, 0.995), Color(0.416, 0.263, 0.122, 0.14), 1, 11, 6, Color(0.360, 0.184, 0.047, 0.12), 7))
+	popup.add_theme_stylebox_override("hover", _stylebox(Color(1.0, 0.930, 0.735, 0.88), Color(0.965, 0.714, 0.243, 0.30), 1, 8, 5))
+	popup.add_theme_stylebox_override("separator", _stylebox(Color(0.416, 0.263, 0.122, 0.12), Color(0, 0, 0, 0), 0, 1, 1))
+	popup.add_theme_color_override("font_color", SETTINGS_TEXT)
+	popup.add_theme_color_override("font_hover_color", SETTINGS_TEXT)
+	popup.add_theme_color_override("font_pressed_color", SETTINGS_TEXT)
+	popup.add_theme_color_override("font_hover_pressed_color", SETTINGS_TEXT)
+	popup.add_theme_color_override("font_checked_color", ACCENT_ORANGE)
+	popup.add_theme_color_override("font_disabled_color", Color(TEXT_MUTED.r, TEXT_MUTED.g, TEXT_MUTED.b, 0.55))
+	popup.add_theme_constant_override("item_min_height", 28)
+	popup.add_theme_constant_override("item_start_padding", 8)
+	popup.add_theme_constant_override("item_end_padding", 8)
+	popup.add_theme_constant_override("h_separation", 6)
+	popup.add_theme_constant_override("v_separation", 1)
+	popup.add_theme_constant_override("indent", 4)
+	popup.add_theme_font_size_override("font_size", 13)
+	popup.add_theme_icon_override("checked", _make_popup_check_icon(true))
+	popup.add_theme_icon_override("radio_checked", _make_popup_check_icon(true))
+	popup.add_theme_icon_override("unchecked", _make_popup_check_icon(false))
+	popup.add_theme_icon_override("radio_unchecked", _make_popup_check_icon(false))
+
+
+func _style_line_edit(line_edit: LineEdit) -> void:
+	line_edit.add_theme_stylebox_override("normal", _stylebox(Color(1.0, 0.998, 0.990, 1.0), Color(0.416, 0.263, 0.122, 0.12), 1, 9, 5))
+	line_edit.add_theme_stylebox_override("read_only", _stylebox(Color(1.0, 0.972, 0.902, 0.72), Color(0.416, 0.263, 0.122, 0.08), 1, 9, 5))
+	line_edit.add_theme_stylebox_override("focus", _stylebox(Color(1.0, 0.998, 0.990, 1.0), Color(0.965, 0.714, 0.243, 0.76), 2, 9, 5))
+	line_edit.add_theme_color_override("font_color", SETTINGS_TEXT)
+	line_edit.add_theme_color_override("font_uneditable_color", Color(0.550, 0.420, 0.298, 0.82))
+	line_edit.add_theme_color_override("font_placeholder_color", Color(0.550, 0.420, 0.298, 0.62))
+
+
+func _build_settings_theme() -> Theme:
+	var settings_theme := Theme.new()
+	var font := SystemFont.new()
+	font.font_names = PackedStringArray(["Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI"])
+	font.antialiasing = TextServer.FONT_ANTIALIASING_LCD
+	font.hinting = TextServer.HINTING_NORMAL
+	font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_AUTO
+	settings_theme.default_font = font
+	settings_theme.default_font_size = 15
+	return settings_theme
+
+
+func _style_form_control(control: Control) -> void:
+	if control is OptionButton:
+		var option := control as OptionButton
+		_style_option_button(option)
+		option.custom_minimum_size = Vector2(maxf(option.custom_minimum_size.x, 124), maxf(option.custom_minimum_size.y, 32))
+	elif control is Button:
+		_style_button(control as Button)
+	elif control is SpinBox:
+		var spin := control as SpinBox
+		spin.add_theme_font_size_override("font_size", 14)
+		spin.add_theme_color_override("font_color", SETTINGS_TEXT)
+		spin.custom_minimum_size = Vector2(maxf(spin.custom_minimum_size.x, 92), maxf(spin.custom_minimum_size.y, 32))
+		_style_line_edit(spin.get_line_edit())
+	elif control is LineEdit:
+		_style_line_edit(control as LineEdit)
+	elif control is CheckButton or control is CheckBox:
+		var transparent_style := _stylebox(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0, 0, 0)
+		if control is BaseButton:
+			(control as BaseButton).flat = true
+		control.add_theme_stylebox_override("normal", transparent_style)
+		control.add_theme_stylebox_override("hover", transparent_style)
+		control.add_theme_stylebox_override("pressed", transparent_style)
+		control.add_theme_stylebox_override("hover_pressed", transparent_style)
+		control.add_theme_stylebox_override("disabled", transparent_style)
+		control.add_theme_stylebox_override("normal_mirrored", transparent_style)
+		control.add_theme_stylebox_override("hover_mirrored", transparent_style)
+		control.add_theme_stylebox_override("pressed_mirrored", transparent_style)
+		control.add_theme_stylebox_override("hover_pressed_mirrored", transparent_style)
+		control.add_theme_stylebox_override("disabled_mirrored", transparent_style)
+		control.add_theme_stylebox_override("focus", _stylebox(Color(0, 0, 0, 0), ACCENT_COIN, 1, 10, 0))
+		control.add_theme_constant_override("h_separation", 0)
+		control.add_theme_font_size_override("font_size", 15)
+		control.add_theme_color_override("font_color", SETTINGS_TEXT)
+		control.add_theme_color_override("font_hover_color", SETTINGS_TEXT)
+		control.add_theme_color_override("font_pressed_color", SETTINGS_TEXT)
+		control.add_theme_color_override("font_disabled_color", Color(0.550, 0.420, 0.298, 0.52))
+		control.add_theme_icon_override("checked", _make_switch_icon(true, false))
+		control.add_theme_icon_override("unchecked", _make_switch_icon(false, false))
+		control.add_theme_icon_override("checked_disabled", _make_switch_icon(true, true))
+		control.add_theme_icon_override("unchecked_disabled", _make_switch_icon(false, true))
+		control.add_theme_icon_override("on", _make_switch_icon(true, false))
+		control.add_theme_icon_override("off", _make_switch_icon(false, false))
+		control.custom_minimum_size = Vector2(maxf(control.custom_minimum_size.x, 42), maxf(control.custom_minimum_size.y, 24))
+	elif control is ItemList:
+		var item_list := control as ItemList
+		item_list.add_theme_stylebox_override("panel", _stylebox(Color(1.0, 0.990, 0.964, 1.0), BORDER_WARM, 1, 12, 8))
+		item_list.add_theme_stylebox_override("hovered", _stylebox(Color(1.0, 0.960, 0.842, 1.0), Color(0.965, 0.714, 0.243, 0.22), 1, 10, 8))
+		item_list.add_theme_stylebox_override("selected", _stylebox(Color(1.0, 0.914, 0.644, 1.0), Color(0.780, 0.420, 0.137, 0.40), 1, 10, 8))
+		item_list.add_theme_stylebox_override("selected_focus", _stylebox(Color(1.0, 0.890, 0.560, 1.0), Color(0.780, 0.420, 0.137, 0.64), 1, 10, 8))
+		item_list.add_theme_stylebox_override("focus", _stylebox(Color(0, 0, 0, 0), ACCENT_COIN, 2, 12, 8))
+		item_list.add_theme_font_size_override("font_size", 15)
+		item_list.add_theme_color_override("font_color", SETTINGS_TEXT)
+		item_list.add_theme_color_override("font_selected_color", SETTINGS_TEXT)
+		item_list.add_theme_color_override("guide_color", Color(0, 0, 0, 0))
+		item_list.add_theme_color_override("font_hovered_color", SETTINGS_TEXT)
+		item_list.add_theme_color_override("font_hovered_selected_color", SETTINGS_TEXT)
+	elif control is HBoxContainer:
+		control.custom_minimum_size = Vector2(maxf(control.custom_minimum_size.x, 0), maxf(control.custom_minimum_size.y, 34))
 
 
 func _add_label(parent: Control, text: String) -> Label:
 	var label := Label.new()
 	label.text = text
+	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_color_override("font_color", SETTINGS_TEXT)
 	parent.add_child(label)
 	return label
 
@@ -250,9 +1232,119 @@ func _add_spin(parent: Control, min_value: float, max_value: float, step: float)
 	spin.min_value = min_value
 	spin.max_value = max_value
 	spin.step = step
-	spin.custom_minimum_size = Vector2(120, 0)
+	spin.custom_minimum_size = Vector2(92, 32)
+	_style_form_control(spin)
 	parent.add_child(spin)
 	return spin
+
+
+func _make_dropdown_arrow() -> Texture2D:
+	const WIDTH := 14
+	const HEIGHT := 10
+	var image := Image.create_empty(WIDTH, HEIGHT, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0, 0, 0, 0))
+	var color := Color(TEXT_MUTED.r, TEXT_MUTED.g, TEXT_MUTED.b, 0.86)
+	for y in range(4):
+		var start := 3 + y
+		var finish := WIDTH - 4 - y
+		for x in range(start, finish + 1):
+			image.set_pixel(x, 3 + y, color)
+	return ImageTexture.create_from_image(image)
+
+
+func _make_popup_check_icon(visible: bool) -> Texture2D:
+	const SIZE := 12
+	var image := Image.create_empty(SIZE, SIZE, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0, 0, 0, 0))
+	if not visible:
+		return ImageTexture.create_from_image(image)
+	var color := ACCENT_ORANGE
+	for i in range(3):
+		image.set_pixel(3 + i, 6 + i, color)
+		image.set_pixel(4 + i, 6 + i, color)
+	for i in range(5):
+		image.set_pixel(6 + i, 8 - i, color)
+		image.set_pixel(7 + i, 8 - i, color)
+	return ImageTexture.create_from_image(image)
+
+
+func _make_slider_grabber(border_color: Color, fill_color: Color) -> Texture2D:
+	const GRABBER_SIZE := 18
+	var image := Image.create_empty(GRABBER_SIZE, GRABBER_SIZE, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0, 0, 0, 0))
+	var center := Vector2((GRABBER_SIZE - 1) * 0.5, (GRABBER_SIZE - 1) * 0.5)
+	for y in range(GRABBER_SIZE):
+		for x in range(GRABBER_SIZE):
+			var distance := Vector2(x, y).distance_to(center)
+			if distance <= 8.2:
+				image.set_pixel(x, y, border_color)
+			if distance <= 5.9:
+				image.set_pixel(x, y, fill_color)
+	return ImageTexture.create_from_image(image)
+
+
+func _make_switch_icon(pressed: bool, disabled: bool) -> Texture2D:
+	const WIDTH := 40
+	const HEIGHT := 22
+	var track := Color(0.870, 0.760, 0.560, 0.48)
+	var border := Color(0.416, 0.263, 0.122, 0.20)
+	var knob := Color(1.0, 0.998, 0.988, 1.0)
+	if pressed:
+		track = Color(0.427, 0.624, 0.447, 0.92)
+		border = Color(0.240, 0.430, 0.270, 0.30)
+	if disabled:
+		track.a = 0.30
+		border.a = 0.12
+		knob = Color(0.880, 0.820, 0.720, 0.80)
+	var image := Image.create_empty(WIDTH, HEIGHT, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0, 0, 0, 0))
+	var radius := 10.5
+	var left_center := Vector2(radius, HEIGHT * 0.5)
+	var right_center := Vector2(WIDTH - radius - 1, HEIGHT * 0.5)
+	for y in range(HEIGHT):
+		for x in range(WIDTH):
+			var p := Vector2(x, y)
+			var inside: bool = p.distance_to(left_center) <= radius or p.distance_to(right_center) <= radius or (x >= radius and x <= WIDTH - radius and abs(y - HEIGHT * 0.5) <= radius)
+			if inside:
+				image.set_pixel(x, y, border)
+			var inner: bool = p.distance_to(left_center) <= radius - 1.5 or p.distance_to(right_center) <= radius - 1.5 or (x >= radius and x <= WIDTH - radius and abs(y - HEIGHT * 0.5) <= radius - 1.5)
+			if inner:
+				image.set_pixel(x, y, track)
+	var knob_center := Vector2(WIDTH - 11, HEIGHT * 0.5) if pressed else Vector2(11, HEIGHT * 0.5)
+	for y in range(HEIGHT):
+		for x in range(WIDTH):
+			var distance := Vector2(x, y).distance_to(knob_center)
+			if distance <= 7.8:
+				image.set_pixel(x, y, Color(0.360, 0.184, 0.047, 0.14))
+			if distance <= 6.6:
+				image.set_pixel(x, y, knob)
+	return ImageTexture.create_from_image(image)
+
+
+func _make_switch_knob_icon(pressed: bool, disabled: bool) -> Texture2D:
+	const SIZE := 16
+	var image := Image.create_empty(SIZE, SIZE, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0, 0, 0, 0))
+	var center := Vector2((SIZE - 1) * 0.5, (SIZE - 1) * 0.5)
+	var shadow := Color(0.360, 0.184, 0.047, 0.13)
+	var fill := Color(1.0, 0.998, 0.988, 1.0)
+	var border := Color(0.416, 0.263, 0.122, 0.10)
+	if pressed:
+		border = Color(0.780, 0.420, 0.137, 0.18)
+	if disabled:
+		fill.a = 0.78
+		border.a = 0.07
+		shadow.a = 0.06
+	for y in range(SIZE):
+		for x in range(SIZE):
+			var distance := Vector2(x, y).distance_to(center)
+			if distance <= 7.2:
+				image.set_pixel(x, y, shadow)
+			if distance <= 6.4:
+				image.set_pixel(x, y, border)
+			if distance <= 5.6:
+				image.set_pixel(x, y, fill)
+	return ImageTexture.create_from_image(image)
 
 
 func _add_slider(parent: Control, min_value: float, max_value: float, step: float) -> HSlider:
@@ -260,27 +1352,38 @@ func _add_slider(parent: Control, min_value: float, max_value: float, step: floa
 	slider.min_value = min_value
 	slider.max_value = max_value
 	slider.step = step
+	slider.custom_minimum_size = Vector2(0, 36)
+	slider.add_theme_stylebox_override("slider", _stylebox(Color(0.870, 0.730, 0.450, 0.38), Color(0.416, 0.263, 0.122, 0.10), 1, 6, 3))
+	slider.add_theme_stylebox_override("grabber_area", _stylebox(Color(0.965, 0.714, 0.243, 0.95), Color(0.780, 0.420, 0.137, 0.20), 1, 6, 3))
+	slider.add_theme_stylebox_override("grabber_area_highlight", _stylebox(Color(1.0, 0.776, 0.302, 1.0), Color(0.780, 0.420, 0.137, 0.30), 1, 6, 3))
+	slider.add_theme_icon_override("grabber", _make_slider_grabber(Color(0.780, 0.420, 0.137, 1.0), Color(1.0, 0.972, 0.902, 1.0)))
+	slider.add_theme_icon_override("grabber_highlight", _make_slider_grabber(ACCENT_ORANGE, Color(1.0, 0.940, 0.780, 1.0)))
 	parent.add_child(slider)
 	return slider
 
 
 func _add_slider_row(parent: Control, min_value: float, max_value: float, step: float) -> Array:
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
+	row.name = "SliderRow"
+	row.custom_minimum_size = Vector2(236, 32)
+	row.add_theme_constant_override("separation", 8)
 	parent.add_child(row)
 	var slider := _add_slider(row, min_value, max_value, step)
 	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var value_label := Label.new()
-	value_label.custom_minimum_size = Vector2(72, 0)
+	value_label.custom_minimum_size = Vector2(60, 0)
 	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	value_label.add_theme_font_size_override("font_size", 14)
+	value_label.add_theme_color_override("font_color", SETTINGS_TEXT)
 	row.add_child(value_label)
-	return [slider, value_label]
+	return [slider, value_label, row]
 
 
 func _add_checkbox(parent: Control, text: String) -> CheckBox:
 	var checkbox := CheckBox.new()
 	checkbox.text = text
+	checkbox.add_theme_font_size_override("font_size", 15)
 	parent.add_child(checkbox)
 	return checkbox
 
@@ -289,16 +1392,18 @@ func _add_inline_actions(_parent: Control) -> void:
 	return
 
 
-func _add_time_row(parent: Control) -> Array[SpinBox]:
+func _add_time_row(parent: Control) -> Array:
 	var row := HBoxContainer.new()
+	row.name = "TimeRow"
+	row.custom_minimum_size = Vector2(148, 32)
 	row.add_theme_constant_override("separation", 6)
 	parent.add_child(row)
 	var hour := _add_spin(row, 0, 23, 1)
-	hour.custom_minimum_size = Vector2(80, 0)
+	hour.custom_minimum_size = Vector2(64, 0)
 	_add_label(row, ":")
 	var minute := _add_spin(row, 0, 59, 1)
-	minute.custom_minimum_size = Vector2(80, 0)
-	return [hour, minute]
+	minute.custom_minimum_size = Vector2(64, 0)
+	return [hour, minute, row]
 
 
 func _connect_time_inputs() -> void:
@@ -352,6 +1457,7 @@ func _load_current_values() -> void:
 	debug_mode_toggle.button_pressed = bool(Config.get_value("debug_mode", false))
 	auto_start_toggle.button_pressed = bool(Config.get_value("auto_start", false))
 	minimize_to_tray_toggle.button_pressed = bool(Config.get_value("minimize_to_tray", true))
+	_sync_switch_proxies()
 
 	_populate_pet_list()
 	_load_panel_checkboxes()
@@ -361,7 +1467,7 @@ func _load_current_values() -> void:
 func _populate_pet_list() -> void:
 	pet_list.clear()
 	var pets := PetManager.get_available_pets()
-	var current_id := String(Config.get_value("pet_id", "cat"))
+	var current_id := String(Config.get_value("pet_id", "cat_orange_v2"))
 	for i in range(pets.size()):
 		pet_list.add_item(pets[i].display_name)
 		if pets[i].pet_id == current_id:
@@ -378,35 +1484,142 @@ func _load_panel_checkboxes() -> void:
 
 func _on_save() -> void:
 	_update_slider_labels()
-	Config.set_value("monthly_salary", float(salary_input.value))
-	Config.set_value("rest_mode", "single" if rest_mode_option.selected == 1 else "double")
-	Config.set_value("work_start_time", "%02d:%02d" % [int(start_hour_input.value), int(start_min_input.value)])
-	Config.set_value("work_end_time", "%02d:%02d" % [int(end_hour_input.value), int(end_min_input.value)])
-	Config.set_value("work_hours_per_day", _calculate_work_hours())
-	Config.set_value("scale", scale_slider.value / 100.0)
-	Config.set_value("opacity", opacity_slider.value / 100.0)
-	Config.set_value("window_mode", "embed" if window_mode_option.selected == 1 else "top")
-	Config.set_value("pure_pet_mode", pure_pet_mode_toggle.button_pressed and not pure_pet_mode_toggle.disabled)
-	Config.set_value("debug_mode", debug_mode_toggle.button_pressed)
-	Config.set_value("minimize_to_tray", minimize_to_tray_toggle.button_pressed)
+	var form_values := _collect_form_values()
+	if not _has_form_changes(form_values):
+		_set_save_status("没有需要保存的更改。")
+		return
+	if not _apply_form_values(form_values):
+		_set_save_status("保存失败：请查看不可用原因并重试。")
+		return
+	Config.save()
+	_set_save_status("保存成功。")
 
-	Config.set_panel_item("earnings_today", show_today.button_pressed)
-	Config.set_panel_item("earnings_month", show_month.button_pressed)
-	Config.set_panel_item("hourly_rate", show_rate.button_pressed)
-	Config.set_panel_item("work_progress", show_progress.button_pressed)
-	Config.set_panel_item("status", show_state.button_pressed)
 
+func _collect_form_values() -> Dictionary:
+	return {
+		"monthly_salary": float(salary_input.value),
+		"rest_mode": "single" if rest_mode_option.selected == 1 else "double",
+		"work_start_time": "%02d:%02d" % [int(start_hour_input.value), int(start_min_input.value)],
+		"work_end_time": "%02d:%02d" % [int(end_hour_input.value), int(end_min_input.value)],
+		"work_hours_per_day": _calculate_work_hours(),
+		"scale": scale_slider.value / 100.0,
+		"opacity": opacity_slider.value / 100.0,
+		"window_mode": "embed" if window_mode_option.selected == 1 else "top",
+		"pure_pet_mode": pure_pet_mode_toggle.button_pressed and not pure_pet_mode_toggle.disabled,
+		"debug_mode": debug_mode_toggle.button_pressed,
+		"auto_start": auto_start_toggle.button_pressed,
+		"minimize_to_tray": minimize_to_tray_toggle.button_pressed,
+		"pet_id": _get_selected_pet_id(),
+		"panel_items": {
+			"earnings_today": show_today.button_pressed,
+			"earnings_month": show_month.button_pressed,
+			"hourly_rate": show_rate.button_pressed,
+			"work_progress": show_progress.button_pressed,
+			"status": show_state.button_pressed
+		}
+	}
+
+
+func _current_settings_snapshot() -> Dictionary:
+	return {
+		"monthly_salary": float(Config.get_value("monthly_salary", 0)),
+		"rest_mode": String(Config.get_value("rest_mode", "double")),
+		"work_start_time": String(Config.get_value("work_start_time", "09:00")),
+		"work_end_time": String(Config.get_value("work_end_time", "18:00")),
+		"work_hours_per_day": float(Config.get_value("work_hours_per_day", 8.0)),
+		"scale": float(Config.get_value("scale", 1.0)),
+		"opacity": float(Config.get_value("opacity", 1.0)),
+		"window_mode": String(Config.get_value("window_mode", "top")),
+		"pure_pet_mode": bool(Config.get_value("pure_pet_mode", false)),
+		"debug_mode": bool(Config.get_value("debug_mode", false)),
+		"auto_start": bool(Config.get_value("auto_start", false)),
+		"minimize_to_tray": bool(Config.get_value("minimize_to_tray", true)),
+		"pet_id": String(Config.get_value("pet_id", "cat_orange_v2")),
+		"panel_items": {
+			"earnings_today": Config.get_panel_item("earnings_today"),
+			"earnings_month": Config.get_panel_item("earnings_month"),
+			"hourly_rate": Config.get_panel_item("hourly_rate"),
+			"work_progress": Config.get_panel_item("work_progress"),
+			"status": Config.get_panel_item("status")
+		}
+	}
+
+
+func _has_form_changes(form_values: Dictionary) -> bool:
+	var current := _current_settings_snapshot()
+	for key in form_values:
+		if current.get(key) != form_values.get(key):
+			return true
+	return false
+
+
+func _apply_form_values(values: Dictionary) -> bool:
+	for key in [
+		"monthly_salary",
+		"rest_mode",
+		"work_start_time",
+		"work_end_time",
+		"work_hours_per_day",
+		"scale",
+		"opacity",
+		"window_mode",
+		"pure_pet_mode",
+		"debug_mode",
+		"minimize_to_tray"
+	]:
+		if Config.get_value(key) != values[key]:
+			Config.set_value(key, values[key])
+
+	var panel_items: Dictionary = values["panel_items"]
+	for key in panel_items:
+		if Config.get_panel_item(key) != bool(panel_items[key]):
+			Config.set_panel_item(key, bool(panel_items[key]))
+
+	var pet_id := String(values.get("pet_id", ""))
+	if not pet_id.is_empty() and String(Config.get_value("pet_id", "")) != pet_id:
+		Config.set_value("pet_id", pet_id)
+		PetManager.switch_pet(pet_id)
+
+	auto_start_toggle.button_pressed = bool(values.get("auto_start", false))
+	return _apply_auto_start_setting()
+
+
+func _get_selected_pet_id() -> String:
 	var selected := pet_list.get_selected_items()
 	if selected.size() > 0:
 		var pets := PetManager.get_available_pets()
 		if int(selected[0]) < pets.size():
-			var pet_id := pets[int(selected[0])].pet_id
-			Config.set_value("pet_id", pet_id)
-			PetManager.switch_pet(pet_id)
+			return String(pets[int(selected[0])].pet_id)
+	return String(Config.get_value("pet_id", "cat_orange_v2"))
 
-	_apply_auto_start_setting()
-	Config.save()
-	queue_free()
+
+func _set_save_status(message: String) -> void:
+	if save_status_label != null:
+		save_status_label.text = message
+		save_feedback_panel.visible = not message.is_empty()
+		var panel_color := Color(0.918, 0.980, 0.886, 0.98)
+		var border_color := Color(0.427, 0.624, 0.447, 0.42)
+		var text_color := ACCENT_MINT
+		if message.find("失败") >= 0 or message.find("不可用") >= 0:
+			panel_color = Color(1.0, 0.908, 0.858, 0.98)
+			border_color = Color(0.640, 0.278, 0.220, 0.34)
+			text_color = SETTINGS_ERROR
+		elif message.find("重显") >= 0 or message.find("重启") >= 0 or message.find("没有") >= 0:
+			panel_color = Color(1.0, 0.952, 0.842, 0.98)
+			border_color = Color(0.965, 0.714, 0.243, 0.52)
+			text_color = SETTINGS_WARN
+		save_feedback_panel.add_theme_stylebox_override("panel", _stylebox(panel_color, border_color, 1, 12, 12))
+		save_status_label.add_theme_color_override("font_color", text_color)
+	if general_message_label != null:
+		general_message_label.visible = false
+
+
+func _set_general_message(message: String, warning: bool = false) -> void:
+	if general_message_label == null:
+		return
+	general_message_label.text = message
+	general_message_label.visible = not message.is_empty()
+	general_message_label.add_theme_color_override("font_color", SETTINGS_WARN if warning else ACCENT_MINT)
 
 
 func _on_cancel() -> void:
@@ -449,11 +1662,15 @@ func _update_native_status_label() -> void:
 		"可用" if passthrough_ok else "不可用",
 		"可用" if pure_ok else "不可用"
 	]
+	var last_error := String(health.get("last_error", ""))
+	if not pure_ok and not last_error.is_empty():
+		native_status_label.text += "\n不可用原因：%s" % last_error
 	if not pure_ok:
 		pure_pet_mode_toggle.disabled = true
 		pure_pet_mode_toggle.button_pressed = false
 	else:
 		pure_pet_mode_toggle.disabled = false
+	_sync_switch_proxies()
 
 
 func get_v02_control_names() -> Array[String]:
@@ -484,21 +1701,28 @@ func _apply_auto_start_setting() -> bool:
 	actual = Platform.is_auto_start_enabled()
 	Config.set_value("auto_start", actual)
 	auto_start_toggle.button_pressed = actual
-	if general_message_label != null:
-		general_message_label.text = "开机自启设置失败：请使用导出的 LetsMakeMoney.exe 再试。"
+	_sync_switch_proxies()
+	_set_general_message("开机自启设置失败：请使用导出的 LetsMakeMoney.exe 再试。", true)
 	return false
 
 
 func _on_reset_position_pressed() -> void:
 	DragResizeSystem.reset_window_position()
-	if general_message_label != null:
-		general_message_label.text = "窗口位置已重置。"
+	_set_general_message("窗口位置已重置。")
 
 
 func _on_restore_defaults_pressed() -> void:
+	_show_restore_defaults_confirm()
+
+
+func _show_restore_defaults_confirm() -> void:
+	if restore_defaults_confirm_dialog != null:
+		restore_defaults_confirm_dialog.popup_centered()
+
+
+func _restore_display_defaults() -> void:
 	Config.reset_display_defaults()
 	Platform.set_auto_start(false)
 	_load_current_values()
-	if general_message_label != null:
-		general_message_label.text = "显示、窗口、托盘和自启动设置已恢复默认。"
+	_set_general_message("显示、窗口、托盘和自启动设置已恢复默认。")
 	Config.save()

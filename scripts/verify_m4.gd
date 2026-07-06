@@ -112,15 +112,23 @@ func _verify_panel_collapsed_layout() -> bool:
 	await process_frame
 	panel.collapse()
 	await process_frame
-	var label: Label = panel.get_node("Collapsed/EarningsToday")
+	var coin_label: Label = panel.get_node("Collapsed/CollapsedContent/CoinMark")
+	var label: Label = panel.get_node("Collapsed/CollapsedContent/CollapsedValue/EarningsToday")
+	var status_label: Label = panel.get_node("Collapsed/CollapsedContent/CollapsedValue/ShortStatus")
+	var content: Control = panel.get_node("Collapsed/CollapsedContent")
 	var collapsed: Control = panel.get_node("Collapsed")
+	var vertical_center_delta: float = abs((content.position.y + content.size.y * 0.5) - collapsed.size.y * 0.5)
 	var ok := int(label.vertical_alignment) == 1 and \
-		int(label.horizontal_alignment) == 1 and \
+		int(status_label.vertical_alignment) == 1 and \
+		coin_label.text == "¥" and \
 		collapsed.position == Vector2.ZERO and \
-		collapsed.size == Vector2(150, 54)
+		collapsed.size.x >= 210.0 and \
+		collapsed.size.y >= 62.0 and \
+		vertical_center_delta <= 2.0 and \
+		status_label.text.strip_edges() != ""
 	panel.queue_free()
 	if not ok:
-		push_error("Collapsed earnings label must be centered inside the full collapsed panel")
+		push_error("Collapsed panel amount and short status must stay centered inside the full collapsed panel")
 	return ok
 
 

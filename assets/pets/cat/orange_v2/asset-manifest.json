@@ -1,0 +1,112 @@
+{
+  "pet_id": "cat_orange_v2",
+  "status": "accepted_runtime_default",
+  "runtime_default": true,
+  "fallback_pet_id": "cat_orange_v1",
+  "prompt_pack": "doc/v0.4-animation-prompt-pack.md",
+  "asset_log": "doc/v0.4-animation-assets-log.md",
+  "creative_direction": {
+    "identity": "Lightly refine the current orange cat while keeping it recognizable.",
+    "working": "Use keyboard, computer, and coins to communicate working and earning money.",
+    "resting": "Explore sleepy sitting, lying down, and another low-motion resting pose before selection.",
+    "click_model": "Single-click and double-click are base-state extension animations, not generic standalone actions."
+  },
+  "animations": {
+    "idle": {
+      "directory": "assets/pets/cat/orange_v2/idle",
+      "minimum_frames": 4,
+      "loop": true,
+      "status": "generated_imagegen_concept_candidate",
+      "actual_frames": 4,
+      "generator": "scripts/generate_cat_orange_v2_from_concept_sheet.py"
+    },
+    "working": {
+      "directory": "assets/pets/cat/orange_v2/working",
+      "minimum_frames": 6,
+      "loop": true,
+      "status": "generated_imagegen_concept_candidate",
+      "actual_frames": 6,
+      "generator": "scripts/generate_cat_orange_v2_from_concept_sheet.py"
+    },
+    "resting": {
+      "directory": "assets/pets/cat/orange_v2/resting",
+      "minimum_frames": 4,
+      "loop": true,
+      "status": "generated_imagegen_concept_candidate",
+      "actual_frames": 4,
+      "generator": "scripts/generate_cat_orange_v2_from_concept_sheet.py"
+    },
+    "clicked_hold": {
+      "directory": "assets/pets/cat/orange_v2/clicked_hold",
+      "minimum_frames": 4,
+      "loop": true,
+      "status": "generated_imagegen_concept_candidate",
+      "actual_frames": 4,
+      "generator": "scripts/generate_cat_orange_v2_from_concept_sheet.py"
+    },
+    "idle_clicked_single": {
+      "directory": "assets/pets/cat/orange_v2/idle_clicked_single",
+      "minimum_frames": 3,
+      "loop": false,
+      "status": "generated_imagegen_concept_candidate",
+      "actual_frames": 4,
+      "generator": "scripts/generate_cat_orange_v2_from_concept_sheet.py"
+    },
+    "idle_clicked_double": {
+      "directory": "assets/pets/cat/orange_v2/idle_clicked_double",
+      "minimum_frames": 4,
+      "loop": false,
+      "status": "generated_imagegen_concept_candidate",
+      "actual_frames": 5,
+      "generator": "scripts/generate_cat_orange_v2_from_concept_sheet.py"
+    },
+    "working_clicked_single": {
+      "directory": "assets/pets/cat/orange_v2/working_clicked_single",
+      "minimum_frames": 3,
+      "loop": false,
+      "status": "generated_imagegen_concept_candidate",
+      "actual_frames": 3,
+      "generator": "scripts/generate_cat_orange_v2_from_concept_sheet.py"
+    },
+    "working_clicked_double": {
+      "directory": "assets/pets/cat/orange_v2/working_clicked_double",
+      "minimum_frames": 4,
+      "loop": false,
+      "status": "generated_imagegen_concept_candidate",
+      "actual_frames": 4,
+      "generator": "scripts/generate_cat_orange_v2_from_concept_sheet.py"
+    },
+    "resting_clicked_single": {
+      "directory": "assets/pets/cat/orange_v2/resting_clicked_single",
+      "minimum_frames": 3,
+      "loop": false,
+      "status": "generated_imagegen_concept_candidate",
+      "actual_frames": 3,
+      "generator": "scripts/generate_cat_orange_v2_from_concept_sheet.py"
+    },
+    "resting_clicked_double": {
+      "directory": "assets/pets/cat/orange_v2/resting_clicked_double",
+      "minimum_frames": 4,
+      "loop": false,
+      "status": "generated_imagegen_concept_candidate",
+      "actual_frames": 4,
+      "generator": "scripts/generate_cat_orange_v2_from_concept_sheet.py"
+    }
+  },
+  "batches": [
+    {
+      "id": "20260704-cutout-v1-derived",
+      "tool": "Pillow deterministic cutout fallback",
+      "source": "assets/pets/cat_orange_v1/frames",
+      "status": "generated",
+      "notes": "Derived v2 candidate frames from v1 orange cat, adding working props, rest symbols, click sparks, and minimum frame counts."
+    },
+    {
+      "id": "20260704-imagegen-concept-derived",
+      "tool": "Image generation concept sheet + crop normalization",
+      "source": "assets/pets/cat/orange_v2/_review/imagegen_concept_sheet_20260704.png",
+      "status": "generated",
+      "notes": "Derived the v2 candidate from a base six-pose concept sheet plus dedicated click-action sheets. Idle now uses the user-approved slim neutral reference. Idle single-click uses the user-provided two-frame replacement sheet for frames 2 and 3. Idle double-click is now a five-frame sequence: neutral -> crouch -> mirrored left-jump -> high-resolution historical r1c4 crouch frame -> neutral. Working/resting click extensions use the shorter action-pose feedback from the click-action concept sheet. Background removal uses edge-connected flood fill/chroma-key removal to preserve white fur and remove connected white, pale-gray, or green-screen background pixels."
+    }
+  ]
+}
