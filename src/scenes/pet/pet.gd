@@ -11,6 +11,7 @@ var _click_count: int = 0
 var _click_timer: float = 0.0
 var _long_press_triggered: bool = false
 var _dragging: bool = false
+var _drag_started_from_hold: bool = false
 var _drag_start_window_pos: Vector2i = Vector2i.ZERO
 var _drag_start_screen_mouse: Vector2i = Vector2i.ZERO
 var _drag_start_viewport_mouse: Vector2 = Vector2.ZERO
@@ -325,27 +326,36 @@ func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
 
 func _start_drag() -> void:
 	_cancel_pending_return()
+	_drag_started_from_hold = _long_press_triggered
 	_dragging = true
 	_click_count = 0
 	_click_timer = 0.0
-	_long_press_triggered = false
+	if not _drag_started_from_hold:
+		_long_press_triggered = false
 	Platform.write_boot_log("Pet: interaction=drag_start base=%s window=%s mouse=%s" % [
 		PetManager.base_state_to_anim_name(PetManager.current_base_state),
 		str(_drag_start_window_pos),
 		str(DisplayServer.mouse_get_position())
 	])
-	PetManager.request_interaction(PetManager.PetInteraction.HOVER)
+	if _drag_started_from_hold:
+		PetManager.request_interaction(PetManager.PetInteraction.CLICKED_HOLD)
+	else:
+		PetManager.request_interaction(PetManager.PetInteraction.HOVER)
 
 
 func _end_drag() -> void:
+	var should_return_after_hold := _drag_started_from_hold or _long_press_triggered
 	_dragging = false
 	DragResizeSystem.save_position()
 	_long_press_triggered = false
+	_drag_started_from_hold = false
 	Platform.write_boot_log("Pet: interaction=drag_end window=%s mouse=%s" % [
 		str(get_window().position),
 		str(DisplayServer.mouse_get_position())
 	])
-	if _hover_entered:
+	if should_return_after_hold:
+		_schedule_return_after_hold()
+	elif _hover_entered:
 		PetManager.request_interaction(PetManager.PetInteraction.HOVER)
 	else:
 		PetManager.return_to_auto_state()
@@ -502,6 +512,7 @@ func _reset_press_tracking() -> void:
 	_click_count = 0
 	_click_timer = 0.0
 	_long_press_triggered = false
+	_drag_started_from_hold = false
 	if _dragging:
 		_dragging = false
 

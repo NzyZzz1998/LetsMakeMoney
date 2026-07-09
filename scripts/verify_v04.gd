@@ -28,7 +28,7 @@ func _run() -> void:
 	_check_scale_variant_layout()
 	_check_window_recovery_fallbacks()
 	_check_settings_information_architecture()
-	_check_wizard_warm_widget_polish()
+	await _check_wizard_warm_widget_polish()
 	await _check_settings_display_status_layout()
 	_check_settings_save_feedback()
 	_check_settings_restore_and_debug_help()
@@ -359,13 +359,18 @@ func _check_pet_interaction_priority() -> void:
 	_assert(script.contains("DragResizeSystem.move_window_to(_drag_start_window_pos + delta)"), "drag should move window by the same screen delta")
 
 	var start_drag_body := _function_body(script, "_start_drag")
+	var end_drag_body := _function_body(script, "_end_drag")
 	var motion_body := _function_body(script, "_handle_mouse_motion")
 	var right_button_body := _function_body(script, "_handle_mouse_button")
 	var mouse_entered_body := _function_body(script, "_on_mouse_entered")
 	var mouse_exited_body := _function_body(script, "_on_mouse_exited")
 	var process_body := _function_body(script, "_process")
-	_assert(not start_drag_body.contains("CLICKED_HOLD"), "drag start must not request clicked_hold; drag has priority over hold")
-	_assert(not motion_body.contains("CLICKED_HOLD"), "mouse motion during drag must not request clicked_hold")
+	_assert(script.contains("_drag_started_from_hold"), "pet drag should remember whether it started after long-press feedback")
+	_assert(start_drag_body.contains("_drag_started_from_hold = _long_press_triggered"), "drag start should preserve long-press state before changing drag flags")
+	_assert(start_drag_body.contains("PetManager.PetInteraction.CLICKED_HOLD"), "drag after long press should keep clicked_hold feedback instead of restoring hover immediately")
+	_assert(end_drag_body.contains("_drag_started_from_hold"), "drag end should branch on whether the drag started from hold")
+	_assert(end_drag_body.contains("_schedule_return_after_hold()"), "drag end after hold should use the normal hold return path")
+	_assert(not motion_body.contains("CLICKED_HOLD"), "mouse motion during drag must not request clicked_hold directly")
 	_assert(script.contains("func _register_click_release"), "click release should be centralized for single/double arbitration")
 	_assert(script.contains("func _fire_click_interaction"), "single/double feedback should use one firing helper")
 	_assert(right_button_body.contains("MOUSE_BUTTON_RIGHT"), "right-click branch should be explicit")
@@ -743,6 +748,9 @@ func _check_settings_information_architecture() -> void:
 
 func _check_wizard_warm_widget_polish() -> void:
 	var wizard_script := FileAccess.get_file_as_string("res://src/scenes/wizard/wizard_dialog.gd")
+	var wizard_scene := FileAccess.get_file_as_string("res://src/scenes/wizard/wizard_dialog.tscn")
+	var drag_script := FileAccess.get_file_as_string("res://src/autoload/drag_resize_system.gd")
+	var main_script := FileAccess.get_file_as_string("res://src/scenes/main/main.gd")
 	for required_text in [
 		"WizardSurface",
 		"WizardRoot",
@@ -760,9 +768,60 @@ func _check_wizard_warm_widget_polish() -> void:
 		"Microsoft YaHei UI"
 	]:
 		_assert(wizard_script.contains(required_text), "Wizard should share warm-widget visual system: %s" % required_text)
-	_assert(wizard_script.contains("get_ok_button().visible = false"), "Wizard should keep its custom navigation buttons")
+	_assert(wizard_script.contains("extends Control"), "Wizard should be hosted as a single-window Control content view")
+	_assert(not wizard_script.contains("extends ConfirmationDialog"), "Wizard should not open as a nested ConfirmationDialog")
+	_assert(wizard_scene.contains("type=\"Control\""), "Wizard scene root should be Control")
+	_assert(wizard_script.contains("WizardActionRow"), "Wizard should keep visible custom navigation buttons")
+	_assert(drag_script.contains("const WIZARD_DIALOG_SIZE := Vector2i(620, 460)"), "Wizard modal host should be further compact for v0.4 reconfiguration")
+	_assert(wizard_script.contains("custom_minimum_size = Vector2(620, 460)"), "Wizard content should match the compact modal host size")
+	_assert(wizard_script.contains("WizardSalaryRows"), "Wizard salary page should use compact setting rows instead of sparse stacked controls")
+	_assert(wizard_script.contains("WizardConfirmRows"), "Wizard confirm page should use compact summary rows instead of one sparse text block")
+	_assert(wizard_script.contains("func _add_field_row"), "Wizard should have reusable compact row layout for form fields")
+	_assert(wizard_script.contains("func _add_summary_row"), "Wizard should have reusable compact row layout for summary fields")
+	_assert(wizard_script.contains("func _style_option_popup"), "Wizard OptionButton popups should be themed to warm paper style")
+	_assert(wizard_script.contains("func _style_option_button"), "Wizard OptionButton should use the same compact warm body styling as Settings")
+	_assert(wizard_script.contains("option.get_popup()"), "Wizard OptionButton should style its popup menu instead of using the dark default")
+	_assert(wizard_script.contains("popup.transparent_bg = true"), "Wizard OptionButton popup should avoid dark system popup corners")
+	_assert(wizard_script.contains("popup.add_theme_icon_override(\"radio_checked\", _make_popup_check_icon(true))"), "Wizard OptionButton popup should replace default radio dots with warm check icons")
+	_assert(wizard_script.contains("option.add_theme_icon_override(\"arrow\", _make_dropdown_arrow())"), "Wizard OptionButton should use a warm dropdown arrow instead of the default icon")
+	_assert(wizard_script.contains("line_edit.add_theme_stylebox_override(\"read_only\""), "Wizard read-only work-hours SpinBox should be styled like Settings")
+	_assert(wizard_script.contains("WizardPetRows"), "Wizard pet selection should expose a compact Settings-like pet selection block")
+	_assert(wizard_script.contains("item_list.add_theme_stylebox_override(\"selected\""), "Wizard pet ItemList should use Settings-like selected styling")
+	_assert(not wizard_script.contains("summary_label.text = \"月薪 ¥%d\\n"), "Wizard confirm page should not rely on a multiline sparse summary label")
 	_assert(wizard_script.contains("Config.set_value(\"monthly_salary\""), "Wizard should keep existing salary save flow")
 	_assert(wizard_script.contains("PetManager.get_available_pets"), "Wizard should keep existing pet selection flow")
+	var open_wizard_body := _function_body(drag_script, "_open_wizard")
+	_assert(open_wizard_body.contains("var wizard_view: Control"), "Menu wizard should be hosted as a Control content view")
+	_assert(open_wizard_body.contains("wizard_view.set_anchors_preset(Control.PRESET_FULL_RECT)"), "Menu wizard should fill the host window")
+	_assert(not open_wizard_body.contains("popup_centered"), "Menu wizard should not open as a nested popup")
+	var first_run_body := _function_body(main_script, "_show_wizard")
+	_assert(first_run_body.contains("var wizard_view: Control"), "First-run wizard should be hosted as a Control content view")
+	_assert(first_run_body.contains("wizard_view.set_anchors_preset(Control.PRESET_FULL_RECT)"), "First-run wizard should fill the host window")
+	_assert(not first_run_body.contains("popup_centered"), "First-run wizard should not open as a nested popup")
+
+	var scene := load("res://src/scenes/wizard/wizard_dialog.tscn")
+	_assert(scene != null, "wizard_dialog.tscn should load for layout check")
+	if scene == null:
+		return
+	var wizard: Control = scene.instantiate()
+	wizard.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	wizard.size = Vector2(620, 460)
+	root.add_child(wizard)
+	await process_frame
+	await process_frame
+	var action_row := wizard.find_child("WizardActionRow", true, false) as Control
+	var salary_rows := wizard.find_child("WizardSalaryRows", true, false) as Control
+	var pet_rows := wizard.find_child("WizardPetRows", true, false) as Control
+	var confirm_rows := wizard.find_child("WizardConfirmRows", true, false) as Control
+	var next_button := wizard.get("next_btn") as Button
+	_assert(action_row != null and action_row.visible, "Wizard action row should be visible in the host window")
+	_assert(salary_rows != null, "Wizard salary page should expose compact salary rows for layout verification")
+	_assert(pet_rows != null, "Wizard pet page should expose compact pet rows for layout verification")
+	_assert(confirm_rows != null, "Wizard confirm page should expose compact summary rows for layout verification")
+	_assert(next_button != null and next_button.visible, "Wizard Next button should be visible on the welcome step")
+	if action_row != null:
+		_assert(action_row.position.y + action_row.size.y <= wizard.size.y, "Wizard action row should fit inside the compact host window")
+	wizard.queue_free()
 
 
 func _check_settings_display_status_layout() -> void:
@@ -886,6 +945,8 @@ func _check_runtime_refresh_throttling() -> void:
 		"_last_opacity",
 		"_last_taskbar_visible",
 		"_last_topmost",
+		"_invalidate_taskbar_visibility_cache",
+		"_reapply_tray_restore_window_policy",
 		"_queue_mouse_passthrough_refresh",
 		"_flush_mouse_passthrough_refresh",
 		"_apply_config_change_scope",
@@ -895,7 +956,17 @@ func _check_runtime_refresh_throttling() -> void:
 		_assert(main_script.contains(required_text), "Main runtime throttling missing text: %s" % required_text)
 
 	var config_changed_body := _function_body(main_script, "_on_config_changed")
+	var tray_toggle_body := _function_body(main_script, "_on_tray_toggle_requested")
+	var invalidate_body := _function_body(main_script, "_invalidate_taskbar_visibility_cache")
+	var tray_restore_body := _function_body(main_script, "_reapply_tray_restore_window_policy")
 	_assert(config_changed_body.contains("_apply_config_change_scope"), "Config changes should be routed through a scope-aware handler")
+	_assert(invalidate_body.contains("_last_taskbar_visible = null"), "Taskbar visibility cache should be invalidated when native window state may have changed")
+	_assert(tray_toggle_body.contains("_reapply_tray_restore_window_policy()"), "Tray restore should run a dedicated native window policy reapply")
+	_assert(tray_restore_body.contains("_invalidate_taskbar_visibility_cache(\"tray_restore\")"), "Tray restore should invalidate taskbar cache before reapplying pure pet mode")
+	_assert(tray_restore_body.contains("_setup_window()"), "Tray restore should reapply native pet window policy after native show")
+	_assert(tray_restore_body.contains("_apply_pure_pet_mode()"), "Tray restore should reapply pure pet mode after native show")
+	_assert(tray_restore_body.contains("_invalidate_taskbar_visibility_cache(\"tray_restore_post_frame\")"), "Tray restore should re-check taskbar policy after one frame")
+	_assert(tray_restore_body.contains("pure_pet_mode=%s"), "Tray restore should log pure_pet_mode state for manual diagnosis")
 	_assert(not config_changed_body.contains("SalaryEngine.reload()\n\t_apply_scale_opacity()"), "Salary changes should not always run full window refresh pipeline")
 	_assert(main_script.contains("_queue_mouse_passthrough_refresh(\"panel_layout_changed\")"), "Panel layout changes should queue passthrough refresh")
 	_assert(main_script.contains("_queue_mouse_passthrough_refresh(\"panel_reposition\")"), "Panel reposition should queue passthrough refresh")
@@ -941,13 +1012,18 @@ func _check_v04_automation_coverage() -> void:
 func _check_prototype_v04_scope() -> void:
 	var prototype := FileAccess.get_file_as_string("res://doc/prototypes/index.html")
 	for screen_id in [
-		"screen-v04-default",
-		"screen-v04-panel",
-		"screen-v04-settings",
-		"screen-v04-release"
+		"id=\"overview\"",
+		"id=\"desktop\"",
+		"id=\"panel\"",
+		"id=\"menu\"",
+		"id=\"settings\"",
+		"id=\"wizard\"",
+		"id=\"debug\"",
+		"id=\"release\""
 	]:
-		_assert(prototype.contains(screen_id), "prototype missing v0.4 screen: %s" % screen_id)
+		_assert(prototype.contains(screen_id), "prototype missing current product screen: %s" % screen_id)
 
+	_assert(prototype.contains("原型不再按版本切屏"), "prototype should explain the current non-versioned structure")
 	_assert(not prototype.contains("screen-v04-theme"), "prototype should not expose v0.4 theme entry")
 
 

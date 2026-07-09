@@ -519,6 +519,40 @@ func _set_taskbar_visible_cached(visible: bool) -> bool:
 	return ok
 
 
+func _invalidate_taskbar_visibility_cache(reason: String) -> void:
+	_last_taskbar_visible = null
+	Platform.write_debug_log("Main._invalidate_taskbar_visibility_cache: reason=%s" % reason)
+
+
+func _reapply_tray_restore_window_policy() -> void:
+	_last_topmost = null
+	_invalidate_taskbar_visibility_cache("tray_restore")
+	Platform.write_boot_log("Main._reapply_tray_restore_window_policy: pure_pet_mode=%s visible=%s window_prop=%s" % [
+		str(Config.get_value("pure_pet_mode", false)),
+		str(DragResizeSystem.is_window_visible()),
+		str(get_window().visible)
+	])
+	_set_primary_content_visible(true)
+	_setup_window()
+	_restore_position()
+	_apply_scale_opacity()
+	_position_panel()
+	_apply_pure_pet_mode()
+	_request_mouse_passthrough_refresh("tray_restore")
+
+	await get_tree().process_frame
+	if not DragResizeSystem.is_window_visible():
+		return
+	_invalidate_taskbar_visibility_cache("tray_restore_post_frame")
+	Platform.write_boot_log("Main._reapply_tray_restore_window_policy: post_frame pure_pet_mode=%s visible=%s window_prop=%s" % [
+		str(Config.get_value("pure_pet_mode", false)),
+		str(DragResizeSystem.is_window_visible()),
+		str(get_window().visible)
+	])
+	_apply_pure_pet_mode()
+	_request_mouse_passthrough_refresh("tray_restore_post_frame")
+
+
 func _on_config_changed() -> void:
 	var changed_keys: Array[String] = []
 	if Config.has_method("get_last_changed_keys"):
@@ -778,18 +812,23 @@ func _set_debug_status(text: String) -> void:
 
 func _show_wizard() -> void:
 	await get_tree().process_frame
-	DragResizeSystem.prepare_modal_window(DragResizeSystem.SETTINGS_DIALOG_SIZE)
+	DragResizeSystem.prepare_modal_window(DragResizeSystem.WIZARD_DIALOG_SIZE)
 	var wizard_scene := load("res://src/scenes/wizard/wizard_dialog.tscn")
 	if wizard_scene == null:
 		push_error("Wizard scene not found")
 		return
-	var dlg: ConfirmationDialog = wizard_scene.instantiate()
-	get_window().add_child(dlg)
-	dlg.tree_exited.connect(_on_modal_closed)
-	if dlg.has_signal("finished"):
-		dlg.finished.connect(_on_wizard_done)
-	dlg.popup_centered()
-	dlg.grab_focus()
+	var wizard_view: Control = wizard_scene.instantiate()
+	get_window().title = "开始配置"
+	get_window().add_child(wizard_view)
+	wizard_view.set_anchors_preset(Control.PRESET_FULL_RECT)
+	wizard_view.offset_left = 0
+	wizard_view.offset_top = 0
+	wizard_view.offset_right = 0
+	wizard_view.offset_bottom = 0
+	wizard_view.tree_exited.connect(_on_modal_closed)
+	if wizard_view.has_signal("finished"):
+		wizard_view.finished.connect(_on_wizard_done)
+	wizard_view.grab_focus()
 
 
 func _on_wizard_done() -> void:
@@ -836,7 +875,7 @@ func _on_tray_toggle_requested() -> void:
 	DragResizeSystem.toggle_window_visible()
 	var visible_after := DragResizeSystem.is_window_visible()
 	if visible_after:
-		_schedule_runtime_mode_reapply()
+		_reapply_tray_restore_window_policy()
 	Platform.update_tray_menu(visible_after)
 	Platform.write_boot_log("Main._on_tray_toggle_requested: visible_after=%s window_prop=%s" % [str(visible_after), str(get_window().visible)])
 

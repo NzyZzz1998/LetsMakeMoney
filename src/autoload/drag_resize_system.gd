@@ -8,6 +8,7 @@ signal popup_closed
 const MODAL_WINDOW_SIZE := Vector2i(700, 530)
 const MODAL_WINDOW_MARGIN := 24
 const SETTINGS_DIALOG_SIZE := Vector2i(880, 640)
+const WIZARD_DIALOG_SIZE := Vector2i(620, 460)
 const MENU_FONT_NAMES := ["Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI"]
 const SURFACE_PAPER := Color(1.0, 0.965, 0.878, 0.99)
 const SURFACE_PAPER_STRONG := Color(1.0, 0.945, 0.792, 1.0)
@@ -355,17 +356,22 @@ func _open_wizard() -> void:
 	if _window == null:
 		return
 	set_window_visible(true)
-	prepare_modal_window(SETTINGS_DIALOG_SIZE)
+	prepare_modal_window(WIZARD_DIALOG_SIZE)
 	var wizard_scene := load("res://src/scenes/wizard/wizard_dialog.tscn")
 	if wizard_scene == null:
 		OS.alert("首次启动向导加载失败。", "LetsMakeMoney")
 		return
-	var dlg: ConfirmationDialog = wizard_scene.instantiate()
-	_active_modal = dlg
-	_window.add_child(dlg)
-	dlg.tree_exited.connect(_on_modal_tree_exited)
-	dlg.popup_centered(SETTINGS_DIALOG_SIZE)
-	dlg.grab_focus()
+	var wizard_view: Control = wizard_scene.instantiate()
+	_window.title = "开始配置"
+	_active_modal = wizard_view
+	_window.add_child(wizard_view)
+	wizard_view.set_anchors_preset(Control.PRESET_FULL_RECT)
+	wizard_view.offset_left = 0
+	wizard_view.offset_top = 0
+	wizard_view.offset_right = 0
+	wizard_view.offset_bottom = 0
+	wizard_view.tree_exited.connect(_on_modal_tree_exited)
+	wizard_view.grab_focus()
 
 
 func prepare_modal_window(target_size: Vector2i = MODAL_WINDOW_SIZE) -> void:

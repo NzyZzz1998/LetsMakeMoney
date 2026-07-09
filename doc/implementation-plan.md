@@ -1,14 +1,45 @@
-# LetsMakeMoney 多版本实施计划
+# LetsMakeMoney 实施计划
+
+> **当前 v0.4 快速入口**: 本文件是跨版本原始实施计划。v0.4 已拆分到 `doc/releases/v0.4/implementation-plan.md`，接手时请先读 `doc/current.md` 和 `doc/releases/v0.4/README.md`。
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 按版本推进 LetsMakeMoney Windows 桌面宠物应用：v0.1 Beta 完成可运行产品雏形，v0.2 Beta 完成稳定候选与橘猫/设置/自启动链路，v0.3 Beta 通过 GDExtension / 原生插件恢复真托盘、透明无边框、点击穿透、关闭隐藏到托盘和可找回优先的纯桌宠模式，v0.4 Beta 作为大型体验优化版本继续打磨动画、使用体验、窗口细节、设置体验和发布质量。
+**Goal:** 以当前 v0.4 Beta 测试态为主线推进 LetsMakeMoney Windows 桌面宠物应用。v0.1-v0.3 保留为历史实施记录；当前实现重点是橘猫 v2、真实桌宠窗口、Panel 暖色便签、右键菜单/托盘、紧凑 Settings、Wizard、Debug 验证和发布包质量。
 
 **Architecture:** 采用 Godot Autoload 单例模式。6 个全局模块协作：`Platform`（平台抽象工厂）→ `Config`（持久化）→ `SalaryEngine`（计算）→ `PetManager`（状态机中枢，唯一驱动动画）+ `PanelSystem`（面板交互）+ `DragResizeSystem`（拖拽与右键菜单）。v0.3 在 `PlatformInterface` 下新增 Windows native bridge，Godot 侧只调用平台抽象，Win32 托盘、透明窗口、点击穿透和任务栏/Alt+Tab 控制集中在 GDExtension / 原生插件内。
 
 **Tech Stack:** Godot 4.7 / GDScript / GDExtension / C++ / Win32 API / Windows x86_64 / PowerShell 验证脚本 / MSYS2 UCRT64
 
 **项目路径:** `<PROJECT_ROOT>\`
+
+---
+
+## 当前实施口径（2026-07-08）
+
+从本轮开始，原型任务不再维护“v0.1-v0.4 分版本切屏”。当前唯一交互原型入口为 `doc/prototypes/index.html`，结构按真实功能模块组织：
+
+- 总览
+- 桌宠主界面
+- Panel 便签
+- 右键菜单与托盘
+- 设置面板
+- 首次启动向导
+- Debug 与验证
+- 发布包
+
+### 当前已完成的文档/原型同步任务
+
+- [x] 重置 `doc/prototypes/index.html` 为当前状态单一交互原型。
+- [x] 重写 `doc/prototypes/prototype-spec.md`，说明当前原型范围、交互和验收口径。
+- [x] 重写 `doc/v0.4-ui-polish-spec.md`，将 UI 方向统一为温暖桌面小挂件 / 橘猫金币小票便签风。
+- [x] 在 PRD 中补充当前文档同步说明，明确历史版本仅作背景。
+
+### 当前后续实施重点
+
+- [ ] 继续让 Godot Settings 实现贴近新版紧凑偏好设置原型。
+- [ ] 继续核对 Panel、右键菜单、托盘图标与新版原型的一致性。
+- [ ] 用 `doc/verification/v0.4.md` 重新跑一轮人工验证。
+- [ ] 在验证通过后再决定是否合并 `test` 到 `main` 或创建正式 tag。
 
 ---
 
@@ -6662,7 +6693,7 @@ Get-FileHash ".\letsmakemoney_native.dll" -Algorithm SHA256
 - Panel 折叠态信息结构。
 - Panel 展开态信息层级。
 - 设置窗口五个分类的职责。
-- 设置窗口参考 Windows 11 设置应用：左侧分类导航、右侧卡片式设置项、顶部搜索入口或禁用占位。
+- 设置窗口参考当前紧凑暖色偏好面板：顶部中文 tabs、右上关闭按钮、中部行式设置、底部保存/取消 action bar。
 - 右键菜单一级项与二级子菜单结构。
 - 托盘图标、窗口图标、exe 图标和关于窗口图标的尺寸与识别度要求。
 - 保存反馈文案。
@@ -6675,25 +6706,23 @@ Get-FileHash ".\letsmakemoney_native.dll" -Algorithm SHA256
 
 ---
 
-#### Task V04-M6.2: 完善 v0.4 UI polish 可交互原型
+#### Task V04-M6.2: 重置当前状态可交互原型
 
 **Files:**
 - Modify: `doc/prototypes/index.html`
 - Modify: `doc/prototypes/prototype-spec.md`
 
-- [ ] **Step 1: 增加 v0.4 UI polish 原型屏**
+- [x] **Step 1: 重置为当前状态单一原型**
 
-原型需要有独立入口，用于评审：
-- 默认桌宠形态。
-- Panel 折叠态。
-- Panel 展开态。
-- Win11 风格设置窗口关键状态。
-- 右键菜单二级入口。
-- 托盘/窗口/exe 图标尺寸预览。
-- 保存反馈。
-- 状态文案。
-
-该原型屏不替代 v0.1-v0.3 既有原型，也不把旧原型删除。
+原型不再按 v0.1-v0.4 历史版本切屏，而是按当前真实功能模块组织：
+- 总览。
+- 桌宠主界面。
+- Panel 便签。
+- 右键菜单与托盘。
+- 设置面板。
+- 首次启动向导。
+- Debug 与验证。
+- 发布包。
 
 - [ ] **Step 2: 增加 Panel 状态切换**
 
@@ -6739,16 +6768,16 @@ v0.4 UI polish 屏至少提供：
 
 反馈必须显示在设置窗口内部，不依赖可能被桌宠窗口遮挡的外部弹层。
 
-- [ ] **Step 5: 增加设置分类导航预览交互**
+- [x] **Step 5: 增加设置分类预览交互**
 
-原型中的设置预览需要从顶部小 Tab 过渡为左侧分类导航 + 右侧卡片内容，并能切换：
+原型中的设置预览使用顶部中文 tabs + 当前页内容 + action bar，并能切换：
 
 ```text
-Salary
-Pet
-Display
-Panel
-General
+工资
+桌宠
+显示
+面板
+通用
 ```
 
 不得新增：
@@ -6874,19 +6903,18 @@ Panel polish 不能破坏：
 - Modify if needed: `src/scenes/settings/settings_dialog.tscn`
 - Modify: `doc/verification/v0.4.md`
 
-- [ ] **Step 1: 改为 Win11 风格设置窗口结构**
+- [ ] **Step 1: 收敛为紧凑暖色偏好设置面板**
 
-设置窗口整体参考 Windows 11 设置应用的信息架构，而不是继续沿用顶部 Tab：
+设置窗口整体参考当前原型，不再继续沿用大型 Win11 后台式结构：
 
 ```text
-顶部：返回 / 标题 / 查找设置占位
-左侧：Salary / Pet / Display / Panel / General 分类导航
-右侧：当前分类的卡片式设置项
-底部或右上：取消 / 保存
-内部：保存反馈条
+顶部：工资 / 桌宠 / 显示 / 面板 / 通用 tabs + 右上关闭按钮
+中部：当前页标题 + section + row
+底部：取消 / 保存 action bar
+内部：轻量保存反馈
 ```
 
-当前不实现真实搜索时，搜索入口应为禁用占位或仅作为视觉占位，不影响键盘焦点、输入控件和保存流程。
+当前不实现搜索入口。若后续恢复搜索，必须低权重，不抢占设置主体空间。
 
 - [ ] **Step 2: 保持工具化设置窗口**
 

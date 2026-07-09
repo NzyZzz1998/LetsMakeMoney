@@ -1,10 +1,25 @@
 # LetsMakeMoney 赚钱模拟器 — 总体进度
 
+> **当前 v0.4 快速入口**: 本文件是跨版本原始进度记录。v0.4 已拆分到 `doc/releases/v0.4/progress.md`，接手时请先读 `doc/current.md` 和 `doc/releases/v0.4/README.md`。
+
 > 本文档作为整个项目的总体进度跟踪，按版本和模块组织 Vibe Coding 最小可执行任务。每个模块对应一组 checklist，完成时勾选。完整实施细节参见 `implementation-plan.md`，需求细节参见 `LetsMakeMoneyPRD.md`。
 
-**最后更新**: 2026-07-05
-**当前阶段**: v0.3 Beta 已完成并进入 `v0.3beta` 发布状态；v0.4 Beta 已启动，V04-M0 原型与体验规格已完成，V04-M1 动画规格、素材目录、提示词执行集、素材记录、橘猫 v2 beta 默认资源接入和自动/手动验证骨架已完成，V04-M2 交互手感首轮优化已完成，V04-M3 已完成点击穿透调试、刷新日志、Panel 边缘定位、刷新节流和窗口可找回兜底验证，V04-M4 设置体验首轮完成，V04-M5 日志分层、自动验证覆盖、no-op native 缓存、发布包脚本、checksum 校验、发布包烟测和 60 秒稳定性烟测完成；V04-M6 UI polish 已纳入正式范围，已完成 Win11 风格设置窗口、设置项卡片化、设置页非装饰化门禁、右键二级菜单、托盘/窗口图标、关于窗口图标、Panel polish 二轮尺寸/字号提升、设置窗口 borderless 自绘宿主、折叠态布局门禁、UI polish 专项验证文档和发布包刷新验证
-**当前里程碑**: Windows native bridge 已可通过 MSYS2 UCRT64 构建，真托盘、透明窗口、点击穿透、右键菜单、关闭隐藏到托盘、设置入口、导出烟测和手动复测均已通过；v0.4 已将当前橘猫 v2 imagegen concept 派生素材接入默认体验并保留 `cat_orange_v1` 回退，下一步优先推进 V04-M6 UI polish 实现与验证，再进入多缩放人工验证、真实桌面长时间体验复测和 ComfyUI 最小候选 Spike
+**最后更新**: 2026-07-08
+**当前阶段**: v0.4 Beta 测试态，当前代码已推送到 GitHub `test` 分支，尚未合并 `main`。本轮已重置本地交互原型，不再按历史版本区分原型屏，而是按当前功能模块组织：总览、桌宠主界面、Panel、右键菜单与托盘、设置、向导、Debug、发布包。
+**当前里程碑**: Windows native bridge、真托盘、透明窗口、点击穿透、右键菜单、关闭隐藏到托盘、设置入口、橘猫 v2 默认资源、Panel 暖色便签、右键二级菜单、紧凑 Settings 方向和发布包脚本均已形成测试态。下一步以 `doc/prototypes/index.html`、`doc/v0.4-ui-polish-spec.md` 和 `doc/verification/v0.4.md` 为准进行手动验证与视觉复测。
+
+## 当前原型与文档同步进度（2026-07-08）
+
+- [x] 将 `doc/prototypes/index.html` 重置为当前状态单一交互原型。
+- [x] 原型不再区分 v0.1 / v0.2 / v0.3 / v0.4 版本屏。
+- [x] 原型覆盖当前所有主要功能：桌宠、Panel、菜单/托盘、Settings、Wizard、Debug、发布包。
+- [x] 原型包含关键按钮能力说明和可点击状态切换。
+- [x] 重写 `doc/prototypes/prototype-spec.md`，说明当前原型范围、交互、配置字段和验收口径。
+- [x] 重写 `doc/v0.4-ui-polish-spec.md`，统一为温暖桌面小挂件 / 橘猫金币小票便签风。
+- [x] 在 `doc/LetsMakeMoneyPRD.md` 中补充当前文档同步说明。
+- [x] 在 `doc/implementation-plan.md` 中补充当前实施口径和后续任务。
+- [ ] 基于新版原型继续对照 Godot Settings、Wizard、Panel、右键菜单的真实截图。
+- [ ] 完成 v0.4 手动验证并记录结果。
 
 ---
 
@@ -15,7 +30,7 @@
 | v0.1 | Beta | Windows | ✅ Beta 调试窗口版已打包归档 |
 | v0.2 | Beta | Windows | 🧪 稳定候选；核心交互/设置/自启/素材/验证已完成，真实托盘与透明穿透暂缓 |
 | v0.3 | Beta | Windows x86_64 | ✅ 已完成 native bridge、真托盘控制器、透明窗口控制器、点击穿透区域模型、右键菜单修复、纯桌宠门禁、设置修正、构建脚本、导出烟测和手动验证复测；发布 tag 为 `v0.3beta` |
-| v0.4 | Beta | Windows x86_64 | 🚧 进行中；大型体验优化版本，V04-M0-M5 首轮完成，V04-M6 UI polish 已新增为正式模块，重点推进 Win11 风格设置窗口、右键二级菜单、Panel 信息层级和托盘/窗口图标优化 |
+| v0.4 | Beta | Windows x86_64 | 🚧 测试态；大型体验优化版本，当前位于 GitHub `test` 分支。V04-M0-M6 已形成测试实现，当前重点转为新版单一交互原型、紧凑暖色 Settings、Panel/右键菜单一致性、图标清晰度和最终手动验证 |
 | v1.0 | 正式版 | Windows | 🗓 未开始 |
 | v2.0 | 跨平台 | + macOS | 🗓 未开始 |
 | v3.0 | 移动端 | + iOS/Android | 🗓 未开始 |
@@ -721,10 +736,10 @@ v0.4 Beta 是 v0.3 原生能力完成后的大型体验优化版本。根据 PRD
 | **V04-M3** | 窗口、点击穿透与 Panel 打磨 | ✅ 首轮完成 | 20/20 |
 | **V04-M4** | 设置体验与保存反馈 | ✅ 首轮完成 | 17/17 |
 | **V04-M5** | 性能、稳定性与发布包 | ✅ 自动验证完成 | 19/19 |
-| **V04-M6** | UI polish 与交互原型完善 | 🚧 Panel、右键二级菜单、Win11 设置窗口结构、设置卡片化、图标资源、右键菜单视觉质量、设置工具按钮和 UI polish 验证项已完成自动门禁；子菜单边缘避让和完整 UI polish 手动复测仍待确认 | 49/51 |
+| **V04-M6** | UI polish 与交互原型完善 | 🚧 Panel、右键二级菜单、紧凑暖色 Settings、图标资源、右键菜单视觉质量、设置工具按钮和 UI polish 验证项已形成测试态；新版单一原型已重置，完整 UI polish 手动复测仍待确认 | 50/52 |
 | **V04-DOC** | v0.4 验证文档与发布记录 | 🚧 进行中 | 8/9 |
 
-**v0.4 总进度**: 181/185（97.84%；V04-M0 完成，V04-M1 动画规格、v2 素材目录、素材记录、提示词执行集、asset manifest、cutout 工程候选帧、Godot 资源构建器、SpriteFrames / PetResource 资源、缺帧门禁、v0.3 资源回退策略、素材生成产能路线文档、ComfyUI 环境验证和橘猫 v2 beta 默认接入完成；cutout 批次已被人工拒绝为最终美术候选，当前默认使用 imagegen concept 派生素材并保留 `cat_orange_v1` 回退；V04-M2 交互手感首轮完成，V04-M3 窗口、点击穿透、Panel 边缘定位、折叠态居中、可找回兜底和 50%-200% 缩放边界验证首轮完成，V04-M4 设置体验首轮完成，V04-M5 日志分层、自动验证覆盖、no-op native 缓存、Panel 刷新节流验证、发布包脚本、checksum 校验、发布包烟测和 60 秒 release 稳定性烟测完成；V04-M6 UI polish 已完成 PRD/规格/实施计划/Progress 基础同步，完成 Win11 风格设置窗口、右键二级菜单、多尺寸图标预览和 Panel polish 的交互原型更新，并完成 Godot Panel polish、右键菜单二级入口、Win11 设置窗口结构、设置项卡片化、设置页非装饰化门禁、设置窗口工具按钮精修、右键菜单紧凑清晰主题、多尺寸图标资源、关于窗口图标、折叠态布局门禁、UI polish 专项验证文档和发布包刷新验证；子菜单边缘避让和完整 UI polish 手动验证仍待实现；V04-DOC 手动验证文档骨架、v0.4 release notes、changelog 条目和持续同步完成）。
+**v0.4 总进度**: 182/187（约 97%；V04-M0 完成，V04-M1 动画规格、v2 素材目录、素材记录、提示词执行集、asset manifest、Godot 资源构建器、SpriteFrames / PetResource 资源、缺帧门禁、v0.3 资源回退策略、素材生成产能路线文档、ComfyUI 环境验证和橘猫 v2 beta 默认接入完成；V04-M2 交互手感首轮完成；V04-M3 窗口、点击穿透、Panel 边缘定位、可找回兜底和缩放边界验证首轮完成；V04-M4 设置体验首轮完成；V04-M5 日志分层、自动验证覆盖、no-op native 缓存、发布包脚本、checksum 校验、发布包烟测和 60 秒 release 稳定性烟测完成；V04-M6 已完成 Panel 暖色便签、右键菜单二级入口、图标资源、紧凑 Settings 多轮打磨和新版当前状态单一交互原型重置；剩余重点是按新版原型进行完整 UI polish 手动复测和必要修正）。
 
 ### v0.4 边界与不可做项
 
@@ -1053,6 +1068,10 @@ v0.4 Beta 是 v0.3 原生能力完成后的大型体验优化版本。根据 PRD
 
 ### v0.4 已知风险（降级方案）
 
+### v0.4 后续优化清单（暂不阻塞当前收尾）
+
+- [ ] `V04-OPT-001` / `V04-MAN-052` Wizard 薪资页控件视觉与 Settings 一致性专项优化。多轮局部修复后用户体感仍无明显变化，暂不继续在 v0.4 收尾阶段反复打补丁；后续应通过共享控件、共享 Theme、截图对比验收来整体解决 Wizard / Settings 控件系统不统一的问题。
+
 | 风险 | 降级方案 |
 |------|---------|
 | 原型方向与 PRD 冲突 | 先修原型和 prototype spec，不进入实现 |
@@ -1081,7 +1100,7 @@ v0.4 Beta 是 v0.3 原生能力完成后的大型体验优化版本。根据 PRD
 4. **V04-M3 窗口、点击穿透与 Panel 打磨**：先做可观测调试，再调命中区和边缘定位。
 5. **V04-M4 设置体验与保存反馈**：基于原型重整设置页，并修复保存耗时和反馈问题。
 6. **V04-M5 性能、稳定性与发布包**：收敛日志、验证脚本、Zip 包和发布说明。
-7. **V04-M6 UI polish 与交互原型完善**：先补齐 Win11 风格设置窗口、右键二级菜单、托盘/窗口图标和 Panel polish 的原型/规格，再落到 Godot UI 与验证。
+7. **V04-M6 UI polish 与交互原型完善**：以当前单一交互原型为准，继续对齐紧凑暖色 Settings、右键二级菜单、托盘/窗口图标和 Panel 便签体验，再进入完整 Godot UI 手动验证。
 8. **V04-DOC 文档闭环**：开发过程中同步验证结果，发布前统一 PRD / Plan / Progress / Verification / Release Notes。
 
 ---
@@ -1223,4 +1242,4 @@ v0.4 Beta 是 v0.3 原生能力完成后的大型体验优化版本。根据 PRD
 4. V04-M3 已完成点击穿透调试视图、命中区日志、modal/popup 安全清空、首批刷新节流验证、Panel 边缘定位和桌宠窗口可找回兜底；下一步继续做多缩放表现与最终文档联动。
 5. V04-M4 设置页信息架构、保存差异检测、恢复默认确认和 Debug 配置路径说明首轮完成；剩余 salary/schedule 刷新分流与单窗口观感留待后续手动/导出复测确认。
 6. V04-M5 日志分层、自动验证覆盖、no-op native 缓存、发布包脚本、checksum 校验、发布包烟测和 60 秒 release 稳定性烟测完成，CHANGELOG 已同步；下一步进入多缩放人工验证、真实桌面长时间体验复测和最终发布确认。
-7. V04-M6 UI polish 已纳入正式范围；PRD / implementation-plan / prototype-spec / progress 的 UI polish 文档链路已对齐，Godot Panel 折叠态“金额 + 短状态”已开始落地，下一步继续实现展开态信息层级、Win11 风格设置窗口、右键二级菜单和托盘/窗口图标优化。
+7. V04-M6 UI polish 已纳入正式范围；PRD / implementation-plan / prototype-spec / progress 的 UI polish 文档链路已重新对齐到当前单一原型。Godot Panel、右键菜单、图标和紧凑 Settings 已形成测试态，下一步按新版原型进行真实窗口截图复测、手动验证和必要细节修正。
