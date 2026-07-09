@@ -1,56 +1,52 @@
-﻿# LetsMakeMoney v0.5 Beta 鏂囨。绱㈠紩
+# LetsMakeMoney v0.5 Beta 文档索引
 
-**鏈€鍚庢洿鏂?*: 2026-07-09
-**褰撳墠闃舵**: `/acceptance` 鏈€氳繃 / 鍙戝竷闃诲
-**褰撳墠鐘舵€?*: v0.5 瀹炵幇鍜屽彂甯冨噯澶囬」宸插畬鎴愶紱鏈€缁堝彂甯冭鐪熷疄 Windows 鎵樼洏宸﹂敭绾瀹犳仮澶嶈矾寰勯樆濉?
-鏈洰褰曟槸 v0.5 Beta 鐨勪笓灞炴枃妗ｅ叆鍙ｃ€傚悗缁?agent 鎺ユ墜 v0.5 鏃讹紝搴斿厛璇?[status.md](status.md)锛屽啀璇?[progress_v0.5.md](progress_v0.5.md)锛屼笉瑕佺洿鎺ヤ粠鍏ㄧ増鏈巻鍙插ぇ鏂囨。閲岀炕鎵惧綋鍓嶇姸鎬併€?
-## v0.5 褰撳墠鐘舵€?
-- 褰撳墠鐗堟湰锛歷0.5 Beta銆?- 褰撳墠涓荤嚎锛氬亸濂借缃笌妗屽疇杈圭紭浣撻獙鏀舵暃鐗堛€?- 褰撳墠闃舵锛歚/acceptance` 鏈€氳繃 / 鍙戝竷闃诲銆?- 褰撳墠寮€鍙戝叆鍙ｏ細[progress_v0.5.md](progress_v0.5.md)銆?- 褰撳墠楠岃瘉鍏ュ彛锛歔verification.md](verification.md)銆?
-## 鎺ㄨ崘闃呰椤哄簭
+**最后更新**: 2026-07-09
+**当前阶段**: `/acceptance` 未通过 / 发布阻塞
+**当前事实源**: [status.md](status.md)、[verification.md](verification.md)、[release-checklist.md](release-checklist.md)
 
-1. [status.md](status.md)
-2. [progress_v0.5.md](progress_v0.5.md)
-3. [dev_plan_v0.5.md](dev_plan_v0.5.md)
-4. [prd.md](prd.md)
-5. [idea-pool.md](idea-pool.md)
-6. [verification.md](verification.md)
-7. [release-checklist.md](release-checklist.md)
-8. [../../prototypes/prototype-spec.md](../../prototypes/prototype-spec.md)
-9. [../../prototypes/index.html](../../prototypes/index.html)
+## v0.5 当前状态
 
-## v0.5 闇€姹傚叆鍙?
-- [idea-pool.md](idea-pool.md): v0.5 鍊欓€夐渶姹傛睜銆?- [prd.md](prd.md): v0.5 瀹屾暣鍙紑鍙?PRD銆?
-## v0.5 瀹炴柦鍏ュ彛
+v0.5 Beta 定位为“偏好设置与桌宠边缘体验收敛版”。本版本已经完成实现、打包和大部分自动/人工验证，但最终发布签核仍未通过。
 
-- [dev_plan_v0.5.md](dev_plan_v0.5.md): 瀹炴柦椤哄簭銆佸奖鍝嶆枃浠躲€佷换鍔℃媶瑙ｃ€佹祴璇曞懡浠ゃ€侀闄╀笌鍥為€€銆?- [progress_v0.5.md](progress_v0.5.md): 鐘舵€佺湅鏉垮拰鏈€灏忎换鍔?checklist銆?
-## v0.5 楠岃瘉鍏ュ彛
+当前唯一发布阻塞项是：真实 Windows 托盘左键隐藏/恢复路径在纯桌宠模式下仍缺少通过证据。预期是无论是否纯桌宠模式，左键托盘图标都可以隐藏/显示窗口；纯桌宠模式恢复后不应出现任务栏入口。
 
-- [verification.md](verification.md): 浜哄伐楠岃瘉姝ラ鍜岀粨鏋滆褰曘€?- [release-checklist.md](release-checklist.md): 鍙戝竷鍓嶆鏌ユ竻鍗曘€?
-## v0.5 鍘熷瀷鍏ュ彛
+## 推荐阅读顺序
 
-- [../../prototypes/index.html](../../prototypes/index.html): 褰撳墠鍙氦浜掗珮淇濈湡鍘熷瀷銆?- [../../prototypes/prototype-spec.md](../../prototypes/prototype-spec.md): 鍘熷瀷璇存槑銆?
-## 鍙戝竷浜х墿璇存槑
+1. [status.md](status.md)：先判断 v0.5 当前状态和阻塞项。
+2. [verification.md](verification.md)：查看验收结果、待补证路径和发布阻塞说明。
+3. [release-checklist.md](release-checklist.md)：发布前检查清单。
+4. [progress_v0.5.md](progress_v0.5.md)：查看实现任务完成情况。
+5. [dev_plan_v0.5.md](dev_plan_v0.5.md)：查看实施顺序、影响文件、测试命令与风险。
+6. [prd.md](prd.md)：查看 v0.5 需求范围和不做项。
+7. [idea-pool.md](idea-pool.md)：只在需要回溯 v0.5 立项来源时阅读。
 
-鏈洰褰曟槸鏂囨。鐩綍锛屼笉鍖呭惈鐪熷疄 exe銆?
-- 鏂囨。鐩綍锛歚doc/releases/v0.5/`
-- 鏈潵鍙戝竷浜х墿鐩綍锛歚releases/v0.5/`
+## v0.5 需求入口
 
-v0.5 涓撳睘鍙戝竷鍖呭凡鍙敓鎴愬苟閫氳繃鐭啋鐑燂紱褰撳墠 `/acceptance` 缁撹涓烘湭閫氳繃 / 鍙戝竷闃诲锛屼笉鑳界洿鎺ユ妸褰撳墠鍖呰涓烘寮忓彂甯冦€?
-- 浜х墿鐩綍锛歚releases/v0.5/`
-- Zip 鍖咃細`releases/v0.5/LetsMakeMoney-v0.5-beta-windows-x86_64.zip`
-- 鍙戝竷璇存槑锛歚releases/v0.5-beta-notes.md`
-- 鎵撳寘鑴氭湰锛歚scripts/package_v05.ps1`
-- 鍖呴獙璇佽剼鏈細`scripts/verify_v05_package.ps1`
+- [idea-pool.md](idea-pool.md)：v0.5 候选需求池，说明为什么 v0.5 选择“偏好设置与桌宠边缘体验收敛”。
+- [prd.md](prd.md)：v0.5 完整 PRD。
+- [../../prototypes/index.html](../../prototypes/index.html)：当前交互原型入口。
+- [../../prototypes/prototype-spec.md](../../prototypes/prototype-spec.md)：原型说明。
 
-## 涓嶅簲璇诲彇涓哄綋鍓嶅疄鐜颁緷鎹殑鍐呭
+## v0.5 实施入口
 
-- `doc/releases/v0.4/`: 浠呬綔涓?v0.4 鍘嗗彶浜嬪疄婧愬拰鍥炲綊鍙傝€冦€?- `doc/progress.md`: 鍏ㄧ増鏈巻鍙插ぇ鏂囨。锛屽彧鍦ㄩ渶瑕佽拷婧巻鍙叉椂璇诲彇銆?- `doc/implementation-plan.md`: 鍏ㄧ増鏈巻鍙插疄鏂借鍒掞紝鍙湪闇€瑕佽拷婧巻鍙叉椂璇诲彇銆?- `doc/LetsMakeMoneyPRD.md`: 鍏ㄧ増鏈巻鍙?PRD锛屽彧鍦ㄩ渶瑕佽拷婧巻鍙叉椂璇诲彇銆?
-## 涓嶈繘鍏?v0.5
+- [dev_plan_v0.5.md](dev_plan_v0.5.md)：开发承接计划。
+- [progress_v0.5.md](progress_v0.5.md)：PM 状态看板，只记录任务状态，不写 bugfix 流水账。
+- [../../logs/v0.5-bugfix-log.md](../../logs/v0.5-bugfix-log.md)：v0.5 bugfix 与技术排查记录。
 
-- 涓婚绯荤粺銆?- 瀹夎鍣ㄣ€?- 鑷姩鏇存柊銆?- 澶氬钩鍙版敮鎸併€?- 鏇村瀹犵墿銆?- ComfyUI 姝ｅ紡浜у搧鍖栥€?## Final acceptance status - 2026-07-09
+## v0.5 验证入口
 
-Current v0.5 release state: **鏈€氳繃 / 鍙戝竷闃诲**.
+- [verification.md](verification.md)：人工验收清单和验收结果。
+- [release-checklist.md](release-checklist.md)：发布前自动验证、手动验证和打包检查。
 
-The v0.5 implementation, scripts, package, Settings/Wizard acceptance, and package smoke checks are complete. Final release is blocked only by the real Windows tray left-click pure-pet restore path: pure-pet mode must restore the desktop pet without exposing a taskbar entry after tray hide/show.
+## 发布产物说明
 
-Do not treat `releases/v0.5/LetsMakeMoney-v0.5-beta-windows-x86_64.zip` as publishable until this manual evidence is recorded in [verification.md](verification.md).
+- 文档目录：`doc/releases/v0.5/`
+- 产物目录：`releases/v0.5/`
+- 产物 zip：`releases/v0.5/LetsMakeMoney-v0.5-beta-windows-x86_64.zip`
+- 发布说明：`releases/v0.5-beta-notes.md`
+- 打包脚本：`scripts/package_v05.ps1`
+- 包验证脚本：`scripts/verify_v05_package.ps1`
+
+## 当前不应扩展的内容
+
+v0.5 不新增主题系统、安装器、自动更新、多平台支持、更多宠物，也不把 ComfyUI 正式产品化。若托盘阻塞项未通过，只记录为发布阻塞，不扩大为新需求。
