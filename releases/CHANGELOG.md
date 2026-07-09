@@ -7,7 +7,7 @@
 - 新增 v0.4 橘猫动画规格、素材提示词执行集、orange_v2 staging 目录和 asset manifest。
 - 新增 Debug 命中区可视化能力，可显示 Pet core、Pet context 和 Panel 命中区域。
 - 新增 v0.4 自动验证脚本和发布包烟测脚本。
-- 新增正式 Zip beta 打包脚本，发布包包含 exe、native dll、README、release notes、manifest 和 checksums。
+- 新增正式 Zip beta 打包脚本，发布包包含 exe、native dll、README、发布说明、manifest 和校验和。
 
 ### 变更
 
@@ -89,26 +89,26 @@
 
 - 完成薪资计算、Pet/Panel 雏形、设置、首次启动向导、基础交互和 Windows 打包链路。
 - 实际交付为普通调试窗口版，不是完整透明桌宠版。
-## v0.5 Beta - Preference and desktop-pet edge convergence (2026-07-09)
+## v0.5 Beta - 偏好设置与桌宠边缘体验收敛版（2026-07-09）
 
-### Added
+### 新增
 
-- Added a shared Warm Control helper for Settings and Wizard.
-- Added v0.5-specific PRD, implementation plan, progress board, verification document, release checklist, and package scripts.
-- Added stable semantic logs for Settings save results, Wizard step/finish/cancel paths, tray restore, pure-pet policy reapply, and click-passthrough protection.
+- 新增 Settings / Wizard 共享暖色控件 helper。
+- 新增 v0.5 专属 PRD、实施计划、进度看板、验证文档、发布检查清单和打包脚本。
+- 新增稳定语义日志，覆盖 Settings 保存结果、Wizard 步骤/完成/取消路径、托盘恢复、纯桌宠策略重应用和点击穿透保护。
 
-### Changed
+### 变更
 
-- Migrated Settings and Wizard controls toward one compact warm component language.
-- Re-applied window policy after tray restore so pure-pet and passthrough behavior can recover more consistently.
-- Kept v0.5 scope focused: no theme system, installer, auto update, multi-platform release, more pets, or ComfyUI productization.
+- Settings 和 Wizard 控件迁移到统一的紧凑暖色组件语言。
+- 托盘恢复后重新应用窗口策略，使纯桌宠和点击穿透行为更容易恢复到预期状态。
+- v0.5 范围保持克制：不做主题系统、安装器、自动更新、多平台发布、更多宠物或 ComfyUI 产品化。
 
-### Validation
+### 验证
 
-- Passed `verify_v05.ps1`, `verify_v04.ps1`, `verify_m4.ps1`, `verify_m5.ps1`, `check_docs_status.ps1`, `package_v05.ps1`, and `verify_v05_package.ps1`.
-- Settings / Wizard targeted screenshot and log acceptance passed.
+- `verify_v05.ps1`、`verify_v04.ps1`、`verify_m4.ps1`、`verify_m5.ps1`、`check_docs_status.ps1`、`package_v05.ps1` 和 `verify_v05_package.ps1` 已通过。
+- Settings / Wizard 定向截图和日志验收已通过。
 
-### Release Status
+### 发布状态
 
-- Final acceptance result: not publishable yet.
-- Release blocker: real Windows tray left-click pure-pet restore still needs passing manual evidence. Expected behavior: pure-pet mode restores the desktop pet without a taskbar entry after tray hide/show.
+- 最终验收结论：暂不可发布。
+- 发布阻塞项：真实 Windows 托盘左键纯桌宠恢复仍需要通过的人工证据。预期行为是：纯桌宠模式下托盘隐藏/显示后恢复桌宠，且不出现任务栏入口。

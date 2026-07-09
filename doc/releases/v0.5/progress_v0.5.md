@@ -1,4 +1,4 @@
-# LetsMakeMoney v0.5 Beta Progress
+# LetsMakeMoney v0.5 Beta 进度看板
 
 ## 1. 当前状态
 
@@ -24,7 +24,7 @@
 - 素材生成实验记录
 - 临时截图评价
 
-这些内容应进入独立 dev-log、bugfix-log、spike-log 或验证文档。
+这些内容应进入独立开发日志、缺陷修复日志、Spike 日志或验证文档。
 
 ## 3. 范围确认
 
@@ -82,7 +82,7 @@
 - [x] V05-M0-001：创建 `doc/releases/v0.5/status.md`。
 - [x] V05-M0-002：创建 `doc/releases/v0.5/verification.md`。
 - [x] V05-M0-003：创建 `doc/releases/v0.5/release-checklist.md`。
-- [x] V05-M0-004：创建 `doc/logs/README.md`，定义 progress / dev-log / bugfix-log / spike-log 边界。
+- [x] V05-M0-004：创建 `doc/logs/README.md`，定义 progress 与 `dev-log`（开发日志）、`bugfix-log`（缺陷修复日志）、`spike-log`（Spike 日志）的边界。
 - [x] V05-M0-005：识别 `doc/progress.md` 中应迁出的开发日志、bugfix、技术排查、spike 内容类型。
 - [x] V05-M0-006：创建 `scripts/check_docs_status.ps1`。
 - [x] V05-M0-007：检查 `doc/current.md` 与 v0.5 文档入口的推荐阅读顺序。
@@ -111,7 +111,7 @@
 - [x] V05-M1-011：实现 slider helper。
 - [x] V05-M1-012：实现 scrollbar helper。
 - [x] V05-M1-013：实现 compact row / section divider helper。
-- [x] V05-M1-014：实现 inline status / toast helper。
+- [x] V05-M1-014：实现行内状态 / 轻提示 helper。
 - [x] V05-M1-015：确认 helper 不包含配置保存、薪资计算或窗口策略业务逻辑。
 
 验收：
@@ -244,7 +244,7 @@
 
 - [ ] V05-M6-VAL-001：实现截图与 v0.5 原型方向一致。
 - [ ] V05-M6-VAL-002：release checklist 无阻塞项。
-- [x] V05-M6-VAL-003：current/status/release notes 不存在旧版本事实冲突。
+- [x] V05-M6-VAL-003：当前入口、状态文档和发布说明不存在旧版本事实冲突。
 - [x] V05-M6-VAL-004：发布包命名、manifest、checksum、README 与 v0.5 一致。
 
 ## 13. 当前阻塞与待确认
@@ -266,21 +266,21 @@
 ## 14. 下一步
 
 进入 `/acceptance`，按 `doc/releases/v0.5/verification.md` 做真实托盘、纯桌宠、点击穿透、保存反馈和发布包验收。不在本 progress 中记录开发流水或 bugfix 过程。
-## 15. Final acceptance sign-off - 2026-07-09
+## 15. 最终验收签核 - 2026-07-09
 
-Progress remains an implementation checklist, not a bugfix log. The final `/acceptance` outcome is summarized here only as release state:
+progress 仍然只作为实现清单，不作为缺陷修复日志。最终 `/acceptance` 结果仅在这里作为发布状态摘要记录：
 
-- v0.5 implementation checklist: completed.
-- Automated/package verification: completed.
-- Settings/Wizard targeted acceptance: completed.
-- Tray left-click pure-pet restore: release blocker remains until a passing manual retest is recorded.
-- Release state: not publishable yet.
+- v0.5 实现清单：已完成。
+- 自动验证和包验证：已完成。
+- Settings / Wizard 定向验收：已完成。
+- 托盘左键纯桌宠恢复：仍是发布阻塞项，直到记录通过的人工复测证据。
+- 发布状态：暂不可发布。
 
-Required release-blocker retest:
+发布阻塞项必须复测：
 
-- [ ] Use `releases/v0.5/LetsMakeMoney-v0.5-beta-windows-x86_64.zip`.
-- [ ] Enable pure-pet mode.
-- [ ] Left-click the tray icon to hide the desktop pet.
-- [ ] Left-click the tray icon again to restore it.
-- [ ] Confirm the desktop pet restores without a taskbar entry.
-- [ ] Paste the relevant `debug.log` tail into `verification.md`.
+- [ ] 使用 `releases/v0.5/LetsMakeMoney-v0.5-beta-windows-x86_64.zip`。
+- [ ] 开启纯桌宠模式。
+- [ ] 左键点击托盘图标隐藏桌宠。
+- [ ] 再次左键点击托盘图标恢复桌宠。
+- [ ] 确认桌宠恢复后没有任务栏入口。
+- [ ] 将相关 `debug.log` 尾部日志粘贴到 `verification.md`。

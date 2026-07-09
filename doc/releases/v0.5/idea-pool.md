@@ -1,7 +1,7 @@
 # LetsMakeMoney v0.5 Idea Pool
 
 **阶段**: `/idea` 已完成，作为 v0.5 PRD 的输入来源。
-**来源**: v0.4 review / acceptance / verification / progress / release docs
+**来源**: v0.4 评审、验收、验证、进度和发布文档
 **当前用途**: 回溯 v0.5 为什么选择“偏好设置与桌宠边缘体验收敛版”。
 
 ## v0.5 主线判断

@@ -1,6 +1,6 @@
 # LetsMakeMoney v0.5 Beta 开发实施计划
 
-> For agentic workers: this is the implementation handoff for v0.5 Beta. Do not start business-code implementation until this plan is confirmed.
+> 给后续 agent 的说明：这是 v0.5 Beta 的开发承接计划。计划未确认前，不应开始业务代码实现。
 
 ## 1. 范围一致性 Review
 
@@ -97,7 +97,7 @@ v0.5 推荐方案包含：
 
 - `src/autoload/config.gd`
 
-### 3.3 Native / Window / Tray / Passthrough
+### 3.3 原生窗口 / 托盘 / 点击穿透
 
 预计修改：
 
@@ -113,7 +113,7 @@ v0.5 推荐方案包含：
 - 托盘左键隐藏 / 显示后，重新应用纯桌宠、任务栏可见性和点击穿透策略。
 - native 不可用时保留可找回路径，不让窗口不可见且无法恢复。
 
-### 3.4 Logs
+### 3.4 日志
 
 预计增强但不改变用户配置：
 
@@ -122,13 +122,13 @@ v0.5 推荐方案包含：
 
 重点事件：
 
-- settings open / close / save / no-change / save-failed
-- wizard open / step-change / finish / cancel / close
-- tray toggle requested / native show-hide result / restore policy reapplied
-- passthrough suspend / resume / rect update
-- pure pet mode apply / fallback
+- 设置打开、关闭、保存、无变化保存、保存失败。
+- 向导打开、步骤切换、完成、取消、关闭。
+- 托盘切换请求、原生显示/隐藏结果、窗口策略重新应用。
+- 点击穿透暂停、恢复、区域刷新。
+- 纯桌宠模式应用与降级。
 
-### 3.5 Docs / Prototypes / Verification
+### 3.5 文档 / 原型 / 验证
 
 预计新增：
 
@@ -162,9 +162,9 @@ v0.5 推荐方案包含：
 1. 创建 `doc/releases/v0.5/status.md`，记录 v0.5 当前阶段、已完成、待开发、待验证和阻塞项。
 2. 创建 `doc/releases/v0.5/verification.md`，作为 v0.5 手动验证入口。
 3. 创建 `doc/releases/v0.5/release-checklist.md`，列出发布前文档、包体、日志、脚本检查。
-4. 创建 `doc/logs/README.md`，定义 dev-log / bugfix-log / spike-log 与 progress 的边界。
+4. 创建 `doc/logs/README.md`，定义开发日志、缺陷修复日志、Spike 日志与 progress 的边界。
 5. 从 `doc/progress.md` 中识别应迁出的内容类型，但第一步不强行大搬迁。
-6. 创建 `scripts/check_docs_status.ps1`，扫描 current/status/release notes/checklist 中的版本口径冲突。
+6. 创建 `scripts/check_docs_status.ps1`，扫描当前入口、状态、发布说明和发布清单中的版本口径冲突。
 
 验证：
 
@@ -177,7 +177,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\check_docs_status.
 
 - 若文档拆分造成引用混乱，保留新增索引文件，暂缓迁出历史内容。
 
-### V05-M1：共享 Warm Control 基础
+### V05-M1：共享暖色控件基础
 
 目标：建立 Settings / Wizard 共用的控件系统，消除两套样式各自复制的问题。
 
@@ -186,28 +186,28 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\check_docs_status.
 1. 盘点 `settings_dialog.gd` 与 `wizard_dialog.gd` 中已有 token、StyleBox、控件 helper。
 2. 新增轻量 helper：`src/ui/warm_control_theme.gd`。
 3. 抽取共享 token：
-   - surface / paper / card / selected
-   - ink / muted / danger
-   - coin / orange / mint
-   - warm border / warm shadow
+   - 表面色、纸面色、卡片色、选中色。
+   - 主文字、辅助文字、危险提示。
+   - 金币黄、橘猫橙、柔和绿色。
+   - 暖色边框、暖色阴影。
 4. 抽取共享尺寸：
-   - row height
-   - input height
-   - button height
-   - tab height
-   - switch size
-   - slider track / thumb
-   - scrollbar width
+   - 设置行高度。
+   - 输入框高度。
+   - 按钮高度。
+   - 标签高度。
+   - 开关尺寸。
+   - 滑杆轨道和滑块尺寸。
+   - 滚动条宽度。
 5. 抽取控件 helper：
-   - primary / secondary / danger button
-   - LineEdit
-   - SpinBox
-   - OptionButton and popup
-   - switch / CheckButton
-   - slider
-   - compact row
-   - section divider
-   - inline status / toast
+   - 主按钮、次按钮、危险按钮。
+   - `LineEdit` 输入框。
+   - `SpinBox` 数字输入。
+   - `OptionButton` 及其下拉弹层。
+   - 开关 / `CheckButton`。
+   - 滑杆。
+   - 紧凑设置行。
+   - 分区分割线。
+   - 行内状态 / 轻量提示。
 6. 保留 Settings / Wizard 各自业务逻辑，不把表单状态放进 helper。
 
 验证：
@@ -233,7 +233,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify_v05.ps1
 
 任务：
 
-1. 将 Settings shell、tabs、action bar 接入共享 token。
+1. 将 Settings 外壳、标签和操作栏接入共享 token。
 2. 工资页接入共享 row、SpinBox、OptionButton 和只读值。
 3. 桌宠页接入共享列表、说明区和宠物选择状态。
 4. 显示页接入共享 slider、OptionButton、switch 和状态说明。
@@ -278,7 +278,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify_v04.ps1
 4. 宠物页复用统一选择控件，确保初始化有动物可选。
 5. 确认页展示配置摘要和完成动作。
 6. 下一步、上一步、完成、取消、关闭路径保持原语义。
-7. Wizard 打开时 suspend passthrough，关闭后 resume。
+7. Wizard 打开时暂停点击穿透，关闭后恢复点击穿透。
 8. 保存完成后写入现有配置字段，不新增字段。
 
 验证：
@@ -306,11 +306,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify_v05.ps1
 任务：
 
 1. 明确窗口策略重应用顺序：
-   - native window visible
-   - taskbar visibility
-   - pure pet mode
-   - mouse passthrough region
-   - panel / menu interactive rect
+   - 原生窗口可见性。
+   - 任务栏可见性。
+   - 纯桌宠模式。
+   - 鼠标点击穿透区域。
+   - Panel / 菜单可交互区域。
 2. 托盘左键隐藏 / 显示后强制重应用策略，不只依赖缓存。
 3. 托盘右键菜单保持可用，菜单打开期间保护点击穿透。
 4. 关闭隐藏到托盘时保留可找回路径。
@@ -362,7 +362,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify_m5.ps1
 
 回退：
 
-- 若 headless 无法覆盖窗口 native 行为，将 native 行为保留为人工验收项，脚本只检查结构和日志入口。
+- 若无界面模式无法覆盖原生窗口行为，将原生行为保留为人工验收项，脚本只检查结构和日志入口。
 
 ### V05-M6：有限视觉基线与发布文档收口
 
@@ -374,9 +374,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify_m5.ps1
 2. 更新 `doc/releases/v0.5/status.md`。
 3. 更新 `doc/releases/v0.5/release-checklist.md`。
 4. 发布前更新 `doc/current.md`。
-5. 发布前新增或更新 v0.5 release notes。
+5. 发布前新增或更新 v0.5 发布说明。
 6. 发布前创建 v0.5 包体脚本或复用现有包体流程后显式改名。
-7. 确认文档不再出现 v0.4 test / 未合并 / 未 tag 的旧口径。
+7. 确认文档不再出现 v0.4 测试态、未合并、未打标签等旧口径。
 
 验证：
 
