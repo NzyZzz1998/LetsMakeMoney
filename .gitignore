@@ -8,6 +8,8 @@ build/
 *.exe
 export_credentials.cfg
 /releases/v0.4/
+/releases/v0.5/
+.godot_user_v05/
 assets/pets/cat/orange_v2/_incoming/
 assets/pets/cat/orange_v2/_review/
 native/windows/godot-cpp/

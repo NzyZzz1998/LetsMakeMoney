@@ -715,6 +715,221 @@
       box-shadow: 0 5px 16px rgba(0,0,0,.24);
     }
 
+    .v05-shell {
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,253,246,.96), rgba(255,247,230,.94));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .v05-top {
+      padding: 16px 18px 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      border-bottom: 1px solid rgba(101, 62, 24, .10);
+    }
+
+    .v05-top h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.15;
+    }
+
+    .v05-top p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .v05-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.18fr) minmax(250px, .82fr);
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .v05-card {
+      border: 1px solid rgba(101, 62, 24, .13);
+      border-radius: 18px;
+      background: rgba(255, 255, 250, .72);
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(93, 50, 15, .07);
+    }
+
+    .v05-card h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+    }
+
+    .v05-mini-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .v05-mini-tabs button {
+      height: 32px;
+      min-width: 58px;
+      padding: 0 11px;
+      border-radius: 11px;
+      background: rgba(255, 244, 218, .65);
+      border: 1px solid transparent;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .v05-mini-tabs button.active {
+      background: #fffdf8;
+      border-color: rgba(245, 183, 65, .58);
+      color: var(--ink);
+      box-shadow: 0 6px 14px rgba(93, 50, 15, .08);
+      font-weight: 700;
+    }
+
+    .v05-pane { display: none; }
+    .v05-pane.active { display: block; animation: fade .18s ease both; }
+
+    .v05-row {
+      min-height: 42px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      border-top: 1px solid rgba(101, 62, 24, .09);
+      font-size: 14px;
+    }
+
+    .v05-row:first-of-type { border-top: 0; }
+
+    .v05-row small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .v05-state-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .control-swatch {
+      min-height: 54px;
+      border-radius: 14px;
+      border: 1px solid rgba(101, 62, 24, .12);
+      background: rgba(255,255,255,.62);
+      padding: 9px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .control-swatch strong {
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .control-swatch span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .field.focus {
+      border-color: rgba(245, 183, 65, .86);
+      box-shadow: 0 0 0 3px rgba(245, 183, 65, .18);
+    }
+
+    .field.error {
+      border-color: rgba(184, 92, 82, .62);
+      background: rgba(255, 244, 241, .86);
+      color: #7e302c;
+    }
+
+    .btn.pressed {
+      transform: translateY(1px);
+      box-shadow: inset 0 2px 4px rgba(93, 50, 15, .12);
+    }
+
+    .v05-popup {
+      width: 160px;
+      border-radius: 13px;
+      border: 1px solid rgba(101, 62, 24, .14);
+      background: #fffdf8;
+      box-shadow: 0 14px 30px rgba(93, 50, 15, .14);
+      padding: 6px;
+    }
+
+    .v05-popup div {
+      height: 30px;
+      padding: 0 9px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .v05-popup div.active,
+    .v05-popup div:hover {
+      background: rgba(245, 183, 65, .20);
+      font-weight: 700;
+    }
+
+    .v05-flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      align-items: stretch;
+      margin-top: 10px;
+    }
+
+    .flow-step {
+      min-height: 74px;
+      border-radius: 15px;
+      border: 1px solid rgba(101, 62, 24, .12);
+      background: rgba(255,255,255,.58);
+      padding: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .flow-step strong {
+      display: block;
+      color: var(--ink);
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    .v05-docs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .doc-chip {
+      border-radius: 13px;
+      background: rgba(255, 244, 218, .72);
+      border: 1px solid rgba(101, 62, 24, .11);
+      padding: 10px;
+      min-height: 70px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .doc-chip strong {
+      display: block;
+      color: var(--ink);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
     .debug-window {
       border-radius: 18px;
       border: 1px solid #cfd7df;
@@ -849,7 +1064,7 @@
         height: auto;
       }
       .nav button { width: auto; display: inline-flex; margin: 3px; }
-      .panel-grid, .tray-demo, .debug-body, .wizard-body {
+      .panel-grid, .tray-demo, .debug-body, .wizard-body, .v05-grid, .v05-flow, .v05-docs {
         grid-template-columns: 1fr;
       }
       .transparent-window { left: 24px; width: calc(100% - 48px); }
@@ -874,6 +1089,7 @@
       <button data-screen="menu"><span class="dot"></span>右键菜单与托盘</button>
       <button data-screen="settings"><span class="dot"></span>设置面板</button>
       <button data-screen="wizard"><span class="dot"></span>首次向导</button>
+      <button data-screen="v05"><span class="dot"></span>v0.5 PRD 原型</button>
       <button data-screen="debug"><span class="dot"></span>Debug 与验证</button>
       <button data-screen="release"><span class="dot"></span>发布包</button>
       <div class="nav-group-label">快捷交互</div>
@@ -1132,6 +1348,127 @@
           </div>
         </section>
 
+        <section class="screen" id="v05">
+          <div class="toolbar">
+            <button class="btn primary" data-v05-tab="settings">Settings 共用控件</button>
+            <button class="btn" data-v05-tab="wizard">Wizard 关键步骤</button>
+            <button class="btn" data-v05-tab="tray">托盘恢复路径</button>
+            <button class="btn" data-v05-tab="docs">文档治理</button>
+          </div>
+          <div class="v05-shell">
+            <div class="v05-top">
+              <div>
+                <h2>v0.5 偏好设置与边缘体验收敛</h2>
+                <p>高保真原型只覆盖本次 PRD 范围：Settings/Wizard 共用控件、托盘与纯桌宠恢复、文档治理入口。</p>
+              </div>
+              <span class="toast">PRD 对照原型</span>
+            </div>
+
+            <div class="v05-grid v05-pane active" id="v05-settings">
+              <div class="v05-card">
+                <h3>Settings 五页签代表页</h3>
+                <div class="v05-mini-tabs">
+                  <button class="active">工资</button>
+                  <button>桌宠</button>
+                  <button>显示</button>
+                  <button>面板</button>
+                  <button>通用</button>
+                </div>
+                <div class="section-title">基础收入</div>
+                <div class="v05-row"><span>月薪</span><input class="field focus" value="12000" style="width:104px"></div>
+                <div class="v05-row"><span>休息模式</span><select class="select"><option>双休</option><option>单休</option></select></div>
+                <div class="section-title">工作时间</div>
+                <div class="v05-row"><span>上班时间</span><span><input class="field" value="09" style="width:64px"> : <input class="field" value="00" style="width:64px"></span></div>
+                <div class="v05-row"><span>每日工作小时数 <small>只读计算结果</small></span><input class="field" value="9.0" disabled style="width:88px"></div>
+                <div class="action-bar" style="margin:14px -14px -14px">
+                  <span class="toast">无变化</span>
+                  <button class="btn">取消</button>
+                  <button class="btn primary">保存</button>
+                </div>
+              </div>
+
+              <div class="v05-card">
+                <h3>共享控件状态</h3>
+                <div class="v05-state-grid">
+                  <div class="control-swatch"><strong>Normal</strong><button class="btn primary">保存</button></div>
+                  <div class="control-swatch"><strong>Hover</strong><button class="btn primary" style="filter:brightness(1.04)">保存</button></div>
+                  <div class="control-swatch"><strong>Pressed</strong><button class="btn primary pressed">保存</button></div>
+                  <div class="control-swatch"><strong>Disabled</strong><button class="btn" disabled>取消</button></div>
+                  <div class="control-swatch"><strong>Focus</strong><input class="field focus" value="09" style="width:66px"></div>
+                  <div class="control-swatch"><strong>Error</strong><input class="field error" value="-1" style="width:66px"></div>
+                  <div class="control-swatch"><strong>Switch</strong><span class="switch on"></span></div>
+                  <div class="control-swatch"><strong>Popup</strong><div class="v05-popup"><div class="active">双休 <span>✓</span></div><div>单休</div></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="v05-grid v05-pane" id="v05-wizard">
+              <div class="v05-card">
+                <h3>Wizard 薪资/时间步骤</h3>
+                <div class="stepper"><span class="active"></span><span class="active"></span><span></span><span></span></div>
+                <div class="section-title">基础收入</div>
+                <div class="v05-row"><span>月薪</span><input class="field" value="12000" style="width:104px"></div>
+                <div class="v05-row"><span>休息模式</span><select class="select"><option>双休</option><option>单休</option></select></div>
+                <div class="section-title">工作时间</div>
+                <div class="v05-row"><span>上班时间</span><span><input class="field" value="09" style="width:64px"> : <input class="field" value="00" style="width:64px"></span></div>
+                <div class="v05-row"><span>下班时间</span><span><input class="field" value="18" style="width:64px"> : <input class="field" value="00" style="width:64px"></span></div>
+              </div>
+              <div class="v05-card">
+                <h3>Wizard 完成/确认步骤</h3>
+                <div class="stepper"><span class="active"></span><span class="active"></span><span class="active"></span><span class="active"></span></div>
+                <div class="v05-row"><span>月薪</span><strong>12000 元</strong></div>
+                <div class="v05-row"><span>工作时间</span><strong>09:00 - 18:00</strong></div>
+                <div class="v05-row"><span>桌宠</span><strong>橘猫 v2</strong></div>
+                <div class="v05-row"><span>完成后</span><span class="pill">进入桌宠模式</span></div>
+                <div class="action-bar" style="margin:14px -14px -14px">
+                  <button class="btn">上一步</button>
+                  <button class="btn primary">完成</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="v05-grid v05-pane" id="v05-tray">
+              <div class="v05-card">
+                <h3>托盘 / 纯桌宠恢复路径</h3>
+                <div class="v05-flow">
+                  <div class="flow-step"><strong>1. 托盘可用</strong>允许纯桌宠隐藏任务栏入口。</div>
+                  <div class="flow-step"><strong>2. 左键隐藏</strong>记录窗口可见性和托盘命令。</div>
+                  <div class="flow-step"><strong>3. 左键恢复</strong>显示窗口后重应用窗口策略。</div>
+                  <div class="flow-step"><strong>4. 穿透刷新</strong>恢复 Pet / Panel 交互区并写日志。</div>
+                </div>
+              </div>
+              <div class="v05-card">
+                <h3>降级保护</h3>
+                <div class="v05-row"><span>托盘不可用</span><span class="pill">保留任务栏</span></div>
+                <div class="v05-row"><span>native 不可用</span><span class="pill">普通窗口</span></div>
+                <div class="v05-row"><span>配置损坏</span><span class="pill">默认值补齐</span></div>
+                <div class="v05-row"><span>穿透失败</span><span class="pill">优先可交互</span></div>
+              </div>
+            </div>
+
+            <div class="v05-grid v05-pane" id="v05-docs">
+              <div class="v05-card">
+                <h3>文档治理入口</h3>
+                <div class="v05-docs">
+                  <div class="doc-chip"><strong>progress</strong>只保留版本目标、模块进度、阻塞和下一步。</div>
+                  <div class="doc-chip"><strong>dev-log</strong>承接开发流水和实现过程。</div>
+                  <div class="doc-chip"><strong>bugfix-log</strong>记录 bug 根因、尝试和结论。</div>
+                  <div class="doc-chip"><strong>spike-log</strong>记录素材、ComfyUI、工具探索。</div>
+                  <div class="doc-chip"><strong>status</strong>作为当前版本短状态入口。</div>
+                  <div class="doc-chip"><strong>checklist</strong>发布前扫描旧口径和产物状态。</div>
+                </div>
+              </div>
+              <div class="v05-card">
+                <h3>保存反馈状态</h3>
+                <div class="v05-row"><span>已保存</span><span class="toast">已保存</span></div>
+                <div class="v05-row"><span>无变化</span><span class="toast" style="background:rgba(245,183,65,.16);color:#7b572e">无变化</span></div>
+                <div class="v05-row"><span>需重显</span><span class="toast" style="background:rgba(245,183,65,.16);color:#7b572e">需重显</span></div>
+                <div class="v05-row"><span>保存失败</span><span class="toast" style="background:rgba(184,92,82,.14);color:#8b3e36">保存失败</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section class="screen" id="debug">
           <div class="debug-window">
             <div class="debug-title">LetsMakeMoney DEBUG · 900x500 调试窗口</div>
@@ -1208,6 +1545,7 @@
       menu: ["右键菜单与托盘", "右键小猫和托盘菜单保留设置、向导、窗口模式、选择宠物、关于、退出能力。"],
       settings: ["设置面板", "紧凑暖色偏好设置面板，包含工资、桌宠、显示、面板、通用五类。"],
       wizard: ["首次启动向导", "首次配置月薪、休息模式、工作时间和角色，也可从右键菜单重新运行。"],
+      v05: ["v0.5 PRD 原型", "展示 v0.5 的共享控件系统、托盘恢复路径、点击穿透保护和文档治理入口。"],
       debug: ["Debug 与验证", "Debug 模式用于观察输入分类、日志、窗口命中区和验证脚本结果。"],
       release: ["发布包", "当前测试分支发布包形态：exe、native dll、README、release notes、manifest/checksum。"]
     };
@@ -1219,6 +1557,7 @@
       menu: "菜单验收重点：窗口模式和选择宠物使用二级入口；托盘左键显示/隐藏，右键菜单可设置、关于、退出。",
       settings: "设置验收重点：窗口紧凑、无大 header、五个中文 tab、下拉菜单暖色、保存/取消明确、说明性内容低权重。",
       wizard: "向导验收重点：欢迎、薪资、角色、确认四步可走通；完成后写入配置并回到桌宠模式。",
+      v05: "v0.5 原型验收重点：Settings 与 Wizard 的控件状态同源；托盘恢复后重应用纯桌宠和穿透策略；progress 与日志文档边界清楚。",
       debug: "Debug 验收重点：可通过 config.json 开启，事件日志能区分 clicked_single、clicked_double、clicked_hold、drag、right_click_menu。",
       release: "发布验收重点：zip 包内包含 exe、native dll 和说明文档；当前分支为 test，不进入 main。"
     };
@@ -1325,6 +1664,13 @@
         document.getElementById("wizardTitle").textContent = wizardTitles[i];
         document.getElementById("wizardText").textContent = wizardTexts[i];
         document.querySelectorAll(".stepper span").forEach((s, idx) => s.classList.toggle("active", idx <= i));
+      });
+    });
+
+    document.querySelectorAll("[data-v05-tab]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-v05-tab]").forEach(b => b.classList.toggle("primary", b === btn));
+        document.querySelectorAll(".v05-pane").forEach(pane => pane.classList.toggle("active", pane.id === "v05-" + btn.dataset.v05Tab));
       });
     });
   </script>

@@ -8,6 +8,7 @@ var _config_path: String = ""
 var _defaults_cache: Dictionary = {}
 var _pending_changed_keys: Array[String] = []
 var _last_changed_keys: Array[String] = []
+var _last_save_error: String = ""
 
 
 func _ready() -> void:
@@ -96,16 +97,53 @@ func _defaults() -> Dictionary:
 	return _defaults_cache
 
 
-func save() -> void:
+func save() -> bool:
+	_last_save_error = ""
+	_ensure_dir()
+	var json_string := JSON.stringify(data, "\t")
 	var file := FileAccess.open(_config_path, FileAccess.WRITE)
 	if file == null:
+		_last_save_error = "open_failed error=%s path=%s" % [error_string(FileAccess.get_open_error()), _config_path]
+		Platform.write_boot_log("config_save_failed: %s" % _last_save_error, "error")
 		push_error("Failed to save config to: %s" % _config_path)
-		return
-	file.store_string(JSON.stringify(data, "\t"))
+		return false
+	file.store_string(json_string)
+	var write_error := file.get_error()
 	file.close()
+	if write_error != OK:
+		_last_save_error = "write_failed error=%s path=%s" % [error_string(write_error), _config_path]
+		Platform.write_boot_log("config_save_failed: %s" % _last_save_error, "error")
+		push_error("Failed to write config to: %s" % _config_path)
+		return false
+	var verify_file := FileAccess.open(_config_path, FileAccess.READ)
+	if verify_file == null:
+		_last_save_error = "verify_open_failed error=%s path=%s" % [error_string(FileAccess.get_open_error()), _config_path]
+		Platform.write_boot_log("config_save_failed: %s" % _last_save_error, "error")
+		return false
+	var persisted := verify_file.get_as_text()
+	verify_file.close()
+	if persisted != json_string:
+		_last_save_error = "verify_mismatch path=%s" % _config_path
+		Platform.write_boot_log("config_save_failed: %s" % _last_save_error, "error")
+		return false
 	_last_changed_keys = _pending_changed_keys.duplicate()
 	_pending_changed_keys.clear()
+	Platform.write_boot_log("config_save_success: changed_keys=%s" % str(_last_changed_keys))
 	config_changed.emit()
+	return true
+
+
+func get_data_snapshot() -> Dictionary:
+	return data.duplicate(true)
+
+
+func restore_data_snapshot(snapshot: Dictionary) -> void:
+	data = snapshot.duplicate(true)
+	_pending_changed_keys.clear()
+
+
+func get_last_save_error() -> String:
+	return _last_save_error
 
 
 func get_value(key: String, default: Variant = null) -> Variant:

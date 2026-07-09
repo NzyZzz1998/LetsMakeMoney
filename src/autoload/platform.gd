@@ -2,6 +2,7 @@
 extends Node
 
 signal tray_toggle_requested
+signal tray_left_toggle_requested
 signal tray_settings_requested
 signal tray_about_requested
 signal tray_exit_requested
@@ -180,6 +181,13 @@ func _poll_native_tray() -> void:
 			tray_about_requested.emit()
 		4:
 			tray_exit_requested.emit()
+		5:
+			var now_left := Time.get_ticks_msec()
+			if now_left - _last_tray_toggle_msec < TRAY_TOGGLE_DEBOUNCE_MSEC:
+				write_boot_log("Platform._poll_native_tray: ignored duplicate left toggle")
+				return
+			_last_tray_toggle_msec = now_left
+			tray_left_toggle_requested.emit()
 
 
 func _on_status_indicator_pressed(_button: int = 0, _position: Vector2i = Vector2i.ZERO) -> void:

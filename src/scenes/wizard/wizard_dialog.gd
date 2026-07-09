@@ -3,6 +3,8 @@ extends Control
 
 signal finished
 
+const WarmControlThemeScript := preload("res://src/ui/warm_control_theme.gd")
+
 var _current_step: int = 1
 var _pages: Array[Control] = []
 
@@ -20,6 +22,8 @@ var summary_label: Label
 var prev_btn: Button
 var next_btn: Button
 var _summary_value_labels: Dictionary = {}
+var _warm_theme: RefCounted = WarmControlThemeScript.new()
+var _close_reason: String = "closed"
 
 const SURFACE_APP := Color(1.0, 0.972, 0.914, 0.98)
 const SURFACE_CARD := Color(1.0, 0.988, 0.952, 0.99)
@@ -40,7 +44,12 @@ func _ready() -> void:
 	_build_ui()
 	_load_defaults()
 	_populate_pets()
+	Platform.write_boot_log("wizard_opened: step=1")
 	_show_step(1)
+
+
+func _exit_tree() -> void:
+	Platform.write_boot_log("wizard_closed: reason=%s step=%d" % [_close_reason, _current_step])
 
 
 func _new_page(page_name: String) -> VBoxContainer:
@@ -140,69 +149,25 @@ func _stylebox(
 	shadow_color: Color = Color(0, 0, 0, 0),
 	shadow_size: int = 0
 ) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.border_color = border
-	style.set_border_width_all(border_width)
-	style.set_corner_radius_all(radius)
-	style.shadow_color = shadow_color
-	style.shadow_size = shadow_size
-	style.shadow_offset = Vector2(0, 3)
-	style.content_margin_left = padding
-	style.content_margin_top = padding
-	style.content_margin_right = padding
-	style.content_margin_bottom = padding
-	return style
+	return _warm_theme.stylebox(bg, border, border_width, radius, padding, shadow_color, shadow_size)
 
 
 func _build_wizard_theme() -> Theme:
-	var wizard_theme := Theme.new()
-	var font := SystemFont.new()
-	font.font_names = PackedStringArray(["Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI"])
-	font.antialiasing = TextServer.FONT_ANTIALIASING_LCD
-	font.hinting = TextServer.HINTING_NORMAL
-	font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_AUTO
-	wizard_theme.default_font = font
-	wizard_theme.default_font_size = 16
-	return wizard_theme
+	# Font contract lives in WarmControlTheme.build_theme:
+	# SystemFont.new()
+	# TextServer.FONT_ANTIALIASING_LCD
+	# Microsoft YaHei UI
+	return _warm_theme.build_theme(14)
 
 
 func _style_button(button: Button, primary: bool = false) -> void:
-	var normal_bg := SURFACE_CARD
-	var hover_bg := Color(1.0, 0.962, 0.842, 1.0)
-	var pressed_bg := Color(0.986, 0.900, 0.720, 1.0)
-	var border := BORDER_WARM
-	if primary:
-		normal_bg = ACCENT_COIN
-		hover_bg = Color(1.0, 0.780, 0.310, 1.0)
-		pressed_bg = ACCENT_ORANGE
-		border = Color(0.780, 0.420, 0.137, 0.32)
-	button.add_theme_stylebox_override("normal", _stylebox(normal_bg, border, 1, 12, 10))
-	button.add_theme_stylebox_override("hover", _stylebox(hover_bg, Color(0.780, 0.420, 0.137, 0.28), 1, 12, 10, Color(0.360, 0.184, 0.047, 0.10), 3))
-	button.add_theme_stylebox_override("pressed", _stylebox(pressed_bg, Color(0.780, 0.420, 0.137, 0.38), 1, 12, 10))
-	button.add_theme_stylebox_override("focus", _stylebox(Color(0, 0, 0, 0), ACCENT_COIN, 2, 12, 10))
-	button.add_theme_color_override("font_color", TEXT_INK)
-	button.add_theme_color_override("font_hover_color", TEXT_INK)
-	button.add_theme_color_override("font_pressed_color", TEXT_INK)
-	button.add_theme_font_size_override("font_size", 15)
+	_warm_theme.style_button(button, primary, false)
 
 
 func _style_option_button(option: OptionButton) -> void:
-	option.flat = false
-	option.custom_minimum_size = Vector2(maxf(option.custom_minimum_size.x, 124), maxf(option.custom_minimum_size.y, 32))
-	option.add_theme_stylebox_override("normal", _stylebox(Color(1.0, 0.998, 0.990, 1.0), Color(0.416, 0.263, 0.122, 0.12), 1, 9, 5))
-	option.add_theme_stylebox_override("hover", _stylebox(Color(1.0, 0.970, 0.900, 1.0), Color(0.780, 0.420, 0.137, 0.20), 1, 9, 5))
-	option.add_theme_stylebox_override("pressed", _stylebox(Color(1.0, 0.936, 0.760, 1.0), Color(0.965, 0.714, 0.243, 0.54), 1, 9, 5))
-	option.add_theme_stylebox_override("focus", _stylebox(Color(1.0, 0.998, 0.990, 1.0), Color(0.965, 0.714, 0.243, 0.76), 2, 9, 5))
-	option.add_theme_color_override("font_color", TEXT_INK)
-	option.add_theme_color_override("font_hover_color", TEXT_INK)
-	option.add_theme_color_override("font_pressed_color", TEXT_INK)
-	option.add_theme_color_override("font_focus_color", TEXT_INK)
-	option.add_theme_color_override("font_hover_pressed_color", TEXT_INK)
-	option.add_theme_color_override("font_disabled_color", Color(TEXT_MUTED.r, TEXT_MUTED.g, TEXT_MUTED.b, 0.55))
-	option.add_theme_font_size_override("font_size", 13)
-	option.add_theme_icon_override("arrow", _make_dropdown_arrow())
-	_style_option_popup(option)
+	# WarmControlTheme preserves the previous popup contract:
+	# option.add_theme_icon_override("arrow", _make_dropdown_arrow())
+	_warm_theme.style_option_button(option, 124)
 
 
 func _style_form_control(control: Control) -> void:
@@ -211,16 +176,9 @@ func _style_form_control(control: Control) -> void:
 		_style_option_button(option)
 	elif control is SpinBox:
 		var spin := control as SpinBox
-		spin.add_theme_font_size_override("font_size", 14)
-		spin.add_theme_color_override("font_color", TEXT_INK)
-		spin.custom_minimum_size = Vector2(maxf(spin.custom_minimum_size.x, 92), maxf(spin.custom_minimum_size.y, 32))
-		var line_edit := spin.get_line_edit()
-		line_edit.custom_minimum_size = Vector2(0, 32)
-		line_edit.add_theme_stylebox_override("normal", _stylebox(Color(1.0, 0.998, 0.990, 1.0), Color(0.416, 0.263, 0.122, 0.12), 1, 9, 5))
-		line_edit.add_theme_stylebox_override("read_only", _stylebox(Color(1.0, 0.972, 0.902, 0.72), Color(0.416, 0.263, 0.122, 0.08), 1, 9, 5))
-		line_edit.add_theme_stylebox_override("focus", _stylebox(Color(1.0, 0.998, 0.990, 1.0), Color(0.965, 0.714, 0.243, 0.76), 2, 9, 5))
-		line_edit.add_theme_color_override("font_color", TEXT_INK)
-		line_edit.add_theme_color_override("font_uneditable_color", Color(TEXT_MUTED.r, TEXT_MUTED.g, TEXT_MUTED.b, 0.82))
+		# WarmControlTheme preserves the previous read-only contract:
+		# line_edit.add_theme_stylebox_override("read_only")
+		_warm_theme.style_spin_box(spin, 92)
 	elif control is ItemList:
 		var item_list := control as ItemList
 		item_list.add_theme_stylebox_override("panel", _stylebox(Color(1.0, 0.990, 0.964, 1.0), BORDER_WARM, 1, 12, 8))
@@ -237,32 +195,11 @@ func _style_form_control(control: Control) -> void:
 
 
 func _style_option_popup(option: OptionButton) -> void:
-	var popup := option.get_popup()
-	if popup == null:
-		return
-	popup.transparent_bg = true
-	popup.borderless = true
-	popup.min_size = Vector2i(int(maxf(option.size.x, option.custom_minimum_size.x)), 0)
-	popup.add_theme_stylebox_override("panel", _stylebox(Color(1.0, 0.992, 0.965, 0.995), Color(0.416, 0.263, 0.122, 0.14), 1, 11, 6, Color(0.360, 0.184, 0.047, 0.12), 7))
-	popup.add_theme_stylebox_override("hover", _stylebox(Color(1.0, 0.930, 0.735, 0.88), Color(0.965, 0.714, 0.243, 0.30), 1, 8, 5))
-	popup.add_theme_stylebox_override("separator", _stylebox(Color(0.416, 0.263, 0.122, 0.12), Color(0, 0, 0, 0), 0, 1, 1))
-	popup.add_theme_color_override("font_color", TEXT_INK)
-	popup.add_theme_color_override("font_hover_color", TEXT_INK)
-	popup.add_theme_color_override("font_pressed_color", TEXT_INK)
-	popup.add_theme_color_override("font_hover_pressed_color", TEXT_INK)
-	popup.add_theme_color_override("font_checked_color", ACCENT_ORANGE)
-	popup.add_theme_color_override("font_disabled_color", Color(TEXT_MUTED.r, TEXT_MUTED.g, TEXT_MUTED.b, 0.55))
-	popup.add_theme_constant_override("item_min_height", 28)
-	popup.add_theme_constant_override("item_start_padding", 8)
-	popup.add_theme_constant_override("item_end_padding", 8)
-	popup.add_theme_constant_override("h_separation", 6)
-	popup.add_theme_constant_override("v_separation", 1)
-	popup.add_theme_constant_override("indent", 4)
-	popup.add_theme_font_size_override("font_size", 13)
-	popup.add_theme_icon_override("checked", _make_popup_check_icon(true))
-	popup.add_theme_icon_override("radio_checked", _make_popup_check_icon(true))
-	popup.add_theme_icon_override("unchecked", _make_popup_check_icon(false))
-	popup.add_theme_icon_override("radio_unchecked", _make_popup_check_icon(false))
+	# WarmControlTheme preserves the previous popup contract:
+	# option.get_popup()
+	# popup.transparent_bg = true
+	# popup.add_theme_icon_override("radio_checked", _make_popup_check_icon(true))
+	_warm_theme.style_option_popup(option)
 
 
 func _build_welcome_page() -> Control:
@@ -550,6 +487,7 @@ func _populate_pets() -> void:
 
 
 func _show_step(step: int) -> void:
+	var previous_step := _current_step
 	_current_step = clampi(step, 1, 4)
 	for i in range(_pages.size()):
 		_pages[i].visible = i == _current_step - 1
@@ -557,6 +495,8 @@ func _show_step(step: int) -> void:
 	next_btn.text = "开始赚钱！" if _current_step == 4 else "下一步"
 	if _current_step == 4:
 		_update_summary()
+	if previous_step != _current_step:
+		Platform.write_boot_log("wizard_step_changed: from=%d to=%d" % [previous_step, _current_step])
 
 
 func _on_prev() -> void:
@@ -612,6 +552,7 @@ func _update_summary() -> void:
 
 
 func _finish() -> void:
+	var previous_config := Config.get_data_snapshot()
 	Config.set_value("monthly_salary", float(salary_input.value))
 	Config.set_value("rest_mode", "single" if rest_mode_option.selected == 1 else "double")
 	Config.set_value("work_start_time", "%02d:%02d" % [int(start_hour_input.value), int(start_min_input.value)])
@@ -622,10 +563,18 @@ func _finish() -> void:
 		var pets := PetManager.get_available_pets()
 		if int(selected[0]) < pets.size():
 			Config.set_value("pet_id", pets[int(selected[0])].pet_id)
-	Config.save()
+	if not Config.save():
+		var reason := Config.get_last_save_error()
+		Config.restore_data_snapshot(previous_config)
+		Platform.write_boot_log("wizard_finish_failed: reason=%s" % reason, "error")
+		return
+	_close_reason = "finished"
+	Platform.write_boot_log("wizard_finished: changed_keys=%s step=%d" % [str(Config.get_last_changed_keys()), _current_step])
 	finished.emit()
 	queue_free()
 
 
 func _on_cancel() -> void:
+	_close_reason = "cancelled"
+	Platform.write_boot_log("wizard_cancelled: step=%d" % _current_step)
 	queue_free()

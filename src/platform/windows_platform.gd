@@ -27,6 +27,7 @@ func get_config_path() -> String:
 
 func setup_window(window: Window, debug_mode: bool = false, transparent_pet_window: bool = false) -> void:
 	Platform.write_boot_log("WindowsPlatform.setup_window: begin debug=%s transparent=%s" % [str(debug_mode), str(transparent_pet_window)])
+	_invalidate_taskbar_visibility_cache(window, "setup_window")
 	var config_path := get_config_path()
 	if not DirAccess.dir_exists_absolute(config_path.get_base_dir()):
 		DirAccess.make_dir_recursive_absolute(config_path.get_base_dir())
@@ -127,6 +128,8 @@ func set_window_visible(window: Window, visible: bool) -> bool:
 	Platform.write_boot_log("WindowsPlatform.set_window_visible: ok=%s" % str(ok))
 	if not ok:
 		_native_health["last_error"] = _read_native_error("set_window_visible failed")
+	elif visible:
+		_invalidate_taskbar_visibility_cache(window, "set_window_visible_show")
 	return ok
 
 
@@ -188,9 +191,12 @@ func set_taskbar_visible(window: Window, visible: bool) -> bool:
 		return false
 	var key := _window_cache_key(window)
 	if _last_taskbar_visibility_by_window.get(key) == visible:
+		Platform.write_debug_log("WindowsPlatform.set_taskbar_visible: cached visible=%s key=%d" % [str(visible), key])
 		return true
 	var hwnd := get_native_window_handle(window)
+	Platform.write_boot_log("WindowsPlatform.set_taskbar_visible: hwnd=%s visible=%s" % [str(hwnd), str(visible)])
 	var ok := bool(_native_bridge.call("set_taskbar_visible", hwnd, visible))
+	Platform.write_boot_log("WindowsPlatform.set_taskbar_visible: ok=%s" % str(ok))
 	if not ok:
 		_native_health["taskbar_supported"] = false
 		_native_health["last_error"] = _read_native_error("set_taskbar_visible failed")
@@ -292,3 +298,9 @@ func _window_cache_key(window: Window) -> int:
 	if window == null:
 		return 0
 	return window.get_window_id()
+
+
+func _invalidate_taskbar_visibility_cache(window: Window, reason: String) -> void:
+	var key := _window_cache_key(window)
+	_last_taskbar_visibility_by_window.erase(key)
+	Platform.write_debug_log("WindowsPlatform._invalidate_taskbar_visibility_cache: reason=%s key=%d" % [reason, key])

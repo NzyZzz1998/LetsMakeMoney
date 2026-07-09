@@ -89,3 +89,26 @@
 
 - 完成薪资计算、Pet/Panel 雏形、设置、首次启动向导、基础交互和 Windows 打包链路。
 - 实际交付为普通调试窗口版，不是完整透明桌宠版。
+## v0.5 Beta - Preference and desktop-pet edge convergence (2026-07-09)
+
+### Added
+
+- Added a shared Warm Control helper for Settings and Wizard.
+- Added v0.5-specific PRD, implementation plan, progress board, verification document, release checklist, and package scripts.
+- Added stable semantic logs for Settings save results, Wizard step/finish/cancel paths, tray restore, pure-pet policy reapply, and click-passthrough protection.
+
+### Changed
+
+- Migrated Settings and Wizard controls toward one compact warm component language.
+- Re-applied window policy after tray restore so pure-pet and passthrough behavior can recover more consistently.
+- Kept v0.5 scope focused: no theme system, installer, auto update, multi-platform release, more pets, or ComfyUI productization.
+
+### Validation
+
+- Passed `verify_v05.ps1`, `verify_v04.ps1`, `verify_m4.ps1`, `verify_m5.ps1`, `check_docs_status.ps1`, `package_v05.ps1`, and `verify_v05_package.ps1`.
+- Settings / Wizard targeted screenshot and log acceptance passed.
+
+### Release Status
+
+- Final acceptance result: not publishable yet.
+- Release blocker: real Windows tray left-click pure-pet restore still needs passing manual evidence. Expected behavior: pure-pet mode restores the desktop pet without a taskbar entry after tray hide/show.

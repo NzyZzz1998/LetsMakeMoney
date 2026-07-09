@@ -175,6 +175,8 @@ func _setup_tray() -> void:
 	if _tray_ready:
 		if not Platform.tray_toggle_requested.is_connected(_on_tray_toggle_requested):
 			Platform.tray_toggle_requested.connect(_on_tray_toggle_requested)
+		if not Platform.tray_left_toggle_requested.is_connected(_on_tray_left_toggle_requested):
+			Platform.tray_left_toggle_requested.connect(_on_tray_left_toggle_requested)
 		if not Platform.tray_settings_requested.is_connected(_open_settings):
 			Platform.tray_settings_requested.connect(_open_settings)
 		if not Platform.tray_about_requested.is_connected(DragResizeSystem.show_about):
@@ -490,24 +492,28 @@ func _apply_viewport_transparency(enabled: bool) -> void:
 func _apply_pure_pet_mode() -> void:
 	if _debug_mode:
 		_set_taskbar_visible_cached(true)
+		Platform.write_debug_log("pure_pet_mode_fallback: reason=debug_mode taskbar_visible=true")
 		return
 
 	var desired := bool(Config.get_value("pure_pet_mode", false))
 	if not desired:
 		_set_taskbar_visible_cached(true)
+		Platform.write_debug_log("pure_pet_mode_apply: desired=false taskbar_visible=true")
 		return
 
 	if not _tray_ready or not Platform.can_enable_pure_pet_mode(get_window()):
 		Config.set_value("pure_pet_mode", false)
 		_set_taskbar_visible_cached(true)
-		Platform.write_boot_log("Main._apply_pure_pet_mode: disabled because tray/native health failed")
+		Platform.write_boot_log("pure_pet_mode_fallback: reason=tray_or_native_unavailable")
 		return
 
 	var ok := _set_taskbar_visible_cached(false)
 	if not ok:
 		Config.set_value("pure_pet_mode", false)
 		_set_taskbar_visible_cached(true)
-		Platform.write_boot_log("Main._apply_pure_pet_mode: failed and restored taskbar visibility")
+		Platform.write_boot_log("pure_pet_mode_fallback: reason=set_taskbar_visible_failed")
+	else:
+		Platform.write_debug_log("pure_pet_mode_apply: desired=true taskbar_visible=false")
 
 
 func _set_taskbar_visible_cached(visible: bool) -> bool:
@@ -539,6 +545,7 @@ func _reapply_tray_restore_window_policy() -> void:
 	_position_panel()
 	_apply_pure_pet_mode()
 	_request_mouse_passthrough_refresh("tray_restore")
+	Platform.write_boot_log("window_policy_reapplied: phase=tray_restore pure_pet_mode=%s" % str(Config.get_value("pure_pet_mode", false)))
 
 	await get_tree().process_frame
 	if not DragResizeSystem.is_window_visible():
@@ -551,6 +558,7 @@ func _reapply_tray_restore_window_policy() -> void:
 	])
 	_apply_pure_pet_mode()
 	_request_mouse_passthrough_refresh("tray_restore_post_frame")
+	Platform.write_boot_log("window_policy_reapplied: phase=tray_restore_post_frame pure_pet_mode=%s" % str(Config.get_value("pure_pet_mode", false)))
 
 
 func _on_config_changed() -> void:
@@ -654,21 +662,25 @@ func _on_modal_opened() -> void:
 	_set_primary_content_visible(false)
 	_apply_viewport_transparency(true)
 	Platform.set_mouse_passthrough(get_window(), false, [])
+	Platform.write_debug_log("passthrough_suspended: reason=modal_opened")
 
 
 func _on_modal_closed() -> void:
 	_modal_open = false
 	_runtime_mode_reapply_deferred_until_modal_close = false
 	_schedule_runtime_mode_reapply()
+	Platform.write_debug_log("passthrough_resumed: reason=modal_closed")
 
 
 func _on_popup_opened() -> void:
 	_last_passthrough_rects_hash = 0
 	Platform.set_mouse_passthrough(get_window(), false, [])
+	Platform.write_debug_log("passthrough_suspended: reason=popup_opened")
 
 
 func _on_popup_closed() -> void:
 	_queue_mouse_passthrough_refresh("popup_closed")
+	Platform.write_debug_log("passthrough_resumed: reason=popup_closed")
 
 
 func _set_primary_content_visible(visible: bool) -> void:
@@ -869,6 +881,7 @@ func _trigger_debug_click(interaction: PetManager.PetInteraction, label: String)
 
 func _on_tray_toggle_requested() -> void:
 	var visible_before := DragResizeSystem.is_window_visible()
+	Platform.write_boot_log("tray_toggle_requested: visible_before=%s window_prop=%s" % [str(visible_before), str(get_window().visible)])
 	Platform.write_boot_log("Main._on_tray_toggle_requested: visible_before=%s window_prop=%s" % [str(visible_before), str(get_window().visible)])
 	if visible_before:
 		DragResizeSystem.save_position()
@@ -878,6 +891,28 @@ func _on_tray_toggle_requested() -> void:
 		_reapply_tray_restore_window_policy()
 	Platform.update_tray_menu(visible_after)
 	Platform.write_boot_log("Main._on_tray_toggle_requested: visible_after=%s window_prop=%s" % [str(visible_after), str(get_window().visible)])
+
+
+func _on_tray_left_toggle_requested() -> void:
+	var visible_before := DragResizeSystem.is_window_visible()
+	var pure_pet_mode := bool(Config.get_value("pure_pet_mode", false))
+	Platform.write_boot_log("tray_left_toggle_requested: visible_before=%s pure_pet_mode=%s window_prop=%s" % [
+		str(visible_before),
+		str(pure_pet_mode),
+		str(get_window().visible)
+	])
+	if visible_before:
+		DragResizeSystem.save_position()
+	DragResizeSystem.toggle_window_visible()
+	var visible_after := DragResizeSystem.is_window_visible()
+	if visible_after:
+		_reapply_tray_restore_window_policy()
+	Platform.update_tray_menu(visible_after)
+	Platform.write_boot_log("tray_left_toggle_result: visible_after=%s pure_pet_mode=%s window_prop=%s" % [
+		str(visible_after),
+		str(pure_pet_mode),
+		str(get_window().visible)
+	])
 
 
 func _open_settings() -> void:

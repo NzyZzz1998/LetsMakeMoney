@@ -1,6 +1,8 @@
 # src/scenes/settings/settings_dialog.gd
 extends Control
 
+const WarmControlThemeScript := preload("res://src/ui/warm_control_theme.gd")
+
 var salary_input: SpinBox
 var rest_mode_option: OptionButton
 var rest_mode_single_toggle: CheckButton
@@ -40,6 +42,7 @@ var _switch_proxies: Dictionary = {}
 var _header_dragging: bool = false
 var _header_drag_start_mouse: Vector2i = Vector2i.ZERO
 var _header_drag_start_window: Vector2i = Vector2i.ZERO
+var _warm_theme: RefCounted = WarmControlThemeScript.new()
 
 const SURFACE_APP := Color(1.0, 0.980, 0.940, 1.0)
 const SURFACE_CARD := Color(1.0, 0.996, 0.978, 1.0)
@@ -1006,44 +1009,11 @@ func _stylebox(
 	shadow_color: Color = Color(0, 0, 0, 0),
 	shadow_size: int = 0
 ) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.border_color = border
-	style.set_border_width_all(border_width)
-	style.set_corner_radius_all(radius)
-	style.shadow_color = shadow_color
-	style.shadow_size = shadow_size
-	style.shadow_offset = Vector2(0, 3)
-	style.content_margin_left = padding
-	style.content_margin_top = padding
-	style.content_margin_right = padding
-	style.content_margin_bottom = padding
-	return style
+	return _warm_theme.stylebox(bg, border, border_width, radius, padding, shadow_color, shadow_size)
 
 
 func _style_button(button: Button, quiet: bool = false, primary: bool = false) -> void:
-	var normal_bg := SURFACE_CARD
-	var hover_bg := Color(1.0, 0.962, 0.842, 1.0)
-	var pressed_bg := Color(0.986, 0.900, 0.720, 1.0)
-	var normal_border := BORDER_WARM
-	if quiet:
-		normal_bg = Color(0.0, 0.0, 0.0, 0.0)
-		hover_bg = Color(1.0, 0.920, 0.730, 0.55)
-		pressed_bg = Color(0.965, 0.714, 0.243, 0.35)
-		normal_border = Color(0, 0, 0, 0)
-	if primary:
-		normal_bg = ACCENT_COIN
-		hover_bg = Color(1.0, 0.780, 0.310, 1.0)
-		pressed_bg = ACCENT_ORANGE
-		normal_border = Color(0.780, 0.420, 0.137, 0.32)
-	button.add_theme_stylebox_override("normal", _stylebox(normal_bg, normal_border, 1, 9, 6))
-	button.add_theme_stylebox_override("hover", _stylebox(hover_bg, Color(0.780, 0.420, 0.137, 0.28), 1, 9, 6, Color(0.360, 0.184, 0.047, 0.08), 2))
-	button.add_theme_stylebox_override("pressed", _stylebox(pressed_bg, Color(0.780, 0.420, 0.137, 0.38), 1, 9, 6))
-	button.add_theme_stylebox_override("focus", _stylebox(Color(0, 0, 0, 0), SETTINGS_ACCENT, 2, 9, 6))
-	button.add_theme_color_override("font_color", SETTINGS_TEXT)
-	button.add_theme_color_override("font_hover_color", SETTINGS_TEXT)
-	button.add_theme_color_override("font_pressed_color", SETTINGS_TEXT)
-	button.add_theme_font_size_override("font_size", 14)
+	_warm_theme.style_button(button, primary, quiet)
 
 
 func _style_window_button(button: Button, destructive: bool = false) -> void:
@@ -1089,73 +1059,23 @@ func _style_nav_button(button: Button, active: bool) -> void:
 
 
 func _style_option_button(option: OptionButton) -> void:
-	var normal_bg := Color(1.0, 0.998, 0.990, 1.0)
-	var hover_bg := Color(1.0, 0.970, 0.900, 1.0)
-	var pressed_bg := Color(1.0, 0.936, 0.760, 1.0)
-	option.flat = false
-	option.add_theme_stylebox_override("normal", _stylebox(normal_bg, Color(0.416, 0.263, 0.122, 0.12), 1, 9, 5))
-	option.add_theme_stylebox_override("hover", _stylebox(hover_bg, Color(0.780, 0.420, 0.137, 0.20), 1, 9, 5))
-	option.add_theme_stylebox_override("pressed", _stylebox(pressed_bg, Color(0.965, 0.714, 0.243, 0.54), 1, 9, 5))
-	option.add_theme_stylebox_override("focus", _stylebox(Color(1.0, 0.998, 0.990, 1.0), Color(0.965, 0.714, 0.243, 0.76), 2, 9, 5))
-	option.add_theme_color_override("font_color", SETTINGS_TEXT)
-	option.add_theme_color_override("font_hover_color", SETTINGS_TEXT)
-	option.add_theme_color_override("font_pressed_color", SETTINGS_TEXT)
-	option.add_theme_color_override("font_focus_color", SETTINGS_TEXT)
-	option.add_theme_color_override("font_hover_pressed_color", SETTINGS_TEXT)
-	option.add_theme_color_override("font_disabled_color", Color(TEXT_MUTED.r, TEXT_MUTED.g, TEXT_MUTED.b, 0.55))
-	option.add_theme_font_size_override("font_size", 13)
-	option.add_theme_icon_override("arrow", _make_dropdown_arrow())
-	_style_option_popup(option)
+	_warm_theme.style_option_button(option, SETTINGS_CONTROL_WIDTH)
 
 
 func _style_option_popup(option: OptionButton) -> void:
-	var popup := option.get_popup()
-	if popup == null:
-		return
-	popup.transparent_bg = true
-	popup.borderless = true
-	popup.min_size = Vector2i(int(maxf(option.size.x, option.custom_minimum_size.x)), 0)
-	popup.add_theme_stylebox_override("panel", _stylebox(Color(1.0, 0.992, 0.965, 0.995), Color(0.416, 0.263, 0.122, 0.14), 1, 11, 6, Color(0.360, 0.184, 0.047, 0.12), 7))
-	popup.add_theme_stylebox_override("hover", _stylebox(Color(1.0, 0.930, 0.735, 0.88), Color(0.965, 0.714, 0.243, 0.30), 1, 8, 5))
-	popup.add_theme_stylebox_override("separator", _stylebox(Color(0.416, 0.263, 0.122, 0.12), Color(0, 0, 0, 0), 0, 1, 1))
-	popup.add_theme_color_override("font_color", SETTINGS_TEXT)
-	popup.add_theme_color_override("font_hover_color", SETTINGS_TEXT)
-	popup.add_theme_color_override("font_pressed_color", SETTINGS_TEXT)
-	popup.add_theme_color_override("font_hover_pressed_color", SETTINGS_TEXT)
-	popup.add_theme_color_override("font_checked_color", ACCENT_ORANGE)
-	popup.add_theme_color_override("font_disabled_color", Color(TEXT_MUTED.r, TEXT_MUTED.g, TEXT_MUTED.b, 0.55))
-	popup.add_theme_constant_override("item_min_height", 28)
-	popup.add_theme_constant_override("item_start_padding", 8)
-	popup.add_theme_constant_override("item_end_padding", 8)
-	popup.add_theme_constant_override("h_separation", 6)
-	popup.add_theme_constant_override("v_separation", 1)
-	popup.add_theme_constant_override("indent", 4)
-	popup.add_theme_font_size_override("font_size", 13)
-	popup.add_theme_icon_override("checked", _make_popup_check_icon(true))
-	popup.add_theme_icon_override("radio_checked", _make_popup_check_icon(true))
-	popup.add_theme_icon_override("unchecked", _make_popup_check_icon(false))
-	popup.add_theme_icon_override("radio_unchecked", _make_popup_check_icon(false))
+	_warm_theme.style_option_popup(option)
 
 
 func _style_line_edit(line_edit: LineEdit) -> void:
-	line_edit.add_theme_stylebox_override("normal", _stylebox(Color(1.0, 0.998, 0.990, 1.0), Color(0.416, 0.263, 0.122, 0.12), 1, 9, 5))
-	line_edit.add_theme_stylebox_override("read_only", _stylebox(Color(1.0, 0.972, 0.902, 0.72), Color(0.416, 0.263, 0.122, 0.08), 1, 9, 5))
-	line_edit.add_theme_stylebox_override("focus", _stylebox(Color(1.0, 0.998, 0.990, 1.0), Color(0.965, 0.714, 0.243, 0.76), 2, 9, 5))
-	line_edit.add_theme_color_override("font_color", SETTINGS_TEXT)
-	line_edit.add_theme_color_override("font_uneditable_color", Color(0.550, 0.420, 0.298, 0.82))
-	line_edit.add_theme_color_override("font_placeholder_color", Color(0.550, 0.420, 0.298, 0.62))
+	_warm_theme.style_line_edit(line_edit)
 
 
 func _build_settings_theme() -> Theme:
-	var settings_theme := Theme.new()
-	var font := SystemFont.new()
-	font.font_names = PackedStringArray(["Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI"])
-	font.antialiasing = TextServer.FONT_ANTIALIASING_LCD
-	font.hinting = TextServer.HINTING_NORMAL
-	font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_AUTO
-	settings_theme.default_font = font
-	settings_theme.default_font_size = 15
-	return settings_theme
+	# Font contract lives in WarmControlTheme.build_theme:
+	# SystemFont.new()
+	# TextServer.FONT_ANTIALIASING_LCD
+	# Microsoft YaHei UI
+	return _warm_theme.build_theme(14)
 
 
 func _style_form_control(control: Control) -> void:
@@ -1167,40 +1087,13 @@ func _style_form_control(control: Control) -> void:
 		_style_button(control as Button)
 	elif control is SpinBox:
 		var spin := control as SpinBox
-		spin.add_theme_font_size_override("font_size", 14)
-		spin.add_theme_color_override("font_color", SETTINGS_TEXT)
-		spin.custom_minimum_size = Vector2(maxf(spin.custom_minimum_size.x, 92), maxf(spin.custom_minimum_size.y, 32))
-		_style_line_edit(spin.get_line_edit())
+		_warm_theme.style_spin_box(spin, 92)
 	elif control is LineEdit:
 		_style_line_edit(control as LineEdit)
 	elif control is CheckButton or control is CheckBox:
-		var transparent_style := _stylebox(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0, 0, 0)
-		if control is BaseButton:
-			(control as BaseButton).flat = true
-		control.add_theme_stylebox_override("normal", transparent_style)
-		control.add_theme_stylebox_override("hover", transparent_style)
-		control.add_theme_stylebox_override("pressed", transparent_style)
-		control.add_theme_stylebox_override("hover_pressed", transparent_style)
-		control.add_theme_stylebox_override("disabled", transparent_style)
-		control.add_theme_stylebox_override("normal_mirrored", transparent_style)
-		control.add_theme_stylebox_override("hover_mirrored", transparent_style)
-		control.add_theme_stylebox_override("pressed_mirrored", transparent_style)
-		control.add_theme_stylebox_override("hover_pressed_mirrored", transparent_style)
-		control.add_theme_stylebox_override("disabled_mirrored", transparent_style)
-		control.add_theme_stylebox_override("focus", _stylebox(Color(0, 0, 0, 0), ACCENT_COIN, 1, 10, 0))
-		control.add_theme_constant_override("h_separation", 0)
-		control.add_theme_font_size_override("font_size", 15)
-		control.add_theme_color_override("font_color", SETTINGS_TEXT)
-		control.add_theme_color_override("font_hover_color", SETTINGS_TEXT)
-		control.add_theme_color_override("font_pressed_color", SETTINGS_TEXT)
-		control.add_theme_color_override("font_disabled_color", Color(0.550, 0.420, 0.298, 0.52))
-		control.add_theme_icon_override("checked", _make_switch_icon(true, false))
-		control.add_theme_icon_override("unchecked", _make_switch_icon(false, false))
-		control.add_theme_icon_override("checked_disabled", _make_switch_icon(true, true))
-		control.add_theme_icon_override("unchecked_disabled", _make_switch_icon(false, true))
+		_warm_theme.style_switch(control as BaseButton)
 		control.add_theme_icon_override("on", _make_switch_icon(true, false))
 		control.add_theme_icon_override("off", _make_switch_icon(false, false))
-		control.custom_minimum_size = Vector2(maxf(control.custom_minimum_size.x, 42), maxf(control.custom_minimum_size.y, 24))
 	elif control is ItemList:
 		var item_list := control as ItemList
 		item_list.add_theme_stylebox_override("panel", _stylebox(Color(1.0, 0.990, 0.964, 1.0), BORDER_WARM, 1, 12, 8))
@@ -1216,6 +1109,7 @@ func _style_form_control(control: Control) -> void:
 		item_list.add_theme_color_override("font_hovered_selected_color", SETTINGS_TEXT)
 	elif control is HBoxContainer:
 		control.custom_minimum_size = Vector2(maxf(control.custom_minimum_size.x, 0), maxf(control.custom_minimum_size.y, 34))
+		_warm_theme.style_compact_row(control)
 
 
 func _add_label(parent: Control, text: String) -> Label:
@@ -1353,11 +1247,7 @@ func _add_slider(parent: Control, min_value: float, max_value: float, step: floa
 	slider.max_value = max_value
 	slider.step = step
 	slider.custom_minimum_size = Vector2(0, 36)
-	slider.add_theme_stylebox_override("slider", _stylebox(Color(0.870, 0.730, 0.450, 0.38), Color(0.416, 0.263, 0.122, 0.10), 1, 6, 3))
-	slider.add_theme_stylebox_override("grabber_area", _stylebox(Color(0.965, 0.714, 0.243, 0.95), Color(0.780, 0.420, 0.137, 0.20), 1, 6, 3))
-	slider.add_theme_stylebox_override("grabber_area_highlight", _stylebox(Color(1.0, 0.776, 0.302, 1.0), Color(0.780, 0.420, 0.137, 0.30), 1, 6, 3))
-	slider.add_theme_icon_override("grabber", _make_slider_grabber(Color(0.780, 0.420, 0.137, 1.0), Color(1.0, 0.972, 0.902, 1.0)))
-	slider.add_theme_icon_override("grabber_highlight", _make_slider_grabber(ACCENT_ORANGE, Color(1.0, 0.940, 0.780, 1.0)))
+	_warm_theme.style_slider(slider)
 	parent.add_child(slider)
 	return slider
 
@@ -1486,12 +1376,22 @@ func _on_save() -> void:
 	_update_slider_labels()
 	var form_values := _collect_form_values()
 	if not _has_form_changes(form_values):
+		Platform.write_boot_log("settings_save_no_change")
 		_set_save_status("没有需要保存的更改。")
 		return
+	var previous_config := Config.get_data_snapshot()
 	if not _apply_form_values(form_values):
+		Config.restore_data_snapshot(previous_config)
+		Platform.write_boot_log("settings_save_failed: reason=pre_save_apply_failed", "error")
 		_set_save_status("保存失败：请查看不可用原因并重试。")
 		return
-	Config.save()
+	if not Config.save():
+		var reason := Config.get_last_save_error()
+		Config.restore_data_snapshot(previous_config)
+		Platform.write_boot_log("settings_save_failed: reason=%s" % reason, "error")
+		_set_save_status("保存失败：%s" % reason)
+		return
+	Platform.write_boot_log("settings_save_success: changed_keys=%s" % str(Config.get_last_changed_keys()))
 	_set_save_status("保存成功。")
 
 
@@ -1721,8 +1621,15 @@ func _show_restore_defaults_confirm() -> void:
 
 
 func _restore_display_defaults() -> void:
+	var previous_config := Config.get_data_snapshot()
 	Config.reset_display_defaults()
 	Platform.set_auto_start(false)
 	_load_current_values()
 	_set_general_message("显示、窗口、托盘和自启动设置已恢复默认。")
-	Config.save()
+	if Config.save():
+		Platform.write_boot_log("settings_restore_display_defaults_success: changed_keys=%s" % str(Config.get_last_changed_keys()))
+	else:
+		var reason := Config.get_last_save_error()
+		Config.restore_data_snapshot(previous_config)
+		Platform.write_boot_log("settings_restore_display_defaults_failed: reason=%s" % reason, "error")
+		_set_save_status("保存失败：%s" % reason)

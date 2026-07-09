@@ -193,6 +193,15 @@ void TrayController::set_toggle_command() {
     set_pending_command(COMMAND_TOGGLE);
 }
 
+void TrayController::set_left_toggle_command() {
+    DWORD now = GetTickCount();
+    if (_last_toggle_tick != 0 && now - _last_toggle_tick < 300) {
+        return;
+    }
+    _last_toggle_tick = now;
+    set_pending_command(COMMAND_LEFT_TOGGLE);
+}
+
 LRESULT CALLBACK TrayController::window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
     TrayController *self = reinterpret_cast<TrayController *>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
     if (message == WM_NCCREATE) {
@@ -210,7 +219,7 @@ LRESULT CALLBACK TrayController::window_proc(HWND hwnd, UINT message, WPARAM wpa
         }
         if (lparam == WM_LBUTTONDOWN || tray_event == WM_LBUTTONDOWN) {
             self->_left_down_toggle_sent = true;
-            self->set_toggle_command();
+            self->set_left_toggle_command();
             return 0;
         }
         if (lparam == WM_LBUTTONUP || lparam == NIN_SELECT || lparam == NIN_KEYSELECT ||
@@ -219,12 +228,12 @@ LRESULT CALLBACK TrayController::window_proc(HWND hwnd, UINT message, WPARAM wpa
                 self->_left_down_toggle_sent = false;
                 return 0;
             }
-            self->set_toggle_command();
+            self->set_left_toggle_command();
             return 0;
         }
         if (lparam == WM_LBUTTONDBLCLK || tray_event == WM_LBUTTONDBLCLK) {
             self->_left_down_toggle_sent = false;
-            self->set_toggle_command();
+            self->set_left_toggle_command();
             return 0;
         }
         if (lparam == WM_RBUTTONDOWN || lparam == WM_RBUTTONUP || lparam == WM_CONTEXTMENU ||

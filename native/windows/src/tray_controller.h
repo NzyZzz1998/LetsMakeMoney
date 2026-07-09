@@ -14,6 +14,7 @@ public:
     static constexpr int COMMAND_SETTINGS = 2;
     static constexpr int COMMAND_ABOUT = 3;
     static constexpr int COMMAND_EXIT = 4;
+    static constexpr int COMMAND_LEFT_TOGGLE = 5;
 
     TrayController();
     ~TrayController();
@@ -37,6 +38,7 @@ private:
     void show_menu();
     void set_pending_command(int command);
     void set_toggle_command();
+    void set_left_toggle_command();
 
     HWND _message_hwnd = nullptr;
     HMENU _menu = nullptr;
