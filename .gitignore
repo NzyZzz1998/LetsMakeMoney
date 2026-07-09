@@ -1,6 +1,7 @@
 # Godot 4+ specific ignores
 .godot/
 .godot_user/
+.godot-user/
 /android/
 
 # Build output
@@ -23,6 +24,8 @@ native/windows/**/*.os
 native/windows/**/*.obj
 .tmp_appdata/
 .tmp_release/
+/_lmm_verify/
+/tmp/
 
 # Test files (temporary, should not be committed)
 test_*.tscn

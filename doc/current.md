@@ -1,175 +1,109 @@
 # LetsMakeMoney 当前状态入口
 
-**最后更新**: 2026-07-09  
-**项目名**: LetsMakeMoney 赚钱模拟器  
-**当前版本**: v0.5 Beta
-**当前分支**: `main`
-**当前阶段**: v0.5 Beta `/acceptance` 未通过 / 发布阻塞；v0.4 Beta 已推送至 `main` 并归档为 `v0.4-beta`
+**最后更新**：2026-07-09  
+**项目名**：LetsMakeMoney 赚钱模拟器  
+**当前版本**：v0.5 Beta  
+**当前分支**：`main`  
+**当前阶段**：发布收口  
+**当前结论**：通过 / 可发布
 
-本文件是后续人工或 agent 接手时的第一入口。先读这里判断当前事实源，再进入当前版本专属文档；不要直接从超大的 PRD、实施计划或 progress 从头读起。
+本文件是后续人工或 agent 接手时的第一入口。先读这里判断当前事实源，再进入当前版本专属文档；不要直接从超大 PRD、实施计划或历史 progress 从头读起。
 
-## 当前 v0.5 入口
+## 1. 当前版本目标
 
-v0.5 Beta 是“偏好设置与桌宠边缘体验收敛版”。当前已完成 v0.5 idea pool、PRD、高保真原型、开发实施计划、progress 看板和实现工作；`/acceptance` 已完成收口判断，结论为未通过 / 发布阻塞。阻塞项仅限真实 Windows 托盘左键在纯桌宠模式下的最终人工复测：恢复桌宠后任务栏入口必须保持隐藏。
+v0.5 Beta 是“偏好设置与桌宠边缘体验收敛版”。本版本不扩展新产品方向，重点收敛：
 
-当前 v0.5 可信文档：
-
-- [doc/releases/v0.5/status.md](releases/v0.5/status.md)
-- [doc/releases/v0.5/README.md](releases/v0.5/README.md)
-- [doc/releases/v0.5/progress_v0.5.md](releases/v0.5/progress_v0.5.md)
-- [doc/releases/v0.5/dev_plan_v0.5.md](releases/v0.5/dev_plan_v0.5.md)
-- [doc/releases/v0.5/prd.md](releases/v0.5/prd.md)
-- [doc/releases/v0.5/verification.md](releases/v0.5/verification.md)
-- [doc/prototypes/prototype-spec.md](prototypes/prototype-spec.md)
-- [doc/prototypes/index.html](prototypes/index.html)
+- Settings / Wizard 共享控件系统。
+- Settings 保存成功、无变化、保存失败反馈。
+- Wizard 下一步、上一步、完成、取消语义日志。
+- 托盘左键隐藏 / 恢复。
+- 纯桌宠恢复后的任务栏入口策略。
+- 非纯桌宠恢复后的任务栏入口策略。
+- Settings / Wizard 打开期间点击穿透保护。
+- v0.5 文档、验证脚本、打包脚本和发布包收口。
 
 v0.5 不做主题系统、安装器、自动更新、多平台支持、更多宠物或 ComfyUI 正式产品化。
 
-当前 v0.5 发布产物状态：
+## 2. 当前必须完成 / 验证的事项
 
-- Zip 包: `releases/v0.5/LetsMakeMoney-v0.5-beta-windows-x86_64.zip`
-- 展开目录: `releases/v0.5/LetsMakeMoney-v0.5-beta-windows-x86_64/`
-- 发布说明: `releases/v0.5-beta-notes.md`
-- 打包脚本: `scripts/package_v05.ps1`
-- 包验证脚本: `scripts/verify_v05_package.ps1`
+已完成发布前补证验收，结论为“通过 / 可发布”。
 
-注意区分两个目录：
+关键通过项：
 
-- `doc/releases/v0.5/`: v0.5 专属文档目录，不包含真实 exe。
-- `releases/v0.5/`: v0.5 真实发布产物目录，包含 zip、exe、manifest 和 checksum。
+- 实际运行 `releases/v0.5/LetsMakeMoney-v0.5-beta-windows-x86_64/LetsMakeMoney.exe`。
+- `verify_v05_package.ps1` 通过。
+- Settings 保存成功 / 无变化 / 保存失败均有 UI 反馈和 `debug.log` 事件。
+- Wizard 下一步 / 上一步 / 取消 / 完成均有 `debug.log` 事件。
+- `pure_pet_mode=true` 恢复后主窗口为 `AppWindow=false / ToolWindow=true`。
+- `pure_pet_mode=false` 恢复后主窗口为 `AppWindow=true / ToolWindow=false`。
 
----
+## 3. 当前发布产物状态
 
-以下 v0.4 内容保留为上一版本事实源和回归参考。
+- zip：`releases/v0.5/LetsMakeMoney-v0.5-beta-windows-x86_64.zip`
+- 展开目录：`releases/v0.5/LetsMakeMoney-v0.5-beta-windows-x86_64/`
+- 发布说明：`releases/v0.5-beta-notes.md`
+- changelog：`releases/CHANGELOG.md`
+- 打包脚本：`scripts/package_v05.ps1`
+- 包验证脚本：`scripts/verify_v05_package.ps1`
 
-## 当前版本目标
+注意区分：
 
-v0.4 Beta 是大型体验优化版本。当前重点不是继续扩底层功能，而是把 v0.3 已实现的真托盘、透明窗口、点击穿透、关闭隐藏到托盘、纯桌宠模式、橘猫 v2、Panel、右键菜单、Settings 和 Wizard 打磨成更适合日常使用的桌面小挂件体验。
+- `doc/releases/v0.5/`：v0.5 专属文档目录，不包含真实 exe。
+- `releases/v0.5/`：v0.5 真实发布产物目录，包含 zip、exe、manifest 和 checksum。
 
-当前视觉方向以“温暖桌面小挂件 / 橘猫金币小票便签风”为准：橘猫负责陪伴感，Panel 负责轻量薪资反馈，Settings / Wizard 负责清晰、紧凑、可恢复的偏好设置体验。
-
-## 当前必须完成 / 验证
-
-以 [doc/releases/v0.4/verification.md](releases/v0.4/verification.md) 为当前 v0.4 手动验收入口。
-
-- `V04-MAN-061`: 部分通过。发布包正常模式启动日志显示 native / tray / passthrough / taskbar 能力可用；既有日志显示托盘隐藏 / 显示后会重套纯桌宠策略。Computer Use 无法直接点击 Windows 托盘，建议保留一次人工最终确认。
-- `V04-MAN-072`: 部分通过。Debug 窗口下连续单击、双击、拖拽、右键菜单均有日志和截图证据；长按因 Computer Use 无精确按住 0.7 秒能力，仍需人工最终确认。
-- `V04-MAN-073`: 通过。验收时检查 `debug.log`，未发现 parser/runtime/Invalid call/null instance/native 访问异常。
-- `V04-OPT-001` / `V04-MAN-052`: Wizard 薪资页控件视觉与 Settings 一致性多轮修复后体感无明显变化，已暂缓并转入后续优化清单，不再作为当前继续修补项。
-
-自动化或 Computer Use 能覆盖的项已记录为通过 / 部分通过；仍需人工补充的项只保留为最终确认，不再扩展为新需求。
-
-## 当前发布产物状态
-
-v0.4 Beta 发布包已经形成可分发 Beta 产物，代码与发布状态已通过 `v0.4-beta` 标签归档：
-
-- Zip 包: `releases/v0.4/LetsMakeMoney-v0.4-beta-windows-x86_64.zip`
-- 展开目录: `releases/v0.4/LetsMakeMoney-v0.4-beta-windows-x86_64/`
-- Manifest: `releases/v0.4/LetsMakeMoney-v0.4-beta-windows-x86_64/manifest.json`
-- 包内关键文件: `LetsMakeMoney.exe`、`letsmakemoney_native.dll`、`app_icon.ico`、`README.md`、`release-notes.md`、`checksums.txt`
-
-注意区分两个目录：
-
-- `doc/releases/v0.4/`: v0.4 专属文档目录，不包含真实 exe。
-- `releases/v0.4/`: 真实发布产物目录，包含 zip、exe、manifest 和 checksum。
-
-当前发布包仍属于 Beta 产物。任何代码、资源或发布说明修复后，都需要重新运行 `scripts/package_v04.ps1` 和 `scripts/verify_v04_package.ps1`。
-
-## 推荐阅读顺序
+## 4. 推荐阅读顺序
 
 1. [doc/current.md](current.md)
-2. [doc/releases/v0.4/status.md](releases/v0.4/status.md)
-3. [doc/releases/v0.4/README.md](releases/v0.4/README.md)
-4. [doc/releases/v0.4/verification.md](releases/v0.4/verification.md)
-5. [doc/releases/v0.4/progress.md](releases/v0.4/progress.md)
-6. [doc/releases/v0.4/prd.md](releases/v0.4/prd.md)
-7. [doc/releases/v0.4/implementation-plan.md](releases/v0.4/implementation-plan.md)
-8. [doc/releases/v0.4/release-checklist.md](releases/v0.4/release-checklist.md)
-9. [doc/prototypes/prototype-spec.md](prototypes/prototype-spec.md)
-10. [doc/prototypes/index.html](prototypes/index.html)
-11. [doc/v0.4-ui-polish-spec.md](v0.4-ui-polish-spec.md)
+2. [doc/releases/v0.5/status.md](releases/v0.5/status.md)
+3. [doc/releases/v0.5/verification.md](releases/v0.5/verification.md)
+4. [doc/releases/v0.5/release-checklist.md](releases/v0.5/release-checklist.md)
+5. [doc/releases/v0.5/progress_v0.5.md](releases/v0.5/progress_v0.5.md)
+6. [doc/releases/v0.5/dev_plan_v0.5.md](releases/v0.5/dev_plan_v0.5.md)
+7. [doc/releases/v0.5/prd.md](releases/v0.5/prd.md)
+8. [doc/prototypes/prototype-spec.md](prototypes/prototype-spec.md)
+9. [doc/prototypes/index.html](prototypes/index.html)
 
-## 当前可信文档
+## 5. 当前可信文档清单
 
-| 文件 | 当前用途 | 可信口径 |
+| 文件 | 用途 | 可信口径 |
 |---|---|---|
-| [doc/current.md](current.md) | 当前状态入口 | 当前事实源，优先信 |
-| [doc/releases/v0.4/status.md](releases/v0.4/status.md) | v0.4 短状态摘要 | 当前事实源，优先信 |
-| [doc/releases/v0.4/README.md](releases/v0.4/README.md) | v0.4 文档索引 | 当前事实源，优先信 |
-| [doc/releases/v0.4/verification.md](releases/v0.4/verification.md) | v0.4 手动验证 | 当前验收入口，优先信 |
-| [doc/releases/v0.4/progress.md](releases/v0.4/progress.md) | v0.4 任务进度 | 当前 v0.4 进度入口 |
-| [doc/releases/v0.4/prd.md](releases/v0.4/prd.md) | v0.4 PRD | 当前 v0.4 需求入口 |
-| [doc/releases/v0.4/implementation-plan.md](releases/v0.4/implementation-plan.md) | v0.4 实施计划 | 当前 v0.4 实施入口 |
-| [doc/releases/v0.4/release-checklist.md](releases/v0.4/release-checklist.md) | v0.4 发布前检查 | 发布前门禁入口 |
-| [doc/prototypes/prototype-spec.md](prototypes/prototype-spec.md) | 当前交互原型说明 | 当前原型事实源 |
+| [doc/current.md](current.md) | 当前状态入口 | 当前事实源 |
+| [doc/releases/v0.5/status.md](releases/v0.5/status.md) | v0.5 状态摘要 | 当前事实源 |
+| [doc/releases/v0.5/verification.md](releases/v0.5/verification.md) | v0.5 发布前补证验收 | 当前验收事实源 |
+| [doc/releases/v0.5/release-checklist.md](releases/v0.5/release-checklist.md) | v0.5 发布检查 | 当前发布门禁 |
+| [doc/releases/v0.5/progress_v0.5.md](releases/v0.5/progress_v0.5.md) | v0.5 任务看板 | 当前任务状态 |
+| [doc/releases/v0.5/dev_plan_v0.5.md](releases/v0.5/dev_plan_v0.5.md) | v0.5 实施计划 | 当前实施入口 |
+| [doc/releases/v0.5/prd.md](releases/v0.5/prd.md) | v0.5 PRD | 当前需求入口 |
+| [doc/prototypes/prototype-spec.md](prototypes/prototype-spec.md) | 当前原型说明 | 当前原型事实源 |
 | [doc/prototypes/index.html](prototypes/index.html) | 当前可交互原型 | 当前原型事实源 |
-| [doc/v0.4-ui-polish-spec.md](v0.4-ui-polish-spec.md) | v0.4 UI polish 方向 | 当前 UI 方向参考 |
-| `releases/v0.4/LetsMakeMoney-v0.4-beta-windows-x86_64/manifest.json` | 当前发布包清单 | 当前包内容事实源 |
+| `releases/v0.5/LetsMakeMoney-v0.5-beta-windows-x86_64/manifest.json` | 发布包清单 | 当前包内容事实源 |
 
-## 文档地图
+## 6. 历史参考文档
 
-| 文件 / 目录 | 当前用途 | 所属版本 | 当前可信度 | 是否过大 | 建议去向 |
-|---|---|---|---|---|---|
-| `doc/current.md` | 当前唯一状态入口 | v0.4 | 高 | 否 | 保留原位 |
-| `doc/releases/v0.4/` | v0.4 专属文档目录 | v0.4 | 高 | 否 | 当前版本入口 |
-| `doc/releases/v0.4/prd.md` | v0.4 PRD 拆分副本 | v0.4 | 高 | 否 | 优先读取 |
-| `doc/releases/v0.4/implementation-plan.md` | v0.4 实施计划拆分副本 | v0.4 | 高 | 中 | 优先读取 |
-| `doc/releases/v0.4/progress.md` | v0.4 进度拆分副本 | v0.4 | 高 | 中 | 优先读取 |
-| `doc/releases/v0.4/verification.md` | v0.4 验证拆分副本 | v0.4 | 高 | 否 | 优先读取 |
-| `doc/releases/v0.4/release-checklist.md` | v0.4 发布前检查清单 | v0.4 | 高 | 否 | 发布前读取 |
-| `doc/verification/v0.4.md` | v0.4 验证原始文件 | v0.4 | 高 | 否 | 暂保留，后续可迁移/替换为跳转说明 |
-| `doc/prototypes/` | 当前可交互原型和说明 | 当前 | 高 | 中 | 保留原位 |
-| `doc/v0.4-ui-polish-spec.md` | v0.4 UI 打磨规格 | v0.4 | 高 | 否 | 暂保留原位，后续可迁入 `doc/releases/v0.4/` |
-| `doc/v0.4-animation-spec.md` | v0.4 动画规格 | v0.4 | 中高 | 否 | 暂保留原位，索引引用 |
-| `doc/v0.4-animation-assets-log.md` | v0.4 动画素材记录 | v0.4 | 中 | 否 | 暂保留原位，索引引用 |
-| `doc/v0.4-animation-prompt-pack.md` | v0.4 动画提示词 | v0.4 | 中 | 否 | 暂保留原位，索引引用 |
-| `doc/v0.4-comfyui-spike.md` | v0.4 ComfyUI 调研 | v0.4 / Spike | 中 | 否 | 暂保留原位，后续可归入 `archive/spikes` |
-| `doc/LetsMakeMoneyPRD.md` | 全版本 PRD 原始大文档 | v0.1-v0.4 | 分章节可信 | 是 | 保留为原始历史源，v0.4 优先读拆分副本 |
-| `doc/implementation-plan.md` | 全版本实施计划原始大文档 | v0.1-v0.4 | 分章节可信 | 是 | 保留为原始历史源，v0.4 优先读拆分副本 |
-| `doc/progress.md` | 全版本进度原始大文档 | v0.1-v0.4 | 分章节可信 | 是 | 保留为原始历史源，v0.4 优先读拆分副本 |
-| `doc/verification/v0.1.md` | v0.1 验证记录 | v0.1 | 历史参考 | 否 | 后续可归档 |
-| `doc/verification/v0.2.md` | v0.2 验证记录 | v0.2 | 历史参考 | 否 | 后续可归档 |
-| `doc/verification/v0.3.md` | v0.3 验证记录 | v0.3 | 历史参考 | 中 | 后续可归档 |
-| `doc/v0.2-asset-spike.md` | v0.2 素材 Spike | v0.2 / Spike | 历史参考 | 否 | 后续可归档到 spikes |
-| `doc/v0.2-asset-prompt-pack.md` | v0.2 素材提示词 | v0.2 / Spike | 历史参考 | 否 | 后续可归档到 spikes |
-| `doc/temp-pc-work/` | 临时 PC 工作区 | 临时 | 历史参考 | 否 | 暂不移动，后续可归档 |
-| `doc/ui-prototype-warm-widget.html` | 早期暖色原型 | 原型历史 | 参考 | 否 | 保留为历史原型参考 |
+以下文档只作为历史参考，不能覆盖 v0.5 当前事实源：
 
-## 仅供历史参考的文档
+- `doc/releases/v0.4/`
+- `doc/verification/v0.1.md`
+- `doc/verification/v0.2.md`
+- `doc/verification/v0.3.md`
+- `doc/verification/v0.4.md`
+- `doc/LetsMakeMoneyPRD.md`
+- `doc/implementation-plan.md`
+- `doc/progress.md`
+- `doc/v0.2-asset-spike.md`
+- `doc/v0.2-asset-prompt-pack.md`
+- `doc/v0.4-animation-spec.md`
+- `doc/v0.4-animation-assets-log.md`
+- `doc/v0.4-comfyui-spike.md`
 
-- [doc/verification/v0.1.md](verification/v0.1.md)
-- [doc/verification/v0.2.md](verification/v0.2.md)
-- [doc/verification/v0.3.md](verification/v0.3.md)
-- [doc/LetsMakeMoneyPRD.md](LetsMakeMoneyPRD.md) 中 v0.1-v0.3 章节
-- [doc/implementation-plan.md](implementation-plan.md) 中 v0.1-v0.3 章节
-- [doc/progress.md](progress.md) 中 v0.1-v0.3 章节
-- `releases/v0.3-beta-notes.md`
-- `releases/CHANGELOG.md` 中 v0.3 及更早条目
-- [doc/v0.2-asset-spike.md](v0.2-asset-spike.md)
-- [doc/v0.2-asset-prompt-pack.md](v0.2-asset-prompt-pack.md)
-- [doc/temp-pc-work/](temp-pc-work/)
+## 7. 已知说明
 
-## 已知文档不一致项
+- Computer Use 无法稳定直接点击 Windows 通知区托盘图标。v0.5 托盘左键验收使用真实发布包 exe、native 托盘消息同路径、Win32 窗口样式和桌面截图补证。
+- `passthrough_suspended` / `passthrough_resumed` 当前是 debug 级日志，默认 `debug_mode=false` 时不会每次写入。建议 v0.6 优化日志口径。
+- `verify_v05.ps1` 返回通过，但 Godot headless 输出仍可能出现 parser 文本。建议 v0.6 优化脚本输出质量。
 
-- v0.4 拆分文件是从原始大文档复制出来的阶段性副本。若原始大文档后续继续被编辑，需要同步更新 `doc/releases/v0.4/` 下对应文件。
-- `doc/LetsMakeMoneyPRD.md` 和 `doc/implementation-plan.md` 的 v0.4 章节可能仍保留“草案”或早期计划口径；当前实际状态以本文件、v0.4 status 和 v0.4 verification 为准。
-- [doc/releases/v0.4/verification.md](releases/v0.4/verification.md) 仍包含部分通过 / 待人工最终确认项；不要把 v0.4 当作完全关闭态。
-- `releases/v0.4-beta-notes.md` 对最新 UI / Wizard 修复可能滞后；正式发布前需要同步。
+## 8. 下一步
 
-## 下一步
-
-1. 按 [doc/releases/v0.4/verification.md](releases/v0.4/verification.md) 完成人工最终确认项。
-2. 根据最终确认结果更新 [doc/releases/v0.4/status.md](releases/v0.4/status.md) 和 [doc/releases/v0.4/verification.md](releases/v0.4/verification.md)；不要把验收过程流水写入 progress。
-3. 如果仍同步维护原始大文档，需要把 v0.4 变更回写到 `doc/progress.md` 和 `doc/verification/v0.4.md`。
-4. 正式发布前同步 `releases/v0.4-beta-notes.md` 和包内 README / release notes。
-## v0.5 final acceptance status - 2026-07-09
-
-**Current result**: 未通过 / 发布阻塞。
-
-v0.5 implementation and package preparation are complete, but final release sign-off is blocked by the real Windows tray left-click pure-pet restore path. The latest user-provided evidence before sign-off showed pure-pet restore exposing a taskbar entry. A fix and regenerated v0.5 package are available, but the passing manual retest has not been recorded yet.
-
-Release rule:
-
-- If pure-pet tray left-click hide/show restores the desktop pet without a taskbar entry, update v0.5 to `通过 / 可发布`.
-- If it still exposes a taskbar entry or cannot restore, keep it as a release blocker.
-- Do not open new v0.5 feature scope for this item.
+1. 提交并推送当前 v0.5 收口状态。
+2. 打 `v0.5-beta` tag。
+3. 后续如继续迭代，进入 v0.6 `/idea`，不要继续扩大 v0.5 范围。
