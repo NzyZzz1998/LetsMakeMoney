@@ -9,6 +9,10 @@ var _defaults_cache: Dictionary = {}
 var _pending_changed_keys: Array[String] = []
 var _last_changed_keys: Array[String] = []
 var _last_save_error: String = ""
+var _recovery_notice: String = ""
+
+const CONFIG_TEMP_SUFFIX := ".tmp"
+const CONFIG_PREVIOUS_SUFFIX := ".previous"
 
 
 func _ready() -> void:
@@ -38,6 +42,8 @@ func _load() -> void:
 	var file := FileAccess.open(_config_path, FileAccess.READ)
 	if file == null:
 		data = _defaults().duplicate(true)
+		_recovery_notice = "配置文件暂时无法读取，已使用默认设置。"
+		Platform.write_error_log("config_recovered: reason=open_failed")
 		return
 
 	var json_string := file.get_as_text()
@@ -46,7 +52,20 @@ func _load() -> void:
 	if parsed is Dictionary:
 		data = merge_with_defaults(parsed)
 	else:
+		var backup_path := _preserve_invalid_config()
 		data = _defaults().duplicate(true)
+		_recovery_notice = "检测到损坏的配置，已恢复默认设置并保留原文件。"
+		Platform.write_info_log("config_recovered: reason=invalid_json backup=%s" % ("created" if not backup_path.is_empty() else "failed"))
+
+
+func _preserve_invalid_config() -> String:
+	var timestamp := Time.get_datetime_string_from_system().replace(":", "").replace("-", "").replace("T", "_")
+	var backup_path := "%s.invalid.%s.json" % [_config_path.trim_suffix(".json"), timestamp]
+	var rename_error := DirAccess.rename_absolute(_config_path, backup_path)
+	if rename_error == OK:
+		return backup_path
+	Platform.write_error_log("config_invalid_backup_failed: reason=%s" % error_string(rename_error))
+	return ""
 
 
 func merge_with_defaults(source: Dictionary) -> Dictionary:
@@ -101,36 +120,65 @@ func save() -> bool:
 	_last_save_error = ""
 	_ensure_dir()
 	var json_string := JSON.stringify(data, "\t")
-	var file := FileAccess.open(_config_path, FileAccess.WRITE)
+	var temp_path := _config_path + CONFIG_TEMP_SUFFIX
+	var previous_path := _config_path + CONFIG_PREVIOUS_SUFFIX
+	if FileAccess.file_exists(temp_path):
+		DirAccess.remove_absolute(temp_path)
+	var file := FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
-		_last_save_error = "open_failed error=%s path=%s" % [error_string(FileAccess.get_open_error()), _config_path]
-		Platform.write_boot_log("config_save_failed: %s" % _last_save_error, "error")
-		push_error("Failed to save config to: %s" % _config_path)
+		_last_save_error = "temp_open_failed error=%s" % error_string(FileAccess.get_open_error())
+		Platform.write_error_log("config_save_failed: %s" % _last_save_error)
 		return false
 	file.store_string(json_string)
 	var write_error := file.get_error()
 	file.close()
 	if write_error != OK:
-		_last_save_error = "write_failed error=%s path=%s" % [error_string(write_error), _config_path]
-		Platform.write_boot_log("config_save_failed: %s" % _last_save_error, "error")
-		push_error("Failed to write config to: %s" % _config_path)
+		_last_save_error = "temp_write_failed error=%s" % error_string(write_error)
+		Platform.write_error_log("config_save_failed: %s" % _last_save_error)
+		DirAccess.remove_absolute(temp_path)
 		return false
-	var verify_file := FileAccess.open(_config_path, FileAccess.READ)
+	var verify_file := FileAccess.open(temp_path, FileAccess.READ)
 	if verify_file == null:
-		_last_save_error = "verify_open_failed error=%s path=%s" % [error_string(FileAccess.get_open_error()), _config_path]
-		Platform.write_boot_log("config_save_failed: %s" % _last_save_error, "error")
+		_last_save_error = "verify_open_failed error=%s" % error_string(FileAccess.get_open_error())
+		Platform.write_error_log("config_save_failed: %s" % _last_save_error)
 		return false
 	var persisted := verify_file.get_as_text()
 	verify_file.close()
 	if persisted != json_string:
-		_last_save_error = "verify_mismatch path=%s" % _config_path
-		Platform.write_boot_log("config_save_failed: %s" % _last_save_error, "error")
+		_last_save_error = "verify_mismatch"
+		Platform.write_error_log("config_save_failed: %s" % _last_save_error)
+		DirAccess.remove_absolute(temp_path)
 		return false
+	if FileAccess.file_exists(previous_path):
+		DirAccess.remove_absolute(previous_path)
+	var had_previous := FileAccess.file_exists(_config_path)
+	if had_previous:
+		var backup_error := DirAccess.rename_absolute(_config_path, previous_path)
+		if backup_error != OK:
+			_last_save_error = "replace_backup_failed error=%s" % error_string(backup_error)
+			Platform.write_error_log("config_save_failed: %s" % _last_save_error)
+			DirAccess.remove_absolute(temp_path)
+			return false
+	var replace_error := DirAccess.rename_absolute(temp_path, _config_path)
+	if replace_error != OK:
+		_last_save_error = "replace_failed error=%s" % error_string(replace_error)
+		Platform.write_error_log("config_save_failed: %s" % _last_save_error)
+		if had_previous:
+			DirAccess.rename_absolute(previous_path, _config_path)
+		return false
+	if FileAccess.file_exists(previous_path):
+		DirAccess.remove_absolute(previous_path)
 	_last_changed_keys = _pending_changed_keys.duplicate()
 	_pending_changed_keys.clear()
 	Platform.write_boot_log("config_save_success: changed_keys=%s" % str(_last_changed_keys))
 	config_changed.emit()
 	return true
+
+
+func consume_recovery_notice() -> String:
+	var notice := _recovery_notice
+	_recovery_notice = ""
+	return notice
 
 
 func get_data_snapshot() -> Dictionary:

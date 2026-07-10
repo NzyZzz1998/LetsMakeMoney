@@ -13,6 +13,9 @@ var _tray_menu: PopupMenu = null
 var _last_tray_toggle_msec: int = 0
 
 const TRAY_TOGGLE_DEBOUNCE_MSEC := 350
+const LOG_MAX_BYTES := 2 * 1024 * 1024
+const LOG_FILE_NAME := "debug.log"
+const LOG_BACKUP_FILE_NAME := "debug.log.1"
 
 
 func _ready() -> void:
@@ -27,6 +30,18 @@ func _exit_tree() -> void:
 
 
 func write_boot_log(message: String, level: String = "info") -> void:
+	_write_log(message, level)
+
+
+func write_info_log(message: String) -> void:
+	_write_log(message, "info")
+
+
+func write_error_log(message: String) -> void:
+	_write_log(message, "error")
+
+
+func _write_log(message: String, level: String) -> void:
 	if level == "debug" and not _should_write_debug_log():
 		return
 	var appdata := OS.get_environment("APPDATA")
@@ -34,11 +49,16 @@ func write_boot_log(message: String, level: String = "info") -> void:
 		appdata = OS.get_user_data_dir()
 	var dir_path := appdata.path_join("LetsMakeMoney")
 	if not DirAccess.dir_exists_absolute(dir_path):
-		DirAccess.make_dir_recursive_absolute(dir_path)
-	var log_path := dir_path.path_join("debug.log")
+		var mkdir_error := DirAccess.make_dir_recursive_absolute(dir_path)
+		if mkdir_error != OK:
+			push_warning("LetsMakeMoney log directory unavailable: %s" % error_string(mkdir_error))
+			return
+	var log_path := dir_path.path_join(LOG_FILE_NAME)
+	_rotate_log_if_needed(log_path, dir_path.path_join(LOG_BACKUP_FILE_NAME))
 	var mode := FileAccess.READ_WRITE if FileAccess.file_exists(log_path) else FileAccess.WRITE
 	var file := FileAccess.open(log_path, mode)
 	if file == null:
+		push_warning("LetsMakeMoney log file unavailable: %s" % log_path)
 		return
 	file.seek_end()
 	file.store_line("%s | %s | %s" % [Time.get_datetime_string_from_system(), level, message])
@@ -46,7 +66,27 @@ func write_boot_log(message: String, level: String = "info") -> void:
 
 
 func write_debug_log(message: String) -> void:
-	write_boot_log(message, "debug")
+	_write_log(message, "debug")
+
+
+func _rotate_log_if_needed(log_path: String, backup_path: String) -> void:
+	if not FileAccess.file_exists(log_path):
+		return
+	var current := FileAccess.open(log_path, FileAccess.READ)
+	if current == null:
+		return
+	var length := current.get_length()
+	current.close()
+	if length < LOG_MAX_BYTES:
+		return
+	if FileAccess.file_exists(backup_path):
+		var remove_error := DirAccess.remove_absolute(backup_path)
+		if remove_error != OK:
+			push_warning("LetsMakeMoney log backup could not be replaced: %s" % error_string(remove_error))
+			return
+	var rename_error := DirAccess.rename_absolute(log_path, backup_path)
+	if rename_error != OK:
+		push_warning("LetsMakeMoney log rotation skipped: %s" % error_string(rename_error))
 
 
 func _should_write_debug_log() -> bool:

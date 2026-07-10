@@ -5,6 +5,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "verification_common.ps1")
 
 function Set-JsonProperty {
     param(
@@ -111,10 +112,12 @@ Write-Host "Using Godot: $resolvedGodot"
 Write-Host "Project: $projectRoot"
 Write-Host "Export: $OutputPath"
 
-& $resolvedGodot --headless --path $projectRoot --export-release "LetsMakeMoney" $OutputPath --log-file (Join-Path ([System.IO.Path]::GetTempPath()) "LetsMakeMoney_export.log")
-if ($LASTEXITCODE -ne 0) {
-    throw "Godot export failed with exit code $LASTEXITCODE."
-}
+$previousPreference = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+$exportOutput = & $resolvedGodot --headless --path $projectRoot --export-release "LetsMakeMoney" $OutputPath --log-file (Join-Path ([System.IO.Path]::GetTempPath()) "LetsMakeMoney_export.log") 2>&1
+$exportExit = $LASTEXITCODE
+$ErrorActionPreference = $previousPreference
+Assert-LmmVerificationOutput -OutputText (($exportOutput | Out-String).Trim()) -ExitCode $exportExit -Label "M5 export"
 
 $exe = Get-Item -LiteralPath $OutputPath
 if ($exe.Length -le 0) {

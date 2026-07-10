@@ -225,31 +225,51 @@ func is_auto_start_enabled(exe_path: String = "") -> bool:
 	var path := exe_path if not exe_path.is_empty() else get_executable_path()
 	if not is_auto_start_supported(path):
 		return false
+	var normalized_path := path.replace("/", "\\").to_lower()
+	var command := "\"%s\"" % normalized_path
+	var stored_command := _read_auto_start_command().to_lower()
+	return stored_command == normalized_path or stored_command == command
+
+
+func _read_auto_start_command() -> String:
 	var output: Array = []
 	var exit_code := OS.execute("reg", ["query", AUTOSTART_REG_PATH, "/v", AUTOSTART_VALUE_NAME], output, true, true)
 	if exit_code != 0:
-		return false
-	var expected := path.replace("/", "\\").to_lower()
-	var output_text := ""
-	for line in output:
-		output_text += String(line).replace("/", "\\").to_lower()
-	return output_text.contains(expected)
+		return ""
+	for block in output:
+		for line in String(block).split("\n"):
+			var marker_index := line.find("REG_SZ")
+			if marker_index >= 0:
+				return line.substr(marker_index + 6).strip_edges()
+	return ""
 
 
 func set_auto_start(enabled: bool, exe_path: String = "") -> bool:
 	var path := exe_path if not exe_path.is_empty() else get_executable_path()
 	if not is_auto_start_supported(path):
 		return false
+	var normalized_path := path.replace("/", "\\")
+	var command := "\"%s\"" % normalized_path
 	var args: Array[String]
 	if enabled:
-		args = ["add", AUTOSTART_REG_PATH, "/v", AUTOSTART_VALUE_NAME, "/t", "REG_SZ", "/d", "\"%s\"" % path, "/f"]
+		args = ["add", AUTOSTART_REG_PATH, "/v", AUTOSTART_VALUE_NAME, "/t", "REG_SZ", "/d", command, "/f"]
 	else:
 		args = ["delete", AUTOSTART_REG_PATH, "/v", AUTOSTART_VALUE_NAME, "/f"]
 	var output: Array = []
 	var exit_code := OS.execute("reg", args, output, true, true)
 	if enabled:
-		return exit_code == 0
-	return exit_code == 0 or not _has_auto_start_entry()
+		var enabled_ok := exit_code == 0 and is_auto_start_enabled(normalized_path)
+		if enabled_ok:
+			Platform.write_info_log("auto_start_apply_success: enabled=true")
+		else:
+			Platform.write_error_log("auto_start_apply_failed: enabled=true exit_code=%d stored_command_valid=%s" % [exit_code, str(is_auto_start_enabled(normalized_path))])
+		return enabled_ok
+	var disabled_ok := exit_code == 0 or not _has_auto_start_entry()
+	if disabled_ok:
+		Platform.write_info_log("auto_start_apply_success: enabled=false")
+	else:
+		Platform.write_error_log("auto_start_apply_failed: enabled=false exit_code=%d" % exit_code)
+	return disabled_ok
 
 
 func _has_auto_start_entry() -> bool:

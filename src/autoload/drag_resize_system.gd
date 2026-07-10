@@ -1,5 +1,7 @@
 extends Node
 
+const AppVersionScript := preload("res://src/utils/app_version.gd")
+
 signal modal_opened
 signal modal_closed
 signal popup_opened
@@ -436,7 +438,7 @@ func show_about() -> void:
 	layout.add_child(icon)
 
 	var title := Label.new()
-	title.text = "LetsMakeMoney v0.4 Beta"
+	title.text = "LetsMakeMoney %s" % AppVersionScript.get_display_version()
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 22)
 	layout.add_child(title)

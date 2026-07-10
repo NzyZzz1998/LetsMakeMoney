@@ -2,12 +2,44 @@
 
 #ifdef _WIN32
 
+#include <shobjidl.h>
+
 namespace {
 constexpr wchar_t PASSTHROUGH_CONTROLLER_PROP[] = L"LMMWindowController";
 constexpr int HIT_TEST_PADDING = 2;
 constexpr int RIGHT_CLICK_PET_CONTEXT_PADDING_X = 70;
 constexpr int RIGHT_CLICK_PET_CONTEXT_PADDING_TOP = 86;
 constexpr int RIGHT_CLICK_PET_CONTEXT_PADDING_BOTTOM = 58;
+
+bool synchronize_taskbar_tab(HWND hwnd, bool visible) {
+    HRESULT initialize_result = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+    const bool should_uninitialize = SUCCEEDED(initialize_result);
+    if (FAILED(initialize_result) && initialize_result != RPC_E_CHANGED_MODE) {
+        return false;
+    }
+
+    ITaskbarList *taskbar = nullptr;
+    HRESULT result = CoCreateInstance(
+        CLSID_TaskbarList,
+        nullptr,
+        CLSCTX_INPROC_SERVER,
+        IID_ITaskbarList,
+        reinterpret_cast<void **>(&taskbar)
+    );
+    if (SUCCEEDED(result)) {
+        result = taskbar->HrInit();
+    }
+    if (SUCCEEDED(result)) {
+        result = visible ? taskbar->AddTab(hwnd) : taskbar->DeleteTab(hwnd);
+    }
+    if (taskbar != nullptr) {
+        taskbar->Release();
+    }
+    if (should_uninitialize) {
+        CoUninitialize();
+    }
+    return SUCCEEDED(result);
+}
 }
 
 WindowController::~WindowController() {
@@ -82,6 +114,14 @@ bool WindowController::set_taskbar_visible(int64_t hwnd_value, bool visible) {
     }
     SetWindowLongPtrW(hwnd, GWL_EXSTYLE, ex_style);
     SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+    if (!synchronize_taskbar_tab(hwnd, visible)) {
+        const bool was_visible = IsWindowVisible(hwnd) != FALSE;
+        if (was_visible) {
+            ShowWindow(hwnd, SW_HIDE);
+            ShowWindow(hwnd, SW_SHOWNOACTIVATE);
+        }
+    }
 
     _last_error.clear();
     return true;

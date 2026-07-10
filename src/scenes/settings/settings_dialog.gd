@@ -2,6 +2,7 @@
 extends Control
 
 const WarmControlThemeScript := preload("res://src/ui/warm_control_theme.gd")
+const DiagnosticsServiceScript := preload("res://src/utils/diagnostics_service.gd")
 
 var salary_input: SpinBox
 var rest_mode_option: OptionButton
@@ -25,6 +26,8 @@ var auto_start_toggle: CheckButton
 var minimize_to_tray_toggle: CheckButton
 var reset_position_button: Button
 var restore_defaults_button: Button
+var open_app_data_button: Button
+var copy_diagnostics_button: Button
 var restore_defaults_confirm_dialog: ConfirmationDialog
 var save_button: Button
 var cancel_button: Button
@@ -43,6 +46,7 @@ var _header_dragging: bool = false
 var _header_drag_start_mouse: Vector2i = Vector2i.ZERO
 var _header_drag_start_window: Vector2i = Vector2i.ZERO
 var _warm_theme: RefCounted = WarmControlThemeScript.new()
+var _feedback_token: int = 0
 
 const SURFACE_APP := Color(1.0, 0.980, 0.940, 1.0)
 const SURFACE_CARD := Color(1.0, 0.996, 0.978, 1.0)
@@ -71,6 +75,7 @@ const SETTINGS_SHEET_HEIGHT := 510
 const SETTINGS_TAB_HEIGHT := 38
 const SETTINGS_CONTROL_WIDTH := 128
 const SETTINGS_HEADER_HEIGHT := 46
+const FEEDBACK_HIDE_SECONDS := 2.6
 const SECTION_LABELS := {
 	"Salary": "工资",
 	"Pet": "桌宠",
@@ -85,6 +90,10 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(700, 530)
 	_build_compact_ui()
 	_load_current_values()
+	if Config.has_method("consume_recovery_notice"):
+		var recovery_notice := String(Config.call("consume_recovery_notice"))
+		if not recovery_notice.is_empty():
+			_set_general_message(recovery_notice, true)
 
 
 func _build_compact_ui() -> void:
@@ -577,7 +586,7 @@ func _build_pet_tab() -> Control:
 	pet_list.custom_minimum_size = Vector2(0, 108)
 	_add_control_card(box, "选择角色", "", pet_list)
 	_add_note_block(box, "说明", [
-		"当前 v0.4 默认使用橘猫 v2，并保留旧素材作为回退。"
+		"当前默认使用橘猫 v2，并保留旧素材作为回退。"
 	])
 	return root
 
@@ -600,7 +609,7 @@ func _build_display_tab() -> Control:
 	window_mode_option = OptionButton.new()
 	window_mode_option.add_item("置顶悬浮", 0)
 	window_mode_option.add_item("融入桌面（实验）", 1)
-	_add_control_card(box, "窗口模式", "置顶悬浮为 v0.4 主要验证模式，融入桌面仍为实验能力。", window_mode_option)
+	_add_control_card(box, "窗口模式", "置顶悬浮为主要验证模式，融入桌面仍为实验能力。", window_mode_option)
 	window_mode_embed_toggle = CheckButton.new()
 	window_mode_embed_toggle.text = "融入桌面（关闭则为置顶悬浮，实验）"
 	window_mode_embed_toggle.visible = false
@@ -660,6 +669,15 @@ func _build_general_tab() -> Control:
 	restore_defaults_button.text = "恢复默认显示设置"
 	restore_defaults_button.pressed.connect(_on_restore_defaults_pressed)
 	_add_control_card(box, "恢复默认显示设置", "只重置显示、窗口、托盘、自启动和 Debug 设置，不清空薪资和角色。", restore_defaults_button)
+	_add_section_heading(box, "诊断与支持")
+	open_app_data_button = Button.new()
+	open_app_data_button.text = "打开应用数据目录"
+	open_app_data_button.pressed.connect(_on_open_app_data_pressed)
+	_add_control_card(box, "应用数据目录", "打开配置、日志和本地诊断数据所在目录。", open_app_data_button)
+	copy_diagnostics_button = Button.new()
+	copy_diagnostics_button.text = "复制诊断摘要"
+	copy_diagnostics_button.pressed.connect(_on_copy_diagnostics_pressed)
+	_add_control_card(box, "诊断摘要", "复制脱敏的版本、能力和日志状态，不生成或上传文件。", copy_diagnostics_button)
 	general_message_label = Label.new()
 	general_message_label.name = "GeneralMessageLabel"
 	general_message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -1380,19 +1398,60 @@ func _on_save() -> void:
 		_set_save_status("没有需要保存的更改。")
 		return
 	var previous_config := Config.get_data_snapshot()
-	if not _apply_form_values(form_values):
+	var previous_external := _capture_external_state()
+	if not _validate_form_values(form_values):
 		Config.restore_data_snapshot(previous_config)
+		_restore_external_state(previous_external, "pre_save_validation_failed")
 		Platform.write_boot_log("settings_save_failed: reason=pre_save_apply_failed", "error")
 		_set_save_status("保存失败：请查看不可用原因并重试。")
 		return
+	_apply_form_values(form_values)
 	if not Config.save():
 		var reason := Config.get_last_save_error()
 		Config.restore_data_snapshot(previous_config)
+		_restore_external_state(previous_external, reason)
 		Platform.write_boot_log("settings_save_failed: reason=%s" % reason, "error")
 		_set_save_status("保存失败：%s" % reason)
 		return
+	if not _apply_committed_external_state(form_values):
+		Config.restore_data_snapshot(previous_config)
+		var rollback_saved := Config.save()
+		var rollback_external := _restore_external_state(previous_external, "external_apply_failed")
+		Platform.write_error_log("settings_transaction_rollback: reason=external_apply_failed config=%s external=%s" % [str(rollback_saved), str(rollback_external)])
+		_set_save_status("保存失败：外部设置未生效，已恢复原设置。")
+		return
 	Platform.write_boot_log("settings_save_success: changed_keys=%s" % str(Config.get_last_changed_keys()))
 	_set_save_status("保存成功。")
+
+
+func _capture_external_state() -> Dictionary:
+	var current_pet := PetManager.get_current_pet()
+	var host_window := DragResizeSystem.get_registered_window()
+	return {
+		"auto_start": Platform.is_auto_start_enabled(),
+		"pet_id": String(current_pet.pet_id) if current_pet != null else String(Config.get_value("pet_id", "cat_orange_v2")),
+		"window_position": host_window.position if host_window != null else Vector2i.ZERO,
+		"window_visible": host_window.visible if host_window != null else true
+	}
+
+
+func _restore_external_state(state: Dictionary, reason: String) -> bool:
+	var auto_start_ok := Platform.set_auto_start(bool(state.get("auto_start", false)))
+	var pet_id := String(state.get("pet_id", ""))
+	if not pet_id.is_empty():
+		PetManager.switch_pet(pet_id)
+	var host_window := DragResizeSystem.get_registered_window()
+	if host_window != null:
+		host_window.position = state.get("window_position", host_window.position)
+		DragResizeSystem.set_window_visible(bool(state.get("window_visible", true)))
+	var restored_pet := PetManager.get_current_pet()
+	var pet_ok := restored_pet != null and String(restored_pet.pet_id) == pet_id
+	var ok := auto_start_ok and pet_ok
+	if ok:
+		Platform.write_info_log("settings_transaction_rollback: reason=%s result=success" % reason)
+	else:
+		Platform.write_error_log("settings_transaction_rollback: reason=%s result=failed auto_start=%s pet=%s" % [reason, str(auto_start_ok), str(pet_ok)])
+	return ok
 
 
 func _collect_form_values() -> Dictionary:
@@ -1453,7 +1512,24 @@ func _has_form_changes(form_values: Dictionary) -> bool:
 	return false
 
 
-func _apply_form_values(values: Dictionary) -> bool:
+func _validate_form_values(values: Dictionary) -> bool:
+	var pet_id := String(values.get("pet_id", ""))
+	var pet_found := pet_id.is_empty()
+	for pet in PetManager.get_available_pets():
+		if String(pet.pet_id) == pet_id:
+			pet_found = true
+			break
+	if not pet_found:
+		_set_general_message("所选桌宠资源不可用。", true)
+		return false
+	var desired_auto_start := bool(values.get("auto_start", false))
+	if desired_auto_start != Platform.is_auto_start_enabled() and not Platform.is_auto_start_supported():
+		_set_general_message("当前运行环境不支持开机自启，请使用导出的程序。", true)
+		return false
+	return true
+
+
+func _apply_form_values(values: Dictionary) -> void:
 	for key in [
 		"monthly_salary",
 		"rest_mode",
@@ -1465,7 +1541,9 @@ func _apply_form_values(values: Dictionary) -> bool:
 		"window_mode",
 		"pure_pet_mode",
 		"debug_mode",
-		"minimize_to_tray"
+		"minimize_to_tray",
+		"auto_start",
+		"pet_id"
 	]:
 		if Config.get_value(key) != values[key]:
 			Config.set_value(key, values[key])
@@ -1475,13 +1553,16 @@ func _apply_form_values(values: Dictionary) -> bool:
 		if Config.get_panel_item(key) != bool(panel_items[key]):
 			Config.set_panel_item(key, bool(panel_items[key]))
 
-	var pet_id := String(values.get("pet_id", ""))
-	if not pet_id.is_empty() and String(Config.get_value("pet_id", "")) != pet_id:
-		Config.set_value("pet_id", pet_id)
-		PetManager.switch_pet(pet_id)
 
-	auto_start_toggle.button_pressed = bool(values.get("auto_start", false))
-	return _apply_auto_start_setting()
+
+func _apply_committed_external_state(values: Dictionary) -> bool:
+	var pet_id := String(values.get("pet_id", ""))
+	if not pet_id.is_empty():
+		PetManager.switch_pet(pet_id)
+	var desired_auto_start := bool(values.get("auto_start", false))
+	if desired_auto_start == Platform.is_auto_start_enabled():
+		return true
+	return Platform.set_auto_start(desired_auto_start)
 
 
 func _get_selected_pet_id() -> String:
@@ -1494,6 +1575,8 @@ func _get_selected_pet_id() -> String:
 
 
 func _set_save_status(message: String) -> void:
+	_feedback_token += 1
+	var token := _feedback_token
 	if save_status_label != null:
 		save_status_label.text = message
 		save_feedback_panel.visible = not message.is_empty()
@@ -1512,6 +1595,8 @@ func _set_save_status(message: String) -> void:
 		save_status_label.add_theme_color_override("font_color", text_color)
 	if general_message_label != null:
 		general_message_label.visible = false
+	if not message.is_empty():
+		_hide_feedback_later(token, true)
 
 
 func _set_general_message(message: String, warning: bool = false) -> void:
@@ -1520,6 +1605,44 @@ func _set_general_message(message: String, warning: bool = false) -> void:
 	general_message_label.text = message
 	general_message_label.visible = not message.is_empty()
 	general_message_label.add_theme_color_override("font_color", SETTINGS_WARN if warning else ACCENT_MINT)
+	_feedback_token += 1
+	if not message.is_empty():
+		_hide_feedback_later(_feedback_token, false)
+
+
+func _hide_feedback_later(token: int, save_feedback: bool) -> void:
+	await get_tree().create_timer(FEEDBACK_HIDE_SECONDS).timeout
+	if token != _feedback_token:
+		return
+	if save_feedback and save_feedback_panel != null:
+		save_feedback_panel.visible = false
+	elif not save_feedback and general_message_label != null:
+		general_message_label.visible = false
+
+
+func _on_open_app_data_pressed() -> void:
+	var result := DiagnosticsServiceScript.open_app_data_directory()
+	if bool(result.get("ok", false)):
+		Platform.write_info_log("diagnostics_open_data_directory_success")
+		_set_general_message("已打开应用数据目录。")
+	else:
+		var reason := String(result.get("error", "未知错误"))
+		Platform.write_error_log("diagnostics_open_data_directory_failed: reason=%s" % reason)
+		_set_general_message(reason, true)
+
+
+func _on_copy_diagnostics_pressed() -> void:
+	var summary := DiagnosticsServiceScript.build_summary(Config.get_data_snapshot(), Platform.get_native_health())
+	var result: Dictionary = await DiagnosticsServiceScript.copy_summary_to_clipboard(summary)
+	if bool(result.get("ok", false)):
+		if bool(result.get("verification_uncertain", false)):
+			Platform.write_info_log("diagnostics_copy_verification_uncertain: reason=%s" % String(result.get("warning", "readback unavailable")))
+		Platform.write_info_log("diagnostics_copy_success: verification=%s" % ("verified" if bool(result.get("verified", false)) else "unverified"))
+		_set_general_message("诊断摘要已复制。")
+	else:
+		var reason := String(result.get("error", "未知错误"))
+		Platform.write_error_log("diagnostics_copy_failed: reason=%s" % reason)
+		_set_general_message(reason, true)
 
 
 func _on_cancel() -> void:
@@ -1622,14 +1745,21 @@ func _show_restore_defaults_confirm() -> void:
 
 func _restore_display_defaults() -> void:
 	var previous_config := Config.get_data_snapshot()
+	var previous_external := _capture_external_state()
 	Config.reset_display_defaults()
-	Platform.set_auto_start(false)
-	_load_current_values()
-	_set_general_message("显示、窗口、托盘和自启动设置已恢复默认。")
+	if not Platform.set_auto_start(false) and Platform.is_auto_start_supported():
+		Config.restore_data_snapshot(previous_config)
+		_restore_external_state(previous_external, "restore_defaults_auto_start_failed")
+		_set_save_status("保存失败：无法更新开机自启。")
+		return
 	if Config.save():
+		_load_current_values()
+		_set_general_message("显示、窗口、托盘和自启动设置已恢复默认。")
 		Platform.write_boot_log("settings_restore_display_defaults_success: changed_keys=%s" % str(Config.get_last_changed_keys()))
 	else:
 		var reason := Config.get_last_save_error()
 		Config.restore_data_snapshot(previous_config)
+		_restore_external_state(previous_external, reason)
+		_load_current_values()
 		Platform.write_boot_log("settings_restore_display_defaults_failed: reason=%s" % reason, "error")
 		_set_save_status("保存失败：%s" % reason)

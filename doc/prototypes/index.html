@@ -793,6 +793,8 @@
 
     .v05-pane { display: none; }
     .v05-pane.active { display: block; animation: fade .18s ease both; }
+    .v06-pane { display: none; }
+    .v06-pane.active { display: grid; animation: fade .18s ease both; }
 
     .v05-row {
       min-height: 42px;
@@ -839,6 +841,53 @@
     .control-swatch span {
       color: var(--muted);
       font-size: 12px;
+    }
+
+    .v06-polish-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .control-state-list {
+      display: grid;
+      border-top: 1px solid rgba(101, 62, 24, .10);
+    }
+
+    .control-state-row {
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: 72px minmax(150px, 190px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+      padding: 8px 2px;
+      border-bottom: 1px solid rgba(101, 62, 24, .10);
+    }
+
+    .control-state-name {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .control-state-preview {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .control-state-preview .btn {
+      min-width: 112px;
+      white-space: nowrap;
+    }
+
+    .control-state-preview .field {
+      width: 128px;
+      min-width: 0;
+    }
+
+    .control-state-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
     }
 
     .field.focus {
@@ -929,6 +978,184 @@
       font-size: 13px;
       margin-bottom: 4px;
     }
+
+    .v06-menu-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .menu-paper {
+      border: 1px solid rgba(101, 62, 24, .14);
+      border-radius: 16px;
+      background: #fffdf8;
+      box-shadow: 0 14px 30px rgba(93, 50, 15, .12);
+      padding: 7px;
+    }
+
+    .menu-paper .menu-role {
+      padding: 8px 10px 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .menu-paper .item {
+      min-height: 34px;
+      padding: 7px 10px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .menu-paper .item:hover,
+    .menu-paper .item.selected {
+      background: rgba(245, 183, 65, .20);
+    }
+
+    .menu-paper .sep {
+      height: 1px;
+      margin: 5px 8px;
+      background: rgba(101, 62, 24, .11);
+    }
+
+    .diagnostic-box {
+      border-top: 1px solid rgba(101, 62, 24, .10);
+      margin-top: 12px;
+      padding-top: 12px;
+    }
+
+    .diagnostic-box p {
+      margin: 4px 0 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .diagnostic-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .feedback-strip {
+      min-height: 34px;
+      margin-top: 10px;
+      border-radius: 11px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(101, 62, 24, .10);
+      background: rgba(255, 244, 218, .52);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .feedback-strip.success {
+      border-color: rgba(120, 168, 111, .30);
+      background: rgba(120, 168, 111, .13);
+      color: #476643;
+    }
+
+    .feedback-strip.error {
+      border-color: rgba(184, 92, 82, .28);
+      background: rgba(184, 92, 82, .10);
+      color: #8b3e36;
+    }
+
+    .feedback-strip[hidden] {
+      display: none;
+    }
+
+    .feedback-strip::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      background: var(--coin);
+    }
+
+    .feedback-strip.success::before { background: var(--mint); }
+    .feedback-strip.error::before { background: var(--red); }
+
+    .summary-preview {
+      border-radius: 14px;
+      border: 1px dashed rgba(101, 62, 24, .20);
+      background: rgba(255, 249, 235, .72);
+      padding: 11px;
+      color: var(--muted);
+      font-family: Consolas, "Microsoft YaHei UI", monospace;
+      font-size: 11px;
+      line-height: 1.65;
+    }
+
+    .summary-preview strong {
+      color: var(--ink);
+      font-family: "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+    }
+
+    .validation-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .validation-line {
+      min-height: 48px;
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 13px;
+      border: 1px solid rgba(101, 62, 24, .11);
+      background: rgba(255,255,255,.54);
+    }
+
+    .validation-line .code {
+      color: var(--orange);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .validation-line strong {
+      display: block;
+      font-size: 13px;
+    }
+
+    .validation-line small {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .scope-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .scope-table th,
+    .scope-table td {
+      padding: 9px 8px;
+      border-bottom: 1px solid rgba(101, 62, 24, .10);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .scope-table th {
+      color: var(--muted);
+      font-weight: 700;
+      background: rgba(255, 244, 218, .42);
+    }
+
+    .scope-table tr:last-child td { border-bottom: 0; }
 
     .debug-window {
       border-radius: 18px;
@@ -1064,7 +1291,7 @@
         height: auto;
       }
       .nav button { width: auto; display: inline-flex; margin: 3px; }
-      .panel-grid, .tray-demo, .debug-body, .wizard-body, .v05-grid, .v05-flow, .v05-docs {
+      .panel-grid, .tray-demo, .debug-body, .wizard-body, .v05-grid, .v05-flow, .v05-docs, .v06-menu-grid {
         grid-template-columns: 1fr;
       }
       .transparent-window { left: 24px; width: calc(100% - 48px); }
@@ -1089,7 +1316,8 @@
       <button data-screen="menu"><span class="dot"></span>右键菜单与托盘</button>
       <button data-screen="settings"><span class="dot"></span>设置面板</button>
       <button data-screen="wizard"><span class="dot"></span>首次向导</button>
-      <button data-screen="v05"><span class="dot"></span>v0.5 PRD 原型</button>
+      <button data-screen="v05"><span class="dot"></span>共享控件基线</button>
+      <button data-screen="v06"><span class="dot"></span>v0.6 诊断与验证</button>
       <button data-screen="debug"><span class="dot"></span>Debug 与验证</button>
       <button data-screen="release"><span class="dot"></span>发布包</button>
       <div class="nav-group-label">快捷交互</div>
@@ -1102,9 +1330,9 @@
       <header class="hero">
         <div>
           <h1 id="screenTitle">当前产品总览</h1>
-          <p id="screenLead">原型不再按版本切屏，而是按当前应用能力组织：桌宠、Panel、菜单/托盘、设置、向导、Debug、发布包。每个页面都展示现阶段真实功能和按钮能力。</p>
+          <p id="screenLead">原型按当前应用能力组织，并增加 v0.6 的诊断、菜单分层和验证基线。每个页面都展示真实功能、状态和验收路径。</p>
         </div>
-        <div class="status-chip" id="statusChip">test 分支 · v0.4 Beta 测试态</div>
+        <div class="status-chip" id="statusChip">main · v0.6 PRD 已成文待确认</div>
       </header>
 
       <div class="content">
@@ -1314,6 +1542,15 @@
                 <div class="setting-row"><span>关闭时隐藏到托盘</span><span class="switch on"></span></div>
                 <div class="setting-row"><span>重置窗口位置</span><button class="btn">重置</button></div>
                 <div class="setting-row"><span>恢复默认显示设置</span><button class="btn">恢复</button></div>
+                <div class="diagnostic-box">
+                  <div class="section-title">诊断与支持</div>
+                  <p>遇到问题时，可打开本地数据目录或复制不含薪资、时间、坐标和完整路径的诊断摘要。</p>
+                  <div class="diagnostic-actions">
+                    <button class="btn">打开应用数据目录</button>
+                    <button class="btn primary">复制诊断摘要</button>
+                  </div>
+                  <div class="feedback-strip success">诊断摘要已复制。</div>
+                </div>
               </div>
             </div>
             <div class="action-bar">
@@ -1469,6 +1706,175 @@
           </div>
         </section>
 
+        <section class="screen" id="v06">
+          <div class="toolbar">
+            <button class="btn primary" data-v06-tab="diagnostics">诊断与支持</button>
+            <button class="btn" data-v06-tab="menus">菜单职责</button>
+            <button class="btn" data-v06-tab="validation">验证基线</button>
+            <button class="btn" data-v06-tab="polish">体验对照</button>
+          </div>
+          <div class="v05-shell">
+            <div class="v05-top">
+              <div>
+                <h2>v0.6 发布后体验稳定与验证增强</h2>
+                <p>九项主线分为用户功能、有限体验修正、工程质量和验证能力；不以新增复杂页面或测试后门制造“完成感”。</p>
+              </div>
+              <span class="toast">完整 PRD 对照</span>
+            </div>
+
+            <div class="v05-grid v06-pane active" id="v06-diagnostics">
+              <div class="v05-card">
+                <h3>设置 · 通用 · 诊断与支持</h3>
+                <div class="v05-mini-tabs">
+                  <button>工资</button><button>桌宠</button><button>显示</button><button>面板</button><button class="active">通用</button>
+                </div>
+                <div class="v05-row"><span>Debug 模式</span><span class="switch"></span></div>
+                <div class="v05-row"><span>开机自启</span><span class="switch"></span></div>
+                <div class="v05-row"><span>关闭时隐藏到托盘</span><span class="switch on"></span></div>
+                <div class="diagnostic-box">
+                  <div class="section-title">诊断与支持</div>
+                  <p>本地处理，不上传。诊断摘要不包含薪资、工作时间、窗口坐标、用户名和原始日志。</p>
+                  <div class="diagnostic-actions">
+                    <button class="btn" id="diagOpen">打开应用数据目录</button>
+                    <button class="btn primary" id="diagCopy">复制诊断摘要</button>
+                  </div>
+                  <div class="feedback-strip" id="diagFeedback" hidden></div>
+                </div>
+                <div class="action-bar" style="margin:14px -14px -14px">
+                  <button class="btn">取消</button>
+                  <button class="btn primary">保存</button>
+                </div>
+              </div>
+              <div class="v05-card">
+                <h3>脱敏摘要预览</h3>
+                <div class="summary-preview">
+                  <strong>LetsMakeMoney v0.6-beta</strong><br>
+                  平台：Windows x86_64<br>
+                  config_version：3<br>
+                  pet_id：cat_orange_v2<br>
+                  pure_pet_mode：true<br>
+                  tray / passthrough / taskbar：可用<br>
+                  debug.log：存在 · 已轮换<br>
+                  interaction-screenshots：存在 · 普通模式已停止生成
+                </div>
+                <div class="section-title">反馈状态</div>
+                <div class="diagnostic-actions">
+                  <button class="btn" data-diag-state="success">成功</button>
+                  <button class="btn" data-diag-state="missing">日志缺失</button>
+                  <button class="btn" data-diag-state="recovered">配置已恢复</button>
+                  <button class="btn" data-diag-state="error">操作失败</button>
+                  <button class="btn" disabled>不可用</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="v05-grid v06-pane" id="v06-menus">
+              <div class="v05-card">
+                <h3>桌宠右键：当前上下文</h3>
+                <div class="menu-paper">
+                  <div class="menu-role">桌宠可见时使用：角色、窗口模式、重新配置和必要生命周期入口。</div>
+                  <div class="item selected"><span>隐藏到托盘</span><span></span></div>
+                  <div class="sep"></div>
+                  <div class="item"><span>设置</span><span></span></div>
+                  <div class="item"><span>重新运行向导</span><span></span></div>
+                  <div class="item"><span>窗口模式</span><span>›</span></div>
+                  <div class="item"><span>选择宠物</span><span>›</span></div>
+                  <div class="sep"></div>
+                  <div class="item"><span>关于 LetsMakeMoney</span><span></span></div>
+                  <div class="item"><span>退出</span><span></span></div>
+                </div>
+              </div>
+              <div class="v05-card">
+                <h3>系统托盘：找回与生命周期</h3>
+                <div class="menu-paper">
+                  <div class="menu-role">桌宠隐藏后仍可使用：窗口找回、全局设置、关于和退出。</div>
+                  <div class="item selected"><span>显示窗口</span><span></span></div>
+                  <div class="sep"></div>
+                  <div class="item"><span>设置</span><span></span></div>
+                  <div class="item"><span>关于 LetsMakeMoney</span><span></span></div>
+                  <div class="sep"></div>
+                  <div class="item"><span>退出</span><span></span></div>
+                </div>
+                <div class="feedback-strip">设置、关于和退出允许重复，保证窗口隐藏后仍可找回。</div>
+              </div>
+            </div>
+
+            <div class="v05-grid v06-pane" id="v06-validation">
+              <div class="v05-card">
+                <h3>版本内验证链路</h3>
+                <div class="validation-list">
+                  <div class="validation-line"><span class="code">M0</span><span><strong>事实同步</strong><small>current、原型、版本、分支、tag 与发布包一致</small></span><span class="pill">P0</span></div>
+                  <div class="validation-line"><span class="code">M1</span><span><strong>可信日志与脚本</strong><small>阻塞错误必须非零退出，普通模式语义可观测</small></span><span class="pill">P0</span></div>
+                  <div class="validation-line"><span class="code">M2</span><span><strong>托盘与诊断</strong><small>外部 PostMessage 走 native 回调，无正式包测试入口</small></span><span class="pill">P1</span></div>
+                  <div class="validation-line"><span class="code">M3</span><span><strong>有限体验精修</strong><small>有截图或日志证据才修改，无证据可零代码收口</small></span><span class="pill">P2</span></div>
+                  <div class="validation-line"><span class="code">M4</span><span><strong>高信任路径</strong><small>自启动、损坏配置、恢复默认先验证，失败才修</small></span><span class="pill">P1</span></div>
+                </div>
+              </div>
+              <div class="v05-card">
+                <h3>自动与人工边界</h3>
+                <div class="v05-flow" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+                  <div class="flow-step"><strong>自动：脚本与日志</strong>检查退出码、错误文本、窗口显隐、任务栏样式、配置与注册表。</div>
+                  <div class="flow-step"><strong>人工：真实 Windows</strong>通知区左键、注销/重启自启、2K 显示清晰度和真实菜单观感。</div>
+                  <div class="flow-step"><strong>失败：进入 bugfix</strong>保留原始证据，不通过扩大 allowlist 或测试入口绕开。</div>
+                  <div class="flow-step"><strong>通过：发布收口</strong>同步 verification、status、release notes、changelog 和包体。</div>
+                </div>
+                <div class="feedback-strip error">Parser Error、Script Error、Invalid call 等任一出现即失败。</div>
+              </div>
+            </div>
+
+            <div class="v05-grid v06-pane v06-polish-layout" id="v06-polish">
+              <div class="v05-card">
+                <h3>允许进入 v0.6 的体验修正</h3>
+                <table class="scope-table">
+                  <thead><tr><th>对象</th><th>允许</th><th>禁止</th></tr></thead>
+                  <tbody>
+                    <tr><td>Panel</td><td>对齐、稳定尺寸、低幅动效、边缘定位</td><td>信息架构重写</td></tr>
+                    <tr><td>小猫</td><td>与 Panel 间距、命中边界</td><td>动画帧和素材大修</td></tr>
+                    <tr><td>菜单</td><td>分组、hover、checked、submenu 定位</td><td>新菜单框架</td></tr>
+                    <tr><td>Settings/Wizard</td><td>共享控件状态和尺寸残差</td><td>结构与流程重做</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="v05-card">
+                <h3>共享控件状态规范</h3>
+                <div class="control-state-list" aria-label="共享控件状态对照">
+                  <div class="control-state-row">
+                    <div class="control-state-name">默认</div>
+                    <div class="control-state-preview"><button class="btn">打开数据目录</button></div>
+                    <div class="control-state-note">纸面底色、暖棕文字和轻边框，不抢占内容层级。</div>
+                  </div>
+                  <div class="control-state-row">
+                    <div class="control-state-name">悬停</div>
+                    <div class="control-state-preview"><button class="btn primary" style="filter:brightness(1.04)">复制诊断摘要</button></div>
+                    <div class="control-state-note">仅轻微提亮金币色，并保持文字和按钮尺寸稳定。</div>
+                  </div>
+                  <div class="control-state-row">
+                    <div class="control-state-name">按下</div>
+                    <div class="control-state-preview"><button class="btn primary pressed">保存设置</button></div>
+                    <div class="control-state-note">亮度和位移反馈克制，不引起布局跳动。</div>
+                  </div>
+                  <div class="control-state-row">
+                    <div class="control-state-name">禁用</div>
+                    <div class="control-state-preview"><button class="btn" disabled>当前不可用</button></div>
+                    <div class="control-state-note">降低饱和度但保留可读性，不使用深灰系统样式。</div>
+                  </div>
+                  <div class="control-state-row">
+                    <div class="control-state-name">聚焦</div>
+                    <div class="control-state-preview"><input class="field focus" value="09:00" aria-label="聚焦输入框示例"></div>
+                    <div class="control-state-note">使用单层金币色焦点环，不增加第二层容器边框。</div>
+                  </div>
+                  <div class="control-state-row">
+                    <div class="control-state-name">错误</div>
+                    <div class="control-state-preview"><input class="field error" value="保存失败" aria-label="错误输入框示例"></div>
+                    <div class="control-state-note">柔和红棕边框配合就地反馈，用户输入保持不变。</div>
+                  </div>
+                </div>
+                <div class="feedback-strip success">修改必须附带前后截图和对应证据编号。</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section class="screen" id="debug">
           <div class="debug-window">
             <div class="debug-title">LetsMakeMoney DEBUG · 900x500 调试窗口</div>
@@ -1485,7 +1891,8 @@
                 2026-07-05 10:47:33 | Pet: interaction=clicked_single base=working<br>
                 2026-07-05 10:47:48 | Pet: interaction=clicked_double base=working<br>
                 2026-07-05 10:48:54 | Pet: interaction=right_click_menu<br>
-                2026-07-06 21:10:12 | v0.4 verification passed
+                2026-07-10 10:08:42 | error | Parser Error detected<br>
+                2026-07-10 10:08:42 | verification failed · exit 1
               </div>
             </div>
           </div>
@@ -1499,7 +1906,7 @@
                 <div class="file-row"><span>LetsMakeMoney.exe</span><span>主程序</span></div>
                 <div class="file-row"><span>letsmakemoney_native.dll</span><span>Windows 原生能力</span></div>
                 <div class="file-row"><span>README.md</span><span>中文使用说明</span></div>
-                <div class="file-row"><span>v0.4-beta-notes.md</span><span>发布说明</span></div>
+                <div class="file-row"><span>v0.5-beta-notes.md</span><span>发布说明</span></div>
                 <div class="file-row"><span>manifest / checksum</span><span>完整性校验</span></div>
               </div>
             </div>
@@ -1510,7 +1917,7 @@
               </div>
               <div class="paper-card" style="margin-top:14px">
                 <h3>当前发布状态</h3>
-                <p>当前代码位于 GitHub `test` 分支，尚未作为 main 正式发布。v0.4 仍需最终手动验证和 UI 细节复测。</p>
+                <p>当前基线为 GitHub `main` 上的 `v0.5-beta`。v0.6 处于完整 PRD 与高保真原型待确认阶段，尚未进入开发和打包。</p>
               </div>
             </div>
           </div>
@@ -1520,14 +1927,14 @@
 
     <aside class="notes">
       <h2 id="noteTitle">总览说明</h2>
-      <p id="noteText">这是当前产品原型，不再区分 v0.1-v0.4 历史版本。左侧切换的是功能模块，右侧说明每个模块的按键能力、配置字段和验收重点。</p>
+      <p id="noteText">这是当前产品原型。左侧按功能模块组织，并为 v0.6 增加诊断、菜单分层和验证路径；右侧说明能力、配置与验收重点。</p>
       <div class="note-block">
         <h2>当前配置字段</h2>
         <ul id="configList">
           <li><code>monthly_salary</code>、<code>rest_mode</code>、上下班时间</li>
           <li><code>opacity</code>、<code>scale</code>、<code>window_mode</code></li>
           <li><code>pure_pet_mode</code>、<code>minimize_to_tray</code></li>
-          <li><code>panel_items</code>、<code>selected_pet</code></li>
+          <li><code>panel_items</code>、<code>pet_id</code></li>
         </ul>
       </div>
       <div class="note-block">
@@ -1542,24 +1949,31 @@
       overview: ["当前产品总览", "按当前真实能力组织，不再展示历史版本演进。"],
       desktop: ["桌宠主界面", "透明无边框桌宠窗口，小猫和 Panel 为交互区，其余区域尽量点击穿透。"],
       panel: ["Panel 便签", "折叠态为金币计数器，展开态为薪资小票，支持边缘展开策略。"],
-      menu: ["右键菜单与托盘", "右键小猫和托盘菜单保留设置、向导、窗口模式、选择宠物、关于、退出能力。"],
+      menu: ["右键菜单与托盘", "桌宠右键负责上下文操作；托盘菜单负责窗口找回、设置、关于和退出。"],
       settings: ["设置面板", "紧凑暖色偏好设置面板，包含工资、桌宠、显示、面板、通用五类。"],
       wizard: ["首次启动向导", "首次配置月薪、休息模式、工作时间和角色，也可从右键菜单重新运行。"],
-      v05: ["v0.5 PRD 原型", "展示 v0.5 的共享控件系统、托盘恢复路径、点击穿透保护和文档治理入口。"],
+      v05: ["共享控件与恢复基线", "保留 v0.5 已验证的共享控件、托盘恢复、点击穿透保护和保存反馈基线。"],
+      v06: ["v0.6 诊断与验证", "展示轻量诊断、菜单职责、可信验证链路和有证据边界的体验精修。"],
       debug: ["Debug 与验证", "Debug 模式用于观察输入分类、日志、窗口命中区和验证脚本结果。"],
-      release: ["发布包", "当前测试分支发布包形态：exe、native dll、README、release notes、manifest/checksum。"]
+      release: ["发布包", "当前基线为 v0.5-beta；v0.6 尚处于 PRD 和原型确认阶段。"]
     };
 
     const notes = {
-      overview: "总览展示当前 v0.4 Beta 测试态的目标体验：橘猫 v2 + 暖色 Panel + 二级右键菜单 + 紧凑设置 + 托盘找回。",
+      overview: "总览展示当前 v0.5 Beta 基线体验：橘猫 v2 + 暖色 Panel + 二级右键菜单 + 紧凑设置 + 托盘找回。",
       desktop: "主界面验收重点：小猫显示完整，单击/双击/长按/拖拽/右键均可用；Panel 不遮挡小猫；空白区域尽量穿透。",
       panel: "Panel 验收重点：折叠态金额清晰，展开态信息完整，靠近屏幕边缘时自动调整展开方向。",
       menu: "菜单验收重点：窗口模式和选择宠物使用二级入口；托盘左键显示/隐藏，右键菜单可设置、关于、退出。",
       settings: "设置验收重点：窗口紧凑、无大 header、五个中文 tab、下拉菜单暖色、保存/取消明确、说明性内容低权重。",
       wizard: "向导验收重点：欢迎、薪资、角色、确认四步可走通；完成后写入配置并回到桌宠模式。",
-      v05: "v0.5 原型验收重点：Settings 与 Wizard 的控件状态同源；托盘恢复后重应用纯桌宠和穿透策略；progress 与日志文档边界清楚。",
+      v05: "基线验收重点：Settings 与 Wizard 的控件状态同源；托盘恢复后重应用纯桌宠和穿透策略；保存反馈完整。",
+      v06: "v0.6 原型验收重点：诊断摘要默认脱敏；两类菜单职责清楚；阻塞错误不能报告通过；UI 只修有证据差异。",
       debug: "Debug 验收重点：可通过 config.json 开启，事件日志能区分 clicked_single、clicked_double、clicked_hold、drag、right_click_menu。",
-      release: "发布验收重点：zip 包内包含 exe、native dll 和说明文档；当前分支为 test，不进入 main。"
+      release: "发布验收重点：v0.5-beta 是当前发布基线；v0.6 完成开发和 acceptance 前不生成发布结论。"
+    };
+
+    const screenStatus = {
+      v06: "main · v0.6 PRD 已成文待确认",
+      release: "main · 当前发布基线 v0.5-beta"
     };
 
     function setScreen(id) {
@@ -1569,6 +1983,7 @@
       document.getElementById("screenLead").textContent = screens[id][1];
       document.getElementById("noteTitle").textContent = screens[id][0] + "说明";
       document.getElementById("noteText").textContent = notes[id];
+      document.getElementById("statusChip").textContent = screenStatus[id] || "main · v0.5-beta 当前基线";
     }
 
     document.querySelectorAll(".nav button[data-screen]").forEach(btn => {
@@ -1673,6 +2088,37 @@
         document.querySelectorAll(".v05-pane").forEach(pane => pane.classList.toggle("active", pane.id === "v05-" + btn.dataset.v05Tab));
       });
     });
+
+    document.querySelectorAll("[data-v06-tab]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-v06-tab]").forEach(b => b.classList.toggle("primary", b === btn));
+        document.querySelectorAll(".v06-pane").forEach(pane => pane.classList.toggle("active", pane.id === "v06-" + btn.dataset.v06Tab));
+      });
+    });
+
+    const diagnosticFeedback = document.getElementById("diagFeedback");
+    let diagnosticFeedbackTimer = 0;
+    function setDiagnosticFeedback(state) {
+      const states = {
+        success: ["success", "诊断摘要已复制。未包含薪资、工作时间、坐标或完整路径。"],
+        open: ["success", "已打开应用数据目录。"],
+        missing: ["", "日志暂不可用，已保留基础版本与 native 状态摘要。"],
+        recovered: ["", "配置已恢复为默认值，原文件已保留为带时间戳的备份。"],
+        error: ["error", "操作失败，请稍后重试或手动打开 %APPDATA%\\LetsMakeMoney。"]
+      };
+      const [className, text] = states[state];
+      window.clearTimeout(diagnosticFeedbackTimer);
+      diagnosticFeedback.className = "feedback-strip" + (className ? " " + className : "");
+      diagnosticFeedback.textContent = text;
+      diagnosticFeedback.hidden = false;
+      diagnosticFeedbackTimer = window.setTimeout(() => {
+        diagnosticFeedback.hidden = true;
+        diagnosticFeedback.textContent = "";
+      }, 2600);
+    }
+    document.getElementById("diagOpen").addEventListener("click", () => setDiagnosticFeedback("open"));
+    document.getElementById("diagCopy").addEventListener("click", () => setDiagnosticFeedback("success"));
+    document.querySelectorAll("[data-diag-state]").forEach(btn => btn.addEventListener("click", () => setDiagnosticFeedback(btn.dataset.diagState)));
   </script>
 </body>
 </html>

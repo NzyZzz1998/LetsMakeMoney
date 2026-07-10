@@ -409,7 +409,15 @@ func _schedule_return_after_click() -> void:
 func _queue_interaction_snapshots(interaction: PetManager.PetInteraction) -> void:
 	if not interaction in [PetManager.PetInteraction.CLICKED_SINGLE, PetManager.PetInteraction.CLICKED_DOUBLE]:
 		return
+	if not _should_capture_interaction_snapshots():
+		return
 	call_deferred("_capture_interaction_snapshots", _interaction_debug_name(interaction), _return_token)
+
+
+func _should_capture_interaction_snapshots() -> bool:
+	if OS.get_environment("LETSMAKEMONEY_CAPTURE_INTERACTION_SCREENSHOTS") == "1":
+		return true
+	return bool(Config.get_value("debug_mode", false))
 
 
 func _capture_interaction_snapshots(interaction_name: String, token: int) -> void:

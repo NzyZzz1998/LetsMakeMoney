@@ -23,13 +23,13 @@ function Add-Issue {
 $issues = [System.Collections.Generic.List[string]]::new()
 
 $currentPath = Join-Path $Root "doc/current.md"
-$v05Dir = Join-Path $Root "doc/releases/v0.5"
-$statusPath = Join-Path $v05Dir "status.md"
-$progressPath = Join-Path $v05Dir "progress_v0.5.md"
-$planPath = Join-Path $v05Dir "dev_plan_v0.5.md"
-$prdPath = Join-Path $v05Dir "prd.md"
-$verificationPath = Join-Path $v05Dir "verification.md"
-$releaseChecklistPath = Join-Path $v05Dir "release-checklist.md"
+$v06Dir = Join-Path $Root "doc/releases/v0.6"
+$statusPath = Join-Path $v06Dir "status.md"
+$progressPath = Join-Path $v06Dir "progress_v0.6.md"
+$planPath = Join-Path $v06Dir "dev_plan_v0.6.md"
+$prdPath = Join-Path $v06Dir "prd.md"
+$verificationPath = Join-Path $v06Dir "verification.md"
+$releaseChecklistPath = Join-Path $v06Dir "release-checklist.md"
 $logsReadmePath = Join-Path $Root "doc/logs/README.md"
 
 $requiredFiles = @(
@@ -55,24 +55,24 @@ if ($issues.Count -eq 0) {
     $checklist = Read-Text $releaseChecklistPath
     $logsReadme = Read-Text $logsReadmePath
 
-    if ($status -notmatch "v0\.5 Beta") {
-        Add-Issue $issues "status.md does not identify v0.5 Beta."
+    if ($status -notmatch "v0\.6 Beta") {
+        Add-Issue $issues "status.md does not identify v0.6 Beta."
     }
 
-    if ($status -notmatch "V05-M0") {
-        Add-Issue $issues "status.md should reference the active V05-M0 implementation milestone."
+    if ($status -notmatch "V06-M0") {
+        Add-Issue $issues "status.md should reference the active V06-M0 implementation milestone."
     }
 
-    if ($progress -notmatch "V05-M0") {
-        Add-Issue $issues "progress_v0.5.md does not contain V05-M0."
+    if ($progress -notmatch "V06-M0") {
+        Add-Issue $issues "progress_v0.6.md does not contain V06-M0."
     }
 
     if ($progress -notmatch "dev-log" -or $progress -notmatch "bugfix-log" -or $progress -notmatch "spike-log") {
-        Add-Issue $issues "progress_v0.5.md does not state progress/log boundaries."
+        Add-Issue $issues "progress_v0.6.md does not state progress/log boundaries."
     }
 
-    if ($checklist -notmatch "package_v05\.ps1") {
-        Add-Issue $issues "release-checklist.md does not reference v0.5 package script."
+    if ($checklist -notmatch "package_v06\.ps1") {
+        Add-Issue $issues "release-checklist.md does not reference v0.6 package script."
     }
 
     if ($logsReadme -notmatch "dev-log" -or $logsReadme -notmatch "bugfix-log" -or $logsReadme -notmatch "spike-log") {

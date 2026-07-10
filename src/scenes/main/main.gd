@@ -1,6 +1,8 @@
 # src/scenes/main/main.gd
 extends Node2D
 
+const AppVersionScript := preload("res://src/utils/app_version.gd")
+
 @onready var pet: Node2D = $Pet
 @onready var panel = $Panel
 @onready var debug_status: Label = $DebugStatus
@@ -57,6 +59,7 @@ var _last_topmost: Variant = null
 
 
 func _ready() -> void:
+	Platform.write_boot_log("app_started: version=%s" % AppVersionScript.get_version())
 	Platform.write_boot_log("Main._ready: begin")
 	get_tree().auto_accept_quit = false
 	_apply_window_icon()
@@ -662,25 +665,25 @@ func _on_modal_opened() -> void:
 	_set_primary_content_visible(false)
 	_apply_viewport_transparency(true)
 	Platform.set_mouse_passthrough(get_window(), false, [])
-	Platform.write_debug_log("passthrough_suspended: reason=modal_opened")
+	Platform.write_info_log("passthrough_suspended: reason=modal_opened")
 
 
 func _on_modal_closed() -> void:
 	_modal_open = false
 	_runtime_mode_reapply_deferred_until_modal_close = false
 	_schedule_runtime_mode_reapply()
-	Platform.write_debug_log("passthrough_resumed: reason=modal_closed")
+	Platform.write_info_log("passthrough_resumed: reason=modal_closed")
 
 
 func _on_popup_opened() -> void:
 	_last_passthrough_rects_hash = 0
 	Platform.set_mouse_passthrough(get_window(), false, [])
-	Platform.write_debug_log("passthrough_suspended: reason=popup_opened")
+	Platform.write_info_log("passthrough_suspended: reason=popup_opened")
 
 
 func _on_popup_closed() -> void:
 	_queue_mouse_passthrough_refresh("popup_closed")
-	Platform.write_debug_log("passthrough_resumed: reason=popup_closed")
+	Platform.write_info_log("passthrough_resumed: reason=popup_closed")
 
 
 func _set_primary_content_visible(visible: bool) -> void:

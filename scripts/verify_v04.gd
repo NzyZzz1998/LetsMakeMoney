@@ -617,7 +617,7 @@ func _check_icon_polish_assets() -> void:
 	var drag_script := FileAccess.get_file_as_string("res://src/autoload/drag_resize_system.gd")
 	_assert(drag_script.contains("AcceptDialog.new()"), "About window should use an in-app dialog instead of a system alert")
 	_assert(drag_script.contains("res://icons/app_icon.png"), "About window should show the high resolution app icon")
-	_assert(drag_script.contains("LetsMakeMoney v0.4 Beta"), "About window should use the current v0.4 version label")
+	_assert(drag_script.contains("AppVersionScript.get_display_version"), "About window should use the shared current version label")
 	_assert(drag_script.contains("MODAL_WINDOW_SIZE := Vector2i(700, 530)"), "Settings/modal host should use the compact preferences baseline")
 	_assert(drag_script.contains("_window.borderless = true"), "Settings/modal host should not show the native Windows title bar")
 	_assert(drag_script.contains("_window.transparent_bg = true"), "Settings/modal host should keep transparent corners instead of a black rectangular background")
@@ -1023,7 +1023,7 @@ func _check_prototype_v04_scope() -> void:
 	]:
 		_assert(prototype.contains(screen_id), "prototype missing current product screen: %s" % screen_id)
 
-	_assert(prototype.contains("原型不再按版本切屏"), "prototype should explain the current non-versioned structure")
+	_assert(prototype.contains("按当前真实能力组织"), "prototype should explain the current product-oriented structure")
 	_assert(not prototype.contains("screen-v04-theme"), "prototype should not expose v0.4 theme entry")
 
 

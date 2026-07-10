@@ -24,6 +24,9 @@ var next_btn: Button
 var _summary_value_labels: Dictionary = {}
 var _warm_theme: RefCounted = WarmControlThemeScript.new()
 var _close_reason: String = "closed"
+var _entry_config_snapshot: Dictionary = {}
+var _entry_pet_id: String = ""
+var _entry_state_restored: bool = false
 
 const SURFACE_APP := Color(1.0, 0.972, 0.914, 0.98)
 const SURFACE_CARD := Color(1.0, 0.988, 0.952, 0.99)
@@ -42,6 +45,9 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_ALL
 	_build_ui()
+	_entry_config_snapshot = Config.get_data_snapshot()
+	var entry_pet := PetManager.get_current_pet()
+	_entry_pet_id = String(entry_pet.pet_id) if entry_pet != null else String(Config.get_value("pet_id", "cat_orange_v2"))
 	_load_defaults()
 	_populate_pets()
 	Platform.write_boot_log("wizard_opened: step=1")
@@ -49,6 +55,8 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	if _close_reason != "finished":
+		_restore_entry_state(_close_reason)
 	Platform.write_boot_log("wizard_closed: reason=%s step=%d" % [_close_reason, _current_step])
 
 
@@ -478,12 +486,16 @@ func _load_defaults() -> void:
 func _populate_pets() -> void:
 	pet_list.clear()
 	var pets := PetManager.get_available_pets()
-	for pet in pets:
+	var current_id := _entry_pet_id
+	var selected_index := 0
+	for index in range(pets.size()):
+		var pet = pets[index]
 		pet_list.add_item(pet.display_name)
+		if String(pet.pet_id) == current_id:
+			selected_index = index
 	if pets.size() > 0:
-		pet_list.select(0)
-		PetManager.switch_pet(pets[0].pet_id)
-		_set_preview_pet(pets[0])
+		pet_list.select(selected_index)
+		_set_preview_pet(pets[selected_index])
 
 
 func _show_step(step: int) -> void:
@@ -566,6 +578,7 @@ func _finish() -> void:
 	if not Config.save():
 		var reason := Config.get_last_save_error()
 		Config.restore_data_snapshot(previous_config)
+		_restore_entry_state("finish_failed")
 		Platform.write_boot_log("wizard_finish_failed: reason=%s" % reason, "error")
 		return
 	_close_reason = "finished"
@@ -576,5 +589,16 @@ func _finish() -> void:
 
 func _on_cancel() -> void:
 	_close_reason = "cancelled"
+	_restore_entry_state(_close_reason)
 	Platform.write_boot_log("wizard_cancelled: step=%d" % _current_step)
 	queue_free()
+
+
+func _restore_entry_state(reason: String) -> void:
+	if _entry_state_restored:
+		return
+	_entry_state_restored = true
+	if not _entry_pet_id.is_empty():
+		PetManager.switch_pet(_entry_pet_id)
+	Config.restore_data_snapshot(_entry_config_snapshot)
+	Platform.write_info_log("wizard_state_restored: reason=%s pet_id=%s" % [reason, _entry_pet_id])
