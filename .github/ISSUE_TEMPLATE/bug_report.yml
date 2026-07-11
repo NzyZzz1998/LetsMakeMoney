@@ -1,0 +1,27 @@
+name: Bug 报告
+description: 报告可复现的功能或兼容性问题
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes: {label: 版本, placeholder: "例如 v0.6-beta"}
+    validations: {required: true}
+  - type: input
+    id: system
+    attributes: {label: Windows 环境, placeholder: "版本、架构、缩放比例和显示器数量"}
+    validations: {required: true}
+  - type: textarea
+    id: steps
+    attributes: {label: 复现步骤, description: 请给出最短、稳定的操作路径。}
+    validations: {required: true}
+  - type: textarea
+    id: expected
+    attributes: {label: 预期与实际结果}
+    validations: {required: true}
+  - type: textarea
+    id: evidence
+    attributes: {label: 脱敏证据, description: 可附截图和日志片段；请删除用户名、绝对路径、配置与凭据。}
+  - type: textarea
+    id: verification
+    attributes: {label: 已尝试的验证或临时规避}
