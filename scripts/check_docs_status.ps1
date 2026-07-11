@@ -3,89 +3,36 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-
-function Read-Text {
-    param([string]$Path)
-    if (-not (Test-Path -LiteralPath $Path)) {
-        throw "Missing required document: $Path"
-    }
-    return Get-Content -LiteralPath $Path -Raw -Encoding UTF8
-}
-
-function Add-Issue {
-    param(
-        [System.Collections.Generic.List[string]]$Issues,
-        [string]$Message
-    )
-    [void]$Issues.Add($Message)
-}
-
 $issues = [System.Collections.Generic.List[string]]::new()
 
-$currentPath = Join-Path $Root "doc/current.md"
-$v06Dir = Join-Path $Root "doc/releases/v0.6"
-$statusPath = Join-Path $v06Dir "status.md"
-$progressPath = Join-Path $v06Dir "progress_v0.6.md"
-$planPath = Join-Path $v06Dir "dev_plan_v0.6.md"
-$prdPath = Join-Path $v06Dir "prd.md"
-$verificationPath = Join-Path $v06Dir "verification.md"
-$releaseChecklistPath = Join-Path $v06Dir "release-checklist.md"
-$logsReadmePath = Join-Path $Root "doc/logs/README.md"
-
-$requiredFiles = @(
-    $currentPath,
-    $statusPath,
-    $progressPath,
-    $planPath,
-    $prdPath,
-    $verificationPath,
-    $releaseChecklistPath,
-    $logsReadmePath
-)
-
-foreach ($file in $requiredFiles) {
-    if (-not (Test-Path -LiteralPath $file)) {
-        Add-Issue $issues "Missing required file: $file"
+function Read-Utf8([string]$Path) {
+    if (-not (Test-Path -LiteralPath $Path)) {
+        $issues.Add("Missing required document: $Path")
+        return ""
     }
+    return [IO.File]::ReadAllText($Path, [Text.UTF8Encoding]::new($false, $true))
 }
 
-if ($issues.Count -eq 0) {
-    $status = Read-Text $statusPath
-    $progress = Read-Text $progressPath
-    $checklist = Read-Text $releaseChecklistPath
-    $logsReadme = Read-Text $logsReadmePath
+$current = Read-Utf8 (Join-Path $Root "doc/current.md")
+$v07Status = Read-Utf8 (Join-Path $Root "doc/releases/v0.7/status.md")
+$v07Progress = Read-Utf8 (Join-Path $Root "doc/releases/v0.7/progress_v0.7.md")
+$v07Readiness = Read-Utf8 (Join-Path $Root "doc/releases/v0.7/public-readiness.md")
+$v06Status = Read-Utf8 (Join-Path $Root "doc/releases/v0.6/status.md")
+$v06Verification = Read-Utf8 (Join-Path $Root "doc/releases/v0.6/verification.md")
 
-    if ($status -notmatch "v0\.6 Beta") {
-        Add-Issue $issues "status.md does not identify v0.6 Beta."
-    }
-
-    if ($status -notmatch "V06-M0") {
-        Add-Issue $issues "status.md should reference the active V06-M0 implementation milestone."
-    }
-
-    if ($progress -notmatch "V06-M0") {
-        Add-Issue $issues "progress_v0.6.md does not contain V06-M0."
-    }
-
-    if ($progress -notmatch "dev-log" -or $progress -notmatch "bugfix-log" -or $progress -notmatch "spike-log") {
-        Add-Issue $issues "progress_v0.6.md does not state progress/log boundaries."
-    }
-
-    if ($checklist -notmatch "package_v06\.ps1") {
-        Add-Issue $issues "release-checklist.md does not reference v0.6 package script."
-    }
-
-    if ($logsReadme -notmatch "dev-log" -or $logsReadme -notmatch "bugfix-log" -or $logsReadme -notmatch "spike-log") {
-        Add-Issue $issues "doc/logs/README.md does not define dev-log/bugfix-log/spike-log boundaries."
-    }
-}
+if ($current -notmatch "v0\.7 Beta") { $issues.Add("current.md does not identify v0.7 Beta.") }
+if ($current -notmatch "v0\.6 Beta") { $issues.Add("current.md does not preserve the v0.6 Beta baseline.") }
+if ($current -notmatch "V07-A[0-9]" -or $current -notmatch "e6f25ae8cb4d9583aa3e629cb79416e278060117") { $issues.Add("current.md does not preserve the v0.7 A-series Git identity.") }
+if ($v07Status -notmatch "V07-A0" -or $v07Status -notmatch "v0\.7") { $issues.Add("v0.7 status does not record A0.") }
+if ($v07Progress -notmatch "V07-A0-001" -or $v07Progress -notmatch "V07-A0-008") { $issues.Add("v0.7 progress is missing A0 tasks.") }
+if ($v07Readiness -notmatch "V07-A3" -or $v07Readiness -notmatch "A1/A2/A3") { $issues.Add("public-readiness does not preserve downstream gates.") }
+if ($v06Status -notmatch "v0\.6-beta") { $issues.Add("v0.6 status no longer identifies the release tag.") }
+if ($v06Verification -notmatch "V06-ACC-M6-015") { $issues.Add("v0.6 verification no longer preserves the startup evidence row.") }
 
 if ($issues.Count -gt 0) {
     Write-Host "Docs status check failed:" -ForegroundColor Red
-    foreach ($issue in $issues) {
-        Write-Host " - $issue" -ForegroundColor Red
-    }
+    $issues | ForEach-Object { Write-Host " - $_" -ForegroundColor Red }
     exit 1
 }
 
-Write-Host "Docs status check passed." -ForegroundColor Green
+Write-Host "Docs status check passed: v0.7 development and v0.6 release facts are consistent." -ForegroundColor Green

@@ -1,5 +1,9 @@
 # cat orange v2 runtime asset
 
+License: visual PNG assets are covered by the repository root
+`ASSETS_LICENSE.md`; metadata, resources, and generation scripts are covered
+by the root MIT `LICENSE`. See `ASSETS_MANIFEST.md` for provenance.
+
 This directory is the v0.4 runtime area for the next orange cat animation set.
 It currently contains an image-generation concept candidate derived from a
 six-pose orange-cat concept sheet. The earlier deterministic cutout batch is
@@ -43,9 +47,10 @@ python .\scripts\generate_cat_orange_v2_from_concept_sheet.py
 Import the new PNGs and rebuild Godot resources:
 
 ```powershell
-$env:APPDATA = "<PROJECT_ROOT>\.godot_user"
-$env:LOCALAPPDATA = "<PROJECT_ROOT>\.godot_user"
-& "$env:LMM_GODOT_EXE" --headless --path "<PROJECT_ROOT>" --script "res://scripts/build_cat_orange_v2_resource.gd"
+$ProjectRoot = (Resolve-Path .).Path
+$env:APPDATA = Join-Path $ProjectRoot ".godot_user"
+$env:LOCALAPPDATA = $env:APPDATA
+& $env:LMM_GODOT_EXE --headless --path $ProjectRoot --script "res://scripts/build_cat_orange_v2_resource.gd"
 ```
 
 The generated `.tres` files should reference external PNG textures. They should

@@ -1,2 +1,6 @@
 # Normalize EOL for all files that Git considers text files.
 * text=auto eol=lf
+
+# Preserve third-party license texts verbatim and exclude their upstream
+# whitespace from project source diff checks.
+licenses/third-party/** -diff

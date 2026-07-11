@@ -2,6 +2,8 @@
 
 LetsMakeMoney 是一个 Godot 4.7 开发的 Windows 桌面宠物应用。它用一只橘猫陪伴用户工作，并根据月薪、休息模式、上下班时间实时计算“今天已经赚了多少钱”。
 
+[English](README.en.md)
+
 ## 当前状态
 
 当前版本为 **v0.6 Beta**，当前分支为 `main`。最终验收已经通过，并通过 `v0.6-beta` tag 作为 GitHub Pre-release 发布。最新事实源请先阅读 `doc\current.md` 和 `doc\releases\v0.6\status.md`。
@@ -31,10 +33,10 @@ v0.6 最终验收结论为“通过”，当前无发布阻塞项。真实 Windo
 - PowerShell
 - MSYS2 UCRT64（仅 native bridge 本地构建需要）
 
-本机 Godot 路径示例：
+设置 Godot 可执行文件：
 
 ```powershell
-<GODOT_PATH>\Godot_v4.7-stable_win64_console.exe
+$env:LMM_GODOT_EXE = "<Godot 4.7 console executable>"
 ```
 
 ## 运行项目
@@ -42,7 +44,7 @@ v0.6 最终验收结论为“通过”，当前无发布阻塞项。真实 Windo
 用 Godot 打开项目目录：
 
 ```powershell
-& "<GODOT_PATH>\Godot_v4.7-stable_win64_console.exe" --path "<PROJECT_ROOT>"
+& $env:LMM_GODOT_EXE --path (Resolve-Path .).Path
 ```
 
 配置文件路径：
@@ -87,6 +89,14 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v06_package.ps1
 ```
 
 发布或手动复制时，`LetsMakeMoney.exe` 和 `letsmakemoney_native.dll` 必须放在同一目录。
+
+## 许可与贡献
+
+- 项目原创代码、构建脚本、纯文本配置和代码文档采用 [MIT License](LICENSE)。
+- 橘猫、占位猫、动画帧、Logo 和应用图标不适用 MIT，采用 [视觉素材受限许可](ASSETS_LICENSE.md)，详细范围见 [视觉资产清单](ASSETS_MANIFEST.md)。
+- 第三方依赖保留各自许可；见 [第三方声明](THIRD_PARTY_NOTICES.md)。A2 合规结构已经建立，但 A3 及后续门禁未完成，仓库仍不得公开。
+- v0.7 接受代码、文档、UI 设计说明和 native 贡献，暂不接受外部素材文件。参见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+- 未经书面许可，不得提取项目视觉素材用于其他项目，也不得分发包含受限素材的非官方二进制。
 
 ## 文档入口
 

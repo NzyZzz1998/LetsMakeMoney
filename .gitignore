@@ -10,6 +10,7 @@ build/
 export_credentials.cfg
 /releases/v0.4/
 /releases/v0.5/
+/releases/v0.6/
 .godot_user_v05/
 assets/pets/cat/orange_v2/_incoming/
 assets/pets/cat/orange_v2/_review/
@@ -26,6 +27,37 @@ native/windows/**/*.obj
 .tmp_release/
 /_lmm_verify/
 /tmp/
+
+# Local acceptance evidence and extracted candidates
+/.manual-test/
+/.tmp_acceptance/
+/.tmp_public_audit/
+/.tmp_installer/
+/.tmp_update/
+
+# Local runtime data and diagnostics
+config.json
+config.json.tmp
+config.json.previous
+config.invalid.*.json
+debug.log
+debug.log.*
+
+# Local environment and signing material
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.pem
+*.key
+*.snk
+*.secrets.json
+
+# Installer/update intermediate output
+/installer/output/
+/installer/cache/
+/update-cache/
 
 # Test files (temporary, should not be committed)
 test_*.tscn

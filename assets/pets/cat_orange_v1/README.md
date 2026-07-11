@@ -1,7 +1,10 @@
 ﻿# cat_orange_v1 final 256 pack
 
+License: visual PNG assets are covered by the repository root
+`ASSETS_LICENSE.md`. See `ASSETS_MANIFEST.md` for provenance and permitted use.
+
 Generated on: 2026-06-29
-Source character: <TEMP_PROJECT>\content.png
+Source character: `<PRIVATE_SOURCE>/content.png`
 Purpose: final 256x256 transparent PNG set for the first Godot integration pass.
 
 ## Included animations

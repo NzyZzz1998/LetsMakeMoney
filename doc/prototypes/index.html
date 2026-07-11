@@ -796,6 +796,47 @@
     .v06-pane { display: none; }
     .v06-pane.active { display: grid; animation: fade .18s ease both; }
 
+    .v07-pane { display: none; }
+    .v07-pane.active { display: block; animation: fade .18s ease both; }
+    .v07-tabs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+    .installer-shell {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      background: var(--paper);
+      box-shadow: var(--soft-shadow);
+    }
+    .installer-head { padding:18px 20px; background:var(--paper-2); border-bottom:1px solid var(--line); }
+    .installer-head h3 { margin:0 0 5px; font-size:19px; }
+    .installer-head p { margin:0; color:var(--muted); font-size:13px; }
+    .installer-body { padding:20px; min-height:286px; }
+    .installer-steps { display:flex; gap:7px; margin-bottom:18px; }
+    .installer-steps span { height:5px; flex:1; border-radius:99px; background:#eadbc7; }
+    .installer-steps span.done { background:var(--coin); }
+    .choice-row { display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid var(--line); }
+    .choice-row:last-child { border-bottom:0; }
+    .choice-mark { width:18px; height:18px; border:1px solid var(--line-strong); border-radius:6px; background:#fff; flex:0 0 auto; margin-top:2px; }
+    .choice-row.selected .choice-mark { background:var(--coin); box-shadow:inset 0 0 0 4px #fff7df; }
+    .choice-copy strong { display:block; font-size:14px; }
+    .choice-copy small { display:block; margin-top:4px; color:var(--muted); line-height:1.5; }
+    .installer-actions { padding:13px 20px; border-top:1px solid var(--line); display:flex; justify-content:space-between; gap:10px; }
+    .update-card { border:1px solid var(--line); border-radius:18px; background:#fffef9; padding:18px; }
+    .update-version { display:flex; justify-content:space-between; gap:14px; align-items:start; }
+    .update-version h3 { margin:0; font-size:20px; }
+    .progress-track { height:7px; border-radius:99px; background:#eadbc7; overflow:hidden; margin:16px 0 8px; }
+    .progress-track span { display:block; height:100%; width:64%; background:linear-gradient(90deg,var(--coin),var(--mint)); }
+    .license-split { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .license-card { border:1px solid var(--line); border-radius:16px; padding:15px; background:#fffef9; }
+    .license-card.restricted { background:#fff5e4; border-color:rgba(233,120,37,.3); }
+    .license-card h3 { margin:0 0 8px; font-size:16px; }
+    .license-card p { margin:0; color:var(--muted); font-size:13px; line-height:1.6; }
+    .gate-list { display:grid; gap:9px; }
+    .gate-row { display:grid; grid-template-columns:30px minmax(0,1fr) auto; gap:10px; align-items:center; padding:11px 12px; border:1px solid var(--line); border-radius:13px; background:#fffef9; }
+    .gate-icon { width:24px; height:24px; border-radius:50%; display:grid; place-items:center; background:#e7f1e2; color:#477343; font-weight:800; }
+    .gate-row.pending .gate-icon { background:#fff0cc; color:#9a6815; }
+    .gate-row small { display:block; color:var(--muted); margin-top:3px; }
+    .inline-alert { margin-top:14px; padding:11px 13px; border-radius:12px; background:#fff0ed; color:#8d413a; border:1px solid rgba(184,92,82,.28); font-size:13px; }
+
     .v05-row {
       min-height: 42px;
       display: grid;
@@ -1294,6 +1335,7 @@
       .panel-grid, .tray-demo, .debug-body, .wizard-body, .v05-grid, .v05-flow, .v05-docs, .v06-menu-grid {
         grid-template-columns: 1fr;
       }
+      .license-split { grid-template-columns:1fr; }
       .transparent-window { left: 24px; width: calc(100% - 48px); }
       .salary-panel { left: 210px; }
     }
@@ -1318,6 +1360,7 @@
       <button data-screen="wizard"><span class="dot"></span>首次向导</button>
       <button data-screen="v05"><span class="dot"></span>共享控件基线</button>
       <button data-screen="v06"><span class="dot"></span>v0.6 诊断与验证</button>
+      <button data-screen="v07"><span class="dot"></span>v0.7 公开与分发</button>
       <button data-screen="debug"><span class="dot"></span>Debug 与验证</button>
       <button data-screen="release"><span class="dot"></span>发布包</button>
       <div class="nav-group-label">快捷交互</div>
@@ -1332,7 +1375,7 @@
           <h1 id="screenTitle">当前产品总览</h1>
           <p id="screenLead">原型按当前应用能力组织，并增加 v0.6 的诊断、菜单分层和验证基线。每个页面都展示真实功能、状态和验收路径。</p>
         </div>
-        <div class="status-chip" id="statusChip">main · v0.6 PRD 已成文待确认</div>
+        <div class="status-chip" id="statusChip">main · v0.7 完整 PRD 待确认</div>
       </header>
 
       <div class="content">
@@ -1875,6 +1918,102 @@
           </div>
         </section>
 
+        <section class="screen" id="v07">
+          <div class="v07-tabs" id="v07Tabs">
+            <button class="btn primary" data-v07-tab="install">首次安装</button>
+            <button class="btn" data-v07-tab="update">版本更新</button>
+            <button class="btn" data-v07-tab="settings">版本设置</button>
+            <button class="btn" data-v07-tab="license">许可说明</button>
+            <button class="btn" data-v07-tab="gates">公开门禁</button>
+          </div>
+
+          <div class="v07-pane active" id="v07-install">
+            <div class="installer-shell">
+              <div class="installer-head">
+                <h3 id="installTitle">安装 LetsMakeMoney</h3>
+                <p id="installLead">仅为当前用户安装，无需管理员权限。</p>
+              </div>
+              <div class="installer-body">
+                <div class="installer-steps" id="installSteps"><span class="done"></span><span></span><span></span><span></span></div>
+                <div id="installContent">
+                  <div class="choice-row selected"><span class="choice-mark"></span><div class="choice-copy"><strong>当前用户安装</strong><small>安装到 %LOCALAPPDATA%\Programs\LetsMakeMoney，不请求管理员权限。</small></div></div>
+                  <div class="choice-row"><span class="choice-mark"></span><div class="choice-copy"><strong>用户数据独立保存</strong><small>配置和日志位于 %APPDATA%\LetsMakeMoney，升级和默认卸载都会保留。</small></div></div>
+                  <div class="choice-row"><span class="choice-mark"></span><div class="choice-copy"><strong>创建开始菜单快捷方式</strong><small>桌面快捷方式保持可选，不自动开启开机自启。</small></div></div>
+                </div>
+              </div>
+              <div class="installer-actions">
+                <button class="btn" id="installBack" disabled>上一步</button>
+                <div><button class="btn" id="installCancel">取消</button> <button class="btn primary" id="installNext">下一步</button></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="v07-pane" id="v07-update">
+            <div class="update-card">
+              <div class="update-version">
+                <div><span class="pill">Beta 通道</span><h3 style="margin-top:9px">发现 v0.7 Beta 更新</h3><p class="muted">包含公开仓库准备、签名安装器和用户确认更新。</p></div>
+                <strong>42.8 MB</strong>
+              </div>
+              <div id="updateBody">
+                <div class="release-list" style="margin-top:14px">
+                  <div class="file-row"><span>当前版本</span><span>v0.6 Beta</span></div>
+                  <div class="file-row"><span>发布者签名</span><span>待下载后验证</span></div>
+                  <div class="file-row"><span>安装方式</span><span>退出应用后启动安装器</span></div>
+                </div>
+              </div>
+              <div class="toolbar" style="justify-content:flex-end;margin:16px 0 0">
+                <button class="btn" data-update-state="none">已是最新</button>
+                <button class="btn" data-update-state="error">模拟校验失败</button>
+                <button class="btn primary" data-update-state="download">下载更新</button>
+              </div>
+              <div class="feedback-strip" id="updateFeedback" hidden></div>
+            </div>
+          </div>
+
+          <div class="v07-pane" id="v07-settings">
+            <div class="settings-shell" style="max-width:680px;margin:auto">
+              <div class="settings-top">
+                <div class="tabs"><button class="active">版本与更新</button></div>
+                <button class="close" aria-label="关闭">×</button>
+              </div>
+              <div class="settings-content" style="min-height:300px">
+                <div class="page-title">
+                  <div><h2>版本与更新</h2><span>更新只在你确认后下载和安装</span></div>
+                  <span class="pill">v0.6 Beta</span>
+                </div>
+                <div class="section-title">更新偏好</div>
+                <div class="setting-row"><span>更新通道</span><select class="select" style="width:132px"><option>测试通道</option><option>稳定通道</option></select></div>
+                <div class="setting-row"><span>启动后检查更新</span><span class="switch on" role="switch" aria-checked="true"></span></div>
+                <div class="setting-row"><span>自动下载</span><span class="pill">不支持静默下载</span></div>
+                <div class="section-title">当前版本</div>
+                <div class="setting-row"><span>Windows x86_64 · Beta</span><span class="toast">已是最新</span></div>
+                <p style="margin:13px 0 0;color:var(--muted);font-size:12px;line-height:1.65">Beta 通道接收测试版和稳定版。下载完成后会校验 SHA256 与发布者签名，安装前仍需你再次确认。</p>
+              </div>
+              <div class="action-bar"><button class="btn">查看发布说明</button><button class="btn primary">立即检查</button></div>
+            </div>
+          </div>
+
+          <div class="v07-pane" id="v07-license">
+            <div class="license-split">
+              <div class="license-card"><span class="pill">开放代码</span><h3 style="margin-top:10px">MIT License</h3><p>项目原创代码和明确标注的文档采用 MIT。你可以使用、修改和分发代码，但须保留版权与许可声明。</p><button class="btn" style="margin-top:14px">查看代码许可证</button></div>
+              <div class="license-card restricted"><span class="pill">受限素材</span><h3 style="margin-top:10px">视觉素材许可</h3><p>Logo、图标、橘猫和动画素材不随代码按 MIT 开放，不允许脱离项目自由复用、修改或再分发。</p><button class="btn" style="margin-top:14px">查看素材许可</button></div>
+              <div class="license-card"><h3>第三方声明</h3><p>Godot、godot-cpp、Inno Setup 及进入安装包的依赖按各自许可证分发。</p><button class="btn" style="margin-top:14px">查看第三方声明</button></div>
+              <div class="license-card"><h3>便携版说明</h3><p>安装版与便携 Zip 共用 %APPDATA% 配置。不要同时运行两个副本；卸载安装版默认保留数据。</p></div>
+            </div>
+          </div>
+
+          <div class="v07-pane" id="v07-gates">
+            <div class="gate-list">
+              <div class="gate-row"><span class="gate-icon">✓</span><div><strong>代码与素材许可分层</strong><small>MIT 代码、受限视觉素材和第三方 notices 可追踪</small></div><span class="pill">P0</span></div>
+              <div class="gate-row pending"><span class="gate-icon">!</span><div><strong>完整 Git 历史审计</strong><small>仓库保持私有，直到 secret、路径、资产和大文件审计签核</small></div><span class="pill">阻塞公开</span></div>
+              <div class="gate-row pending"><span class="gate-icon">!</span><div><strong>可复现构建与 CI</strong><small>干净环境 bootstrap 固定 godot-cpp 并完成 native、测试和打包</small></div><span class="pill">阻塞公开</span></div>
+              <div class="gate-row pending"><span class="gate-icon">!</span><div><strong>签名安装器</strong><small>只有 Authenticode 有效时才作为 GitHub Release 附件</small></div><span class="pill">阻塞安装器</span></div>
+              <div class="gate-row"><span class="gate-icon">✓</span><div><strong>未来规划边界</strong><small>多平台、主题和更多宠物仅形成规划文档，不伪装成已实现</small></div><span class="pill">文档</span></div>
+            </div>
+            <div class="inline-alert">A-E 全部验收通过后才能公开仓库；任何 P0 未关闭都不得提前切换可见性。</div>
+          </div>
+        </section>
+
         <section class="screen" id="debug">
           <div class="debug-window">
             <div class="debug-title">LetsMakeMoney DEBUG · 900x500 调试窗口</div>
@@ -1906,7 +2045,7 @@
                 <div class="file-row"><span>LetsMakeMoney.exe</span><span>主程序</span></div>
                 <div class="file-row"><span>letsmakemoney_native.dll</span><span>Windows 原生能力</span></div>
                 <div class="file-row"><span>README.md</span><span>中文使用说明</span></div>
-                <div class="file-row"><span>v0.5-beta-notes.md</span><span>发布说明</span></div>
+                <div class="file-row"><span>v0.6-beta-notes.md</span><span>发布说明</span></div>
                 <div class="file-row"><span>manifest / checksum</span><span>完整性校验</span></div>
               </div>
             </div>
@@ -1917,7 +2056,7 @@
               </div>
               <div class="paper-card" style="margin-top:14px">
                 <h3>当前发布状态</h3>
-                <p>当前基线为 GitHub `main` 上的 `v0.5-beta`。v0.6 处于完整 PRD 与高保真原型待确认阶段，尚未进入开发和打包。</p>
+                <p>当前发布基线为 GitHub `main` 上的 `v0.6-beta`。v0.7 处于完整 PRD 与高保真原型待确认阶段，尚未进入开发和打包。</p>
               </div>
             </div>
           </div>
@@ -1927,7 +2066,7 @@
 
     <aside class="notes">
       <h2 id="noteTitle">总览说明</h2>
-      <p id="noteText">这是当前产品原型。左侧按功能模块组织，并为 v0.6 增加诊断、菜单分层和验证路径；右侧说明能力、配置与验收重点。</p>
+      <p id="noteText">这是当前产品原型。左侧保留已发布能力，并为 v0.7 增加安装、更新、许可和公开门禁；右侧说明能力、配置与验收重点。</p>
       <div class="note-block">
         <h2>当前配置字段</h2>
         <ul id="configList">
@@ -1954,8 +2093,9 @@
       wizard: ["首次启动向导", "首次配置月薪、休息模式、工作时间和角色，也可从右键菜单重新运行。"],
       v05: ["共享控件与恢复基线", "保留 v0.5 已验证的共享控件、托盘恢复、点击穿透保护和保存反馈基线。"],
       v06: ["v0.6 诊断与验证", "展示轻量诊断、菜单职责、可信验证链路和有证据边界的体验精修。"],
+      v07: ["v0.7 公开与可信分发", "展示签名安装器、用户确认更新、许可边界和仓库公开门禁。"],
       debug: ["Debug 与验证", "Debug 模式用于观察输入分类、日志、窗口命中区和验证脚本结果。"],
-      release: ["发布包", "当前基线为 v0.5-beta；v0.6 尚处于 PRD 和原型确认阶段。"]
+      release: ["发布包", "当前发布基线为 v0.6 Beta；v0.7 仍处于完整 PRD 与原型确认阶段。"]
     };
 
     const notes = {
@@ -1967,13 +2107,15 @@
       wizard: "向导验收重点：欢迎、薪资、角色、确认四步可走通；完成后写入配置并回到桌宠模式。",
       v05: "基线验收重点：Settings 与 Wizard 的控件状态同源；托盘恢复后重应用纯桌宠和穿透策略；保存反馈完整。",
       v06: "v0.6 原型验收重点：诊断摘要默认脱敏；两类菜单职责清楚；阻塞错误不能报告通过；UI 只修有证据差异。",
+      v07: "v0.7 原型验收重点：安装与更新必须由用户确认，代码和素材许可清晰分层，签名与完整性失败不得继续安装，A-E 未全部通过前仓库保持私有。",
       debug: "Debug 验收重点：可通过 config.json 开启，事件日志能区分 clicked_single、clicked_double、clicked_hold、drag、right_click_menu。",
-      release: "发布验收重点：v0.5-beta 是当前发布基线；v0.6 完成开发和 acceptance 前不生成发布结论。"
+      release: "发布验收重点：v0.6 Beta 是当前已发布基线；v0.7 通过 acceptance 前不生成发布结论或公开仓库。"
     };
 
     const screenStatus = {
-      v06: "main · v0.6 PRD 已成文待确认",
-      release: "main · 当前发布基线 v0.5-beta"
+      v06: "main · v0.6 Beta 已发布",
+      v07: "main · v0.7 完整 PRD 待确认",
+      release: "main · 当前发布基线 v0.6-beta"
     };
 
     function setScreen(id) {
@@ -1983,7 +2125,7 @@
       document.getElementById("screenLead").textContent = screens[id][1];
       document.getElementById("noteTitle").textContent = screens[id][0] + "说明";
       document.getElementById("noteText").textContent = notes[id];
-      document.getElementById("statusChip").textContent = screenStatus[id] || "main · v0.5-beta 当前基线";
+      document.getElementById("statusChip").textContent = screenStatus[id] || "main · v0.6-beta 当前基线";
     }
 
     document.querySelectorAll(".nav button[data-screen]").forEach(btn => {
@@ -2095,6 +2237,60 @@
         document.querySelectorAll(".v06-pane").forEach(pane => pane.classList.toggle("active", pane.id === "v06-" + btn.dataset.v06Tab));
       });
     });
+
+    document.querySelectorAll("[data-v07-tab]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-v07-tab]").forEach(b => b.classList.toggle("primary", b === btn));
+        document.querySelectorAll(".v07-pane").forEach(pane => pane.classList.toggle("active", pane.id === "v07-" + btn.dataset.v07Tab));
+      });
+    });
+
+    const installStates = [
+      ["安装 LetsMakeMoney", "仅为当前用户安装，无需管理员权限。", "下一步"],
+      ["许可与使用边界", "代码采用 MIT，橘猫、Logo 和图标使用受限素材许可。", "我已了解"],
+      ["确认安装选项", "程序与用户数据分离；卸载默认保留设置和日志。", "开始安装"],
+      ["安装完成", "已创建开始菜单入口。现在可以启动桌宠。", "启动应用"]
+    ];
+    let installStep = 0;
+    function renderInstallStep() {
+      const state = installStates[installStep];
+      document.getElementById("installTitle").textContent = state[0];
+      document.getElementById("installLead").textContent = state[1];
+      document.getElementById("installNext").textContent = state[2];
+      document.getElementById("installBack").disabled = installStep === 0;
+      document.querySelectorAll("#installSteps span").forEach((s, i) => s.classList.toggle("done", i <= installStep));
+      const messages = [
+        "当前用户安装到 %LOCALAPPDATA%\\Programs\\LetsMakeMoney。",
+        "MIT 只覆盖代码；受限视觉素材不可脱离项目自由再分发。",
+        "将安装签名程序文件，配置继续保存在 %APPDATA%\\LetsMakeMoney。",
+        "安装器签名与文件完整性已验证。"
+      ];
+      document.getElementById("installContent").innerHTML = `<div class="feedback-strip success" style="display:block">${messages[installStep]}</div>`;
+    }
+    document.getElementById("installNext").addEventListener("click", () => { installStep = Math.min(3, installStep + 1); renderInstallStep(); });
+    document.getElementById("installBack").addEventListener("click", () => { installStep = Math.max(0, installStep - 1); renderInstallStep(); });
+    document.getElementById("installCancel").addEventListener("click", () => {
+      installStep = 0; renderInstallStep();
+      document.getElementById("installContent").innerHTML = '<div class="inline-alert">安装已取消。未修改现有程序和用户配置。</div>';
+    });
+
+    document.querySelectorAll("[data-update-state]").forEach(btn => btn.addEventListener("click", () => {
+      const state = btn.dataset.updateState;
+      const body = document.getElementById("updateBody");
+      const feedback = document.getElementById("updateFeedback");
+      feedback.hidden = false;
+      feedback.className = "feedback-strip";
+      if (state === "download") {
+        body.innerHTML = '<div class="progress-track"><span></span></div><p class="muted">正在下载 64% · 可随时取消，不会在后台安装</p>';
+        feedback.classList.add("success"); feedback.textContent = "下载完成后将验证 SHA256 和 Authenticode 签名。";
+      } else if (state === "error") {
+        body.innerHTML = '<div class="inline-alert">签名或 SHA256 校验失败，更新文件已隔离，当前版本不受影响。</div>';
+        feedback.classList.add("error"); feedback.textContent = "无法验证发布者身份，请重试或从 GitHub Release 手动下载。";
+      } else {
+        body.innerHTML = '<div class="feedback-strip success" style="display:block">当前已是测试通道的最新版本。</div>';
+        feedback.classList.add("success"); feedback.textContent = "上次检查：刚刚";
+      }
+    }));
 
     const diagnosticFeedback = document.getElementById("diagFeedback");
     let diagnosticFeedbackTimer = 0;
