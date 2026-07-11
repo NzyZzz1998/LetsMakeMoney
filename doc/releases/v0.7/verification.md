@@ -165,6 +165,35 @@
 - native DLL SHA256：`5D21CFFAA2A26F25958CD50FF138449D8575B1A1E512B5F30304AC58A28D1BE4`
 - 测试安装器 SHA256：`0036EAF2026A679B838C6AE4C4F203B14CF4FCB78404A713D1978A083621E923`，签名 `NotSigned`
 
+## 最终候选 Acceptance（2026-07-11）
+
+**结论**：部分通过；暂不可进入发布收口。
+
+| 验收项 | 实际结果 | 结论 | 证据 |
+|---|---|---|---|
+| 身份锁定 | 分支、HEAD、干净工作区、Zip/安装器 SHA256 全部匹配 | 通过 | `environment-before.json` 与本页候选身份 |
+| Zip 首次启动 | 从独立解压目录启动；Wizard 四步、橘猫、Panel 正常 | 通过 | `01`-`05` 截图，`wizard_*` 日志 |
+| Settings 五页与更新 | 五页无裁切；无变化、成功日志正确；真实 GitHub 检查返回已是最新 | 通过 | `07`-`15` 截图与日志 |
+| Settings 保存失败 | 输入保留、配置哈希不变、失败语义日志完整；UI 未显示失败提示 | 未通过 | `19`、`20` 截图；`save-failure-before-hash.txt`；`settings_save_failed` |
+| Wizard 取消/关闭 | 状态恢复且未写入半成品 | 通过 | `17`、`18` 截图；`wizard_state_restored`、`wizard_cancelled` |
+| Popup/Modal 穿透保护 | 打开/关闭日志成对，关闭后恢复 | 通过 | `passthrough_suspended/resumed` 日志 |
+| 纯桌宠任务栏策略 | 进程继续运行，Computer Use 应用列表不再暴露窗口，native 隐藏返回 true | 部分通过 | `set_taskbar_visible ... false / ok=true`；真实托盘左键待人工 |
+| DPI/多显示器 | 100% DPI、单显示器通过；本机无其他环境 | 部分通过 | `acceptance-runtime-summary.json`；125%+ 与跨屏待人工 |
+| 安装器取消 | 取消后无程序目录和卸载记录残留 | 通过 | `22`、`23` 截图与文件检查 |
+| 正常安装与覆盖/修复 | 当前用户目录正确；EXE/DLL 哈希一致；两次 GUI 安装完成 | 通过 | `24`-`27` 截图与安装文件哈希 |
+| 卸载保留数据 | 程序目录删除，APPDATA 配置保留 | 通过 | `28` 截图与卸载后文件检查 |
+| 卸载主动删除数据 | 未执行，避免通用 `unins000.exe` 名称冲突误操作其他软件 | 待验证 | `manual-verification.md` |
+| SmartScreen/签名 | 安装器为 `NotSigned`，没有可信发布者证据 | 未通过（安装器附件） | installer manifest / Get-AuthenticodeSignature |
+| 包内许可和双语入口 | LICENSES、notices、README、manifest/checksum 完整 | 通过 | 包验证与 `LICENSES/` 清单 |
+| 环境恢复 | 原 APPDATA、注册表恢复；安装目录移除；进程 0 | 通过 | `environment-restored.json` |
+
+### 发布判断
+
+- 源码仓库：可继续公开。历史、许可、安全和当前树门禁未回退。
+- 便携 Zip：功能主体通过，但 `V07-BUG-001` 属于当前候选的用户可见失败反馈缺陷，因此暂不可发布。
+- 未签名安装器：不可公开发布。
+- v0.7：暂不可进入发布收口；先修复 `V07-BUG-001` 并定向复验。签名仍决定安装器附件是否可发布。
+
 ## V07-B1 固定依赖与可复现构建
 
 | 检查 | 结果 | 证据 |
