@@ -167,3 +167,13 @@
 | 历史兼容 | 通过 | v0.2、v0.4、v0.5、v0.6、M4、M5 |
 | 临时/实验运行时引用 | 通过 | 当前 Git 树无 `temp/`、`experiments/` 或 ComfyUI 脚本；export 继续显式排除 |
 | 当前源码包内启动 | 通过 | M5 重新导出后公共 package/verify smoke 通过 |
+
+## V07-B4 Main/native 行为测试与状态合同
+
+| 检查 | 结果 | 证据 |
+|---|---|---|
+| 状态所有权与模式矩阵 | 通过 | `window-native-state-contract.md` |
+| native 协议 | 通过 | `native-protocol.json` 与 `test_window_state_contract.ps1` |
+| 普通/纯桌宠托盘 | 通过 | 当前导出 EXE 各 2 轮；任务栏策略断言通过 |
+| Settings/Wizard/Popup | 通过 | v0.4-v0.7 UI、模态与穿透日志合同 |
+| 多显示器/DPI | 待 E4/Acceptance | 已建立 100%-200% 人工矩阵，不在 headless/CI 冒充通过 |

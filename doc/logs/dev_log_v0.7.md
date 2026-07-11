@@ -155,6 +155,14 @@
 - A3 历史重写后当前树已无被跟踪的临时目录、实验素材和 ComfyUI 脚本；历史产品决策文档保留为事实，不再作为运行时入口。
 - 当前源码重新导出并完成含许可证的受控 Zip 启动烟测；Pet/Salary、降级托盘、导入元数据和状态缓存未修改。
 
+### 2026-07-11 / V07-B4 Main/native 行为测试与状态合同
+
+- 新增窗口与原生状态合同，明确 DragResizeSystem、Main、Platform、WindowsPlatform 和 native controller 的唯一所有权。
+- 新增机器可读 native 协议，冻结托盘 callback message、0-5 命令 ID、布尔返回值与 last_error 语义。
+- 将普通/纯桌宠、Popup/Modal、native available/degraded/unavailable、退出和多显示器/DPI 组合纳入回归矩阵。
+- 当前导出 EXE 的普通模式和纯桌宠模式托盘各完成 2 轮 PostMessage 行为回归。
+- 合同评审未发现必须先改业务语义的冲突，允许进入 B5 分阶段治理；每个切面仍须独立回退。
+
 ## 关键决策
 
 | 决策 | 背景 | 取舍 | 影响范围 | 后续观察 |

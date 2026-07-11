@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "tray": {
+    "callback_message": 32869,
+    "commands": [
+      {"name": "none", "id": 0},
+      {"name": "toggle", "id": 1},
+      {"name": "settings", "id": 2},
+      {"name": "about", "id": 3},
+      {"name": "exit", "id": 4},
+      {"name": "left_toggle", "id": 5}
+    ]
+  },
+  "result_contract": {
+    "boolean_methods": "true means requested native state was applied; false requires last_error",
+    "poll_tray_command": "returns a command id once, then resets to none",
+    "health_states": ["available", "degraded", "unavailable"]
+  }
+}
