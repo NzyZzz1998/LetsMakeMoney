@@ -43,7 +43,7 @@
 | V07-B2 | CI 与验证/打包脚本治理 | 已完成 | 13/13 |
 | V07-B3 | 低风险代码与仓库瘦身 | 已完成 | 12/12 |
 | V07-B4 | Main/native 行为测试与状态合同 | 已完成 | 14/14 |
-| V07-B5 | Main/native 分阶段深度治理 | 未开始 | 0/16 |
+| V07-B5 | Main/native 分阶段深度治理 | 待人工补证 | 15/16 |
 | V07-C1 | Inno Setup 安装器基线 | 未开始 | 0/12 |
 | V07-C2 | 签名与卸载门禁 | 未开始 | 0/11 |
 | V07-C3 | 更新检查、通道与下载校验 | 未开始 | 0/15 |
@@ -192,22 +192,24 @@
 
 ### V07-B5：Main/native 分阶段深度治理（FR-008/011；IDEA-011/013）
 
-- [ ] V07-B5-001 建立第一阶段独立分支/回退点和验证清单。
-- [ ] V07-B5-002 提取 Main 的窗口策略协调职责。
-- [ ] V07-B5-003 提取 Main 的 Popup/Modal 穿透协调职责。
-- [ ] V07-B5-004 运行第一阶段状态矩阵并记录差异。
-- [ ] V07-B5-005 明确 Platform 接口只表达跨平台能力合同。
-- [ ] V07-B5-006 收敛 WindowsPlatform 的意图缓存与原生真实状态。
-- [ ] V07-B5-007 为每项原生能力维护 available/degraded/unavailable 与 last_error。
-- [ ] V07-B5-008 运行第二阶段状态矩阵并记录差异。
-- [ ] V07-B5-009 整理 native bridge 消息常量和返回值。
-- [ ] V07-B5-010 整理 TrayController 的菜单/消息窗口生命周期。
-- [ ] V07-B5-011 整理 WindowController 的 subclass、任务栏和穿透生命周期。
-- [ ] V07-B5-012 运行第三阶段 native build、托盘 10 轮和 DLL 降级验证。
-- [ ] V07-B5-013 删除仅在状态合同证明后确认冗余的缓存/补丁逻辑。
-- [ ] V07-B5-014 运行普通/纯桌宠、Settings/Wizard、Panel/Pet 全回归。
+- [x] V07-B5-001 建立第一阶段独立分支/回退点和验证清单。
+- [x] V07-B5-002 提取 Main 的窗口策略协调职责。
+- [x] V07-B5-003 提取 Main 的 Popup/Modal 穿透协调职责。
+- [x] V07-B5-004 运行第一阶段状态矩阵并记录差异。
+- [x] V07-B5-005 明确 Platform 接口只表达跨平台能力合同。
+- [x] V07-B5-006 收敛 WindowsPlatform 的意图缓存与原生真实状态。
+- [x] V07-B5-007 为每项原生能力维护 available/degraded/unavailable 与 last_error。
+- [x] V07-B5-008 运行第二阶段状态矩阵并记录差异。
+- [x] V07-B5-009 整理 native bridge 消息常量和返回值。
+- [x] V07-B5-010 整理 TrayController 的菜单/消息窗口生命周期。
+- [x] V07-B5-011 整理 WindowController 的 subclass、任务栏和穿透生命周期。
+- [x] V07-B5-012 运行第三阶段 native build、托盘 10 轮和 DLL 降级验证。
+- [x] V07-B5-013 删除仅在状态合同证明后确认冗余的缓存/补丁逻辑。
+- [x] V07-B5-014 运行普通/纯桌宠、Settings/Wizard、Panel/Pet 全回归。
 - [ ] V07-B5-015 完成多显示器、DPI、通知区和任务栏人工补证。
-- [ ] V07-B5-016 确认每阶段均可独立回退且 v0.6 核心体验无回退。
+- [x] V07-B5-016 确认每阶段均可独立回退且 v0.6 核心体验无回退。
+
+**B5 最近验证**：窗口策略协调器、Popup/Modal overlay 判定、capability health 和共享 native 协议分三切面落地；native Release 构建通过，当前源码重新导出后普通/纯桌宠托盘各 10 轮通过。多显示器、DPI 与真实通知区/任务栏保留为 E4/Acceptance 人工补证，不据自动化冒充通过。
 
 ### V07-C1：Inno Setup 安装器基线（FR-009；IDEA-017）
 

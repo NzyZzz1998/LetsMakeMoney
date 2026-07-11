@@ -45,6 +45,12 @@ func get_native_health() -> Dictionary:
 		"window_supported": false,
 		"passthrough_supported": false,
 		"taskbar_supported": false,
+		"capabilities": {
+			"tray": {"state": "unavailable", "last_error": "Native bridge is not available on this platform."},
+			"window": {"state": "unavailable", "last_error": "Native bridge is not available on this platform."},
+			"passthrough": {"state": "unavailable", "last_error": "Native bridge is not available on this platform."},
+			"taskbar": {"state": "unavailable", "last_error": "Native bridge is not available on this platform."}
+		},
 		"last_error": "Native bridge is not available on this platform."
 	}
 

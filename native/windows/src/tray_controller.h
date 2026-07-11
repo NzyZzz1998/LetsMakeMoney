@@ -6,15 +6,16 @@
 #endif
 
 #include <string>
+#include "native_protocol.h"
 
 class TrayController {
 public:
-    static constexpr int COMMAND_NONE = 0;
-    static constexpr int COMMAND_TOGGLE = 1;
-    static constexpr int COMMAND_SETTINGS = 2;
-    static constexpr int COMMAND_ABOUT = 3;
-    static constexpr int COMMAND_EXIT = 4;
-    static constexpr int COMMAND_LEFT_TOGGLE = 5;
+    static constexpr int COMMAND_NONE = LmmNativeProtocol::COMMAND_NONE;
+    static constexpr int COMMAND_TOGGLE = LmmNativeProtocol::COMMAND_TOGGLE;
+    static constexpr int COMMAND_SETTINGS = LmmNativeProtocol::COMMAND_SETTINGS;
+    static constexpr int COMMAND_ABOUT = LmmNativeProtocol::COMMAND_ABOUT;
+    static constexpr int COMMAND_EXIT = LmmNativeProtocol::COMMAND_EXIT;
+    static constexpr int COMMAND_LEFT_TOGGLE = LmmNativeProtocol::COMMAND_LEFT_TOGGLE;
 
     TrayController();
     ~TrayController();
@@ -28,8 +29,8 @@ public:
 
 private:
 #ifdef _WIN32
-    static constexpr UINT TRAY_UID = 1;
-    static constexpr UINT TRAY_CALLBACK_MESSAGE = WM_APP + 101;
+    static constexpr UINT TRAY_UID = LmmNativeProtocol::TRAY_UID;
+    static constexpr UINT TRAY_CALLBACK_MESSAGE = LmmNativeProtocol::TRAY_CALLBACK_MESSAGE;
     static LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 
     bool ensure_message_window();

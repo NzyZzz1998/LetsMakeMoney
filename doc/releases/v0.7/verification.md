@@ -177,3 +177,13 @@
 | 普通/纯桌宠托盘 | 通过 | 当前导出 EXE 各 2 轮；任务栏策略断言通过 |
 | Settings/Wizard/Popup | 通过 | v0.4-v0.7 UI、模态与穿透日志合同 |
 | 多显示器/DPI | 待 E4/Acceptance | 已建立 100%-200% 人工矩阵，不在 headless/CI 冒充通过 |
+
+## V07-B5 Main/native 分阶段治理
+
+| 切面 | 结果 | 证据 |
+|---|---|---|
+| Window/overlay policy | 通过 | `verify_v07_window_policy_coordinator.gd` 与 v0.4/v0.6 回归 |
+| native capability health | 通过 | `test_native_health_contract.ps1`；兼容布尔字段保留 |
+| shared native protocol | 通过 | JSON/header 合同与 native Release 编译 |
+| 托盘与任务栏 | 通过 | 当前源码导出后 normal/pure 各 10 轮 |
+| 多显示器/DPI/真实通知区 | 待人工补证 | 转交 E4/Acceptance |

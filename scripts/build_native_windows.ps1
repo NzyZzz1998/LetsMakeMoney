@@ -177,7 +177,7 @@ if ($compilerMode -eq "MSYS2 UCRT64") {
 else {
     Push-Location $NativePath
     try {
-        Invoke-Captured { & $pythonCommand -m SCons platform=windows target=$Target arch=x86_64 -j$Jobs } "Native build failed" | Write-Output
+        Invoke-Captured { & $pythonCommand -m SCons platform=windows target=$Target arch=x86_64 "-j$Jobs" } "Native build failed" | Write-Output
     }
     finally {
         Pop-Location

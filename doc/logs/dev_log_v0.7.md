@@ -163,6 +163,15 @@
 - 当前导出 EXE 的普通模式和纯桌宠模式托盘各完成 2 轮 PostMessage 行为回归。
 - 合同评审未发现必须先改业务语义的冲突，允许进入 B5 分阶段治理；每个切面仍须独立回退。
 
+### 2026-07-11 / V07-B5 Main/native 分阶段治理
+
+- 第一切面新增纯逻辑 `WindowPolicyCoordinator`，统一普通/纯桌宠任务栏意图与 Popup/Modal 穿透启用判定；Main 保留布局和执行职责。
+- 第二切面为 Platform fallback 与 WindowsPlatform 增加 available/degraded/unavailable capability 状态及逐能力 last_error，同时保留 v0.6 布尔兼容字段。
+- 第三切面将托盘 callback、命令 ID 和返回值常量提取到共享 native protocol header，并与机器可读 JSON 合同交叉验证。
+- native 编译发现非 MSYS 构建分支把 `-j$Jobs` 当字面量，已改为展开后的独立参数；Release 冷构建通过。
+- 当前源码重新导出，普通和纯桌宠模式各完成 10 轮托盘显隐与任务栏策略回归。
+- 未进行一次性 Main/native 重写；多显示器、DPI、真实通知区和任务栏继续留给候选产物验收。
+
 ## 关键决策
 
 | 决策 | 背景 | 取舍 | 影响范围 | 后续观察 |

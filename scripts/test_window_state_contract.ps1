@@ -11,7 +11,11 @@ Require ($protocol.tray.callback_message -eq 32869) 'Tray callback message misma
 $commands=@{};foreach($entry in $protocol.tray.commands){$commands[$entry.name]=[int]$entry.id}
 foreach($pair in @{'none'=0;'toggle'=1;'settings'=2;'about'=3;'exit'=4;'left_toggle'=5}.GetEnumerator()){Require ($commands[$pair.Key] -eq $pair.Value) "Tray command mismatch: $($pair.Key)"}
 $header=Get-Content (Join-Path $ProjectRoot 'native/windows/src/tray_controller.h') -Raw -Encoding UTF8
-foreach($id in 0..5){Require ($header -match "= $id;") "Native header no longer exposes command $id"}
+$sharedHeaderPath=Join-Path $ProjectRoot 'native/windows/src/native_protocol.h';Require (Test-Path $sharedHeaderPath) 'Missing shared native protocol header'
+$sharedHeader=Get-Content $sharedHeaderPath -Raw -Encoding UTF8
+Require ($header.Contains('#include "native_protocol.h"')) 'Tray controller must consume shared native protocol constants'
+foreach($id in 0..5){Require ($sharedHeader -match "= $id;") "Native protocol no longer exposes command $id"}
+foreach($name in @('COMMAND_NONE','COMMAND_TOGGLE','COMMAND_SETTINGS','COMMAND_ABOUT','COMMAND_EXIT','COMMAND_LEFT_TOGGLE','TRAY_CALLBACK_MESSAGE')){Require $sharedHeader.Contains($name) "Shared native protocol missing: $name"}
 $interface=Get-Content (Join-Path $ProjectRoot 'src/platform/platform_interface.gd') -Raw -Encoding UTF8
 foreach($method in @('get_native_health','set_window_visible','set_taskbar_visible','set_mouse_passthrough','poll_tray_command')){Require ($interface.Contains("func $method")) "Platform contract missing: $method"}
 Write-Host 'Window/native state contract tests passed' -ForegroundColor Green

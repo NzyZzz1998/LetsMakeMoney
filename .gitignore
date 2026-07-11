@@ -29,6 +29,7 @@ native/windows/**/*.obj
 /tmp/
 /.cache/
 /.tmp_ci/
+/native/windows/bin/**/*.a
 
 # Local acceptance evidence and extracted candidates
 /.manual-test/

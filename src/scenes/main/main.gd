@@ -2,6 +2,7 @@
 extends Node2D
 
 const AppVersionScript := preload("res://src/utils/app_version.gd")
+const WindowPolicyCoordinatorScript := preload("res://src/utils/window_policy_coordinator.gd")
 
 @onready var pet: Node2D = $Pet
 @onready var panel = $Panel
@@ -47,6 +48,7 @@ var _runtime_mode_reapply_deferred_until_modal_close: bool = false
 var _native_health: Dictionary = {}
 var _last_passthrough_rects_hash: int = 0
 var _modal_open: bool = false
+var _popup_open: bool = false
 var _hit_debug_layer: Control = null
 var _hit_debug_enabled: bool = false
 var _passthrough_refresh_pending: bool = false
@@ -56,6 +58,7 @@ var _last_scale: float = -1.0
 var _last_opacity: float = -1.0
 var _last_taskbar_visible: Variant = null
 var _last_topmost: Variant = null
+var _window_policy: RefCounted = WindowPolicyCoordinatorScript.new()
 
 
 func _ready() -> void:
@@ -300,24 +303,15 @@ func _flush_mouse_passthrough_refresh() -> void:
 
 
 func _apply_mouse_passthrough(reason: String = "unspecified") -> void:
-	if _modal_open:
+	var passthrough_configured := bool(Config.get_value("native_integration_enabled", true)) and bool(Config.get_value("mouse_passthrough_enabled", true))
+	if not _window_policy.should_enable_passthrough(_modal_open, _popup_open, passthrough_configured):
 		_last_passthrough_rects_hash = 0
 		Platform.set_mouse_passthrough(get_window(), false, [])
-		Platform.write_debug_log("Main._apply_mouse_passthrough: reason=%s mode=modal clear" % reason)
+		Platform.write_debug_log("Main._apply_mouse_passthrough: reason=%s mode=overlay_or_config clear modal=%s popup=%s" % [reason, str(_modal_open), str(_popup_open)])
 		return
 	if _debug_mode:
 		_last_passthrough_rects_hash = 0
 		Platform.write_debug_log("Main._apply_mouse_passthrough: reason=%s mode=debug skip" % reason)
-		return
-	if not bool(Config.get_value("native_integration_enabled", true)):
-		Platform.set_mouse_passthrough(get_window(), false, [])
-		_last_passthrough_rects_hash = 0
-		Platform.write_debug_log("Main._apply_mouse_passthrough: reason=%s native disabled" % reason)
-		return
-	if not bool(Config.get_value("mouse_passthrough_enabled", true)):
-		Platform.set_mouse_passthrough(get_window(), false, [])
-		_last_passthrough_rects_hash = 0
-		Platform.write_debug_log("Main._apply_mouse_passthrough: reason=%s config disabled" % reason)
 		return
 	_native_health = Platform.get_native_health()
 	if not bool(_native_health.get("passthrough_supported", false)):
@@ -493,30 +487,21 @@ func _apply_viewport_transparency(enabled: bool) -> void:
 
 
 func _apply_pure_pet_mode() -> void:
-	if _debug_mode:
-		_set_taskbar_visible_cached(true)
-		Platform.write_debug_log("pure_pet_mode_fallback: reason=debug_mode taskbar_visible=true")
-		return
-
 	var desired := bool(Config.get_value("pure_pet_mode", false))
-	if not desired:
-		_set_taskbar_visible_cached(true)
-		Platform.write_debug_log("pure_pet_mode_apply: desired=false taskbar_visible=true")
-		return
-
-	if not _tray_ready or not Platform.can_enable_pure_pet_mode(get_window()):
+	var native_capable := Platform.can_enable_pure_pet_mode(get_window())
+	var taskbar_visible: bool = bool(_window_policy.desired_taskbar_visible(_debug_mode, desired, _tray_ready, native_capable))
+	if desired and taskbar_visible and not _debug_mode:
 		Config.set_value("pure_pet_mode", false)
 		_set_taskbar_visible_cached(true)
 		Platform.write_boot_log("pure_pet_mode_fallback: reason=tray_or_native_unavailable")
 		return
-
-	var ok := _set_taskbar_visible_cached(false)
+	var ok := _set_taskbar_visible_cached(taskbar_visible)
 	if not ok:
 		Config.set_value("pure_pet_mode", false)
 		_set_taskbar_visible_cached(true)
 		Platform.write_boot_log("pure_pet_mode_fallback: reason=set_taskbar_visible_failed")
 	else:
-		Platform.write_debug_log("pure_pet_mode_apply: desired=true taskbar_visible=false")
+		Platform.write_debug_log("pure_pet_mode_apply: desired=%s taskbar_visible=%s" % [str(desired), str(taskbar_visible)])
 
 
 func _set_taskbar_visible_cached(visible: bool) -> bool:
@@ -676,12 +661,14 @@ func _on_modal_closed() -> void:
 
 
 func _on_popup_opened() -> void:
+	_popup_open = true
 	_last_passthrough_rects_hash = 0
 	Platform.set_mouse_passthrough(get_window(), false, [])
 	Platform.write_info_log("passthrough_suspended: reason=popup_opened")
 
 
 func _on_popup_closed() -> void:
+	_popup_open = false
 	_queue_mouse_passthrough_refresh("popup_closed")
 	Platform.write_info_log("passthrough_resumed: reason=popup_closed")
 

@@ -632,7 +632,8 @@ func _check_window_recovery_fallbacks() -> void:
 	_assert(hide_body.contains("_tray_ready"), "Tray hide should require a ready tray so taskbar remains available when tray is missing")
 	_assert(hide_body.contains("minimize_to_tray"), "Tray hide should obey minimize_to_tray config")
 	for required_text in [
-		"not _tray_ready",
+		"_window_policy.desired_taskbar_visible",
+		"_tray_ready",
 		"Platform.can_enable_pure_pet_mode",
 		"Config.set_value(\"pure_pet_mode\", false)",
 		"_set_taskbar_visible_cached(true)"
