@@ -139,8 +139,8 @@
     },
     {
       "name": "Inno Setup",
-      "version_or_commit": "not installed; version selection deferred to V07-C1",
-      "source": "https://jrsoftware.org/isinfo.php",
+      "version_or_commit": "6.7.3",
+      "source": "https://github.com/jrsoftware/issrc/releases/tag/is-6_7_3",
       "license": "Inno Setup License",
       "usage": "planned_installer_builder",
       "distribution_scope": ["installer_planned"],
@@ -148,7 +148,7 @@
       "license_file": ["licenses/third-party/Inno-Setup/LICENSE.txt"],
       "modified": false,
       "repository_copy": false,
-      "review_status": "planned_pending_version"
+      "review_status": "reviewed"
     },
     {
       "name": "GitHub Actions",
