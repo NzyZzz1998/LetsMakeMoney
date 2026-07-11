@@ -22,10 +22,10 @@ $v06Verification = Read-Utf8 (Join-Path $Root "doc/releases/v0.6/verification.md
 
 if ($current -notmatch "v0\.7 Beta") { $issues.Add("current.md does not identify v0.7 Beta.") }
 if ($current -notmatch "v0\.6 Beta") { $issues.Add("current.md does not preserve the v0.6 Beta baseline.") }
-if ($current -notmatch "V07-A[0-9]" -or $current -notmatch "e6f25ae8cb4d9583aa3e629cb79416e278060117") { $issues.Add("current.md does not preserve the v0.7 A-series Git identity.") }
+if ($current -notmatch "V07-A0/A1/A2/A3" -or $current -notmatch "V07-B1") { $issues.Add("current.md does not preserve the completed v0.7 A-series and B1 handoff state.") }
 if ($v07Status -notmatch "V07-A0" -or $v07Status -notmatch "v0\.7") { $issues.Add("v0.7 status does not record A0.") }
 if ($v07Progress -notmatch "V07-A0-001" -or $v07Progress -notmatch "V07-A0-008") { $issues.Add("v0.7 progress is missing A0 tasks.") }
-if ($v07Readiness -notmatch "V07-A3" -or $v07Readiness -notmatch "A1/A2/A3") { $issues.Add("public-readiness does not preserve downstream gates.") }
+if ($v07Readiness -notmatch "A0/A1/A2/A3" -or $v07Readiness -notmatch "v0\.7") { $issues.Add("public-readiness does not preserve repository and v0.7 release gates.") }
 if ($v06Status -notmatch "v0\.6-beta") { $issues.Add("v0.6 status no longer identifies the release tag.") }
 if ($v06Verification -notmatch "V06-ACC-M6-015") { $issues.Add("v0.6 verification no longer preserves the startup evidence row.") }
 

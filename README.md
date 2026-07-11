@@ -94,7 +94,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v06_package.ps1
 
 - 项目原创代码、构建脚本、纯文本配置和代码文档采用 [MIT License](LICENSE)。
 - 橘猫、占位猫、动画帧、Logo 和应用图标不适用 MIT，采用 [视觉素材受限许可](ASSETS_LICENSE.md)，详细范围见 [视觉资产清单](ASSETS_MANIFEST.md)。
-- 第三方依赖保留各自许可；见 [第三方声明](THIRD_PARTY_NOTICES.md)。A2 合规结构已经建立，但 A3 及后续门禁未完成，仓库仍不得公开。
+- 第三方依赖保留各自许可；见 [第三方声明](THIRD_PARTY_NOTICES.md)。v0.7 的许可、历史、隐私与资产公开门禁已经通过；B-E 工程与分发能力仍在持续建设。
 - v0.7 接受代码、文档、UI 设计说明和 native 贡献，暂不接受外部素材文件。参见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 - 未经书面许可，不得提取项目视觉素材用于其他项目，也不得分发包含受限素材的非官方二进制。
 
