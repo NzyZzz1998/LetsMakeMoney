@@ -137,6 +137,15 @@
 - 正反向测试覆盖缺离线缓存、错误 commit、错误 Godot SHA256 和缺失 MSYS2。重复补哈希冷构建被主动终止，相关子进程已清理，不作为失败门禁。
 - native README 与中英文入口已补充固定依赖、离线缓存、失败处理和首次构建耗时。
 
+### 2026-07-11 / V07-B2 CI 与验证/打包脚本治理
+
+- 新增参数化 `package_common.ps1` 与 `verify_package_common.ps1`，v0.4-v0.6 仅保留版本 wrapper。
+- 统一隔离 APPDATA、阻塞输出判定、manifest/checksum、未知二进制和许可 staging 门禁。
+- Windows PowerShell 5.1 不支持 `Path.GetRelativePath()`，公共打包内核改用安全前缀校验后的兼容相对路径实现。
+- 新增 docs/compliance 与 native/Godot 两条 Windows Actions；权限只读，缓存键包含 native lock，Fork PR 不读取发布秘密。
+- 新增机器可读验证摘要，使本机与 CI 可比较步骤、状态和退出码。
+- 真实托盘、任务栏、点击穿透、DPI、多显示器和签名明确留给候选产物 Acceptance。
+
 ## 关键决策
 
 | 决策 | 背景 | 取舍 | 影响范围 | 后续观察 |

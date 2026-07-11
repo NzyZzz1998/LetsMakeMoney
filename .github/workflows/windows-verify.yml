@@ -1,0 +1,51 @@
+name: Windows native and Godot verification
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.8'
+          cache: pip
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: false
+          install: mingw-w64-ucrt-x86_64-gcc
+      - name: Cache fixed native dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/dependencies
+            .cache/native-build
+          key: native-${{ runner.os }}-${{ hashFiles('third_party/native-toolchain.lock.json') }}
+      - name: Install SCons
+        run: python -m pip install scons==4.10.1
+      - name: Bootstrap godot-cpp
+        shell: pwsh
+        run: ./scripts/bootstrap_native_dependencies.ps1
+      - name: Bootstrap pinned Godot
+        shell: pwsh
+        run: |
+          $godot = ./scripts/bootstrap_godot.ps1
+          "LMM_GODOT_EXE=$godot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $bash = (Get-Command bash -ErrorAction Stop).Source
+          "LMM_MSYS2_BASH=$bash" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Native release build
+        shell: pwsh
+        run: ./scripts/build_native_windows.ps1 -Target template_release
+      - name: Static and active regressions
+        shell: pwsh
+        run: ./scripts/run_ci_verification.ps1 -Suite main
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-verification-summary
+          path: .tmp_ci/verification-summary.json

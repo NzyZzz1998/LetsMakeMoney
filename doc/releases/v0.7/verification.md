@@ -145,3 +145,15 @@
 | 干净 Debug 构建 | 通过 | 仓库外全新 native 目录，不使用项目内 godot-cpp 或旧 DLL |
 | 干净 Release 构建 | 通过 | 同一 lock 和 mirror 完成；DLL 长度 1,600,000，SHA256 `DE2144D92F6D30796B8872BB706089FC031C6DAACF02F66D1483A5F7E0CB06E7` |
 | 冷构建耗时 | 记录 | Debug 与 Release 分别需要完整 godot-cpp 目标，双目标总耗时超过 15 分钟；B2 需设计缓存与独立 job 超时 |
+
+## V07-B2 CI 与验证/打包脚本治理
+
+| 检查 | 结果 | 证据 |
+|---|---|---|
+| 公共 package/verify 契约 | 通过 | `test_ci_script_contract.ps1`、`test_package_common.ps1` |
+| 阻塞错误故障注入 | 通过 | Parser/Parse/Script/Invalid call/缺资源均非零失败 |
+| 包故障注入 | 通过 | 错版本和额外 DLL 被拒绝；A2 许可缺失/未知字体与 DLL 测试继续通过 |
+| 隔离 APPDATA | 通过 | 公共 runner 使用 try/finally 恢复调用进程环境 |
+| 本机摘要 | 通过 | `.tmp_ci/verification-summary.json` 使用与 Actions 相同入口 |
+| 活跃回归 | 通过 | v0.6、v0.5、v0.4、M4、M5 |
+| 真实 GUI 边界 | 转交 Acceptance | 见 `ci-and-manual-boundaries.md` |

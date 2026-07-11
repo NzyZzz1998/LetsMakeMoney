@@ -2,7 +2,7 @@
 
 ## 追踪信息
 
-- 当前状态：V07-A0/A1/A2/A3、V07-B1 已完成；GitHub 已核验为 Public，进入 B2
+- 当前状态：V07-A0-A3、V07-B1/B2 已完成；GitHub 已核验为 Public，进入 B3
 - 目标版本：v0.7 Beta
 - 上游来源：`doc/releases/v0.7/prd.md`、`doc/releases/v0.7/idea-pool.md`
 - 对应实施计划：`doc/releases/v0.7/dev_plan_v0.7.md`
@@ -40,7 +40,7 @@
 | V07-A2 | 第三方与 Release 合规 | 已完成 | 9/9 |
 | V07-A3 | 完整历史、隐私与资产审计 | 已完成 | 12/12 |
 | V07-B1 | 固定依赖与可复现构建 | 已完成 | 13/13 |
-| V07-B2 | CI 与验证/打包脚本治理 | 未开始 | 0/13 |
+| V07-B2 | CI 与验证/打包脚本治理 | 已完成 | 13/13 |
 | V07-B3 | 低风险代码与仓库瘦身 | 未开始 | 0/12 |
 | V07-B4 | Main/native 行为测试与状态合同 | 未开始 | 0/14 |
 | V07-B5 | Main/native 分阶段深度治理 | 未开始 | 0/16 |
@@ -138,19 +138,21 @@
 
 ### V07-B2：CI 与验证/打包脚本治理（FR-006/012；IDEA-008/010）
 
-- [ ] V07-B2-001 设计参数化 verify/package 公共内核接口。
-- [ ] V07-B2-002 保留 v0.4-v0.6 历史 wrapper 并改为调用公共内核。
-- [ ] V07-B2-003 为测试提供隔离 APPDATA 和自动恢复。
-- [ ] V07-B2-004 统一 Parser/Script/Invalid call/缺资源的阻塞错误判定。
-- [ ] V07-B2-005 建立 Windows 文档与静态检查 workflow。
-- [ ] V07-B2-006 建立 Windows native/Godot 主验证 workflow。
-- [ ] V07-B2-007 配置 godot-cpp 和构建缓存键，包含 lock 身份。
-- [ ] V07-B2-008 确保 Fork PR 不读取签名或 Release secret。
-- [ ] V07-B2-009 注入 parser error 并验证 job 非零退出。
-- [ ] V07-B2-010 注入许可缺失、包缺文件和错版本并验证失败。
-- [ ] V07-B2-011 对比本机与 CI 验证摘要和退出码。
-- [ ] V07-B2-012 记录真实 GUI、托盘、签名和多显示器的非 CI 边界。
-- [ ] V07-B2-013 运行 v0.6/v0.5/v0.4/M4/M5 活跃回归。
+- [x] V07-B2-001 设计参数化 verify/package 公共内核接口。
+- [x] V07-B2-002 保留 v0.4-v0.6 历史 wrapper 并改为调用公共内核。
+- [x] V07-B2-003 为测试提供隔离 APPDATA 和自动恢复。
+- [x] V07-B2-004 统一 Parser/Script/Invalid call/缺资源的阻塞错误判定。
+- [x] V07-B2-005 建立 Windows 文档与静态检查 workflow。
+- [x] V07-B2-006 建立 Windows native/Godot 主验证 workflow。
+- [x] V07-B2-007 配置 godot-cpp 和构建缓存键，包含 lock 身份。
+- [x] V07-B2-008 确保 Fork PR 不读取签名或 Release secret。
+- [x] V07-B2-009 注入 parser error 并验证 job 非零退出。
+- [x] V07-B2-010 注入许可缺失、包缺文件和错版本并验证失败。
+- [x] V07-B2-011 对比本机与 CI 验证摘要和退出码。
+- [x] V07-B2-012 记录真实 GUI、托盘、签名和多显示器的非 CI 边界。
+- [x] V07-B2-013 运行 v0.6/v0.5/v0.4/M4/M5 活跃回归。
+
+**B2 最近验证**：公共 package/verify、隔离 APPDATA、阻塞输出和受控包正反测试通过；v0.6/v0.5/v0.4/M4/M5 活跃回归通过。Windows Actions 使用 lock 哈希缓存、只读权限且 Fork PR 不读取 secret；首次远端 runner 结果由后续 E3/E4 记录，不替代真实 GUI Acceptance。
 
 ### V07-B3：低风险代码与仓库瘦身（FR-007；IDEA-009/012）
 

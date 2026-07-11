@@ -28,6 +28,7 @@ native/windows/**/*.obj
 /_lmm_verify/
 /tmp/
 /.cache/
+/.tmp_ci/
 
 # Local acceptance evidence and extracted candidates
 /.manual-test/

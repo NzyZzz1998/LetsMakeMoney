@@ -2,13 +2,42 @@ $ErrorActionPreference = "Stop"
 
 $script:BlockingPatterns = @(
     '(?i)parser error',
+    '(?i)parse error',
     '(?i)script error',
     '(?i)invalid call',
     '(?i)node not found',
     '(?i)null instance',
     '(?i)failed to load script',
-    '(?i)cannot get class'
+    '(?i)cannot get class',
+    '(?i)missing resource',
+    '(?i)failed loading resource',
+    '(?i)failed to load resource'
 )
+
+function Invoke-LmmWithIsolatedAppData {
+    param(
+        [Parameter(Mandatory=$true)][string]$Root,
+        [Parameter(Mandatory=$true)][scriptblock]$ScriptBlock,
+        [hashtable]$Environment = @{}
+    )
+    $oldAppData = $env:APPDATA
+    $oldValues = @{}
+    if (Test-Path -LiteralPath $Root) { Remove-Item -LiteralPath $Root -Recurse -Force }
+    New-Item -ItemType Directory -Force -Path $Root | Out-Null
+    try {
+        $env:APPDATA = (Resolve-Path -LiteralPath $Root).Path
+        foreach ($key in $Environment.Keys) {
+            $oldValues[$key] = [Environment]::GetEnvironmentVariable($key, "Process")
+            [Environment]::SetEnvironmentVariable($key, [string]$Environment[$key], "Process")
+        }
+        & $ScriptBlock
+    } finally {
+        $env:APPDATA = $oldAppData
+        foreach ($key in $Environment.Keys) {
+            [Environment]::SetEnvironmentVariable($key, $oldValues[$key], "Process")
+        }
+    }
+}
 
 function Resolve-LmmGodotExecutable {
     param([string]$ExplicitPath = "")
