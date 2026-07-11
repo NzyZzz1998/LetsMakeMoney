@@ -246,7 +246,7 @@ func _check_window_policy_logging_contract() -> void:
 		_assert(windows_platform_source.contains("_invalidate_taskbar_visibility_cache(window, \"setup_window\")"), "WindowsPlatform should invalidate taskbar cache after window setup")
 		_assert(windows_platform_source.contains("WindowsPlatform.set_taskbar_visible: hwnd=%s visible=%s"), "WindowsPlatform should log native taskbar visibility calls")
 
-	var tray_header_path := "res://native/windows/src/tray_controller.h"
+	var tray_header_path := "res://native/windows/src/native_protocol.h"
 	var tray_cpp_path := "res://native/windows/src/tray_controller.cpp"
 	if FileAccess.file_exists(tray_header_path) and FileAccess.file_exists(tray_cpp_path):
 		var tray_header := FileAccess.get_file_as_string(tray_header_path)

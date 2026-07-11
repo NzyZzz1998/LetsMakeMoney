@@ -1,6 +1,7 @@
 param(
     [string]$ProjectRoot = (Split-Path -Parent $PSScriptRoot),
-    [switch]$StaticOnly
+    [switch]$StaticOnly,
+    [string]$ExpectedProjectVersion = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -20,7 +21,9 @@ function Read-Utf8 {
 }
 
 $project = Read-Utf8 "project.godot"
-Assert-True ($project -match '(?m)^config/version="0\.6-beta"$') "project.godot must define application/config/version=0.6-beta"
+if ($ExpectedProjectVersion) {
+    Assert-True ($project -match ('(?m)^config/version="{0}"$' -f [regex]::Escape($ExpectedProjectVersion))) "project.godot version does not match $ExpectedProjectVersion"
+}
 
 $versionHelper = Read-Utf8 "src/utils/app_version.gd"
 Assert-True ($versionHelper.Contains('application/config/version')) "Godot version helper must read application/config/version"

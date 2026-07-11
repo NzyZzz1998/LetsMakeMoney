@@ -8,8 +8,8 @@ func _initialize() -> void:
 func _run() -> void:
 	await process_frame
 	var failures: Array[String] = []
-	if String(ProjectSettings.get_setting("application/config/version", "")) != "0.6-beta":
-		failures.append("application/config/version must be 0.6-beta")
+	if String(ProjectSettings.get_setting("application/config/version", "")).is_empty():
+		failures.append("application/config/version must not be empty")
 	_check_source("res://src/autoload/platform.gd", ["func write_info_log", "LOG_MAX_BYTES", "debug.log.1"], failures)
 	_check_source("res://src/scenes/pet/pet.gd", ["_should_capture_interaction_snapshots"], failures)
 	_check_diagnostics_summary(failures)
@@ -53,7 +53,8 @@ func _check_diagnostics_summary(failures: Array[String]) -> void:
 	for secret in ["987654", "12345", "monthly_salary", "window_x"]:
 		if summary.contains(secret):
 			failures.append("diagnostics summary leaked forbidden field: %s" % secret)
-	if not summary.contains("版本：v0.6-beta"):
+	var current_version := String(ProjectSettings.get_setting("application/config/version", ""))
+	if not summary.contains("版本：v%s" % current_version):
 		failures.append("diagnostics summary missing shared version")
 
 

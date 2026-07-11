@@ -6,8 +6,8 @@
 **当前发布版本**：v0.6 Beta（GitHub Pre-release）
 **当前分支**：`main`  
 **当前 HEAD**：以远端 `main` 为准
-**当前阶段**：v0.7 公开开发；GitHub 已核验为 Public，继续推进工程、分发与社区治理
-**当前里程碑**：V07-A0/A1/A2/A3、V07-B1 已完成；进入 V07-B2
+**当前阶段**：v0.7 主要实现与候选产物已完成，待独立 Acceptance
+**当前里程碑**：A-D 与主要 E 项已完成；便携 Zip 可验收，测试安装器因未签名不得公开分发
 
 本文件是人工或 agent 接手时的唯一当前状态入口。v0.7 实施以本文件和 `doc/releases/v0.7/` 为准；v0.6 文档是已发布基线和回归证据，不代表当前开发进度。
 
@@ -20,7 +20,8 @@
 | v0.6 发布提交与 tag | 重写后 `v0.6-beta` | 历史发布基线；tag 已随历史清理安全重写 |
 | v0.6 已验收 Zip | `releases/v0.6/LetsMakeMoney-v0.6-beta-windows-x86_64.zip` | 本地未跟踪产物；SHA256 为 `CECD3C3ABACFCB5EF594584E2AEB0E25C1824BAE97AB84B224073E7444E72615` |
 | v0.7 开发候选 | 远端 `main` 后续提交 | 可公开协作；不得冒充 v0.7 已发布产物 |
-| v0.7 发布候选 | 尚未形成 | 仍须完成对应工程、分发和独立 Acceptance 门禁 |
+| v0.7 便携候选 | `releases/v0.7/LetsMakeMoney-v0.7-beta-windows-x86_64.zip` | SHA256 `9FF99E26FC135D939EB9349E4274D04428E89E734E2F016972AEB7EABCF84091`；待 Acceptance |
+| v0.7 测试安装器 | `releases/v0.7/installer/LetsMakeMoney-Setup-v0.7-beta-windows-x86_64.exe` | SHA256 `0036EAF2026A679B838C6AE4C4F203B14CF4FCB78404A713D1978A083621E923`；`NotSigned`，禁止公开附件 |
 
 ## 2. 当前目标与门禁
 
@@ -31,6 +32,7 @@ v0.7 的目标是让项目达到可安全公开、可复现构建、可贡献、
 - ComfyUI 本机资料、临时素材、私有验收证据、用户配置/日志、签名材料和本地发布展开目录不进入公开候选。
 - v0.6 真实 Windows 登录后的开机自启仍是“暂不验证”，历史结论不得改写为通过。
 - 仓库公开只代表源码协作入口开放；v0.7 tag、安装器、更新与 Release 仍须单独验收。
+- 剩余人工边界：真实通知区/任务栏、DPI/多显示器、安装/卸载/升级、SmartScreen、开机自启、干净 Windows 用户与 GitHub 网页设置。
 
 ## 3. 推荐阅读顺序
 

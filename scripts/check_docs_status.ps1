@@ -22,7 +22,7 @@ $v06Verification = Read-Utf8 (Join-Path $Root "doc/releases/v0.6/verification.md
 
 if ($current -notmatch "v0\.7 Beta") { $issues.Add("current.md does not identify v0.7 Beta.") }
 if ($current -notmatch "v0\.6 Beta") { $issues.Add("current.md does not preserve the v0.6 Beta baseline.") }
-if ($current -notmatch "V07-A0/A1/A2/A3" -or $current -notmatch "V07-B1") { $issues.Add("current.md does not preserve the completed v0.7 A-series and B1 handoff state.") }
+if ($current -notmatch "A-D" -or $current -notmatch "Acceptance") { $issues.Add("current.md does not identify the v0.7 implementation-complete, pre-Acceptance state.") }
 if ($v07Status -notmatch "V07-A0" -or $v07Status -notmatch "v0\.7") { $issues.Add("v0.7 status does not record A0.") }
 if ($v07Progress -notmatch "V07-A0-001" -or $v07Progress -notmatch "V07-A0-008") { $issues.Add("v0.7 progress is missing A0 tasks.") }
 if ($v07Readiness -notmatch "A0/A1/A2/A3" -or $v07Readiness -notmatch "v0\.7") { $issues.Add("public-readiness does not preserve repository and v0.7 release gates.") }

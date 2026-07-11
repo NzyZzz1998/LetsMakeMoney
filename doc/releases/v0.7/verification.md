@@ -134,6 +134,37 @@
 
 本页记录 A0-A3 与后续工程门禁证据。源码仓库已经公开，但 B/C/E 工程门禁和独立 Acceptance 仍约束 v0.7 产物发布。本页也不将 v0.6 的“开机自启暂不验证”改写为通过。
 
+## V07-C1-C4 安装器、签名与更新
+
+| 检查 | 结果 | 证据 |
+|---|---|---|
+| Inno Setup | 通过 | 6.7.3；当前用户安装脚本、许可、快捷方式、运行检测和卸载数据确认合同通过 |
+| 测试安装器 | 部分通过 | `LetsMakeMoney-Setup-v0.7-beta-windows-x86_64.exe` 编译和结构校验通过，签名为 `NotSigned`，禁止公开附件 |
+| 签名脚本 | 通过 | 仅从 `LMM_SIGN_*` 环境变量读取证书、密码和时间戳；缺失/无效签名阻止公开门禁 |
+| 更新服务 | 通过 | semver、稳定/测试通道、GitHub Release、频率、SHA256、可信来源、磁盘预检、取消和脱敏日志合同通过 |
+| Authenticode 运行时 | 通过 | native `WinVerifyTrust` + 证书发布者读取；能力不可用或发布者不匹配时拒绝自动安装 |
+| 安装确认与回退 | 通过 | 下载校验后第二次确认、配置 `.pre-update` 备份、托盘关闭、安装器启动失败恢复和 GitHub Release 回退入口 |
+| 实机安装/更新 | 待 Acceptance | 安装取消/修复/覆盖、显式删除数据、SmartScreen、断网/限流和双实例需真实 Windows 操作 |
+
+## V07-D/E 公开入口与候选产物
+
+| 检查 | 结果 | 证据 |
+|---|---|---|
+| 未来规划 | 通过 | 平台、主题、宠物三份路线文档；iOS 优先；无业务实现 |
+| 双语与治理 | 通过 | 中英 README、CONTRIBUTING、CODE_OF_CONDUCT、SECURITY、Issue/PR 模板合同通过 |
+| Actions 供应链 | 通过 | 最小权限；checkout/setup-python/msys2/cache/upload-artifact 固定不可变 commit |
+| v0.7 自动验证 | 通过 | `verify_v07.ps1` 与 docs suite；当前树 457 文件、0 失败、0 警告 |
+| v0.7 便携 Zip | 通过 | 解压、版本、EXE/DLL、manifest/checksum/LICENSES 与启动 smoke 通过 |
+| 干净环境与 GUI | 待 Acceptance | 见 `manual-verification.md` |
+
+### 候选产物身份
+
+- Zip：`releases/v0.7/LetsMakeMoney-v0.7-beta-windows-x86_64.zip`
+- Zip SHA256：`9FF99E26FC135D939EB9349E4274D04428E89E734E2F016972AEB7EABCF84091`
+- EXE SHA256：`2DB628ACA2968936480D5B5B05A317D9580CE303F1D607178C6673C6C5328E2B`
+- native DLL SHA256：`5D21CFFAA2A26F25958CD50FF138449D8575B1A1E512B5F30304AC58A28D1BE4`
+- 测试安装器 SHA256：`0036EAF2026A679B838C6AE4C4F203B14CF4FCB78404A713D1978A083621E923`，签名 `NotSigned`
+
 ## V07-B1 固定依赖与可复现构建
 
 | 检查 | 结果 | 证据 |
