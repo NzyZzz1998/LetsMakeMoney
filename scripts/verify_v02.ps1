@@ -6,7 +6,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-if (-not (Test-Path -LiteralPath $GodotExe)) {
+if ([string]::IsNullOrWhiteSpace($GodotExe) -or -not (Test-Path -LiteralPath $GodotExe)) {
     throw "Godot executable not found: $GodotExe"
 }
 

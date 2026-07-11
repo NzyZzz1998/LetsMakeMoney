@@ -29,6 +29,7 @@ function Resolve-GodotExe {
     )
 
     foreach ($root in $candidateRoots) {
+        if ([string]::IsNullOrWhiteSpace($root)) { continue }
         if (-not (Test-Path -LiteralPath $root)) {
             continue
         }

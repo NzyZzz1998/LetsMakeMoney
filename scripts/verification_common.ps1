@@ -16,13 +16,9 @@ function Resolve-LmmGodotExecutable {
     if ($ExplicitPath -and (Test-Path -LiteralPath $ExplicitPath)) {
         return (Resolve-Path -LiteralPath $ExplicitPath).Path
     }
-    $candidates = @(
-        "$env:LMM_GODOT_EXE",
-        "$env:LMM_GODOT_EXE",
-        "$env:LMM_GODOT_EXE",
-        "$env:LMM_GODOT_EXE"
-    )
+    $candidates = @("$env:LMM_GODOT_EXE")
     foreach ($candidate in $candidates) {
+        if ([string]::IsNullOrWhiteSpace($candidate)) { continue }
         if (Test-Path -LiteralPath $candidate) {
             return (Resolve-Path -LiteralPath $candidate).Path
         }

@@ -39,7 +39,7 @@ if (-not (Test-Path -LiteralPath $godotCppPath)) {
 
 Require-Command "python" "python was not found."
 
-if (Test-Path -LiteralPath $Msys2Bash) {
+if (-not [string]::IsNullOrWhiteSpace($Msys2Bash) -and (Test-Path -LiteralPath $Msys2Bash)) {
     $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
     $workspaceRoot = Split-Path -Parent $projectRoot
     $msysHome = Join-Path $workspaceRoot ".msys_home"

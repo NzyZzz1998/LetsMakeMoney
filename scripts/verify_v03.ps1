@@ -10,10 +10,10 @@ if ($GodotExe -ne "") {
     $candidates += $GodotExe
 }
 $candidates += "$env:LMM_GODOT_EXE"
-$candidates += "$env:LMM_GODOT_EXE"
 
 $resolvedGodot = $null
 foreach ($candidate in $candidates) {
+    if ([string]::IsNullOrWhiteSpace($candidate)) { continue }
     if (Test-Path -LiteralPath $candidate) {
         $resolvedGodot = $candidate
         break
@@ -33,4 +33,3 @@ if ($LASTEXITCODE -ne 0) {
 
 Remove-Item -LiteralPath $logFile -ErrorAction SilentlyContinue
 Write-Host "v0.3 verification passed"
-
