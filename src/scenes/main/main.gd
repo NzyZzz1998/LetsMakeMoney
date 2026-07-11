@@ -93,7 +93,14 @@ func _ready() -> void:
 	_set_debug_status("Debug: ready. Left/right click the pet area.")
 	if not Config.has_config():
 		call_deferred("_show_wizard")
+	elif bool(Config.get_value("check_updates_on_start", true)):
+		call_deferred("_check_updates_after_startup")
 	Platform.write_boot_log("Main._ready: end")
+
+
+func _check_updates_after_startup() -> void:
+	await get_tree().create_timer(2.0).timeout
+	UpdateService.check_for_updates(false)
 
 
 func _notification(what: int) -> void:
@@ -927,3 +934,24 @@ func can_hide_to_tray() -> bool:
 
 func _exit_app() -> void:
 	DragResizeSystem.quit_app()
+
+
+func prepare_update_exit(installer_path: String) -> bool:
+	if installer_path.is_empty() or installer_path.get_extension().to_lower() != "exe" or not FileAccess.file_exists(installer_path):
+		Platform.write_error_log("update_installer_start_failed: reason=invalid_path")
+		return false
+	var backup: Dictionary = Config.create_update_backup()
+	if not bool(backup.get("ok", false)):
+		Platform.write_error_log("update_installer_start_failed: reason=config_backup_failed details=%s" % String(backup.get("error", "unknown")))
+		return false
+	suspend_mouse_passthrough()
+	Platform.shutdown_tray()
+	var pid := OS.create_process(installer_path, ["/CURRENTUSER"])
+	if pid <= 0:
+		_setup_tray()
+		_request_mouse_passthrough_refresh("update_installer_start_failed")
+		Platform.write_error_log("update_installer_start_failed: reason=create_process")
+		return false
+	Platform.write_info_log("update_installer_started: result=success")
+	get_tree().quit()
+	return true

@@ -28,6 +28,12 @@ var reset_position_button: Button
 var restore_defaults_button: Button
 var open_app_data_button: Button
 var copy_diagnostics_button: Button
+var update_channel_option: OptionButton
+var check_updates_toggle: CheckButton
+var check_update_button: Button
+var download_update_button: Button
+var cancel_update_button: Button
+var update_install_confirm_dialog: ConfirmationDialog
 var restore_defaults_confirm_dialog: ConfirmationDialog
 var save_button: Button
 var cancel_button: Button
@@ -47,6 +53,8 @@ var _header_drag_start_mouse: Vector2i = Vector2i.ZERO
 var _header_drag_start_window: Vector2i = Vector2i.ZERO
 var _warm_theme: RefCounted = WarmControlThemeScript.new()
 var _feedback_token: int = 0
+var _available_release: Dictionary = {}
+var _pending_installer_path: String = ""
 
 const SURFACE_APP := Color(1.0, 0.980, 0.940, 1.0)
 const SURFACE_CARD := Color(1.0, 0.996, 0.978, 1.0)
@@ -89,6 +97,12 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(700, 530)
 	_build_compact_ui()
 	_load_current_values()
+	if not UpdateService.status_changed.is_connected(_on_update_status_changed):
+		UpdateService.status_changed.connect(_on_update_status_changed)
+	if not UpdateService.update_available.is_connected(_on_update_available):
+		UpdateService.update_available.connect(_on_update_available)
+	if not UpdateService.download_ready.is_connected(_on_update_download_ready):
+		UpdateService.download_ready.connect(_on_update_download_ready)
 	if Config.has_method("consume_recovery_notice"):
 		var recovery_notice := String(Config.call("consume_recovery_notice"))
 		if not recovery_notice.is_empty():
@@ -273,6 +287,12 @@ func _build_compact_ui() -> void:
 	restore_defaults_confirm_dialog.dialog_text = "恢复默认只会重置显示、窗口、托盘、自启动和 Debug 设置，不清空薪资、工时、角色和 Panel 项。"
 	restore_defaults_confirm_dialog.confirmed.connect(_restore_display_defaults)
 	add_child(restore_defaults_confirm_dialog)
+	update_install_confirm_dialog = ConfirmationDialog.new()
+	update_install_confirm_dialog.name = "UpdateInstallConfirmDialog"
+	update_install_confirm_dialog.title = "安装更新"
+	update_install_confirm_dialog.dialog_text = "更新已通过 SHA256 与发布者签名校验。安装前将备份配置并退出当前应用，是否继续？"
+	update_install_confirm_dialog.confirmed.connect(_on_update_install_confirmed)
+	add_child(update_install_confirm_dialog)
 
 
 func _add_settings_section(nav: BoxContainer, content_holder: Control, section_name: String, page: Control) -> void:
@@ -454,6 +474,29 @@ func _build_general_tab() -> Control:
 	copy_diagnostics_button.text = "复制诊断摘要"
 	copy_diagnostics_button.pressed.connect(_on_copy_diagnostics_pressed)
 	_add_control_card(box, "诊断摘要", "复制脱敏的版本、能力和日志状态，不生成或上传文件。", copy_diagnostics_button)
+	_add_section_heading(box, "版本与更新")
+	update_channel_option = OptionButton.new()
+	update_channel_option.add_item("稳定通道")
+	update_channel_option.add_item("测试通道")
+	_style_option_button(update_channel_option)
+	_add_control_card(box, "更新通道", "稳定通道仅接收正式版；测试通道同时接收 Beta。", update_channel_option)
+	check_updates_toggle = CheckButton.new()
+	check_updates_toggle.text = "启动后检查更新"
+	_add_control_card(box, "启动后检查更新", "只检查版本，不会静默下载或安装。", check_updates_toggle)
+	check_update_button = Button.new()
+	check_update_button.text = "立即检查"
+	check_update_button.pressed.connect(_on_check_update_pressed)
+	_add_control_card(box, "检查更新", "通过 GitHub Release 查询版本。", check_update_button)
+	download_update_button = Button.new()
+	download_update_button.text = "下载更新"
+	download_update_button.visible = false
+	download_update_button.pressed.connect(_on_download_update_pressed)
+	_add_control_card(box, "可用更新", "下载前不会替换当前程序。", download_update_button)
+	cancel_update_button = Button.new()
+	cancel_update_button.text = "取消下载"
+	cancel_update_button.visible = false
+	cancel_update_button.pressed.connect(_on_cancel_update_pressed)
+	_add_control_card(box, "下载任务", "取消后删除临时文件并保留当前版本。", cancel_update_button)
 	general_message_label = Label.new()
 	general_message_label.name = "GeneralMessageLabel"
 	general_message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -1118,6 +1161,8 @@ func _load_current_values() -> void:
 	debug_mode_toggle.button_pressed = bool(Config.get_value("debug_mode", false))
 	auto_start_toggle.button_pressed = bool(Config.get_value("auto_start", false))
 	minimize_to_tray_toggle.button_pressed = bool(Config.get_value("minimize_to_tray", true))
+	update_channel_option.select(0 if String(Config.get_value("update_channel", "beta")) == "stable" else 1)
+	check_updates_toggle.button_pressed = bool(Config.get_value("check_updates_on_start", true))
 	_sync_switch_proxies()
 
 	_populate_pet_list()
@@ -1221,6 +1266,8 @@ func _collect_form_values() -> Dictionary:
 		"debug_mode": debug_mode_toggle.button_pressed,
 		"auto_start": auto_start_toggle.button_pressed,
 		"minimize_to_tray": minimize_to_tray_toggle.button_pressed,
+		"update_channel": "stable" if update_channel_option.selected == 0 else "beta",
+		"check_updates_on_start": check_updates_toggle.button_pressed,
 		"pet_id": _get_selected_pet_id(),
 		"panel_items": {
 			"earnings_today": show_today.button_pressed,
@@ -1246,6 +1293,8 @@ func _current_settings_snapshot() -> Dictionary:
 		"debug_mode": bool(Config.get_value("debug_mode", false)),
 		"auto_start": bool(Config.get_value("auto_start", false)),
 		"minimize_to_tray": bool(Config.get_value("minimize_to_tray", true)),
+		"update_channel": String(Config.get_value("update_channel", "beta")),
+		"check_updates_on_start": bool(Config.get_value("check_updates_on_start", true)),
 		"pet_id": String(Config.get_value("pet_id", "cat_orange_v2")),
 		"panel_items": {
 			"earnings_today": Config.get_panel_item("earnings_today"),
@@ -1295,6 +1344,8 @@ func _apply_form_values(values: Dictionary) -> void:
 		"pure_pet_mode",
 		"debug_mode",
 		"minimize_to_tray",
+		"update_channel",
+		"check_updates_on_start",
 		"auto_start",
 		"pet_id"
 	]:
@@ -1396,6 +1447,59 @@ func _on_copy_diagnostics_pressed() -> void:
 		var reason := String(result.get("error", "未知错误"))
 		Platform.write_error_log("diagnostics_copy_failed: reason=%s" % reason)
 		_set_general_message(reason, true)
+
+
+func _on_check_update_pressed() -> void:
+	UpdateService.check_for_updates(true)
+
+
+func _on_update_available(release: Dictionary) -> void:
+	_available_release = release.duplicate(true)
+	download_update_button.visible = true
+
+
+func _on_update_download_ready(path: String, release: Dictionary) -> void:
+	_pending_installer_path = path
+	_available_release = release.duplicate(true)
+	update_install_confirm_dialog.dialog_text = "版本 %s 已完成完整性与签名校验。安装前会备份配置并退出当前应用，是否继续？" % String(release.get("tag_name", ""))
+	update_install_confirm_dialog.popup_centered()
+
+
+func _on_update_install_confirmed() -> void:
+	if _pending_installer_path.is_empty():
+		_set_general_message("更新安装器路径已失效，请重新下载。", true)
+		return
+	var main := get_tree().current_scene
+	if main == null or not main.has_method("prepare_update_exit"):
+		_set_general_message("无法进入安全更新流程，请前往 GitHub Release 手动下载。", true)
+		UpdateService.open_releases_page()
+		return
+	if not bool(main.call("prepare_update_exit", _pending_installer_path)):
+		_set_general_message("启动更新失败，当前版本保持不变。", true)
+
+
+func _on_download_update_pressed() -> void:
+	var assets: Array = _available_release.get("assets", [])
+	var selected: Dictionary = {}
+	for asset in assets:
+		if asset is Dictionary and String(asset.get("name", "")).to_lower().ends_with(".exe"):
+			selected = asset
+			break
+	if selected.is_empty():
+		_set_general_message("此版本没有可校验的安装器，请前往 GitHub Release 手动下载便携 Zip。安装版与便携版共享 APPDATA，请勿同时运行。", true)
+		UpdateService.open_releases_page()
+		return
+	UpdateService.download_update(_available_release, selected)
+
+
+func _on_cancel_update_pressed() -> void:
+	UpdateService.cancel_download()
+
+
+func _on_update_status_changed(state: String, message: String, _details: Dictionary) -> void:
+	_set_general_message(message, state == "error")
+	cancel_update_button.visible = state == "downloading"
+	download_update_button.disabled = state in ["loading", "downloading"]
 
 
 func _on_cancel() -> void:

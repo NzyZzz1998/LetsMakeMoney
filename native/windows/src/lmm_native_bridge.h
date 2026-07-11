@@ -38,6 +38,7 @@ public:
     bool set_mouse_passthrough(int64_t p_hwnd, const Array &p_interactive_rects);
     bool clear_mouse_passthrough(int64_t p_hwnd);
     bool set_taskbar_visible(int64_t p_hwnd, bool p_visible);
+    Dictionary verify_authenticode(const String &p_file_path, const String &p_expected_publisher);
 };
 
 }

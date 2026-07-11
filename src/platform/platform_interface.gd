@@ -101,3 +101,7 @@ func is_auto_start_enabled(_exe_path: String = "") -> bool:
 
 func set_auto_start(_enabled: bool, _exe_path: String = "") -> bool:
 	return false
+
+
+func verify_authenticode(_file_path: String, _expected_publisher: String = "") -> Dictionary:
+	return {"valid": false, "publisher": "", "error": "Authenticode verification is unavailable on this platform."}

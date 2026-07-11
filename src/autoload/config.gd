@@ -13,6 +13,7 @@ var _recovery_notice: String = ""
 
 const CONFIG_TEMP_SUFFIX := ".tmp"
 const CONFIG_PREVIOUS_SUFFIX := ".previous"
+const UPDATE_BACKUP_SUFFIX := ".pre-update"
 
 
 func _ready() -> void:
@@ -103,6 +104,8 @@ func _defaults() -> Dictionary:
 			"mouse_passthrough_enabled": true,
 			"transparent_pet_window_enabled": true,
 			"pure_pet_mode": false,
+			"update_channel": "beta",
+			"check_updates_on_start": true,
 			"opacity": 1.0,
 			"scale": 1.0,
 			"panel_items": {
@@ -173,6 +176,21 @@ func save() -> bool:
 	Platform.write_boot_log("config_save_success: changed_keys=%s" % str(_last_changed_keys))
 	config_changed.emit()
 	return true
+
+
+func create_update_backup() -> Dictionary:
+	if not save():
+		return {"ok": false, "path": "", "error": get_last_save_error()}
+	var backup_path := _config_path + UPDATE_BACKUP_SUFFIX
+	if FileAccess.file_exists(backup_path):
+		var remove_error := DirAccess.remove_absolute(backup_path)
+		if remove_error != OK:
+			return {"ok": false, "path": "", "error": "update_backup_remove_failed error=%s" % error_string(remove_error)}
+	var copy_error := DirAccess.copy_absolute(_config_path, backup_path)
+	if copy_error != OK:
+		return {"ok": false, "path": "", "error": "update_backup_copy_failed error=%s" % error_string(copy_error)}
+	Platform.write_info_log("update_config_backup_created")
+	return {"ok": true, "path": backup_path, "error": ""}
 
 
 func consume_recovery_notice() -> String:

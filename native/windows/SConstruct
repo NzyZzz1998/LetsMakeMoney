@@ -4,7 +4,7 @@ env = SConscript("godot-cpp/SConstruct")
 
 env.Append(CPPPATH=["src"])
 env.Append(CPPDEFINES=["WINDOWS_ENABLED"])
-env.Append(LIBS=["gdi32", "ole32", "uuid"])
+env.Append(LIBS=["gdi32", "ole32", "uuid", "wintrust", "crypt32"])
 
 sources = [
     "src/register_types.cpp",

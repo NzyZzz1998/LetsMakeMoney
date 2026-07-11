@@ -150,6 +150,10 @@ func get_native_window_handle(window: Window) -> int:
 	return impl.get_native_window_handle(window)
 
 
+func verify_authenticode(file_path: String, expected_publisher: String = "") -> Dictionary:
+	return impl.verify_authenticode(file_path, expected_publisher)
+
+
 func is_tray_supported() -> bool:
 	return impl.is_tray_supported()
 

@@ -161,6 +161,12 @@ func get_native_window_handle(window: Window) -> int:
 	return 0
 
 
+func verify_authenticode(file_path: String, expected_publisher: String = "") -> Dictionary:
+	if _native_bridge == null or not _native_bridge.has_method("verify_authenticode"):
+		return {"valid": false, "publisher": "", "error": "Native Authenticode verification is unavailable."}
+	return Dictionary(_native_bridge.call("verify_authenticode", file_path, expected_publisher))
+
+
 func setup_tray(icon_path: String) -> bool:
 	if _native_bridge == null or not bool(_native_health.get("tray_supported", false)):
 		Platform.write_boot_log("WindowsPlatform.setup_tray: skipped")

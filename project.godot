@@ -20,6 +20,7 @@ config/icon="res://icons/app_icon.png"
 
 Platform="*res://src/autoload/platform.gd"
 Config="*res://src/autoload/config.gd"
+UpdateService="*res://src/utils/update_service.gd"
 SalaryEngine="*res://src/autoload/salary_engine.gd"
 PetManager="*res://src/autoload/pet_manager.gd"
 PanelSystem="*res://src/autoload/panel_system.gd"
