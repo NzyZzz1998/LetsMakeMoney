@@ -1,7 +1,7 @@
 # LetsMakeMoney v0.7 Git 历史重写演练记录
 
 **日期**：2026-07-11
-**状态**：本地独立镜像演练通过；当前仓库和 GitHub 远端未改写
+**状态**：本地演练、远端执行和 fresh clone 复验通过
 **工具**：git-filter-repo 2.47.0、Gitleaks 8.30.1、TruffleHog 3.95.9
 
 ## 1. 隔离与备份
@@ -81,13 +81,15 @@ native DLL 由当前已验收构建复制到临时 checkout，仅用于加载现
 - 候选树公开检查：407 文件、0 失败、0 警告。
 - 候选提交完整历史再次通过 Gitleaks、TruffleHog、目标路径/绝对路径/旧邮箱归零和 v0.4-v0.6 回归。
 
-## 8. 尚未执行
+## 8. 远端执行结果
 
-- 未替换本地正式工作区 `.git`。
-- 未推送 `main`、`test` 或任何 tag。
-- 未修改 GitHub Release、PR、仓库可见性或远端设置。
-- 未执行 force push 后的远端 clone 验证和 Release 重新关联；这需要单独最终授权。
+- 使用逐 ref lease 和原子推送替换 `main`、`test` 与 v0.2-v0.6 五个 tags；旧 SHA 全部与冻结值匹配。
+- v0.7 候选提交随后修复 fresh clone 发现的 Inno Setup 许可证 EOL 哈希问题，并以新 lease 安全更新 `main`。
+- 从 GitHub SSH 全新克隆后确认 `main`、`test` 和五个 tag 均指向新历史。
+- fresh clone 通过公开候选 407/0/0、双扫描 0、目标路径/绝对路径/旧邮箱 0，以及 v0.4-v0.6、M4/M5 和托盘双模式回归。
+- 正式本地项目已切换到新 `.git`；旧 `.git`、完整 bundle 和排除内容保存在仓库外备份。
+- 仓库可见性没有修改，仍为 private；Release 页面附件关联等待登录态只读确认。
 
 ## 9. 下一门禁
 
-远端重写前必须取得“允许 force push `main`、`test`、v0.2-v0.6 tags 并重新关联 GitHub Release”的最终授权。执行后必须从远端重新克隆并重复公开、历史和回归门禁。
+进入 B1 前完成 GitHub Release 页面只读确认，并保留旧历史备份直至 v0.7 独立 Acceptance 结束。仓库公开仍受 B-E 与公开批准门禁约束。

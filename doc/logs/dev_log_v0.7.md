@@ -9,7 +9,7 @@
 - 对应 dev plan：`doc/releases/v0.7/dev_plan_v0.7.md`
 - 对应 progress：`doc/releases/v0.7/progress_v0.7.md`
 - 对应追踪矩阵：`doc/releases/v0.7/traceability.md`
-- 当前阶段：V07-A0/A1/A2/A3 已完成；历史重写方案已授权、尚未执行
+- 当前阶段：V07-A0/A1/A2/A3 与远端历史重写已完成；等待进入 B1
 - 最后更新：2026-07-11
 
 ## 开发记录
@@ -42,7 +42,15 @@
 - 差异审计：main 共有 95 个变化路径，其中 70 个计划内删除、25 个路径/测试调整、0 个新增、0 个非预期删除。
 - 验证：Gitleaks/TruffleHog 0 命中，git fsck 通过；v0.4/v0.5/v0.6、配置、M4、M5 导出冒烟和托盘双模式回归通过。
 - 后续迁移：最新 v0.7 工作已复制到清洗后的独立 main，清理当前树 5 条绝对路径警告并形成本地候选提交；公开检查和双扫描均为 0。
-- 边界：未修改正式本地仓库或远端 heads/tags/Release；force push 仍需单独最终授权。
+- 演练阶段边界：当时尚未修改正式本地仓库或远端 heads/tags/Release；后续执行结果见下一节。
+
+### 2026-07-11 / Git 历史远端替换与 fresh clone 复验
+
+- 经所有者明确授权，使用逐 ref lease 和原子强制推送替换 `main`、`test` 与 v0.2-v0.6 tags；不存在并发覆盖。
+- fresh clone 首轮发现 Inno Setup 许可证 CRLF/LF 哈希不可复现；同步脚本改为先验证上游 CRLF 哈希，再保存 LF 规范化仓库副本，manifest 固定规范化哈希。
+- 修复后远端 main 为 `aa34253e...`；fresh clone 的第三方合规、公开候选、双扫描、v0.4-v0.6、M4/M5 和托盘双模式均通过。
+- 正式本地项目切换到新历史；旧 `.git`、bundle、工作区快照和排除内容均保存在仓库外，没有删除。
+- 限制：自动化浏览器没有私有 GitHub 登录态，Release 页面附件关联需人工只读确认；仓库保持 private。
 
 ### 2026-07-11 / V07-A2 第三方依赖与 Release 合规
 
