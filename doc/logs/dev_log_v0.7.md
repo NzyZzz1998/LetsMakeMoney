@@ -126,6 +126,7 @@
 - 仓库公开不代表 v0.7 已发布；tag、安装器、便携 Zip、更新能力和 GitHub Release 仍须完成对应实现与独立验收。
 - 多平台路线优先级调整为 iOS、macOS、Android；v0.7 只建立路线规划，不修改平台代码。
 - 新增 `roadmaps/platform-roadmap.md`，记录 iOS 产品形态、沙盒、后台、签名和 App Store 研究边界。
+- GitHub 公共 API 返回 `private=false`、`visibility=public`、默认分支 `main`，仓库公开动作已完成核验。
 
 ## 关键决策
 

@@ -2,7 +2,7 @@
 
 ## 追踪信息
 
-- 当前状态：V07-A0/A1/A2/A3 与远端历史重写已完成；项目所有者批准仓库公开，进入 B1
+- 当前状态：V07-A0/A1/A2/A3 与远端历史重写已完成；GitHub 已核验为 Public，进入 B1
 - 目标版本：v0.7 Beta
 - 上游来源：`doc/releases/v0.7/prd.md`、`doc/releases/v0.7/idea-pool.md`
 - 对应实施计划：`doc/releases/v0.7/dev_plan_v0.7.md`
