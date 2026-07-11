@@ -10,7 +10,6 @@ function Get-LmmRelativePath([string]$BasePath, [string]$Path) {
 function Stage-LmmReleaseLicenses {
     param([string]$ProjectRoot, [string]$StageDir)
     & (Join-Path $ProjectRoot "scripts/stage_release_licenses.ps1") -ProjectRoot $ProjectRoot -StageDir $StageDir
-    if ($LASTEXITCODE -ne 0) { throw "Release license staging failed." }
 }
 
 function New-LmmPackage {

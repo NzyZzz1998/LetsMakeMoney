@@ -74,7 +74,6 @@ const SETTINGS_SHEET_WIDTH := 680
 const SETTINGS_SHEET_HEIGHT := 510
 const SETTINGS_TAB_HEIGHT := 38
 const SETTINGS_CONTROL_WIDTH := 128
-const SETTINGS_HEADER_HEIGHT := 46
 const FEEDBACK_HIDE_SECONDS := 2.6
 const SECTION_LABELS := {
 	"Salary": "工资",
@@ -264,229 +263,6 @@ func _build_compact_ui() -> void:
 	save_button.name = "SaveButton"
 	save_button.text = "保存"
 	save_button.custom_minimum_size = Vector2(96, 34)
-	save_button.pressed.connect(_on_save)
-	_style_button(save_button, false, true)
-	action_row.add_child(save_button)
-
-	restore_defaults_confirm_dialog = ConfirmationDialog.new()
-	restore_defaults_confirm_dialog.name = "RestoreDefaultsConfirmDialog"
-	restore_defaults_confirm_dialog.title = "恢复默认显示设置"
-	restore_defaults_confirm_dialog.dialog_text = "恢复默认只会重置显示、窗口、托盘、自启动和 Debug 设置，不清空薪资、工时、角色和 Panel 项。"
-	restore_defaults_confirm_dialog.confirmed.connect(_restore_display_defaults)
-	add_child(restore_defaults_confirm_dialog)
-
-
-func _build_ui() -> void:
-	var surface := Panel.new()
-	surface.name = "SettingsSurface"
-	surface.set_anchors_preset(Control.PRESET_FULL_RECT)
-	surface.add_theme_stylebox_override("panel", _stylebox(SETTINGS_SURFACE, BORDER_WARM, 1, 20, 0, SHADOW_WARM, 10))
-	add_child(surface)
-
-	var root := MarginContainer.new()
-	root.name = "SettingsRoot"
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.add_theme_constant_override("margin_left", SETTINGS_OUTER_PADDING)
-	root.add_theme_constant_override("margin_top", SETTINGS_OUTER_PADDING)
-	root.add_theme_constant_override("margin_right", SETTINGS_OUTER_PADDING)
-	root.add_theme_constant_override("margin_bottom", SETTINGS_OUTER_PADDING)
-	add_child(root)
-
-	var shell_center := CenterContainer.new()
-	shell_center.name = "SettingsShellCenter"
-	shell_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	shell_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root.add_child(shell_center)
-
-	var shell := PanelContainer.new()
-	shell.name = "SettingsShell"
-	shell.custom_minimum_size = Vector2(SETTINGS_SHEET_WIDTH, SETTINGS_SHEET_HEIGHT)
-	shell.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	shell.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	shell.add_theme_stylebox_override("panel", _stylebox(SURFACE_CARD, Color(0.416, 0.263, 0.122, 0.12), 1, 22, 0, Color(0.360, 0.184, 0.047, 0.10), 8))
-	shell_center.add_child(shell)
-
-	var shell_box := VBoxContainer.new()
-	shell_box.name = "SettingsShellColumn"
-	shell_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	shell_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	shell_box.add_theme_constant_override("separation", 0)
-	shell.add_child(shell_box)
-
-	var header_margin := MarginContainer.new()
-	header_margin.name = "SettingsHeaderMargin"
-	header_margin.custom_minimum_size = Vector2(0, 74)
-	header_margin.add_theme_constant_override("margin_left", 26)
-	header_margin.add_theme_constant_override("margin_top", 12)
-	header_margin.add_theme_constant_override("margin_right", 26)
-	header_margin.add_theme_constant_override("margin_bottom", 6)
-	shell_box.add_child(header_margin)
-
-	var header := HBoxContainer.new()
-	header.name = "WinSettingsHeader"
-	header.custom_minimum_size = Vector2(0, SETTINGS_HEADER_HEIGHT)
-	header.mouse_filter = Control.MOUSE_FILTER_STOP
-	header.add_theme_constant_override("separation", 10)
-	header.gui_input.connect(_on_header_gui_input)
-	header_margin.add_child(header)
-
-	var back_button := Button.new()
-	back_button.name = "BackButton"
-	back_button.text = "←"
-	back_button.custom_minimum_size = Vector2(34, 34)
-	back_button.pressed.connect(_on_cancel)
-	_style_window_button(back_button)
-	header.add_child(back_button)
-
-	var title_cluster := VBoxContainer.new()
-	title_cluster.name = "SettingsTitleCluster"
-	title_cluster.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_cluster.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	title_cluster.add_theme_constant_override("separation", 1)
-	header.add_child(title_cluster)
-
-	var title := Label.new()
-	title.name = "SettingsTitle"
-	title.text = "小工具设置"
-	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 22)
-	title.add_theme_color_override("font_color", SETTINGS_TEXT)
-	title_cluster.add_child(title)
-
-	var subtitle := Label.new()
-	subtitle.name = "SettingsSubtitle"
-	subtitle.text = "让橘猫、金币小票和桌面陪伴更顺手。"
-	subtitle.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	subtitle.add_theme_font_size_override("font_size", 13)
-	subtitle.add_theme_color_override("font_color", SETTINGS_MUTED)
-	title_cluster.add_child(subtitle)
-
-	var search_box := LineEdit.new()
-	search_box.name = "SearchPlaceholder"
-	search_box.placeholder_text = "查找设置"
-	search_box.editable = false
-	search_box.custom_minimum_size = Vector2(204, 38)
-	search_box.focus_mode = Control.FOCUS_NONE
-	search_box.add_theme_font_size_override("font_size", 15)
-	_style_line_edit(search_box)
-	header.add_child(search_box)
-
-	var close_button := Button.new()
-	close_button.name = "CloseButton"
-	close_button.text = "×"
-	close_button.custom_minimum_size = Vector2(34, 34)
-	close_button.pressed.connect(_on_cancel)
-	_style_window_button(close_button, true)
-	header.add_child(close_button)
-
-	var nav_margin := MarginContainer.new()
-	nav_margin.name = "SettingsNavMargin"
-	nav_margin.custom_minimum_size = Vector2(0, 46)
-	nav_margin.add_theme_constant_override("margin_left", 26)
-	nav_margin.add_theme_constant_override("margin_top", 0)
-	nav_margin.add_theme_constant_override("margin_right", 26)
-	nav_margin.add_theme_constant_override("margin_bottom", 4)
-	shell_box.add_child(nav_margin)
-
-	var nav_shell := PanelContainer.new()
-	nav_shell.name = "SettingsNavSegment"
-	nav_shell.custom_minimum_size = Vector2(0, SETTINGS_TAB_HEIGHT)
-	nav_shell.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	nav_shell.add_theme_stylebox_override("panel", _stylebox(Color(1.0, 0.952, 0.862, 0.58), Color(0.416, 0.263, 0.122, 0.10), 1, 18, 6))
-	nav_margin.add_child(nav_shell)
-
-	var nav := HBoxContainer.new()
-	nav.name = "SettingsNav"
-	nav.add_theme_constant_override("separation", 5)
-	nav_shell.add_child(nav)
-
-	var header_divider := ColorRect.new()
-	header_divider.name = "ShellHeaderDivider"
-	header_divider.custom_minimum_size = Vector2(0, 1)
-	header_divider.color = SETTINGS_DIVIDER
-	shell_box.add_child(header_divider)
-
-	var content_margin := MarginContainer.new()
-	content_margin.name = "SettingsContentMargin"
-	content_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content_margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	content_margin.add_theme_constant_override("margin_left", 30)
-	content_margin.add_theme_constant_override("margin_top", 8)
-	content_margin.add_theme_constant_override("margin_right", 30)
-	content_margin.add_theme_constant_override("margin_bottom", 0)
-	shell_box.add_child(content_margin)
-
-	var content_holder := Control.new()
-	content_holder.name = "SettingsContentPages"
-	content_holder.clip_contents = true
-	content_holder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content_holder.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	content_margin.add_child(content_holder)
-
-	_add_settings_section(nav, content_holder, "Salary", _build_salary_tab())
-	_add_settings_section(nav, content_holder, "Pet", _build_pet_tab())
-	_add_settings_section(nav, content_holder, "Display", _build_display_tab())
-	_add_settings_section(nav, content_holder, "Panel", _build_panel_tab())
-	_add_settings_section(nav, content_holder, "General", _build_general_tab())
-	_select_settings_section("Salary")
-
-	save_status_label = Label.new()
-	save_status_label.name = "SaveStatusLabel"
-	save_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	save_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	save_status_label.add_theme_font_size_override("font_size", 16)
-	save_status_label.add_theme_color_override("font_color", ACCENT_MINT)
-
-	save_feedback_panel = PanelContainer.new()
-	save_feedback_panel.name = "SaveFeedbackPanel"
-	save_feedback_panel.visible = false
-	save_feedback_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	save_feedback_panel.add_theme_stylebox_override("panel", _stylebox(Color(0.918, 0.980, 0.886, 0.98), Color(0.427, 0.624, 0.447, 0.42), 1, 12, 12))
-	save_feedback_panel.add_child(save_status_label)
-	var feedback_margin := MarginContainer.new()
-	feedback_margin.name = "SaveFeedbackMargin"
-	feedback_margin.add_theme_constant_override("margin_left", 30)
-	feedback_margin.add_theme_constant_override("margin_top", 0)
-	feedback_margin.add_theme_constant_override("margin_right", 30)
-	feedback_margin.add_theme_constant_override("margin_bottom", 8)
-	feedback_margin.add_child(save_feedback_panel)
-	shell_box.add_child(feedback_margin)
-
-	var action_divider := ColorRect.new()
-	action_divider.name = "ActionDivider"
-	action_divider.custom_minimum_size = Vector2(0, 1)
-	action_divider.color = SETTINGS_DIVIDER
-	shell_box.add_child(action_divider)
-
-	var action_margin := MarginContainer.new()
-	action_margin.name = "ActionMargin"
-	action_margin.custom_minimum_size = Vector2(0, 54)
-	action_margin.add_theme_constant_override("margin_left", 30)
-	action_margin.add_theme_constant_override("margin_top", 8)
-	action_margin.add_theme_constant_override("margin_right", 30)
-	action_margin.add_theme_constant_override("margin_bottom", 8)
-	shell_box.add_child(action_margin)
-
-	var action_row := HBoxContainer.new()
-	action_row.name = "ActionRow"
-	action_row.custom_minimum_size = Vector2(0, 44)
-	action_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	action_row.alignment = BoxContainer.ALIGNMENT_END
-	action_row.add_theme_constant_override("separation", 12)
-	action_margin.add_child(action_row)
-
-	cancel_button = Button.new()
-	cancel_button.name = "CancelButton"
-	cancel_button.text = "取消"
-	cancel_button.custom_minimum_size = Vector2(92, 38)
-	cancel_button.pressed.connect(_on_cancel)
-	_style_button(cancel_button)
-	action_row.add_child(cancel_button)
-
-	save_button = Button.new()
-	save_button.name = "SaveButton"
-	save_button.text = "保存"
-	save_button.custom_minimum_size = Vector2(104, 38)
 	save_button.pressed.connect(_on_save)
 	_style_button(save_button, false, true)
 	action_row.add_child(save_button)
@@ -731,17 +507,6 @@ func _new_vbox(parent: Control) -> VBoxContainer:
 	return box
 
 
-func _add_card_grid(parent: Control) -> GridContainer:
-	var grid := GridContainer.new()
-	grid.name = "SettingsCardGrid"
-	grid.columns = 2
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 14)
-	grid.add_theme_constant_override("v_separation", 14)
-	parent.add_child(grid)
-	return grid
-
-
 func _add_page_heading(parent: Control, title: String, hint: String) -> void:
 	var row := VBoxContainer.new()
 	row.name = "%sPageHeading" % title
@@ -918,18 +683,6 @@ func _sync_switch_proxies() -> void:
 			continue
 		proxy.button_pressed = (toggle as BaseButton).button_pressed
 		_style_switch_proxy(proxy, toggle as BaseButton)
-
-
-func _add_status_card(parent: Control, title: String, description: String, label: Label) -> void:
-	var card_body := _add_setting_card(parent, title, description)
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	card_body.add_child(label)
-
-
-func _add_info_card(parent: Control, title: String, description: String) -> void:
-	_add_setting_card(parent, title, description)
 
 
 func _add_note_block(parent: Control, title: String, lines: Array[String]) -> void:
@@ -1694,16 +1447,6 @@ func _update_native_status_label() -> void:
 	else:
 		pure_pet_mode_toggle.disabled = false
 	_sync_switch_proxies()
-
-
-func get_v02_control_names() -> Array[String]:
-	return [
-		"auto_start_toggle",
-		"debug_mode_toggle",
-		"minimize_to_tray_toggle",
-		"reset_position_button",
-		"restore_defaults_button"
-	]
 
 
 func _apply_auto_start_setting() -> bool:

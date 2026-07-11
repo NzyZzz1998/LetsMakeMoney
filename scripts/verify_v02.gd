@@ -120,19 +120,15 @@ func _check_settings_dialog() -> void:
 	_assert(scene != null, "settings_dialog.tscn should load")
 	if scene == null:
 		return
-	var dlg: Node = scene.instantiate()
-	_assert(dlg.has_method("get_v02_control_names"), "SettingsDialog.get_v02_control_names() missing")
-	if dlg.has_method("get_v02_control_names"):
-		var controls: Array = dlg.get_v02_control_names()
-		for control_name in [
-			"debug_mode_toggle",
-			"auto_start_toggle",
-			"minimize_to_tray_toggle",
-			"reset_position_button",
-			"restore_defaults_button"
-		]:
-			_assert(controls.has(control_name), "SettingsDialog missing %s" % control_name)
-	dlg.queue_free()
+	var script := FileAccess.get_file_as_string("res://src/scenes/settings/settings_dialog.gd")
+	for control_name in [
+		"debug_mode_toggle",
+		"auto_start_toggle",
+		"minimize_to_tray_toggle",
+		"reset_position_button",
+		"restore_defaults_button"
+	]:
+		_assert(script.contains("var %s" % control_name), "SettingsDialog missing %s" % control_name)
 
 
 func _check_pet_drag_model() -> void:

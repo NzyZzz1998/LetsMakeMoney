@@ -743,7 +743,7 @@ func _check_settings_information_architecture() -> void:
 		_assert(not settings_script.contains(forbidden_marketing_text), "Settings should not contain marketing/theme text: %s" % forbidden_marketing_text)
 	_assert(settings_script.contains("SystemFont.new()"), "Settings should use an explicit system CJK font for readable Chinese text")
 	_assert(settings_script.contains("Microsoft YaHei UI"), "Settings font fallback should include Microsoft YaHei UI")
-	_assert(settings_script.contains("_add_status_card"), "Display status labels should use full-width status cards instead of narrow right-side controls")
+	_assert(settings_script.contains("_add_note_label"), "Display status labels should use a full-width low-weight note region instead of narrow right-side controls")
 
 
 func _check_wizard_warm_widget_polish() -> void:

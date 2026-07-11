@@ -41,7 +41,7 @@
 | V07-A3 | 完整历史、隐私与资产审计 | 已完成 | 12/12 |
 | V07-B1 | 固定依赖与可复现构建 | 已完成 | 13/13 |
 | V07-B2 | CI 与验证/打包脚本治理 | 已完成 | 13/13 |
-| V07-B3 | 低风险代码与仓库瘦身 | 未开始 | 0/12 |
+| V07-B3 | 低风险代码与仓库瘦身 | 已完成 | 12/12 |
 | V07-B4 | Main/native 行为测试与状态合同 | 未开始 | 0/14 |
 | V07-B5 | Main/native 分阶段深度治理 | 未开始 | 0/16 |
 | V07-C1 | Inno Setup 安装器基线 | 未开始 | 0/12 |
@@ -156,18 +156,20 @@
 
 ### V07-B3：低风险代码与仓库瘦身（FR-007；IDEA-009/012）
 
-- [ ] V07-B3-001 为 Settings 五页、保存事务和关闭出口补行为测试。
-- [ ] V07-B3-002 为 Wizard 四步和共享控件补视觉/状态回归。
-- [ ] V07-B3-003 确认旧 `_build_ui` 路径无 scene、signal、dynamic call 或测试外调用。
-- [ ] V07-B3-004 删除经测试证明无用的 Settings 旧 UI 构建路径。
-- [ ] V07-B3-005 清理只服务已迁移静态测试的低风险适配 API。
-- [ ] V07-B3-006 参数化 v0.4-v0.6 重复打包脚本并保留 wrapper。
-- [ ] V07-B3-007 参数化历史包验证脚本并保留 wrapper。
-- [ ] V07-B3-008 逐项扫描 `temp/`、`experiments/`、ComfyUI 脚本和素材的 runtime/export 引用。
-- [ ] V07-B3-009 将确认不进入公开版的实验和临时内容移出公开候选。
-- [ ] V07-B3-010 将历史大文档纳入 archive 索引，不删除版本事实。
-- [ ] V07-B3-011 运行 Settings/Wizard、资源导入和包内启动回归。
-- [ ] V07-B3-012 确认 Pet/Salary API、降级托盘、`.import` 和状态缓存未被误删。
+- [x] V07-B3-001 为 Settings 五页、保存事务和关闭出口补行为测试。
+- [x] V07-B3-002 为 Wizard 四步和共享控件补视觉/状态回归。
+- [x] V07-B3-003 确认旧 `_build_ui` 路径无 scene、signal、dynamic call 或测试外调用。
+- [x] V07-B3-004 删除经测试证明无用的 Settings 旧 UI 构建路径。
+- [x] V07-B3-005 清理只服务已迁移静态测试的低风险适配 API。
+- [x] V07-B3-006 参数化 v0.4-v0.6 重复打包脚本并保留 wrapper。
+- [x] V07-B3-007 参数化历史包验证脚本并保留 wrapper。
+- [x] V07-B3-008 逐项扫描 `temp/`、`experiments/`、ComfyUI 脚本和素材的 runtime/export 引用。
+- [x] V07-B3-009 将确认不进入公开版的实验和临时内容移出公开候选。
+- [x] V07-B3-010 将历史大文档纳入 archive 索引，不删除版本事实。
+- [x] V07-B3-011 运行 Settings/Wizard、资源导入和包内启动回归。
+- [x] V07-B3-012 确认 Pet/Salary API、降级托盘、`.import` 和状态缓存未被误删。
+
+**B3 最近验证**：Settings 五页与 Wizard 四步运行态节点契约、v0.2/v0.4-v0.6/M4/M5、当前源码导出和包内启动通过。旧 Settings `_build_ui`、三个无调用 helper 和 `get_v02_control_names` 测试适配 API 已移除；当前树无被跟踪 `temp/`、`experiments/` 或 ComfyUI 脚本，历史版本事实继续由 archive 保留。
 
 ### V07-B4：Main/native 行为测试与状态合同（FR-008；IDEA-011）
 

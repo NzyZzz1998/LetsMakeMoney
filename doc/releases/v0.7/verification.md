@@ -157,3 +157,13 @@
 | 本机摘要 | 通过 | `.tmp_ci/verification-summary.json` 使用与 Actions 相同入口 |
 | 活跃回归 | 通过 | v0.6、v0.5、v0.4、M4、M5 |
 | 真实 GUI 边界 | 转交 Acceptance | 见 `ci-and-manual-boundaries.md` |
+
+## V07-B3 低风险代码与仓库瘦身
+
+| 检查 | 结果 | 证据 |
+|---|---|---|
+| Settings/Wizard 运行态合同 | 通过 | `verify_v07_ui_contract.gd` 覆盖五页、四步和共享壳节点 |
+| Settings 旧路径删除 | 通过 | `test_settings_slimming_contract.ps1`；全仓 scene/signal/dynamic call 无引用 |
+| 历史兼容 | 通过 | v0.2、v0.4、v0.5、v0.6、M4、M5 |
+| 临时/实验运行时引用 | 通过 | 当前 Git 树无 `temp/`、`experiments/` 或 ComfyUI 脚本；export 继续显式排除 |
+| 当前源码包内启动 | 通过 | M5 重新导出后公共 package/verify smoke 通过 |
