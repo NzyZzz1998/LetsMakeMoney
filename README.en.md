@@ -14,6 +14,18 @@ LetsMakeMoney is a Windows desktop pet and earnings-progress widget. The current
 
 You may build and run the project for evaluation and code contribution. You may not extract or reuse restricted visual assets in another project or distribute unofficial binaries containing them without written permission.
 
+## Native build quick start
+
+The Windows native bridge uses the locked identities in `third_party/native-toolchain.lock.json`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap_native_dependencies.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\build_native_windows.ps1 -ValidateOnly
+powershell -ExecutionPolicy Bypass -File .\scripts\build_native_windows.ps1 -Target template_debug
+```
+
+See [the Windows native build guide](native/windows/README.md) for MSYS2, offline cache, Release builds, and failure handling.
+
 ## Contributions
 
 Code, documentation, UI design descriptions, and native integration contributions are welcome under [CONTRIBUTING.md](CONTRIBUTING.md). v0.7 does not accept external visual asset files.

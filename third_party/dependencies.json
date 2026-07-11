@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "last_updated": "2026-07-11",
+  "native_toolchain_lock": "third_party/native-toolchain.lock.json",
   "package_artifacts": [
     {"path":"LetsMakeMoney.exe","contains":["Godot Engine"]},
     {"path":"letsmakemoney_native.dll","contains":["godot-cpp","MinGW-w64 UCRT headers/runtime","GCC"]}

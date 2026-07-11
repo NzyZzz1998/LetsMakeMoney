@@ -132,4 +132,16 @@
 
 ## 边界
 
-本页记录 A0-A3 的当前证据。A3 的秘密扫描通过不等于仓库可以公开；历史披露、B/C/E 工程门禁和独立 Acceptance 仍未关闭。本页也不将 v0.6 的“开机自启暂不验证”改写为通过。
+本页记录 A0-A3 与后续工程门禁证据。源码仓库已经公开，但 B/C/E 工程门禁和独立 Acceptance 仍约束 v0.7 产物发布。本页也不将 v0.6 的“开机自启暂不验证”改写为通过。
+
+## V07-B1 固定依赖与可复现构建
+
+| 检查 | 结果 | 证据 |
+|---|---|---|
+| Godot 4.7 stable 身份 | 通过 | 官方 Windows x86_64 归档 SHA256 `02A5312236F4E0209C78BCB2F52135B1963E6B8888C873C9CEE81459E60BCD71`；本机可执行文件 SHA256 `B2CA888D5115A6CEDEE564764A2EE494A625F2EC2EDBABD010FE33C9A88A6BF8` |
+| godot-cpp lock | 通过 | `ba0edfed90512ec64aba51d4295a3e7e30112f86`；在线 mirror 与离线 clone 均检出同一 commit |
+| bootstrap 正反向测试 | 通过 | 正常在线、离线缓存通过；缺缓存和错误 commit 非零失败 |
+| 构建合同测试 | 通过 | Python、SCons、MSYS2/GCC、Godot、godot-cpp、缓存和目标身份可读；错误 Godot SHA256 与缺 MSYS2 非零失败 |
+| 干净 Debug 构建 | 通过 | 仓库外全新 native 目录，不使用项目内 godot-cpp 或旧 DLL |
+| 干净 Release 构建 | 通过 | 同一 lock 和 mirror 完成；DLL 长度 1,600,000，SHA256 `DE2144D92F6D30796B8872BB706089FC031C6DAACF02F66D1483A5F7E0CB06E7` |
+| 冷构建耗时 | 记录 | Debug 与 Release 分别需要完整 godot-cpp 目标，双目标总耗时超过 15 分钟；B2 需设计缓存与独立 job 超时 |

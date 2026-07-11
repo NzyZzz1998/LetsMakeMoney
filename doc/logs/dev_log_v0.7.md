@@ -128,6 +128,15 @@
 - 新增 `roadmaps/platform-roadmap.md`，记录 iOS 产品形态、沙盒、后台、签名和 App Store 研究边界。
 - GitHub 公共 API 返回 `private=false`、`visibility=public`、默认分支 `main`，仓库公开动作已完成核验。
 
+### 2026-07-11 / V07-B1 固定依赖与可复现构建
+
+- 新增 `third_party/native-toolchain.lock.json`，固定 Godot 4.7 stable、godot-cpp、Python、SCons、MSYS2/GCC 与 MinGW-w64 身份。
+- 新增 `bootstrap_native_dependencies.ps1`：使用镜像缓存，只检出固定 godot-cpp commit，支持离线恢复、显式替换和安全清缓存。
+- 重写 native 构建入口：参数/环境变量/自动发现分层；构建前强制校验 lock、Godot SHA256 和 godot-cpp commit；输出完整工具链身份。
+- 仓库外全新工作区完成在线 bootstrap、仅缓存离线恢复、`template_debug` 和 `template_release` 构建。Debug 首次构建约 15 分钟，Release 追加约 11 分钟；以后 CI 需要缓存和独立超时。
+- 正反向测试覆盖缺离线缓存、错误 commit、错误 Godot SHA256 和缺失 MSYS2。重复补哈希冷构建被主动终止，相关子进程已清理，不作为失败门禁。
+- native README 与中英文入口已补充固定依赖、离线缓存、失败处理和首次构建耗时。
+
 ## 关键决策
 
 | 决策 | 背景 | 取舍 | 影响范围 | 后续观察 |

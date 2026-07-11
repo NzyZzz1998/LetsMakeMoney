@@ -64,8 +64,12 @@ $env:LMM_GODOT_EXE = "<Godot 4.7 console executable>"
 构建 Windows native DLL：
 
 ```powershell
-.\scripts\build_native_windows.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap_native_dependencies.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\build_native_windows.ps1 -ValidateOnly
+powershell -ExecutionPolicy Bypass -File .\scripts\build_native_windows.ps1 -Target template_debug
 ```
+
+固定依赖、离线缓存、Release 构建和故障处理见 [Windows native 构建说明](native/windows/README.md)。
 
 运行 v0.6 自动验证：
 

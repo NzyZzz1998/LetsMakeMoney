@@ -2,7 +2,7 @@
 
 ## 追踪信息
 
-- 当前状态：V07-A0/A1/A2/A3 与远端历史重写已完成；GitHub 已核验为 Public，进入 B1
+- 当前状态：V07-A0/A1/A2/A3、V07-B1 已完成；GitHub 已核验为 Public，进入 B2
 - 目标版本：v0.7 Beta
 - 上游来源：`doc/releases/v0.7/prd.md`、`doc/releases/v0.7/idea-pool.md`
 - 对应实施计划：`doc/releases/v0.7/dev_plan_v0.7.md`
@@ -39,7 +39,7 @@
 | V07-A1 | MIT 与受限素材许可 | 已完成 | 10/10 |
 | V07-A2 | 第三方与 Release 合规 | 已完成 | 9/9 |
 | V07-A3 | 完整历史、隐私与资产审计 | 已完成 | 12/12 |
-| V07-B1 | 固定依赖与可复现构建 | 未开始 | 0/13 |
+| V07-B1 | 固定依赖与可复现构建 | 已完成 | 13/13 |
 | V07-B2 | CI 与验证/打包脚本治理 | 未开始 | 0/13 |
 | V07-B3 | 低风险代码与仓库瘦身 | 未开始 | 0/12 |
 | V07-B4 | Main/native 行为测试与状态合同 | 未开始 | 0/14 |
@@ -120,19 +120,21 @@
 
 ### V07-B1：固定依赖与可复现构建（FR-005；IDEA-005）
 
-- [ ] V07-B1-001 记录 Godot 4.7 stable 下载身份和校验策略。
-- [ ] V07-B1-002 确认兼容的 godot-cpp 固定 commit。
-- [ ] V07-B1-003 建立 native 依赖 lock/manifest 文件。
-- [ ] V07-B1-004 新增固定 commit 的 godot-cpp bootstrap 脚本。
-- [ ] V07-B1-005 为下载归档或 clone checkout 增加 SHA256/commit 校验。
-- [ ] V07-B1-006 支持可清理的依赖缓存目录。
-- [ ] V07-B1-007 编写离线缓存目录和人工放置说明。
-- [ ] V07-B1-008 移除 `build_native_windows.ps1` 的维护者绝对路径默认值。
-- [ ] V07-B1-009 支持参数、环境变量和工具自动发现优先级。
-- [ ] V07-B1-010 在构建日志输出 Python、SCons、编译器、SDK、Godot 和 godot-cpp 身份。
-- [ ] V07-B1-011 验证无缓存干净 native Debug/Release 构建。
-- [ ] V07-B1-012 验证缓存、离线、断网、错哈希和缺工具失败路径。
-- [ ] V07-B1-013 更新 native Windows README 并由干净环境复现。
+- [x] V07-B1-001 记录 Godot 4.7 stable 下载身份和校验策略。
+- [x] V07-B1-002 确认兼容的 godot-cpp 固定 commit。
+- [x] V07-B1-003 建立 native 依赖 lock/manifest 文件。
+- [x] V07-B1-004 新增固定 commit 的 godot-cpp bootstrap 脚本。
+- [x] V07-B1-005 为下载归档或 clone checkout 增加 SHA256/commit 校验。
+- [x] V07-B1-006 支持可清理的依赖缓存目录。
+- [x] V07-B1-007 编写离线缓存目录和人工放置说明。
+- [x] V07-B1-008 移除 `build_native_windows.ps1` 的维护者绝对路径默认值。
+- [x] V07-B1-009 支持参数、环境变量和工具自动发现优先级。
+- [x] V07-B1-010 在构建日志输出 Python、SCons、编译器、SDK、Godot 和 godot-cpp 身份。
+- [x] V07-B1-011 验证无缓存干净 native Debug/Release 构建。
+- [x] V07-B1-012 验证缓存、离线、断网、错哈希和缺工具失败路径。
+- [x] V07-B1-013 更新 native Windows README 并由干净环境复现。
+
+**B1 最近验证**：官方 Godot 4.7 stable Windows 归档 SHA256 为 `02A53122...BCD71`；godot-cpp 锁定 `ba0edfed...`。仓库外全新工作区完成在线 mirror、离线恢复、Debug 与 Release 冷构建；错误 commit、错误 Godot 哈希、缓存缺失和 MSYS2 缺失均按预期非零失败。首次双目标冷构建总耗时超过 15 分钟，后续 CI 必须使用依赖/对象缓存并拆分超时。
 
 ### V07-B2：CI 与验证/打包脚本治理（FR-006/012；IDEA-008/010）
 
@@ -369,7 +371,7 @@
 
 ## 7. 下一步
 
-1. 从 `V07-B1-001` 开始，严格按依赖顺序推进。
+1. 从 `V07-B2-001` 开始，严格按依赖顺序推进。
 2. 每完成一个最小任务同步 checklist；过程写 dev log。
 3. Main/native 在 `V07-B4-014` 完成前不得进入深度治理。
 4. 所有实现完成后进入独立 `/acceptance`，不直接发布 v0.7。

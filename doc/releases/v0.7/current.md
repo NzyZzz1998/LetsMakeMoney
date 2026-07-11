@@ -1,6 +1,6 @@
 # v0.7 当前阶段摘要
 
-**阶段**：V07-A0/A1/A2/A3 已完成；GitHub 历史重写与 fresh clone 复验通过
+**阶段**：V07-A0-A3、V07-B1 已完成；GitHub 已公开，进入 V07-B2
 **仓库状态**：GitHub 已实际切换为 Public 并通过公共 API 核验；源码进入公开开发
 **发布状态**：v0.7 未验收、未打包、未发布
 
@@ -14,7 +14,7 @@
 ## 当前阻塞
 
 - 项目所有者选择的方案 3 已执行：远端 `main`、`test` 和 v0.2-v0.6 tags 已替换，fresh clone 的双扫描、公开候选和核心回归通过。项目所有者随后批准仓库先公开，B-E 作为公开后的 v0.7 工程与分发工作继续推进。
-- B1 尚未实现固定 godot-cpp 获取、工具链锁定和从零构建。
+- B1 已完成固定 godot-cpp 获取、工具链锁定、在线/离线 bootstrap 和从零 Debug/Release 构建。
 - Inno Setup 版本未选择，安装器未形成；GitHub Actions 尚未选择。
 - 当前 v0.6 Zip 没有 v0.7 `LICENSES/` 结构，只能作为历史发布基线，不能作为公开合规候选。
 - 多平台仅进入规划，优先级已冻结为 iOS、macOS、Android；v0.7 不实现非 Windows 客户端。

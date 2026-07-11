@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "last_updated": "2026-07-11",
+  "godot": {
+    "version": "4.7-stable",
+    "commit": "5b4e0cb0f",
+    "windows_x86_64_url": "https://github.com/godotengine/godot-builds/releases/download/4.7-stable/Godot_v4.7-stable_win64.exe.zip",
+    "windows_x86_64_archive_sha256": "02A5312236F4E0209C78BCB2F52135B1963E6B8888C873C9CEE81459E60BCD71",
+    "windows_x86_64_executable_sha256": "B2CA888D5115A6CEDEE564764A2EE494A625F2EC2EDBABD010FE33C9A88A6BF8"
+  },
+  "godot_cpp": {
+    "source": "https://github.com/godotengine/godot-cpp.git",
+    "commit": "ba0edfed90512ec64aba51d4295a3e7e30112f86"
+  },
+  "python": {
+    "tested_version": "3.12.8"
+  },
+  "scons": {
+    "tested_version": "4.10.1.055b01f429d58b686701a56df863a817c36bb103"
+  },
+  "windows_toolchain": {
+    "environment": "MSYS2 UCRT64",
+    "gcc": "16.1.0-5",
+    "mingw_w64_crt": "14.0.0.r92.g818fa6510-1",
+    "architecture": "x86_64"
+  }
+}
