@@ -2,7 +2,9 @@
 extends Control
 
 const WarmControlThemeScript := preload("res://src/ui/warm_control_theme.gd")
+const SettingsSectionBuilderScript := preload("res://src/ui/settings_section_builder.gd")
 const DiagnosticsServiceScript := preload("res://src/utils/diagnostics_service.gd")
+const SettingsTransactionControllerScript := preload("res://src/utils/settings_transaction_controller.gd")
 
 var salary_input: SpinBox
 var rest_mode_option: OptionButton
@@ -52,6 +54,8 @@ var _header_dragging: bool = false
 var _header_drag_start_mouse: Vector2i = Vector2i.ZERO
 var _header_drag_start_window: Vector2i = Vector2i.ZERO
 var _warm_theme: RefCounted = WarmControlThemeScript.new()
+var _settings_ui_builder: RefCounted = SettingsSectionBuilderScript.new()
+var _settings_transaction: RefCounted = SettingsTransactionControllerScript.new()
 var _feedback_token: int = 0
 var _available_release: Dictionary = {}
 var _pending_installer_path: String = ""
@@ -95,6 +99,11 @@ const SECTION_LABELS := {
 func _ready() -> void:
 	theme = _build_settings_theme()
 	custom_minimum_size = Vector2(700, 530)
+	_settings_ui_builder.configure(
+		Callable(self, "_style_form_control"),
+		Callable(self, "_control_minimum_size"),
+		Callable(self, "_add_switch_proxy")
+	)
 	_build_compact_ui()
 	_load_current_values()
 	if not UpdateService.status_changed.is_connected(_on_update_status_changed):
@@ -507,150 +516,27 @@ func _build_general_tab() -> Control:
 
 
 func _new_tab(tab_name: String) -> Control:
-	var scroll := ScrollContainer.new()
-	scroll.name = tab_name
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	scroll.follow_focus = true
-	scroll.mouse_filter = Control.MOUSE_FILTER_STOP
-	var vbar := scroll.get_v_scroll_bar()
-	vbar.custom_minimum_size = Vector2(5, 0)
-	vbar.add_theme_stylebox_override("scroll", _stylebox(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0, 3, 0))
-	vbar.add_theme_stylebox_override("grabber", _stylebox(Color(0.416, 0.263, 0.122, 0.18), Color(0, 0, 0, 0), 0, 3, 0))
-	vbar.add_theme_stylebox_override("grabber_highlight", _stylebox(Color(0.416, 0.263, 0.122, 0.30), Color(0, 0, 0, 0), 0, 3, 0))
-	vbar.add_theme_stylebox_override("grabber_pressed", _stylebox(Color(0.416, 0.263, 0.122, 0.38), Color(0, 0, 0, 0), 0, 3, 0))
-	return scroll
+	return _settings_ui_builder.new_tab(tab_name)
 
 
 func _new_vbox(parent: Control) -> VBoxContainer:
-	var container_parent := parent
-	if parent is ScrollContainer:
-		var margin := MarginContainer.new()
-		margin.name = "TabContentMargin"
-		margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		margin.add_theme_constant_override("margin_left", 0)
-		margin.add_theme_constant_override("margin_top", 0)
-		margin.add_theme_constant_override("margin_right", 8)
-		margin.add_theme_constant_override("margin_bottom", 4)
-		parent.add_child(margin)
-		container_parent = margin
-	var box := VBoxContainer.new()
-	box.name = "VBox"
-	box.add_theme_constant_override("separation", 1)
-	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	container_parent.add_child(box)
-	return box
+	return _settings_ui_builder.new_vbox(parent)
 
 
 func _add_page_heading(parent: Control, title: String, hint: String) -> void:
-	var row := VBoxContainer.new()
-	row.name = "%sPageHeading" % title
-	row.custom_minimum_size = Vector2(0, 34)
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 2)
-	parent.add_child(row)
-
-	var title_label := Label.new()
-	title_label.text = title
-	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_label.add_theme_font_size_override("font_size", 20)
-	title_label.add_theme_color_override("font_color", SETTINGS_TEXT)
-	row.add_child(title_label)
-
-	var hint_label := Label.new()
-	hint_label.text = hint
-	hint_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hint_label.add_theme_font_size_override("font_size", 12)
-	hint_label.add_theme_color_override("font_color", SETTINGS_MUTED)
-	row.add_child(hint_label)
+	_settings_ui_builder.add_page_heading(parent, title, hint)
 
 
 func _add_section_heading(parent: Control, title: String) -> void:
-	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0, 3)
-	parent.add_child(spacer)
-
-	var label := Label.new()
-	label.name = "SettingsSectionHeading"
-	label.text = title
-	label.add_theme_font_size_override("font_size", 12)
-	label.add_theme_color_override("font_color", ACCENT_ORANGE)
-	parent.add_child(label)
+	_settings_ui_builder.add_section_heading(parent, title)
 
 
 func _add_setting_card(parent: Control, title: String, description: String = "") -> VBoxContainer:
-	var card := PanelContainer.new()
-	card.name = "SettingCard"
-	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card.custom_minimum_size = Vector2(0, 48)
-	card.add_theme_stylebox_override("panel", _stylebox(Color(1.0, 0.998, 0.988, 0.16), Color(0.416, 0.263, 0.122, 0.04), 0, 6, 4))
-	parent.add_child(card)
-
-	var box := VBoxContainer.new()
-	box.name = "SettingCardBody"
-	box.add_theme_constant_override("separation", 2)
-	card.add_child(box)
-
-	var title_label := Label.new()
-	title_label.name = "SettingCardTitle"
-	title_label.text = title
-	title_label.add_theme_font_size_override("font_size", 15)
-	title_label.add_theme_color_override("font_color", SETTINGS_TEXT)
-	title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(title_label)
-
-	if not description.is_empty():
-		var description_label := Label.new()
-		description_label.name = "SettingCardDescription"
-		description_label.text = description
-		description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		description_label.add_theme_font_size_override("font_size", 13)
-		description_label.add_theme_color_override("font_color", SETTINGS_MUTED)
-		box.add_child(description_label)
-	return box
+	return _settings_ui_builder.add_setting_card(parent, title, description)
 
 
 func _add_control_card(parent: Control, title: String, _description: String, control: Control) -> void:
-	var row_panel := PanelContainer.new()
-	row_panel.name = "SettingRow"
-	row_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row_panel.custom_minimum_size = Vector2(0, 38)
-	row_panel.add_theme_stylebox_override("panel", _stylebox(Color(1.0, 0.998, 0.988, 0.0), Color(0, 0, 0, 0), 0, 0, 2))
-	parent.add_child(row_panel)
-
-	var row := HBoxContainer.new()
-	row.name = "SettingControlRow"
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 10)
-	row_panel.add_child(row)
-
-	var copy := VBoxContainer.new()
-	copy.name = "SettingCopy"
-	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	copy.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	copy.add_theme_constant_override("separation", 2)
-	row.add_child(copy)
-
-	var title_label := Label.new()
-	title_label.name = "SettingCardTitle"
-	title_label.text = title
-	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title_label.add_theme_font_size_override("font_size", 14)
-	title_label.add_theme_color_override("font_color", SETTINGS_TEXT)
-	copy.add_child(title_label)
-
-	if control is CheckButton or control is CheckBox:
-		_add_switch_proxy(row, control as BaseButton)
-		return
-	_style_form_control(control)
-	control.custom_minimum_size = _control_minimum_size(control)
-	control.size_flags_horizontal = Control.SIZE_SHRINK_END
-	control.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(control)
+	_settings_ui_builder.add_control_card(parent, title, _description, control)
 
 
 func _add_switch_proxy(row: HBoxContainer, toggle: BaseButton) -> void:
@@ -722,89 +608,35 @@ func _sync_switch_proxies() -> void:
 
 
 func _add_note_block(parent: Control, title: String, lines: Array[String]) -> void:
-	if lines.is_empty():
-		return
-	var block := VBoxContainer.new()
-	block.name = "SettingsNoteBlock"
-	block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	block.add_theme_constant_override("separation", 3)
-	parent.add_child(block)
-	_add_note_title(block, title)
-	for line in lines:
-		if line.is_empty():
-			continue
-		var label := _new_note_text(line)
-		block.add_child(label)
+	_settings_ui_builder.add_note_block(parent, title, lines)
 
 
 func _add_note_label(parent: Control, title: String, label: Label) -> void:
-	var block := VBoxContainer.new()
-	block.name = "SettingsNoteBlock"
-	block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	block.add_theme_constant_override("separation", 3)
-	parent.add_child(block)
-	_add_note_title(block, title)
-	_style_note_label(label)
-	block.add_child(label)
+	_settings_ui_builder.add_note_label(parent, title, label)
 
 
 func _add_note_title(parent: Control, title: String) -> void:
-	var divider := ColorRect.new()
-	divider.name = "SettingsNoteDivider"
-	divider.custom_minimum_size = Vector2(0, 1)
-	divider.color = Color(0.416, 0.263, 0.122, 0.08)
-	parent.add_child(divider)
-
-	var label := Label.new()
-	label.name = "SettingsNoteTitle"
-	label.text = title
-	label.add_theme_font_size_override("font_size", 12)
-	label.add_theme_color_override("font_color", Color(0.550, 0.420, 0.298, 0.82))
-	parent.add_child(label)
+	_settings_ui_builder.add_note_title(parent, title)
 
 
 func _new_note_text(text: String) -> Label:
-	var label := Label.new()
-	label.text = text
-	_style_note_label(label)
-	return label
+	return _settings_ui_builder.new_note_text(text)
 
 
 func _style_note_label(label: Label) -> void:
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.add_theme_font_size_override("font_size", 12)
-	label.add_theme_color_override("font_color", Color(TEXT_MUTED.r, TEXT_MUTED.g, TEXT_MUTED.b, 0.84))
+	_settings_ui_builder.style_note_label(label)
 
 
 func _wrap_last_control_in_card(parent: Control, control: Control, title: String, description: String) -> void:
-	parent.remove_child(control)
-	_add_control_card(parent, title, description, control)
+	_settings_ui_builder.wrap_control(parent, control, title, description)
 
 
 func _control_minimum_size(control: Control) -> Vector2:
-	if control is HBoxContainer and control.name == "SliderRow":
-		return Vector2(236, 32)
-	if control is HBoxContainer and control.name == "TimeRow":
-		return Vector2(148, 32)
-	if control is ItemList:
-		return Vector2(SETTINGS_CONTROL_WIDTH + 110, 98)
-	if control is Button:
-		return Vector2(104, 32)
-	if control is OptionButton:
-		return Vector2(SETTINGS_CONTROL_WIDTH, 32)
-	if control is SpinBox:
-		return Vector2(92, 32)
-	if control is CheckButton or control is CheckBox:
-		return Vector2(42, 24)
-	return Vector2(SETTINGS_CONTROL_WIDTH, 34)
+	return _settings_ui_builder.control_minimum_size(control)
 
 
 func _add_checkbox_row(parent: Control, title: String, description: String) -> CheckBox:
-	var checkbox := CheckBox.new()
-	checkbox.text = ""
-	_add_control_card(parent, title, description, checkbox)
-	return checkbox
+	return _settings_ui_builder.add_checkbox_row(parent, title, description)
 
 
 func _stylebox(
@@ -1184,35 +1016,43 @@ func _load_panel_checkboxes() -> void:
 func _on_save() -> void:
 	_update_slider_labels()
 	var form_values := _collect_form_values()
-	if not _has_form_changes(form_values):
-		Platform.write_boot_log("settings_save_no_change")
-		_set_save_status("没有需要保存的更改。")
-		return
-	var previous_config := Config.get_data_snapshot()
-	var previous_external := _capture_external_state()
-	if not _validate_form_values(form_values):
-		Config.restore_data_snapshot(previous_config)
-		_restore_external_state(previous_external, "pre_save_validation_failed")
-		Platform.write_boot_log("settings_save_failed: reason=pre_save_apply_failed", "error")
-		_set_save_status("保存失败：请查看不可用原因并重试。")
-		return
-	_apply_form_values(form_values)
-	if not Config.save():
-		var reason := Config.get_last_save_error()
-		Config.restore_data_snapshot(previous_config)
-		_restore_external_state(previous_external, reason)
-		Platform.write_boot_log("settings_save_failed: reason=%s" % reason, "error")
-		_set_save_status("保存失败：%s" % reason)
-		return
-	if not _apply_committed_external_state(form_values):
-		Config.restore_data_snapshot(previous_config)
-		var rollback_saved := Config.save()
-		var rollback_external := _restore_external_state(previous_external, "external_apply_failed")
-		Platform.write_error_log("settings_transaction_rollback: reason=external_apply_failed config=%s external=%s" % [str(rollback_saved), str(rollback_external)])
-		_set_save_status("保存失败：外部设置未生效，已恢复原设置。")
-		return
-	Platform.write_boot_log("settings_save_success: changed_keys=%s" % str(Config.get_last_changed_keys()))
-	_set_save_status("保存成功。")
+	var result: Dictionary = _settings_transaction.execute(form_values, _settings_transaction_operations())
+	match String(result.get("status", "")):
+		SettingsTransactionControllerScript.STATUS_NO_CHANGE:
+			Platform.write_boot_log("settings_save_no_change")
+			_set_save_status("没有需要保存的更改。")
+		SettingsTransactionControllerScript.STATUS_VALIDATION_FAILED:
+			Platform.write_boot_log("settings_save_failed: reason=%s" % String(result.get("reason", "pre_save_apply_failed")), "error")
+			_set_save_status("保存失败：请查看不可用原因并重试。")
+		SettingsTransactionControllerScript.STATUS_SAVE_FAILED:
+			var reason := String(result.get("reason", "unknown_save_error"))
+			Platform.write_boot_log("settings_save_failed: reason=%s" % reason, "error")
+			_set_save_status("保存失败：%s" % reason)
+		SettingsTransactionControllerScript.STATUS_EXTERNAL_FAILED:
+			Platform.write_error_log("settings_transaction_rollback: reason=external_apply_failed config=%s external=%s" % [str(result.get("rollback_config_ok", false)), str(result.get("rollback_external_ok", false))])
+			_set_save_status("保存失败：外部设置未生效，已恢复原设置。")
+		SettingsTransactionControllerScript.STATUS_SUCCESS:
+			Platform.write_boot_log("settings_save_success: changed_keys=%s" % str(result.get("changed_keys", [])))
+			_set_save_status("保存成功。")
+		_:
+			Platform.write_boot_log("settings_save_failed: reason=unknown_transaction_status", "error")
+			_set_save_status("保存失败：事务状态异常。")
+
+
+func _settings_transaction_operations() -> Dictionary:
+	return {
+		"has_changes": Callable(self, "_has_form_changes"),
+		"capture_config": Callable(Config, "get_data_snapshot"),
+		"capture_external": Callable(self, "_capture_external_state"),
+		"validate": Callable(self, "_validate_form_values"),
+		"apply_config": Callable(self, "_apply_form_values"),
+		"save_config": Callable(Config, "save"),
+		"save_error": Callable(Config, "get_last_save_error"),
+		"apply_external": Callable(self, "_apply_committed_external_state"),
+		"restore_config": Callable(Config, "restore_data_snapshot"),
+		"restore_external": Callable(self, "_restore_external_state"),
+		"changed_keys": Callable(Config, "get_last_changed_keys")
+	}
 
 
 func _capture_external_state() -> Dictionary:

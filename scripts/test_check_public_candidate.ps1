@@ -8,9 +8,15 @@ try {
     $clean = Join-Path $tempRoot 'clean'
     New-Item -ItemType Directory -Path (Join-Path $clean 'doc/releases/v0.7') -Force | Out-Null
     [IO.File]::WriteAllText((Join-Path $clean 'README.md'), "# Sample`n", [Text.UTF8Encoding]::new($false))
-    [IO.File]::WriteAllText((Join-Path $clean 'doc/current.md'), "# Current`nv0.7 Beta`nV07-A0`n", [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $clean 'doc/current.md'), "# Current`nv0.7 Beta`nv0.7-beta`nGitHub Release`n", [Text.UTF8Encoding]::new($false))
     & $checker -Root $clean
     if ($LASTEXITCODE -ne 0) { throw 'Clean fixture must pass.' }
+
+    $stale = Join-Path $tempRoot 'stale'
+    New-Item -ItemType Directory -Path (Join-Path $stale 'doc') -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $stale 'doc/current.md'), "# Current`nv0.7 Beta`nV07-A0`n", [Text.UTF8Encoding]::new($false))
+    & $checker -Root $stale
+    if ($LASTEXITCODE -eq 0) { throw 'Pre-release status fixture must fail.' }
 
     $risky = Join-Path $tempRoot 'risky'
     New-Item -ItemType Directory -Path (Join-Path $risky 'temp') -Force | Out-Null

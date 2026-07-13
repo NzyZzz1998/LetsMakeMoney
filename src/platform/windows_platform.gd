@@ -30,7 +30,7 @@ func get_config_path() -> String:
 
 func setup_window(window: Window, debug_mode: bool = false, transparent_pet_window: bool = false) -> void:
 	Platform.write_boot_log("WindowsPlatform.setup_window: begin debug=%s transparent=%s" % [str(debug_mode), str(transparent_pet_window)])
-	_invalidate_taskbar_visibility_cache(window, "setup_window")
+	invalidate_taskbar_visibility_cache(window, "setup_window")
 	var config_path := get_config_path()
 	if not DirAccess.dir_exists_absolute(config_path.get_base_dir()):
 		DirAccess.make_dir_recursive_absolute(config_path.get_base_dir())
@@ -135,7 +135,7 @@ func set_window_visible(window: Window, visible: bool) -> bool:
 		_native_health["last_error"] = _read_native_error("set_window_visible failed")
 		_set_capability_state("window", CAPABILITY_DEGRADED, String(_native_health["last_error"]))
 	elif visible:
-		_invalidate_taskbar_visibility_cache(window, "set_window_visible_show")
+		invalidate_taskbar_visibility_cache(window, "set_window_visible_show")
 	return ok
 
 
@@ -347,7 +347,7 @@ func _window_cache_key(window: Window) -> int:
 	return window.get_window_id()
 
 
-func _invalidate_taskbar_visibility_cache(window: Window, reason: String) -> void:
+func invalidate_taskbar_visibility_cache(window: Window, reason: String) -> void:
 	var key := _window_cache_key(window)
 	_last_taskbar_visibility_by_window.erase(key)
-	Platform.write_debug_log("WindowsPlatform._invalidate_taskbar_visibility_cache: reason=%s key=%d" % [reason, key])
+	Platform.write_debug_log("WindowsPlatform.invalidate_taskbar_visibility_cache: reason=%s key=%d" % [reason, key])

@@ -242,8 +242,8 @@ func _check_window_policy_logging_contract() -> void:
 	_assert(FileAccess.file_exists(windows_platform_path), "missing WindowsPlatform script: %s" % windows_platform_path)
 	if FileAccess.file_exists(windows_platform_path):
 		var windows_platform_source := FileAccess.get_file_as_string(windows_platform_path)
-		_assert(windows_platform_source.contains("_invalidate_taskbar_visibility_cache(window, \"set_window_visible_show\")"), "WindowsPlatform should invalidate taskbar cache after native show")
-		_assert(windows_platform_source.contains("_invalidate_taskbar_visibility_cache(window, \"setup_window\")"), "WindowsPlatform should invalidate taskbar cache after window setup")
+		_assert(windows_platform_source.contains("invalidate_taskbar_visibility_cache(window, \"set_window_visible_show\")"), "WindowsPlatform should invalidate taskbar cache after native show")
+		_assert(windows_platform_source.contains("invalidate_taskbar_visibility_cache(window, \"setup_window\")"), "WindowsPlatform should invalidate taskbar cache after window setup")
 		_assert(windows_platform_source.contains("WindowsPlatform.set_taskbar_visible: hwnd=%s visible=%s"), "WindowsPlatform should log native taskbar visibility calls")
 
 	var tray_header_path := "res://native/windows/src/native_protocol.h"

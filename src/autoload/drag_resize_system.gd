@@ -1,6 +1,8 @@
 extends Node
 
 const AppVersionScript := preload("res://src/utils/app_version.gd")
+const OverlayLifecycleScript := preload("res://src/utils/overlay_lifecycle.gd")
+const ContextMenuBuilderScript := preload("res://src/utils/context_menu_builder.gd")
 
 signal modal_opened
 signal modal_closed
@@ -11,24 +13,20 @@ const MODAL_WINDOW_SIZE := Vector2i(700, 530)
 const MODAL_WINDOW_MARGIN := 24
 const SETTINGS_DIALOG_SIZE := Vector2i(880, 640)
 const WIZARD_DIALOG_SIZE := Vector2i(620, 460)
-const MENU_FONT_NAMES := ["Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI"]
-const SURFACE_PAPER := Color(1.0, 0.965, 0.878, 0.99)
-const SURFACE_PAPER_STRONG := Color(1.0, 0.945, 0.792, 1.0)
-const TEXT_INK := Color(0.227, 0.153, 0.098, 1.0)
-const TEXT_MUTED := Color(0.550, 0.420, 0.298, 1.0)
-const ACCENT_COIN := Color(0.965, 0.714, 0.243, 1.0)
-const ACCENT_ORANGE := Color(0.780, 0.420, 0.137, 1.0)
-const ACCENT_MINT := Color(0.427, 0.624, 0.447, 1.0)
-const BORDER_WARM := Color(0.416, 0.263, 0.122, 0.16)
-const SHADOW_WARM := Color(0.360, 0.184, 0.047, 0.18)
 
 var _window: Window = null
-var _active_modal: Node = null
-var _active_popups: Array[PopupMenu] = []
+var _overlay_lifecycle: RefCounted = OverlayLifecycleScript.new()
 var _config_connected: bool = false
 var _window_visible: bool = true
 var _about_dialog: AcceptDialog = null
-var _popup_menu_theme: Theme = null
+var _context_menu_builder: RefCounted = ContextMenuBuilderScript.new()
+
+
+func _ready() -> void:
+	_overlay_lifecycle.modal_opened.connect(_forward_modal_opened)
+	_overlay_lifecycle.modal_closed.connect(_forward_modal_closed)
+	_overlay_lifecycle.popup_opened.connect(_forward_popup_opened)
+	_overlay_lifecycle.popup_closed.connect(_forward_popup_closed)
 
 
 func register_window(window: Window) -> void:
@@ -98,152 +96,23 @@ func toggle_window_visible() -> void:
 
 
 func show_context_menu() -> void:
-	var popup := PopupMenu.new()
-	popup.add_item("隐藏到托盘", 600)
-	popup.add_separator()
-	_build_main_menu(popup)
+	var popup: PopupMenu = _context_menu_builder.build_context_menu(
+		PetManager.get_available_pets(),
+		String(Config.get_value("pet_id", "cat_orange_v2")),
+		String(Config.get_value("window_mode", "top")),
+		_on_menu_id
+	)
 	_popup_at_mouse(popup)
 
 
 func show_tray_menu() -> void:
-	var popup := PopupMenu.new()
-	popup.add_item("显示/隐藏", 600)
-	popup.add_separator()
-	_build_main_menu(popup)
+	var popup: PopupMenu = _context_menu_builder.build_tray_menu(
+		PetManager.get_available_pets(),
+		String(Config.get_value("pet_id", "cat_orange_v2")),
+		String(Config.get_value("window_mode", "top")),
+		_on_menu_id
+	)
 	_popup_at_mouse(popup)
-
-
-func _build_main_menu(menu: PopupMenu) -> void:
-	_apply_menu_readability(menu)
-	menu.add_item("设置", 100)
-	menu.add_item("重新运行向导", 101)
-
-	menu.add_separator()
-	var window_submenu := _build_window_mode_submenu()
-	menu.add_child(window_submenu)
-	menu.add_submenu_item("窗口模式", window_submenu.name)
-	var pet_submenu := _build_pet_submenu()
-	menu.add_child(pet_submenu)
-	menu.add_submenu_item("选择宠物", pet_submenu.name)
-
-	menu.add_separator()
-	menu.add_item("关于 LetsMakeMoney", 400)
-	menu.add_separator()
-	menu.add_item("退出", 500)
-
-	menu.id_pressed.connect(_on_menu_id)
-
-
-func _build_window_mode_submenu() -> PopupMenu:
-	var submenu := PopupMenu.new()
-	submenu.name = "WindowModeSubmenu"
-	_apply_menu_readability(submenu)
-	var window_mode := String(Config.get_value("window_mode", "top"))
-	submenu.add_check_item("置顶悬浮", 300)
-	submenu.set_item_checked(submenu.item_count - 1, window_mode == "top")
-	submenu.add_check_item("融入桌面", 301)
-	submenu.set_item_checked(submenu.item_count - 1, window_mode == "embed")
-	submenu.id_pressed.connect(_on_menu_id)
-	return submenu
-
-
-func _build_pet_submenu() -> PopupMenu:
-	var submenu := PopupMenu.new()
-	submenu.name = "PetSubmenu"
-	_apply_menu_readability(submenu)
-	var pets := PetManager.get_available_pets()
-	var current_id := String(Config.get_value("pet_id", "cat_orange_v2"))
-	if pets.is_empty():
-		submenu.add_item("暂无可用宠物", 299)
-		submenu.set_item_disabled(submenu.item_count - 1, true)
-	else:
-		for i in range(pets.size()):
-			submenu.add_check_item(pets[i].display_name, 200 + i)
-			if pets[i].pet_id == current_id:
-				submenu.set_item_checked(submenu.item_count - 1, true)
-	submenu.id_pressed.connect(_on_menu_id)
-	return submenu
-
-
-func _apply_menu_readability(menu: PopupMenu) -> void:
-	menu.theme = _get_popup_menu_theme()
-	menu.transparent_bg = true
-	menu.borderless = true
-	menu.min_size = Vector2i(202, 0)
-	menu.add_theme_font_size_override("font_size", 15)
-	menu.add_theme_constant_override("item_min_height", 34)
-	menu.add_theme_constant_override("item_start_padding", 12)
-	menu.add_theme_constant_override("item_end_padding", 12)
-	menu.add_theme_constant_override("h_separation", 8)
-	menu.add_theme_constant_override("v_separation", 2)
-
-
-func _get_popup_menu_theme() -> Theme:
-	if _popup_menu_theme != null:
-		return _popup_menu_theme
-
-	var font := SystemFont.new()
-	font.font_names = PackedStringArray(MENU_FONT_NAMES)
-	font.antialiasing = TextServer.FONT_ANTIALIASING_LCD
-	font.hinting = TextServer.HINTING_NORMAL
-	font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_AUTO
-
-	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = SURFACE_PAPER
-	panel_style.border_color = BORDER_WARM
-	panel_style.border_width_left = 1
-	panel_style.border_width_top = 1
-	panel_style.border_width_right = 1
-	panel_style.border_width_bottom = 1
-	panel_style.set_corner_radius_all(14)
-	panel_style.content_margin_left = 8
-	panel_style.content_margin_top = 8
-	panel_style.content_margin_right = 8
-	panel_style.content_margin_bottom = 8
-	panel_style.shadow_color = SHADOW_WARM
-	panel_style.shadow_size = 10
-	panel_style.shadow_offset = Vector2(0, 4)
-
-	var hover_style := StyleBoxFlat.new()
-	hover_style.bg_color = Color(0.965, 0.714, 0.243, 0.20)
-	hover_style.set_corner_radius_all(10)
-	hover_style.content_margin_left = 7
-	hover_style.content_margin_top = 2
-	hover_style.content_margin_right = 7
-	hover_style.content_margin_bottom = 2
-
-	var separator_style := StyleBoxFlat.new()
-	separator_style.bg_color = BORDER_WARM
-	separator_style.content_margin_left = 0
-	separator_style.content_margin_top = 1
-	separator_style.content_margin_right = 0
-	separator_style.content_margin_bottom = 1
-
-	var theme := Theme.new()
-	theme.default_font = font
-	theme.default_font_size = 15
-	theme.set_font("font", "PopupMenu", font)
-	theme.set_font_size("font_size", "PopupMenu", 15)
-	theme.set_stylebox("panel", "PopupMenu", panel_style)
-	theme.set_stylebox("hover", "PopupMenu", hover_style)
-	theme.set_stylebox("separator", "PopupMenu", separator_style)
-	theme.set_color("font_color", "PopupMenu", TEXT_INK)
-	theme.set_color("font_hover_color", "PopupMenu", TEXT_INK)
-	theme.set_color("font_disabled_color", "PopupMenu", Color(TEXT_MUTED.r, TEXT_MUTED.g, TEXT_MUTED.b, 0.58))
-	theme.set_color("font_accelerator_color", "PopupMenu", TEXT_MUTED)
-	theme.set_color("font_separator_color", "PopupMenu", TEXT_MUTED)
-	theme.set_color("font_outline_color", "PopupMenu", Color(0, 0, 0, 0))
-	theme.set_color("font_hover_pressed_color", "PopupMenu", TEXT_INK)
-	theme.set_color("font_checked_color", "PopupMenu", ACCENT_ORANGE)
-	theme.set_constant("item_min_height", "PopupMenu", 34)
-	theme.set_constant("item_start_padding", "PopupMenu", 12)
-	theme.set_constant("item_end_padding", "PopupMenu", 12)
-	theme.set_constant("h_separation", "PopupMenu", 8)
-	theme.set_constant("v_separation", "PopupMenu", 2)
-	theme.set_constant("indent", "PopupMenu", 8)
-
-	_popup_menu_theme = theme
-	return _popup_menu_theme
 
 
 func _popup_at_mouse(popup: PopupMenu) -> void:
@@ -252,10 +121,9 @@ func _popup_at_mouse(popup: PopupMenu) -> void:
 		return
 	Platform.set_mouse_passthrough(_window, false, [])
 	_window.add_child(popup)
-	_active_popups.append(popup)
+	_overlay_lifecycle.register_popup(popup)
 	popup.position = DisplayServer.mouse_get_position() - _window.position
 	popup.popup()
-	popup_opened.emit()
 	popup.popup_hide.connect(_on_popup_hide.bind(popup))
 
 
@@ -264,11 +132,9 @@ func _on_popup_hide(popup: PopupMenu) -> void:
 
 
 func _cleanup_popup(popup: PopupMenu) -> void:
-	_active_popups.erase(popup)
+	_overlay_lifecycle.unregister_popup(popup)
 	if popup != null and is_instance_valid(popup):
 		popup.queue_free()
-	if _active_popups.is_empty():
-		popup_closed.emit()
 
 
 func _on_menu_id(id: int) -> void:
@@ -306,9 +172,7 @@ func _switch_pet_by_menu_id(id: int) -> void:
 
 
 func _close_all_popups() -> void:
-	for popup in _active_popups.duplicate():
-		if popup != null and is_instance_valid(popup):
-			popup.hide()
+	_overlay_lifecycle.close_all_popups()
 
 
 func _apply_window_mode(mode: String) -> void:
@@ -335,23 +199,19 @@ func open_settings() -> void:
 		return
 	var settings_view: Control = settings_scene.instantiate()
 	_window.title = "设置"
-	_active_modal = settings_view
 	_window.add_child(settings_view)
 	settings_view.set_anchors_preset(Control.PRESET_FULL_RECT)
 	settings_view.offset_left = 0
 	settings_view.offset_top = 0
 	settings_view.offset_right = 0
 	settings_view.offset_bottom = 0
-	settings_view.tree_exited.connect(_on_modal_tree_exited)
+	settings_view.tree_exited.connect(_on_modal_tree_exited.bind(settings_view))
+	_overlay_lifecycle.register_modal(settings_view)
 	settings_view.grab_focus()
 
 
 func close_active_modal() -> void:
-	if _active_modal != null and is_instance_valid(_active_modal):
-		_active_modal.queue_free()
-	else:
-		_active_modal = null
-		modal_closed.emit()
+	_overlay_lifecycle.close_active_modal()
 
 
 func _open_wizard() -> void:
@@ -365,14 +225,14 @@ func _open_wizard() -> void:
 		return
 	var wizard_view: Control = wizard_scene.instantiate()
 	_window.title = "开始配置"
-	_active_modal = wizard_view
 	_window.add_child(wizard_view)
 	wizard_view.set_anchors_preset(Control.PRESET_FULL_RECT)
 	wizard_view.offset_left = 0
 	wizard_view.offset_top = 0
 	wizard_view.offset_right = 0
 	wizard_view.offset_bottom = 0
-	wizard_view.tree_exited.connect(_on_modal_tree_exited)
+	wizard_view.tree_exited.connect(_on_modal_tree_exited.bind(wizard_view))
+	_overlay_lifecycle.register_modal(wizard_view)
 	wizard_view.grab_focus()
 
 
@@ -387,7 +247,6 @@ func prepare_modal_window(target_size: Vector2i = MODAL_WINDOW_SIZE) -> void:
 		_window.size = target_size
 		_fit_modal_window_on_screen(target_size)
 		Platform.set_mouse_passthrough(_window, false, [])
-	modal_opened.emit()
 
 
 func _fit_modal_window_on_screen(size: Vector2i) -> void:
@@ -401,9 +260,24 @@ func _fit_modal_window_on_screen(size: Vector2i) -> void:
 	_window.position = Vector2i(x, y)
 
 
-func _on_modal_tree_exited() -> void:
-	_active_modal = null
+func _on_modal_tree_exited(modal: Node) -> void:
+	_overlay_lifecycle.unregister_modal(modal)
+
+
+func _forward_modal_opened() -> void:
+	modal_opened.emit()
+
+
+func _forward_modal_closed() -> void:
 	modal_closed.emit()
+
+
+func _forward_popup_opened() -> void:
+	popup_opened.emit()
+
+
+func _forward_popup_closed() -> void:
+	popup_closed.emit()
 
 
 func show_about() -> void:

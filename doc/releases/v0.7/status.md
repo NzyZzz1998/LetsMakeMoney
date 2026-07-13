@@ -1,14 +1,14 @@
 # LetsMakeMoney v0.7 Beta 状态
 
 **最后更新**：2026-07-13
-**状态**：最终 Acceptance 通过；可进入 v0.7 Beta 发布收口
+**状态**：最终 Acceptance 通过；v0.7 Beta 已发布
 **当前里程碑**：A-E 与 V07-ACC-001 已完成；获批暂不验证项保留真实口径
-**发布状态**：仓库公开；便携 Zip 可发布；安装器未签名且不上传；tag 待发布执行
+**发布状态**：仓库公开；`v0.7-beta` tag 与 GitHub Pre-release 已发布；安装器未签名且未上传
 
 ## 当前结论
 
 - v0.6 Beta 已通过 `v0.6-beta` tag 发布，是当前回归基线。
-- v0.7 PRD、原型、开发承接、实现和最终 Acceptance 已完成；发布提交、tag 与 Release 待执行。
+- v0.7 PRD、原型、开发承接、实现、最终 Acceptance、发布提交、tag 与 GitHub Release 已完成。
 - 便携 Zip 已通过自动包验证；测试安装器未签名，仅供 Acceptance，不得公开分发。
 - A0 已定义候选与排除边界；A1 已完成双许可和资产签核；A2 已完成第三方清单、原文和 Release 许可结构。A3 已完成完整历史审计、远端重写和 fresh clone 复验，P0 为 0。
 

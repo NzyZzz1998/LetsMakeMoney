@@ -17,5 +17,13 @@ Require ($header.Contains('#include "native_protocol.h"')) 'Tray controller must
 foreach($id in 0..5){Require ($sharedHeader -match "= $id;") "Native protocol no longer exposes command $id"}
 foreach($name in @('COMMAND_NONE','COMMAND_TOGGLE','COMMAND_SETTINGS','COMMAND_ABOUT','COMMAND_EXIT','COMMAND_LEFT_TOGGLE','TRAY_CALLBACK_MESSAGE')){Require $sharedHeader.Contains($name) "Shared native protocol missing: $name"}
 $interface=Get-Content (Join-Path $ProjectRoot 'src/platform/platform_interface.gd') -Raw -Encoding UTF8
-foreach($method in @('get_native_health','set_window_visible','set_taskbar_visible','set_mouse_passthrough','poll_tray_command')){Require ($interface.Contains("func $method")) "Platform contract missing: $method"}
+foreach($method in @('get_native_health','set_window_visible','set_taskbar_visible','invalidate_taskbar_visibility_cache','set_mouse_passthrough','poll_tray_command')){Require ($interface.Contains("func $method")) "Platform contract missing: $method"}
+$runtimeContractPath=Join-Path $ProjectRoot 'doc/releases/v0.8/window-runtime-state-contract.md';Require (Test-Path $runtimeContractPath) 'Missing v0.8 window runtime state contract'
+$runtimeContract=Get-Content $runtimeContractPath -Raw -Encoding UTF8
+foreach($token in @('WindowRuntimeState','OverlayLifecycle','Single cache owner','Platform cache invalidation','PetWindowGeometry','Behavior matrix','Geometry contract')){Require $runtimeContract.Contains($token) "Runtime state contract missing: $token"}
+foreach($source in @('src/utils/window_runtime_state.gd','src/utils/pet_window_geometry.gd','src/utils/overlay_lifecycle.gd','src/utils/context_menu_builder.gd')){Require (Test-Path (Join-Path $ProjectRoot $source)) "Missing C4 source: $source"}
+$main=Get-Content (Join-Path $ProjectRoot 'src/scenes/main/main.gd') -Raw -Encoding UTF8
+Require (-not $main.Contains('_last_taskbar_visible')) 'Main must not own a second taskbar visibility cache'
+$windowsPlatform=Get-Content (Join-Path $ProjectRoot 'src/platform/windows_platform.gd') -Raw -Encoding UTF8
+Require ($windowsPlatform.Contains('func invalidate_taskbar_visibility_cache')) 'WindowsPlatform must expose cache invalidation through the platform contract'
 Write-Host 'Window/native state contract tests passed' -ForegroundColor Green

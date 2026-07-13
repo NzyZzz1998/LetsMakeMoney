@@ -36,7 +36,7 @@ v0.6 最终验收结论为“通过”。v0.7 的真实通知区左键、普通/
 ## 下载与安装
 
 - **便携 Zip**：从 [GitHub Releases](https://github.com/NzyZzz1998/LetsMakeMoney/releases) 下载已发布的 Windows x86_64 Zip，解压到独立目录后运行。升级前退出应用并备份 `%APPDATA%\LetsMakeMoney\config.json`。
-- **安装版**：v0.7 正在建设，只有通过 Authenticode 签名和独立验收后才会作为 Release 附件提供。未签名测试安装器不公开分发。
+- **安装版**：v0.7 未公开安装器。现有测试安装器未通过 Authenticode 签名，因此不作为 Release 附件；当前请使用便携 Zip。
 - 安装版与便携版共享 `%APPDATA%\LetsMakeMoney`，请勿同时运行。Beta 不静默更新，检查、下载和安装都由用户确认。
 
 设置 Godot 可执行文件：
@@ -77,10 +77,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build_native_windows.ps1 -Tar
 
 固定依赖、离线缓存、Release 构建和故障处理见 [Windows native 构建说明](native/windows/README.md)。
 
-运行 v0.6 自动验证：
+运行 v0.7 自动验证：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v06.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v07.ps1
 ```
 
 运行公开文档/合规与主验证套件：
@@ -98,11 +98,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_m4.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_m5.ps1
 ```
 
-生成或刷新 v0.6 候选包：
+生成或刷新 v0.7 便携候选包：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\package_v06.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v06_package.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\package_v07.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v07_package.ps1
 ```
 
 发布或手动复制时，`LetsMakeMoney.exe` 和 `letsmakemoney_native.dll` 必须放在同一目录。
@@ -121,6 +121,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v06_package.ps1
 - 当前入口: `doc\current.md`
 - v0.7 当前状态: `doc\releases\v0.7\current.md`
 - v0.7 PRD 与进度: `doc\releases\v0.7\prd.md` / `doc\releases\v0.7\progress_v0.7.md`
+- 当前脚本入口与兼容分层: `scripts\README.md`
 - v0.6 文档索引: `doc\releases\v0.6\README.md`
 - v0.6 PRD: `doc\releases\v0.6\prd.md`
 - v0.6 实施计划: `doc\releases\v0.6\dev_plan_v0.6.md`

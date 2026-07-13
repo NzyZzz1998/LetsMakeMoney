@@ -100,10 +100,12 @@ $nativeTray = Read-Utf8 "native/windows/src/tray_controller.cpp"
 Assert-True ($nativeTray.Contains('COMMAND_SETTINGS') -and $nativeTray.Contains('COMMAND_ABOUT') -and $nativeTray.Contains('COMMAND_EXIT')) "Native tray menu must retain lifecycle entries"
 Assert-True (-not $nativeTray.Contains('COMMAND_WIZARD')) "Native tray menu must not expose Wizard"
 
-foreach ($packagingScript in @('scripts/package_v06.ps1', 'scripts/verify_v06_package.ps1')) {
-    $packagingText = Read-Utf8 $packagingScript
-    Assert-True ($packagingText.Contains('project_version.ps1')) "$packagingScript must use the shared project version"
-}
+$packageScript = Read-Utf8 'scripts/package_v06.ps1'
+Assert-True ($packageScript.Contains('project_version.ps1')) 'scripts/package_v06.ps1 must use the shared project version'
+
+$packageVerifier = Read-Utf8 'scripts/verify_v06_package.ps1'
+Assert-True ($packageVerifier.Contains("`$version='0.6-beta'")) 'scripts/verify_v06_package.ps1 must retain the historical v0.6 package identity'
+Assert-True (-not $packageVerifier.Contains('project_version.ps1')) 'scripts/verify_v06_package.ps1 must not inherit the current project version'
 
 foreach ($relative in @(
     'doc/releases/v0.6/README.md',

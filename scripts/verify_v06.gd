@@ -130,14 +130,12 @@ func _check_config_persistence(failures: Array[String]) -> void:
 
 func _check_transaction_contracts(failures: Array[String]) -> void:
 	var settings := FileAccess.get_file_as_string("res://src/scenes/settings/settings_dialog.gd")
-	var save_start := settings.find("func _on_save()")
-	var save_end := settings.find("\nfunc ", save_start + 1)
-	var save_body := settings.substr(save_start, save_end - save_start)
-	var persist_index := save_body.find("Config.save()")
-	var external_index := save_body.find("_apply_committed_external_state")
+	var transaction := FileAccess.get_file_as_string("res://src/utils/settings_transaction_controller.gd")
+	var persist_index := transaction.find("operations.save_config.call()")
+	var external_index := transaction.find("operations.apply_external.call(values)")
 	if persist_index < 0 or external_index < 0 or persist_index > external_index:
 		failures.append("Settings must persist before applying external state")
-	for token in ["_validate_form_values", "_capture_external_state", "settings_transaction_rollback"]:
+	for token in ["_settings_transaction.execute", "_settings_transaction_operations", "_validate_form_values", "_capture_external_state", "settings_transaction_rollback"]:
 		if not settings.contains(token):
 			failures.append("Settings transaction missing %s" % token)
 	var wizard := FileAccess.get_file_as_string("res://src/scenes/wizard/wizard_dialog.gd")
@@ -147,7 +145,7 @@ func _check_transaction_contracts(failures: Array[String]) -> void:
 
 
 func _check_menu_and_passthrough_contracts(failures: Array[String]) -> void:
-	var menu := FileAccess.get_file_as_string("res://src/autoload/drag_resize_system.gd")
+	var menu := FileAccess.get_file_as_string("res://src/utils/context_menu_builder.gd")
 	for token in [
 		'popup.add_item("隐藏到托盘", 600)',
 		'menu.add_item("设置", 100)',
@@ -155,12 +153,14 @@ func _check_menu_and_passthrough_contracts(failures: Array[String]) -> void:
 		'menu.add_submenu_item("窗口模式"',
 		'menu.add_submenu_item("选择宠物"',
 		'menu.add_item("关于 LetsMakeMoney", 400)',
-		'menu.add_item("退出", 500)',
-		'popup_opened.emit()',
-		'popup_closed.emit()'
+		'menu.add_item("退出", 500)'
 	]:
 		if not menu.contains(token):
 			failures.append("context menu contract missing %s" % token)
+	var lifecycle := FileAccess.get_file_as_string("res://src/utils/overlay_lifecycle.gd")
+	for token in ['popup_opened.emit()', 'popup_closed.emit()']:
+		if not lifecycle.contains(token):
+			failures.append("overlay lifecycle contract missing %s" % token)
 	var native_menu := FileAccess.get_file_as_string("res://native/windows/src/tray_controller.cpp")
 	if native_menu.contains('L"重新运行向导"') or native_menu.contains('L"选择宠物"') or native_menu.contains('L"窗口模式"'):
 		failures.append("native tray menu contains context-only commands")

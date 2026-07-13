@@ -113,16 +113,13 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build_native_windows.ps1 -Boo
 
 ## 验证命令
 
-构建完成后，建议依次运行：
+构建完成后，当前推荐运行：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v02.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v03.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_m4.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v03_export.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\run_ci_verification.ps1 -Suite main
 ```
 
-其中 `verify_v03_export.ps1` 会短暂启动 `build\LetsMakeMoney.exe` 做冒烟测试，用于确认导出 exe 能加载 native DLL 且不会立即崩溃。
+`verify_v02.ps1`、`verify_v03.ps1` 和 `verify_v03_export.ps1` 仅用于历史版本复现，不属于当前 CI。脚本职责与维护级别见 [脚本入口说明](../../scripts/README.md)。
 
 ## 当前状态
 

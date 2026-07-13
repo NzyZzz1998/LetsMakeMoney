@@ -10,6 +10,7 @@ try{
   Invoke-Step 'asset-licenses' {& (Join-Path $PSScriptRoot 'check_asset_licenses.ps1')}
   Invoke-Step 'third-party' {& (Join-Path $PSScriptRoot 'check_third_party_compliance.ps1')}
   Invoke-Step 'script-contracts' {& (Join-Path $PSScriptRoot 'test_ci_script_contract.ps1')}
+  Invoke-Step 'script-tiers' {& (Join-Path $PSScriptRoot 'test_script_tiers.ps1')}
   Invoke-Step 'failure-injection' {& (Join-Path $PSScriptRoot 'test_verification_failure_injection.ps1')}
  }
  if($Suite -in @('main','all')){
