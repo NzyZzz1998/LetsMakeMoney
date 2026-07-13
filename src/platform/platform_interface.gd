@@ -83,6 +83,10 @@ func set_taskbar_visible(_window: Window, _visible: bool) -> bool:
 	return false
 
 
+func invalidate_taskbar_visibility_cache(_window: Window, _reason: String) -> void:
+	pass
+
+
 func can_enable_pure_pet_mode(_window: Window) -> bool:
 	return false
 

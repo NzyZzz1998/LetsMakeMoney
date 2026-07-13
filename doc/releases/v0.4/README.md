@@ -105,7 +105,7 @@
 - 动画规格: [doc/v0.4-animation-spec.md](../../v0.4-animation-spec.md)
 - 动画素材记录: [doc/v0.4-animation-assets-log.md](../../v0.4-animation-assets-log.md)
 - 动画提示词包: [doc/v0.4-animation-prompt-pack.md](../../v0.4-animation-prompt-pack.md)
-- ComfyUI Spike: [doc/v0.4-comfyui-spike.md](../../v0.4-comfyui-spike.md)
+- ComfyUI Spike：公开仓库清理时已移除本机工具研究文档；不属于当前产品事实或可复现素材管线。
 
 说明：
 

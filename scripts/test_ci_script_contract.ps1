@@ -15,6 +15,7 @@ function Read-Required([string]$RelativePath) {
 $verification = Read-Required "scripts/verification_common.ps1"
 $package = Read-Required "scripts/package_common.ps1"
 $packageVerifier = Read-Required "scripts/verify_package_common.ps1"
+$scriptTiers = Read-Required "scripts/script-tiers.json"
 
 foreach ($token in @("Invoke-LmmWithIsolatedAppData", "missing resource", "failed loading resource", "parse error")) {
     Assert-True ($verification.ToLowerInvariant().Contains($token.ToLowerInvariant())) "verification_common.ps1 missing contract: $token"
@@ -24,6 +25,9 @@ foreach ($token in @("New-LmmPackage", "Stage-LmmReleaseLicenses", "manifest.jso
 }
 foreach ($token in @("Test-LmmPackage", "ExpectedVersion", "Unexpected binary", "APPDATA")) {
     Assert-True ($packageVerifier.Contains($token)) "verify_package_common.ps1 missing contract: $token"
+}
+foreach ($token in @('"active"', '"compat"', '"archive"', '"maintainer-assets"')) {
+    Assert-True ($scriptTiers.Contains($token)) "script-tiers.json missing contract: $token"
 }
 
 foreach ($version in @("04", "05", "06")) {

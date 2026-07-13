@@ -87,8 +87,8 @@ foreach ($relative in $candidateFiles) {
 $currentPath = Join-Path $Root 'doc/current.md'
 if (Test-Path -LiteralPath $currentPath) {
     $current = [IO.File]::ReadAllText($currentPath, $utf8Strict)
-    if ($current -notmatch 'v0\.7 Beta' -or $current -notmatch 'V07-A[0-9]') {
-        Add-Finding "FAIL" "WRONG_STATUS" 'doc/current.md' "Current entry does not identify the active v0.7 A-series milestone."
+    if ($current -notmatch 'v0\.7 Beta' -or $current -notmatch 'v0\.7-beta' -or $current -notmatch 'GitHub Release') {
+        Add-Finding "FAIL" "WRONG_STATUS" 'doc/current.md' "Current entry does not identify the published v0.7 tag and GitHub Release."
     }
 }
 

@@ -3,6 +3,8 @@ extends Node2D
 
 const AppVersionScript := preload("res://src/utils/app_version.gd")
 const WindowPolicyCoordinatorScript := preload("res://src/utils/window_policy_coordinator.gd")
+const WindowRuntimeStateScript := preload("res://src/utils/window_runtime_state.gd")
+const PetWindowGeometryScript := preload("res://src/utils/pet_window_geometry.gd")
 
 @onready var pet: Node2D = $Pet
 @onready var panel = $Panel
@@ -47,8 +49,6 @@ var _runtime_mode_reapply_pending: bool = false
 var _runtime_mode_reapply_deferred_until_modal_close: bool = false
 var _native_health: Dictionary = {}
 var _last_passthrough_rects_hash: int = 0
-var _modal_open: bool = false
-var _popup_open: bool = false
 var _hit_debug_layer: Control = null
 var _hit_debug_enabled: bool = false
 var _passthrough_refresh_pending: bool = false
@@ -56,9 +56,9 @@ var _pending_passthrough_reason: String = ""
 var _last_window_position: Vector2i = Vector2i(-99999, -99999)
 var _last_scale: float = -1.0
 var _last_opacity: float = -1.0
-var _last_taskbar_visible: Variant = null
 var _last_topmost: Variant = null
 var _window_policy: RefCounted = WindowPolicyCoordinatorScript.new()
+var _runtime_state: RefCounted = WindowRuntimeStateScript.new()
 
 
 func _ready() -> void:
@@ -236,21 +236,21 @@ func _apply_pet_window_size() -> void:
 
 
 func _pet_window_size_for_scale(scale_value: float) -> Vector2i:
-	var pet_bounds: Rect2 = _pet_sprite_bounds_for_scale(scale_value)
-	var panel_size := _panel_target_size_for_scale(scale_value)
-	var width: float = maxf(float(PET_WINDOW_SIZE.x), pet_bounds.end.x + PET_CONTENT_MARGIN)
-	width = maxf(width, PET_MODE_PANEL_POSITION.x + float(panel_size.x) + PET_CONTENT_MARGIN)
-	var height: float = maxf(float(PET_WINDOW_SIZE.y), pet_bounds.end.y + PET_CONTENT_MARGIN)
-	height = maxf(height, PET_MODE_PANEL_POSITION.y + float(panel_size.y) + PET_CONTENT_MARGIN)
-	return Vector2i(int(ceil(width)), int(ceil(height)))
+	return PetWindowGeometryScript.pet_window_size(
+		scale_value,
+		PET_WINDOW_SIZE,
+		PET_MODE_PET_POSITION,
+		PET_MODE_PANEL_POSITION,
+		PET_TEXTURE_SIZE,
+		PET_ANIM_LOCAL_POSITION,
+		PET_ANIM_BASE_SCALE,
+		PANEL_TARGET_SIZE,
+		PET_CONTENT_MARGIN
+	)
 
 
 func _panel_target_size_for_scale(scale_value: float) -> Vector2i:
-	var safe_scale: float = clamp(scale_value, 0.5, 2.0)
-	return Vector2i(
-		int(ceil(float(PANEL_TARGET_SIZE.x) * safe_scale)),
-		int(ceil(float(PANEL_TARGET_SIZE.y) * safe_scale))
-	)
+	return PetWindowGeometryScript.panel_target_size_for_scale(scale_value, PANEL_TARGET_SIZE)
 
 
 func _pet_sprite_bounds_for_scale(scale_value: float) -> Rect2:
@@ -258,10 +258,13 @@ func _pet_sprite_bounds_for_scale(scale_value: float) -> Rect2:
 
 
 func _pet_sprite_bounds_at_position(scale_value: float, base_position: Vector2) -> Rect2:
-	var safe_scale: float = clamp(scale_value, 0.5, 2.0)
-	var sprite_size: Vector2 = PET_TEXTURE_SIZE * PET_ANIM_BASE_SCALE * safe_scale
-	var sprite_center: Vector2 = base_position + PET_ANIM_LOCAL_POSITION * safe_scale
-	return Rect2(sprite_center - sprite_size * 0.5, sprite_size)
+	return PetWindowGeometryScript.pet_sprite_bounds(
+		scale_value,
+		base_position,
+		PET_TEXTURE_SIZE,
+		PET_ANIM_LOCAL_POSITION,
+		PET_ANIM_BASE_SCALE
+	)
 
 
 func _position_panel() -> void:
@@ -309,12 +312,27 @@ func _flush_mouse_passthrough_refresh() -> void:
 	_request_mouse_passthrough_refresh(reason if not reason.is_empty() else "queued")
 
 
+func _sync_runtime_state(passthrough_configured: bool, native_capable_override: Variant = null) -> void:
+	var native_capable := Platform.can_enable_pure_pet_mode(get_window()) if native_capable_override == null else bool(native_capable_override)
+	_runtime_state.sync(
+		_debug_mode,
+		bool(Config.get_value("pure_pet_mode", false)),
+		_tray_ready,
+		native_capable,
+		DragResizeSystem.is_window_visible(),
+		_runtime_state.modal_open,
+		_runtime_state.popup_open,
+		passthrough_configured
+	)
+
+
 func _apply_mouse_passthrough(reason: String = "unspecified") -> void:
 	var passthrough_configured := bool(Config.get_value("native_integration_enabled", true)) and bool(Config.get_value("mouse_passthrough_enabled", true))
-	if not _window_policy.should_enable_passthrough(_modal_open, _popup_open, passthrough_configured):
+	_sync_runtime_state(passthrough_configured)
+	if not _window_policy.should_enable_passthrough_for_state(_runtime_state.snapshot()):
 		_last_passthrough_rects_hash = 0
 		Platform.set_mouse_passthrough(get_window(), false, [])
-		Platform.write_debug_log("Main._apply_mouse_passthrough: reason=%s mode=overlay_or_config clear modal=%s popup=%s" % [reason, str(_modal_open), str(_popup_open)])
+		Platform.write_debug_log("Main._apply_mouse_passthrough: reason=%s mode=overlay_or_config clear modal=%s popup=%s" % [reason, str(_runtime_state.modal_open), str(_runtime_state.popup_open)])
 		return
 	if _debug_mode:
 		_last_passthrough_rects_hash = 0
@@ -357,12 +375,7 @@ func _get_pet_interaction_rect_for_passthrough() -> Rect2:
 	var s := float(Config.get_value("scale", 1.0))
 	if pet != null and pet.has_method("get_interaction_rect"):
 		var local_rect: Rect2 = pet.call("get_interaction_rect")
-		return Rect2(pet.position + local_rect.position * s, local_rect.size * s).grow_individual(
-			PET_HIT_PADDING.x * s,
-			PET_HIT_PADDING.y * s,
-			PET_HIT_PADDING.x * s,
-			PET_HIT_PADDING.y * s
-		)
+		return PetWindowGeometryScript.pet_interaction_rect(local_rect, pet.position, s, PET_HIT_PADDING)
 	return _pet_sprite_bounds_at_position(s, pet.position).grow_individual(
 		PET_HIT_PADDING.x * s,
 		PET_HIT_PADDING.y * s,
@@ -372,11 +385,11 @@ func _get_pet_interaction_rect_for_passthrough() -> Rect2:
 
 
 func _get_panel_interaction_rect() -> Rect2:
-	var panel_size := PANEL_HIT_SIZE
+	var panel_size := Vector2.ZERO
 	if panel is Control:
 		var panel_control := panel as Control
-		panel_size = Vector2(max(PANEL_HIT_SIZE.x, panel_control.size.x), max(PANEL_HIT_SIZE.y, panel_control.size.y))
-	return Rect2(panel.position, panel_size).grow(PANEL_HOVER_PADDING)
+		panel_size = panel_control.size
+	return PetWindowGeometryScript.panel_interaction_rect(panel.position, panel_size, PANEL_HIT_SIZE, PANEL_HOVER_PADDING)
 
 
 func _get_panel_visual_scale() -> Vector2:
@@ -496,33 +509,28 @@ func _apply_viewport_transparency(enabled: bool) -> void:
 func _apply_pure_pet_mode() -> void:
 	var desired := bool(Config.get_value("pure_pet_mode", false))
 	var native_capable := Platform.can_enable_pure_pet_mode(get_window())
-	var taskbar_visible: bool = bool(_window_policy.desired_taskbar_visible(_debug_mode, desired, _tray_ready, native_capable))
+	_sync_runtime_state(bool(Config.get_value("native_integration_enabled", true)) and bool(Config.get_value("mouse_passthrough_enabled", true)), native_capable)
+	var taskbar_visible: bool = bool(_window_policy.desired_taskbar_for_state(_runtime_state.snapshot()))
 	if desired and taskbar_visible and not _debug_mode:
 		Config.set_value("pure_pet_mode", false)
-		_set_taskbar_visible_cached(true)
+		_set_taskbar_visible(true)
 		Platform.write_boot_log("pure_pet_mode_fallback: reason=tray_or_native_unavailable")
 		return
-	var ok := _set_taskbar_visible_cached(taskbar_visible)
+	var ok := _set_taskbar_visible(taskbar_visible)
 	if not ok:
 		Config.set_value("pure_pet_mode", false)
-		_set_taskbar_visible_cached(true)
+		_set_taskbar_visible(true)
 		Platform.write_boot_log("pure_pet_mode_fallback: reason=set_taskbar_visible_failed")
 	else:
 		Platform.write_debug_log("pure_pet_mode_apply: desired=%s taskbar_visible=%s" % [str(desired), str(taskbar_visible)])
 
 
-func _set_taskbar_visible_cached(visible: bool) -> bool:
-	if _last_taskbar_visible == visible:
-		return true
-	var ok := Platform.set_taskbar_visible(get_window(), visible)
-	if ok or visible:
-		_last_taskbar_visible = visible
-	return ok
+func _set_taskbar_visible(visible: bool) -> bool:
+	return Platform.set_taskbar_visible(get_window(), visible)
 
 
 func _invalidate_taskbar_visibility_cache(reason: String) -> void:
-	_last_taskbar_visible = null
-	Platform.write_debug_log("Main._invalidate_taskbar_visibility_cache: reason=%s" % reason)
+	Platform.invalidate_taskbar_visibility_cache(get_window(), reason)
 
 
 func _reapply_tray_restore_window_policy() -> void:
@@ -567,7 +575,7 @@ func _apply_config_change_scope(changed_keys: Array[String]) -> void:
 	var next_debug_mode := bool(Config.get_value("debug_mode", false))
 	if next_debug_mode != _debug_mode:
 		_debug_mode = next_debug_mode
-		if _modal_open:
+		if _runtime_state.modal_open:
 			_runtime_mode_reapply_deferred_until_modal_close = true
 			Platform.write_debug_log("Main._apply_config_change_scope: deferred debug mode runtime apply until modal closes")
 		else:
@@ -578,7 +586,7 @@ func _apply_config_change_scope(changed_keys: Array[String]) -> void:
 	if _config_scope_requires_salary_refresh(changed_keys):
 		SalaryEngine.reload()
 	if _config_scope_requires_window_policy(changed_keys):
-		if _modal_open:
+		if _runtime_state.modal_open:
 			_runtime_mode_reapply_deferred_until_modal_close = true
 			Platform.write_debug_log("Main._apply_config_change_scope: deferred window policy apply until modal closes")
 		else:
@@ -623,7 +631,7 @@ func _config_scope_requires_window_policy(changed_keys: Array[String]) -> bool:
 
 
 func _schedule_runtime_mode_reapply() -> void:
-	if _modal_open:
+	if _runtime_state.modal_open:
 		_runtime_mode_reapply_deferred_until_modal_close = true
 		Platform.write_debug_log("Main._schedule_runtime_mode_reapply: deferred until modal closes")
 		return
@@ -636,7 +644,7 @@ func _schedule_runtime_mode_reapply() -> void:
 func _reapply_runtime_mode_after_popups() -> void:
 	await get_tree().process_frame
 	_runtime_mode_reapply_pending = false
-	if _modal_open:
+	if _runtime_state.modal_open:
 		_runtime_mode_reapply_deferred_until_modal_close = true
 		Platform.write_debug_log("Main._reapply_runtime_mode_after_popups: modal still open, deferred")
 		return
@@ -651,7 +659,7 @@ func _reapply_runtime_mode_after_popups() -> void:
 
 
 func _on_modal_opened() -> void:
-	_modal_open = true
+	_runtime_state.modal_open = true
 	_runtime_mode_reapply_deferred_until_modal_close = false
 	_last_passthrough_rects_hash = 0
 	_set_primary_content_visible(false)
@@ -661,21 +669,21 @@ func _on_modal_opened() -> void:
 
 
 func _on_modal_closed() -> void:
-	_modal_open = false
+	_runtime_state.modal_open = false
 	_runtime_mode_reapply_deferred_until_modal_close = false
 	_schedule_runtime_mode_reapply()
 	Platform.write_info_log("passthrough_resumed: reason=modal_closed")
 
 
 func _on_popup_opened() -> void:
-	_popup_open = true
+	_runtime_state.popup_open = true
 	_last_passthrough_rects_hash = 0
 	Platform.set_mouse_passthrough(get_window(), false, [])
 	Platform.write_info_log("passthrough_suspended: reason=popup_opened")
 
 
 func _on_popup_closed() -> void:
-	_popup_open = false
+	_runtime_state.popup_open = false
 	_queue_mouse_passthrough_refresh("popup_closed")
 	Platform.write_info_log("passthrough_resumed: reason=popup_closed")
 
@@ -696,7 +704,7 @@ func _on_panel_layout_changed() -> void:
 
 
 func _process(_delta: float) -> void:
-	if _modal_open:
+	if _runtime_state.modal_open:
 		return
 	var window := get_window()
 	if window.position != _last_window_position:
@@ -710,7 +718,7 @@ func _process(_delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if not _debug_mode and not _modal_open and event is InputEventMouseButton:
+	if not _debug_mode and not _runtime_state.modal_open and event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			var context_rect := get_pet_context_rect()
 			if context_rect.has_point(event.position):
@@ -917,7 +925,7 @@ func _open_settings() -> void:
 
 
 func _on_window_close_requested() -> void:
-	if _modal_open:
+	if _runtime_state.modal_open:
 		DragResizeSystem.close_active_modal()
 		return
 	if can_hide_to_tray():

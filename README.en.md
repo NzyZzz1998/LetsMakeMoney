@@ -21,7 +21,7 @@ The supported product platform is Windows x86_64. iOS, macOS, and Android are ro
 ## Download and install
 
 - **Portable Zip:** download a published Windows x86_64 archive from [GitHub Releases](https://github.com/NzyZzz1998/LetsMakeMoney/releases), extract it to its own directory, and run the executable. Exit the app and back up `%APPDATA%\LetsMakeMoney\config.json` before upgrading.
-- **Installer:** under v0.7 development. It will only be attached after Authenticode signing and independent Acceptance. Unsigned test installers are not publicly distributed.
+- **Installer:** v0.7 does not publish an installer. The existing test installer is not Authenticode-signed and is therefore not a Release attachment; use the portable Zip.
 
 Installed and portable builds share `%APPDATA%\LetsMakeMoney`; do not run them at the same time. Beta updates are never silent: checking, downloading, and installing require user control.
 
@@ -48,10 +48,12 @@ See [native/windows/README.md](native/windows/README.md) for the locked toolchai
 
 ## Verification
 
+See [scripts/README.md](scripts/README.md) for current entrypoints and the active/compat/archive/maintainer-assets tiers.
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\run_ci_verification.ps1 -Suite docs
 powershell -ExecutionPolicy Bypass -File .\scripts\run_ci_verification.ps1 -Suite main
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v06.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v07.ps1
 ```
 
 Real tray clicks, normal/pure-pet taskbar behavior, and 100%-200% DPI have passed Windows desktop Acceptance. Multi-monitor behavior, a clean Windows user or VM, Authenticode/SmartScreen, and startup after a real Windows sign-in remain explicitly unverified Beta boundaries.

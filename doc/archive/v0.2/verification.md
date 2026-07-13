@@ -1,0 +1,289 @@
+# LetsMakeMoney v0.2 Beta 验证文档
+
+更新时间：2026-07-01
+
+本文档是 v0.2 Beta 的唯一验证文档，用于最终手动验证 v0.2 Beta 稳定候选。当前版本优先验证紧凑桌宠窗口、橘猫素材、核心交互、薪资 Panel、设置、开机自启、Debug 模式和导出 exe 稳定性。
+
+结果建议填写：
+
+- `通过`
+- `失败`
+- `部分通过`
+- `暂缓`
+- `未测`
+
+## 1. 基础信息
+
+| 项目 | 填写 |
+|------|------|
+| 验证日期 |  |
+| Windows 版本 |  |
+| Godot 版本 | 4.7 stable |
+| 运行方式 | 导出 exe / Godot 编辑器 |
+| 项目路径 | `<PROJECT_ROOT>` |
+| exe 路径 | `<PROJECT_ROOT>\build\LetsMakeMoney.exe` |
+| 配置路径 | `%APPDATA%\LetsMakeMoney\config.json` |
+| 测试前是否清理旧进程 |  |
+| 测试前是否清理自启动注册表 |  |
+| 测试前是否删除配置文件 |  |
+| 验证结论 | 通过 / 阻塞 / 需优化 |
+
+## 2. 当前状态与范围
+
+Godot 4.7 Windows 环境中，真实系统托盘、透明无边框窗口和鼠标点击穿透曾触发原生访问违例。因此当前 v0.2 稳定候选默认关闭以下能力：
+
+```json
+"system_tray_enabled": false
+"transparent_pet_window_enabled": false
+"mouse_passthrough_enabled": false
+```
+
+请不要为了本轮手动验证把它们改成 `true`。这些能力已转入 v0.3 技术预研。
+
+## 3. 路径与环境
+
+项目路径：
+
+```text
+<PROJECT_ROOT>
+```
+
+导出 exe：
+
+```text
+<PROJECT_ROOT>\build\LetsMakeMoney.exe
+```
+
+Godot 路径：
+
+```text
+$env:LMM_GODOT_EXE
+```
+
+配置文件：
+
+```text
+%APPDATA%\LetsMakeMoney\config.json
+```
+
+通常展开为：
+
+```text
+%USERPROFILE%\AppData\Roaming\LetsMakeMoney\config.json
+```
+
+## 4. 验证前准备
+
+关闭旧进程：
+
+```powershell
+Stop-Process -Name LetsMakeMoney -Force -ErrorAction SilentlyContinue
+```
+
+检查开机自启：
+
+```powershell
+reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v LetsMakeMoney
+```
+
+如需清理开机自启：
+
+```powershell
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v LetsMakeMoney /f
+```
+
+如需重置配置：
+
+```powershell
+Remove-Item "$env:APPDATA\LetsMakeMoney\config.json" -Force -ErrorAction SilentlyContinue
+```
+
+## 5. 自动验证
+
+```powershell
+cd <PROJECT_ROOT>
+powershell -ExecutionPolicy Bypass -File scripts\verify_v02.ps1
+```
+
+期望输出包含：
+
+```text
+v0.2 verification passed
+```
+
+填写规则：
+
+- `结果` 填：`通过` / `失败` / `部分通过` / `暂缓` / `未测`
+- `备注` 写具体现象和复现条件
+- `证据` 可写截图路径、录屏路径、日志路径或命令输出摘要
+
+## 6. 手动验证
+
+### 6.1 启动与默认窗口
+
+| 编号 | 验证项 | 操作 | 期望结果 | 结果 | 备注 | 证据 |
+|------|--------|------|----------|------|------|------|
+| V02-MAN-001 | 自动验证脚本 | 运行 `scripts\verify_v02.ps1` | 输出 `v0.2 verification passed`，无红色 parser/runtime 错误 |  |  |  |
+| V02-MAN-002 | 双击导出 exe | 双击 `build\LetsMakeMoney.exe` | 不弹出“该内存不能为 read”，进程能启动 |  |  |  |
+| V02-MAN-003 | 默认窗口形态 | 启动后观察窗口 | 显示普通紧凑桌宠窗口，不是 900x500 Debug 大窗口 |  |  |  |
+| V02-MAN-004 | Debug UI 默认隐藏 | 启动后观察 | 不显示 Debug 输入区和 Debug 状态文字 |  |  |  |
+| V02-MAN-005 | 橘猫可见 | 观察小猫区域 | 橘猫完整可见，不被窗口明显裁切 |  |  |  |
+| V02-MAN-006 | Panel 可见 | 观察小猫附近 | 薪资 Panel 可见 |  |  |  |
+
+### 6.2 当前暂缓能力
+
+| 编号 | 验证项 | 当前期望 | 结果 | 备注 | 证据 |
+|------|--------|----------|------|------|------|
+| V02-MAN-020 | 真系统托盘图标 | 暂缓，保持 `system_tray_enabled=false` | 暂缓 |  |  |
+| V02-MAN-021 | 关闭隐藏到托盘 | 暂缓，以“不崩溃、可退出”为当前标准 | 暂缓 |  |  |
+| V02-MAN-022 | 透明无边框窗口 | 暂缓，保持 `transparent_pet_window_enabled=false` | 暂缓 |  |  |
+| V02-MAN-023 | 透明空白点击穿透 | 暂缓，保持 `mouse_passthrough_enabled=false` | 暂缓 |  |  |
+
+### 6.3 小猫交互
+
+| 编号 | 验证项 | 操作 | 期望结果 | 结果 | 备注 | 证据 |
+|------|--------|------|----------|------|------|------|
+| V02-MAN-030 | Hover | 鼠标移入小猫区域，停留 1 秒 | 状态或动画有合理变化，或保持合理 fallback |  |  |  |
+| V02-MAN-031 | 鼠标移出 | 鼠标移出小猫区域 | 不应卡在 hover 状态 |  |  |  |
+| V02-MAN-032 | 单击 | 左键单击小猫，不移动鼠标 | 触发单击反馈，不误触发拖拽 |  |  |  |
+| V02-MAN-033 | 双击 | 快速双击小猫，两次点击间隔尽量小于 0.3 秒 | 触发双击反馈，不只是两次单击 |  |  |  |
+| V02-MAN-034 | 长按 | 左键按住小猫 1 秒以上再松开 | 进入 hold 反馈，松开后恢复 idle/working/resting |  |  |  |
+| V02-MAN-035 | 拖拽手感 | 左键按住小猫拖动约 200 像素 | 窗口移动速度接近鼠标位移，不会飞快窜动 |  |  |  |
+| V02-MAN-036 | 位置保存 | 拖到明显位置后退出，再重新启动 | 窗口恢复到上次位置 |  |  |  |
+
+### 6.4 薪资 Panel
+
+| 编号 | 验证项 | 操作 | 期望结果 | 结果 | 备注 | 证据 |
+|------|--------|------|----------|------|------|------|
+| V02-MAN-040 | 折叠态金额 | 启动后不移动鼠标到 Panel | 金额垂直居中，无重复人民币符号，无乱码 |  |  |  |
+| V02-MAN-041 | 悬停展开 | 鼠标移入 Panel，停留约 0.3 秒 | Panel 展开 |  |  |  |
+| V02-MAN-042 | 展开内容 | 观察展开态 | 今日已赚、本月累计、时薪、工作进度、状态可见，文本不溢出 |  |  |  |
+| V02-MAN-043 | 移出收起 | 鼠标移出 Panel，等待约 0.5 秒 | Panel 自动收起，金额仍居中 |  |  |  |
+| V02-MAN-044 | 稳定性 | 多次移入移出 Panel | 不闪烁，不疯狂展开/收起 |  |  |  |
+
+### 6.5 右键菜单
+
+| 编号 | 验证项 | 操作 | 期望结果 | 结果 | 备注 | 证据 |
+|------|--------|------|----------|------|------|------|
+| V02-MAN-050 | 菜单弹出 | 在小猫区域右键 | 菜单出现，菜单项无乱码 |  |  |  |
+| V02-MAN-051 | 设置入口 | 点击“设置” | 设置窗口打开 |  |  |  |
+| V02-MAN-052 | 角色菜单 | 点击角色项 | 当前只有一个角色时也不报错 |  |  |  |
+| V02-MAN-053 | 窗口模式 | 点击“窗口模式：置顶悬浮 / 融入桌面” | 可点击，不崩溃 |  |  |  |
+| V02-MAN-054 | 关于入口 | 点击“关于 LetsMakeMoney” | 关于窗口打开，文案无乱码 |  |  |  |
+| V02-MAN-055 | 退出 | 点击“退出” | 保存配置并结束进程 |  |  |  |
+
+### 6.6 设置窗口
+
+| 编号 | 验证项 | 操作 | 期望结果 | 结果 | 备注 | 证据 |
+|------|--------|------|----------|------|------|------|
+| V02-MAN-060 | 设置中文 | 打开设置，逐页查看 | 标题、标签、按钮、提示无乱码 |  |  |  |
+| V02-MAN-061 | 月薪保存 | 修改月薪并保存，再重开设置 | 值能保存 |  |  |  |
+| V02-MAN-062 | 休息模式 | 切换单休/双休并保存 | 能保存，重开后保持 |  |  |  |
+| V02-MAN-063 | 上下班时间 | 修改上班/下班时间 | 每日工作小时数自动变化 |  |  |  |
+| V02-MAN-064 | 缩放百分比 | 拖动缩放滑条 | 右侧显示 `xx%` |  |  |  |
+| V02-MAN-065 | 透明度百分比 | 拖动透明度滑条 | 右侧显示 `xx%` |  |  |  |
+| V02-MAN-066 | Panel 项 | 勾选/取消 Panel 项后保存 | 展开态对应项显示/隐藏 |  |  |  |
+| V02-MAN-067 | 重置窗口位置 | 先拖远，再点“重置窗口位置” | 窗口回到主屏右下角附近 |  |  |  |
+| V02-MAN-068 | 恢复默认显示设置 | 修改缩放/透明度/窗口模式/自启后点击恢复默认 | 显示和通用设置恢复默认，薪资配置不被清空 |  |  |  |
+| V02-MAN-069 | 保存速度 | 不改自启，仅保存设置 | 保存不应明显卡顿 |  |  |  |
+
+### 6.7 开机自启
+
+开启自启后检查：
+
+```powershell
+reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v LetsMakeMoney
+```
+
+| 编号 | 验证项 | 操作 | 期望结果 | 结果 | 备注 | 证据 |
+|------|--------|------|----------|------|------|------|
+| V02-MAN-080 | 开启自启 | 在设置中勾选“开机自启”并保存 | 注册表出现 `LetsMakeMoney` |  |  |  |
+| V02-MAN-081 | 自启路径 | 查看注册表值 | 指向导出的 `LetsMakeMoney.exe` |  |  |  |
+| V02-MAN-082 | 关闭自启 | 取消勾选并保存 | 注册表项被移除 |  |  |  |
+| V02-MAN-083 | 恢复默认移除自启 | 开启自启后点“恢复默认显示设置” | 自启动被关闭并移除注册表项 |  |  |  |
+
+测试后建议清理：
+
+```powershell
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v LetsMakeMoney /f
+```
+
+### 6.8 Debug 模式
+
+退出应用后编辑配置：
+
+```powershell
+notepad "$env:APPDATA\LetsMakeMoney\config.json"
+```
+
+把：
+
+```json
+"debug_mode": false
+```
+
+改为：
+
+```json
+"debug_mode": true
+```
+
+| 编号 | 验证项 | 操作 | 期望结果 | 结果 | 备注 | 证据 |
+|------|--------|------|----------|------|------|------|
+| V02-MAN-090 | `debug_mode=true` | 保存配置并重新启动 exe | 进入 900x500 Debug 窗口 |  |  |  |
+| V02-MAN-091 | Debug UI | 观察窗口 | Debug 输入区和 Debug 状态文字可见 |  |  |  |
+| V02-MAN-092 | Debug 交互 | 测试点击、右键、Panel | 基础交互可用 |  |  |  |
+| V02-MAN-093 | `debug_mode=false` | 改回 false 并重启 | 恢复普通紧凑桌宠窗口 |  |  |  |
+
+### 6.9 边缘定位
+
+| 编号 | 验证项 | 操作 | 期望结果 | 结果 | 备注 | 证据 |
+|------|--------|------|----------|------|------|------|
+| V02-MAN-100 | 右侧边缘展开 | 把窗口拖到屏幕右侧，悬停 Panel | Panel 尽量向左展开，不大面积超出屏幕 |  |  |  |
+| V02-MAN-101 | 底部边缘展开 | 把窗口拖到底部，悬停 Panel | Panel 主要内容不被屏幕底部裁掉 |  |  |  |
+
+## 7. 问题记录
+
+| 问题编号 | 关联验证项 | 严重级别 | 复现步骤 | 期望行为 | 实际行为 | 截图/录屏/日志 |
+|----------|------------|----------|----------|----------|----------|----------------|
+| BUG-001 |  |  |  |  |  |  |
+| BUG-002 |  |  |  |  |  |  |
+| BUG-003 |  |  |  |  |  |  |
+
+## 8. 测试后清理
+
+关闭进程：
+
+```powershell
+Stop-Process -Name LetsMakeMoney -Force -ErrorAction SilentlyContinue
+```
+
+清理自启：
+
+```powershell
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v LetsMakeMoney /f
+```
+
+确认配置恢复：
+
+```powershell
+notepad "$env:APPDATA\LetsMakeMoney\config.json"
+```
+
+期望：
+
+```json
+"debug_mode": false
+```
+
+## 9. 最终结论
+
+| 项目 | 结论 |
+|------|------|
+| 启动是否稳定 |  |
+| 小猫交互是否可用 |  |
+| 薪资 Panel 是否可用 |  |
+| 设置体验是否可接受 |  |
+| 开机自启是否可用 |  |
+| Debug 模式是否可用 |  |
+| 是否允许进入 v0.2 发布准备 |  |

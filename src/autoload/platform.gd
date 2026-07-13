@@ -201,6 +201,10 @@ func set_taskbar_visible(window: Window, visible: bool) -> bool:
 	return impl.set_taskbar_visible(window, visible)
 
 
+func invalidate_taskbar_visibility_cache(window: Window, reason: String) -> void:
+	impl.invalidate_taskbar_visibility_cache(window, reason)
+
+
 func can_enable_pure_pet_mode(window: Window) -> bool:
 	return impl.can_enable_pure_pet_mode(window)
 

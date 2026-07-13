@@ -61,14 +61,19 @@ func _warn(condition: bool, message: String) -> void:
 
 
 func _check_animation_docs() -> void:
-	for path in [
+	for compatibility_path in [
 		"res://doc/v0.4-animation-spec.md",
 		"res://doc/v0.4-animation-assets-log.md",
-
+		"res://doc/v0.4-animation-prompt-pack.md",
+	]:
+		_assert(FileAccess.file_exists(compatibility_path), "missing v0.4 compatibility document: %s" % compatibility_path)
+	for path in [
+		"res://doc/archive/v0.4/animation-spec.md",
+		"res://doc/archive/v0.4/animation-assets-log.md",
 	]:
 		_assert(FileAccess.file_exists(path), "missing v0.4 animation document: %s" % path)
 
-	var spec := FileAccess.get_file_as_string("res://doc/v0.4-animation-spec.md")
+	var spec := FileAccess.get_file_as_string("res://doc/archive/v0.4/animation-spec.md")
 	for required_text in [
 		"warm companion",
 		"clicked_single",
@@ -85,7 +90,7 @@ func _check_animation_docs() -> void:
 	]:
 		_assert(spec.contains(required_text), "animation spec missing text: %s" % required_text)
 
-	var log := FileAccess.get_file_as_string("res://doc/v0.4-animation-assets-log.md")
+	var log := FileAccess.get_file_as_string("res://doc/archive/v0.4/animation-assets-log.md")
 	_assert(log.contains("cat_orange_v1"), "asset log should record cat_orange_v1 baseline")
 	_assert(log.contains("Confirmed creative decisions"), "asset log should record confirmed v0.4 creative decisions")
 	_assert(log.contains("keyboard, computer, and coins"), "asset log should record confirmed working props direction")
@@ -184,7 +189,7 @@ func _check_orange_v2_staging_dirs() -> void:
 
 
 func _check_orange_v2_asset_pipeline() -> void:
-	var prompt_pack_path := "res://doc/v0.4-animation-prompt-pack.md"
+	var prompt_pack_path := "res://doc/archive/v0.4/animation-prompt-pack.md"
 	var manifest_path := "res://assets/pets/cat/orange_v2/asset-manifest.json"
 	_assert(FileAccess.file_exists(prompt_pack_path), "missing v0.4 animation prompt pack")
 	_assert(FileAccess.file_exists(manifest_path), "missing orange_v2 asset manifest")
@@ -570,29 +575,29 @@ func _check_scale_variant_layout() -> void:
 
 
 func _check_context_menu_ui_polish() -> void:
-	var drag_script := FileAccess.get_file_as_string("res://src/autoload/drag_resize_system.gd")
-	_assert(drag_script.contains("menu.add_submenu_item"), "Context menu should expose grouped submenus")
-	_assert(drag_script.contains("window_submenu.name"), "Context menu should attach the window mode submenu")
-	_assert(drag_script.contains("pet_submenu.name"), "Context menu should attach the pet selection submenu")
-	_assert(drag_script.contains("_build_window_mode_submenu"), "Context menu should build a dedicated window mode submenu")
-	_assert(drag_script.contains("_build_pet_submenu"), "Context menu should build a dedicated pet selection submenu")
-	_assert(drag_script.contains(", 300)"), "Window mode submenu should contain top mode")
-	_assert(drag_script.contains(", 301)"), "Window mode submenu should contain embed mode")
-	_assert(drag_script.contains("200 + i"), "Pet submenu should list available pets")
-	_assert(drag_script.contains("func _get_popup_menu_theme"), "Context menu should use a dedicated theme instead of default PopupMenu styling")
-	_assert(drag_script.contains("MENU_FONT_NAMES"), "Context menu should use explicit Windows Chinese system fonts")
-	_assert(drag_script.contains("TextServer.FONT_ANTIALIASING_LCD"), "Context menu font should use LCD antialiasing for sharper small text")
-	_assert(drag_script.contains("menu.transparent_bg = true"), "Context menu should enable transparent popup corners")
-	_assert(drag_script.contains("menu.borderless = true"), "Context menu should avoid native window chrome")
-	_assert(drag_script.contains("theme.set_stylebox(\"panel\", \"PopupMenu\""), "Context menu should style its popup panel")
-	_assert(drag_script.contains("theme.set_stylebox(\"hover\", \"PopupMenu\""), "Context menu should style hover rows")
-	_assert(drag_script.contains("SURFACE_PAPER"), "Context menu should share warm paper surface tokens with Panel")
-	_assert(drag_script.contains("TEXT_INK"), "Context menu should use warm ink text instead of cold dark UI text")
-	_assert(drag_script.contains("ACCENT_COIN"), "Context menu should use coin accent for selected/hover states")
-	_assert(drag_script.contains("BORDER_WARM"), "Context menu should use warm paper border")
-	_assert(drag_script.contains("SHADOW_WARM"), "Context menu should use warm brown shadow instead of pure black glass shadow")
-	_assert(drag_script.contains("theme.set_constant(\"item_min_height\", \"PopupMenu\", 34)"), "Context menu should keep comfortable warm-widget item height")
-	_assert(drag_script.contains("panel_style.set_corner_radius_all(14)"), "Context menu should use rounded paper-widget corners")
+	var menu_script := FileAccess.get_file_as_string("res://src/utils/context_menu_builder.gd")
+	_assert(menu_script.contains("menu.add_submenu_item"), "Context menu should expose grouped submenus")
+	_assert(menu_script.contains("window_submenu.name"), "Context menu should attach the window mode submenu")
+	_assert(menu_script.contains("pet_submenu.name"), "Context menu should attach the pet selection submenu")
+	_assert(menu_script.contains("_build_window_mode_submenu"), "Context menu should build a dedicated window mode submenu")
+	_assert(menu_script.contains("_build_pet_submenu"), "Context menu should build a dedicated pet selection submenu")
+	_assert(menu_script.contains(", 300)"), "Window mode submenu should contain top mode")
+	_assert(menu_script.contains(", 301)"), "Window mode submenu should contain embed mode")
+	_assert(menu_script.contains("200 + i"), "Pet submenu should list available pets")
+	_assert(menu_script.contains("func _get_popup_menu_theme"), "Context menu should use a dedicated theme instead of default PopupMenu styling")
+	_assert(menu_script.contains("MENU_FONT_NAMES"), "Context menu should use explicit Windows Chinese system fonts")
+	_assert(menu_script.contains("TextServer.FONT_ANTIALIASING_LCD"), "Context menu font should use LCD antialiasing for sharper small text")
+	_assert(menu_script.contains("menu.transparent_bg = true"), "Context menu should enable transparent popup corners")
+	_assert(menu_script.contains("menu.borderless = true"), "Context menu should avoid native window chrome")
+	_assert(menu_script.contains("theme.set_stylebox(\"panel\", \"PopupMenu\""), "Context menu should style its popup panel")
+	_assert(menu_script.contains("theme.set_stylebox(\"hover\", \"PopupMenu\""), "Context menu should style hover rows")
+	_assert(menu_script.contains("SURFACE_PAPER"), "Context menu should share warm paper surface tokens with Panel")
+	_assert(menu_script.contains("TEXT_INK"), "Context menu should use warm ink text instead of cold dark UI text")
+	_assert(menu_script.contains("ACCENT_COIN"), "Context menu should use coin accent for selected/hover states")
+	_assert(menu_script.contains("BORDER_WARM"), "Context menu should use warm paper border")
+	_assert(menu_script.contains("SHADOW_WARM"), "Context menu should use warm brown shadow instead of pure black glass shadow")
+	_assert(menu_script.contains("theme.set_constant(\"item_min_height\", \"PopupMenu\", 34)"), "Context menu should keep comfortable warm-widget item height")
+	_assert(menu_script.contains("panel_style.set_corner_radius_all(14)"), "Context menu should use rounded paper-widget corners")
 
 
 func _check_icon_polish_assets() -> void:
@@ -632,11 +637,11 @@ func _check_window_recovery_fallbacks() -> void:
 	_assert(hide_body.contains("_tray_ready"), "Tray hide should require a ready tray so taskbar remains available when tray is missing")
 	_assert(hide_body.contains("minimize_to_tray"), "Tray hide should obey minimize_to_tray config")
 	for required_text in [
-		"_window_policy.desired_taskbar_visible",
-		"_tray_ready",
+		"_window_policy.desired_taskbar_for_state",
+		"_sync_runtime_state",
 		"Platform.can_enable_pure_pet_mode",
 		"Config.set_value(\"pure_pet_mode\", false)",
-		"_set_taskbar_visible_cached(true)"
+		"_set_taskbar_visible(true)"
 	]:
 		_assert(pure_pet_body.contains(required_text), "Pure pet fallback missing text: %s" % required_text)
 
@@ -667,6 +672,7 @@ func _check_window_recovery_fallbacks() -> void:
 
 func _check_settings_information_architecture() -> void:
 	var settings_script := FileAccess.get_file_as_string("res://src/scenes/settings/settings_dialog.gd")
+	var section_builder_script := FileAccess.get_file_as_string("res://src/ui/settings_section_builder.gd")
 	for tab_name in [
 		"_build_salary_tab",
 		"_build_pet_tab",
@@ -696,7 +702,7 @@ func _check_settings_information_architecture() -> void:
 	_assert(settings_script.contains("custom_minimum_size = Vector2(700, 530)"), "Settings should use the compact v0.4 preferences size")
 	_assert(settings_script.contains("CloseButton"), "Settings header should expose a top-right close button")
 	_assert(settings_script.contains("ActionRow"), "Settings should keep save/cancel in a dedicated bottom action row")
-	_assert(settings_script.contains("ScrollContainer.new()"), "Settings pages should scroll independently so Display can contain long content")
+	_assert(section_builder_script.contains("ScrollContainer.new()"), "Settings pages should scroll independently so Display can contain long content")
 	_assert(not settings_script.contains("top_save_button"), "Settings header should not contain the primary Save action")
 	_assert(not settings_script.contains("top_cancel_button"), "Settings header should not contain the Cancel action")
 	_assert(settings_script.contains("SettingsShell"), "Settings should collect header, tabs, content, and actions inside one preferences shell")
@@ -706,8 +712,8 @@ func _check_settings_information_architecture() -> void:
 	_assert(settings_script.contains("_select_settings_section"), "Settings should switch pages through the segmented navigation")
 	_assert(not settings_script.contains("TabContainer.new()"), "Settings should not use the old top TabContainer layout")
 	_assert(settings_script.contains("func _add_setting_card"), "Settings should build card-style setting rows")
-	_assert(settings_script.contains("SettingCardTitle"), "Setting cards should keep a title")
-	_assert(settings_script.contains("SettingCardDescription"), "Setting cards should keep explanatory text")
+	_assert(section_builder_script.contains("SettingCardTitle"), "Setting cards should keep a title")
+	_assert(section_builder_script.contains("SettingCardDescription"), "Setting cards should keep explanatory text")
 	_assert(settings_script.contains("func _add_control_card"), "Settings should place controls inside compact setting rows")
 	_assert(settings_script.contains("func _style_button"), "Settings should style buttons instead of relying on default Godot controls")
 	_assert(settings_script.contains("func _style_window_button"), "Settings should give the shell close button a refined custom style")
@@ -846,6 +852,7 @@ func _check_settings_display_status_layout() -> void:
 
 func _check_settings_save_feedback() -> void:
 	var settings_script := FileAccess.get_file_as_string("res://src/scenes/settings/settings_dialog.gd")
+	var transaction_script := FileAccess.get_file_as_string("res://src/utils/settings_transaction_controller.gd")
 	for required_text in [
 		"save_status_label",
 		"_collect_form_values",
@@ -857,10 +864,11 @@ func _check_settings_save_feedback() -> void:
 		_assert(settings_script.contains(required_text), "Settings save feedback missing text: %s" % required_text)
 
 	var save_body := _function_body(settings_script, "_on_save")
-	_assert(save_body.contains("_has_form_changes"), "Save should compare form values before writing config")
-	_assert(save_body.contains("_apply_form_values"), "Save should apply only after change detection")
+	_assert(save_body.contains("_settings_transaction.execute"), "Save should delegate to the transaction controller")
+	_assert(transaction_script.find("operations.has_changes.call(values)") < transaction_script.find("operations.apply_config.call(values)"), "Save should compare form values before writing config")
+	_assert(transaction_script.find("operations.apply_config.call(values)") < transaction_script.find("operations.save_config.call()"), "Save should apply only after change detection")
 	_assert(save_body.contains("_set_save_status"), "Save should show status feedback")
-	_assert(save_body.contains("return"), "No-change or failed save paths should keep the settings window open")
+	_assert(save_body.contains("STATUS_NO_CHANGE") and save_body.contains("STATUS_SAVE_FAILED"), "No-change or failed save paths should keep the settings window open")
 
 	var auto_start_body := _function_body(settings_script, "_apply_auto_start_setting")
 	_assert(auto_start_body.contains("desired == actual"), "Auto start should skip registry writes when unchanged")
@@ -898,20 +906,20 @@ func _check_settings_modal_runtime_reapply_guard() -> void:
 	_assert(main_script.contains("_runtime_mode_reapply_deferred_until_modal_close"), "Main should track runtime reapply deferred while settings modal is open")
 
 	var config_scope_body := _function_body(main_script, "_apply_config_change_scope")
-	_assert(config_scope_body.contains("if _modal_open:"), "Config changes should check whether a modal is open")
+	_assert(config_scope_body.contains("if _runtime_state.modal_open:"), "Config changes should check whether a modal is open")
 	_assert(config_scope_body.contains("deferred debug mode runtime apply until modal closes"), "Debug mode changes should be deferred while settings is open")
 	_assert(config_scope_body.contains("deferred window policy apply until modal closes"), "Window policy changes should be deferred while settings is open")
 
 	var schedule_body := _function_body(main_script, "_schedule_runtime_mode_reapply")
-	_assert(schedule_body.contains("if _modal_open:"), "Runtime reapply scheduling should defer while settings is open")
+	_assert(schedule_body.contains("if _runtime_state.modal_open:"), "Runtime reapply scheduling should defer while settings is open")
 	_assert(schedule_body.contains("deferred until modal closes"), "Runtime reapply scheduling should log modal deferral")
 
 	var reapply_body := _function_body(main_script, "_reapply_runtime_mode_after_popups")
-	_assert(reapply_body.contains("if _modal_open:"), "Runtime reapply should re-check modal state after the deferred frame")
-	_assert(not reapply_body.contains("_modal_open = false"), "Runtime reapply must not mark a modal as closed by itself")
+	_assert(reapply_body.contains("if _runtime_state.modal_open:"), "Runtime reapply should re-check modal state after the deferred frame")
+	_assert(not reapply_body.contains("_runtime_state.modal_open = false"), "Runtime reapply must not mark a modal as closed by itself")
 
 	var modal_closed_body := _function_body(main_script, "_on_modal_closed")
-	_assert(modal_closed_body.contains("_modal_open = false"), "Only modal close handling should clear modal-open state")
+	_assert(modal_closed_body.contains("_runtime_state.modal_open = false"), "Only modal close handling should clear modal-open state")
 	_assert(modal_closed_body.contains("_schedule_runtime_mode_reapply"), "Closing a modal should restore the runtime window mode")
 
 
@@ -944,7 +952,7 @@ func _check_runtime_refresh_throttling() -> void:
 		"_last_window_position",
 		"_last_scale",
 		"_last_opacity",
-		"_last_taskbar_visible",
+		"_runtime_state",
 		"_last_topmost",
 		"_invalidate_taskbar_visibility_cache",
 		"_reapply_tray_restore_window_policy",
@@ -961,7 +969,7 @@ func _check_runtime_refresh_throttling() -> void:
 	var invalidate_body := _function_body(main_script, "_invalidate_taskbar_visibility_cache")
 	var tray_restore_body := _function_body(main_script, "_reapply_tray_restore_window_policy")
 	_assert(config_changed_body.contains("_apply_config_change_scope"), "Config changes should be routed through a scope-aware handler")
-	_assert(invalidate_body.contains("_last_taskbar_visible = null"), "Taskbar visibility cache should be invalidated when native window state may have changed")
+	_assert(invalidate_body.contains("Platform.invalidate_taskbar_visibility_cache"), "Taskbar visibility cache should be invalidated through its platform owner")
 	_assert(tray_toggle_body.contains("_reapply_tray_restore_window_policy()"), "Tray restore should run a dedicated native window policy reapply")
 	_assert(tray_restore_body.contains("_invalidate_taskbar_visibility_cache(\"tray_restore\")"), "Tray restore should invalidate taskbar cache before reapplying pure pet mode")
 	_assert(tray_restore_body.contains("_setup_window()"), "Tray restore should reapply native pet window policy after native show")

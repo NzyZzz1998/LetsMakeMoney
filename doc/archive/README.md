@@ -1,93 +1,57 @@
-# LetsMakeMoney 历史文档归档索引
+# LetsMakeMoney 历史文档归档
 
-本目录当前只作为归档说明和迁移计划入口。为了避免破坏已有引用，本轮没有移动历史文档，也没有删除任何内容。
+本目录保存已结束版本、跨版本历史汇总、旧验证记录、旧日志和素材探索。归档内容只用于追溯，不得覆盖 [当前状态入口](../current.md) 或对应版本的 `doc/releases/vX.Y/` 事实。
 
-## 当前原则
+## 分层规则
 
-- v0.4 Beta 是当前版本。
-- v0.1、v0.2、v0.3 文档只作为历史参考。
-- v0.2 素材 Spike 和提示词包属于历史素材探索。
-- `doc/temp-pc-work/` 属于临时 PC 工作区资料。
-- 后续如果真正移动文件，必须同步更新：
-  - [doc/current.md](../current.md)
-  - [doc/releases/v0.4/README.md](../releases/v0.4/README.md)
-  - 相关 PRD / implementation-plan / progress / verification 中的链接
-  - 根 [README.md](../../README.md) 中的文档入口
+| 目录 | 内容 | 当前用途 |
+|---|---|---|
+| `legacy-core/` | v0.1-v0.4 跨版本 PRD、实施计划和进度原文 | 历史汇总，只读 |
+| `v0.1/` 至 `v0.3/` | 旧版验证与素材探索 | 历史验收与研究 |
+| `v0.4/` | 验证、动画/UI 规格、提示词、早期原型和日志 | v0.4 历史快照 |
+| `v0.5/logs/` | v0.5 Bugfix 日志 | 历史排障 |
+| `v0.6/logs/` | v0.6 开发与 Bugfix 日志 | 历史排障 |
 
-## 当前历史参考文件
+旧路径保留了轻量兼容页，历史文档中的链接不会因为迁移立即失效。新文档不得继续引用兼容页，应直接引用归档正文或版本目录。
 
-| 文件 / 目录 | 类型 | 当前用途 | 建议归档位置 |
-|---|---|---|---|
-| `doc/verification/v0.1.md` | v0.1 验证 | 历史验收记录 | `doc/archive/v0.1/verification.md` |
-| `doc/verification/v0.2.md` | v0.2 验证 | 历史验收记录 | `doc/archive/v0.2/verification.md` |
-| `doc/verification/v0.3.md` | v0.3 验证 | 历史验收记录 | `doc/archive/v0.3/verification.md` |
-| `doc/v0.2-asset-spike.md` | Spike | 历史素材探索 | `doc/archive/spikes/v0.2-asset-spike.md` |
-| `doc/v0.2-asset-prompt-pack.md` | Spike | 历史素材提示词 | `doc/archive/spikes/v0.2-asset-prompt-pack.md` |
-| `doc/temp-pc-work/` | 临时工作区 | PC 临时素材 / 提示词 | `doc/archive/spikes/temp-pc-work/` |
-| `doc/ui-prototype-warm-widget.html` | 原型历史 | 早期暖色方向参考 | `doc/archive/prototypes/ui-prototype-warm-widget.html` |
+## 当前事实源
 
-## 跨版本大文档状态
+1. [当前状态](../current.md)
+2. [v0.7 发布状态](../releases/v0.7/current.md)
+3. [v0.7 验证](../releases/v0.7/verification.md)
+4. [v0.8 工程治理 Review](../releases/v0.8/engineering-governance-review.md)
 
-以下文件仍保留原位，作为原始跨版本资料。v0.4 章节已经复制到 `doc/releases/v0.4/` 下，日常接手优先读取拆分副本：
+## 归档清单
 
-- `doc/LetsMakeMoneyPRD.md`
-- `doc/implementation-plan.md`
-- `doc/progress.md`
+### 跨版本历史
 
-当前已建立的 v0.4 拆分副本：
+- [历史 PRD](legacy-core/LetsMakeMoneyPRD.md)
+- [历史实施计划](legacy-core/implementation-plan.md)
+- [历史进度](legacy-core/progress.md)
 
-- `doc/releases/v0.4/prd.md`
-- `doc/releases/v0.4/implementation-plan.md`
-- `doc/releases/v0.4/progress.md`
-- `doc/releases/v0.4/verification.md`
-- `doc/releases/v0.4/release-checklist.md`
+### v0.1-v0.3
 
-建议后续继续拆分方式：
+- [v0.1 验证](v0.1/verification.md)
+- [v0.2 验证](v0.2/verification.md)
+- [v0.2 素材探索](v0.2/asset-spike.md)
+- [v0.2 素材提示词](v0.2/asset-prompt-pack.md)
+- [v0.2 临时 PC 工作区](v0.2/temp-pc-work/README.md)
+- [v0.3 验证](v0.3/verification.md)
 
-```text
-doc/
-  releases/
-    v0.1/
-      prd.md
-      implementation-plan.md
-      progress.md
-      verification.md
-    v0.2/
-      prd.md
-      implementation-plan.md
-      progress.md
-      verification.md
-    v0.3/
-      prd.md
-      implementation-plan.md
-      progress.md
-      verification.md
-    v0.4/
-      README.md
-      status.md
-      prd.md
-      implementation-plan.md
-      progress.md
-      verification.md
-      release-checklist.md
-      ui-polish.md
-      animation.md
-```
+### v0.4-v0.6
 
-拆分前不要直接删除原大文档。更安全的做法是：
+- [v0.4 验证](v0.4/verification.md)
+- [v0.4 动画规格](v0.4/animation-spec.md)
+- [v0.4 动画素材日志](v0.4/animation-assets-log.md)
+- [v0.4 UI 规格](v0.4/ui-polish-spec.md)
+- [v0.4 早期暖色原型](v0.4/ui-prototype-warm-widget.html)
+- [v0.4 日志](v0.4/logs/dev-log.md)
+- [v0.5 Bugfix 日志](v0.5/logs/bugfix-log.md)
+- [v0.6 开发日志](v0.6/logs/dev-log.md)
+- [v0.6 Bugfix 日志](v0.6/logs/bugfix-log.md)
 
-1. 先复制对应版本章节到新文件。
-2. 在原大文档顶部加入“此文档已拆分，当前入口见 doc/current.md”的提示。
-3. 更新 `doc/current.md` 和 `doc/releases/v0.4/README.md`。
-4. 全文搜索旧路径引用并逐一替换。
-5. 确认所有链接可用后，再决定是否保留或归档原大文档。
+## 尚未处理
 
-## 当前不作为 v0.4 事实源的内容
-
-- v0.1-v0.3 的验证结论。
-- v0.1-v0.3 的 PRD / Plan / Progress 历史章节。
-- v0.2 的素材 Spike 与提示词。
-- 临时 PC 工作区内容。
-- 早期暖色原型文件。
-
-如果这些内容与 [doc/current.md](../current.md)、[doc/releases/v0.4/status.md](../releases/v0.4/status.md) 或 [doc/releases/v0.4/verification.md](../releases/v0.4/verification.md) 冲突，以当前状态入口和 v0.4 验证文档为准。
+- `doc/releases/v0.4/` 至 `doc/releases/v0.7/` 已经按版本分层，继续留在原位。
+- Day4 AI 产品方案 DOCX 属于演示交付物，等待项目所有者决定迁到仓库外 `deliverables/`，还是归入 `archive/demos/`。
+- 脚本分层属于 C3，不在本次文档迁移中移动。
