@@ -1,0 +1,12 @@
+// Public example only. Copy to Identifiers.local.xcconfig for local signing.
+// Identifiers.local.xcconfig is ignored and must never be committed.
+
+PRODUCT_NAME = LetsMakeMoney
+ORGANIZATION_IDENTIFIER = com.example
+DEVELOPMENT_TEAM = YOUR_TEAM_ID
+
+APP_BUNDLE_IDENTIFIER = $(ORGANIZATION_IDENTIFIER).LetsMakeMoney
+WIDGET_BUNDLE_IDENTIFIER = $(APP_BUNDLE_IDENTIFIER).Widget
+WATCH_BUNDLE_IDENTIFIER = $(APP_BUNDLE_IDENTIFIER).Watch
+WATCH_WIDGET_BUNDLE_IDENTIFIER = $(WATCH_BUNDLE_IDENTIFIER).Widget
+APP_GROUP_IDENTIFIER = group.$(APP_BUNDLE_IDENTIFIER)

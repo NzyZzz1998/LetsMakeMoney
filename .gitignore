@@ -80,3 +80,15 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+
+# Apple development output and private signing configuration
+apple/**/.build/
+apple/**/DerivedData/
+apple/**/xcuserdata/
+apple/**/*.xcuserstate
+apple/Config/*.local.xcconfig
+*.mobileprovision
+*.provisionprofile
+*.cer
+*.ipa
+*.xcarchive
