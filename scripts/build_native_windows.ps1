@@ -177,7 +177,7 @@ if ($compilerMode -eq "MSYS2 UCRT64") {
 
     $homeMsys = ConvertTo-MsysPath $msysHome
     $tmpMsys = ConvertTo-MsysPath $msysTmp
-    $bashCommand = "export HOME='$homeMsys'; export TMPDIR='$tmpMsys'; export TEMP='$tmpMsys'; export TMP='$tmpMsys'; export PATH=/ucrt64/bin:/usr/bin:`$PATH; cd '$nativeMsys'; '$pythonMsys' -m SCons platform=windows target=$Target arch=x86_64 -j$Jobs"
+    $bashCommand = "export HOME='$homeMsys'; export TMPDIR='$tmpMsys'; export TEMP='$tmpMsys'; export TMP='$tmpMsys'; export PATH=/ucrt64/bin:/usr/bin:`$PATH; cd '$nativeMsys'; '$pythonMsys' -m SCons platform=windows use_mingw=yes target=$Target arch=x86_64 -j$Jobs"
     Invoke-Captured { & $Msys2Bash -lc $bashCommand } "Native build failed" | Write-Output
 }
 else {
