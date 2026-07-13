@@ -8,5 +8,5 @@ if(-not(Test-Path $archive)){if($Offline){throw "Offline Godot archive is missin
 $actual=(Get-FileHash $archive -Algorithm SHA256).Hash.ToUpperInvariant();if($actual -ne ([string]$lock.godot.windows_x86_64_archive_sha256).ToUpperInvariant()){throw "Godot archive SHA256 mismatch."}
 if(-not(Test-Path $extract)){New-Item -ItemType Directory -Force -Path $extract|Out-Null;Expand-Archive -LiteralPath $archive -DestinationPath $extract -Force}
 $exe=Get-ChildItem $extract -Recurse -Filter 'Godot_v*_console.exe'|Select-Object -First 1;if(-not $exe){throw 'Godot console executable was not found in the pinned archive.'}
-$exeHash=(Get-FileHash $exe.FullName -Algorithm SHA256).Hash.ToUpperInvariant();if($exeHash -ne ([string]$lock.godot.windows_x86_64_executable_sha256).ToUpperInvariant()){throw 'Godot executable SHA256 mismatch.'}
+$exeHash=(Get-FileHash $exe.FullName -Algorithm SHA256).Hash.ToUpperInvariant();if($exeHash -ne ([string]$lock.godot.windows_x86_64_console_executable_sha256).ToUpperInvariant()){throw 'Godot console executable SHA256 mismatch.'}
 Write-Output $exe.FullName

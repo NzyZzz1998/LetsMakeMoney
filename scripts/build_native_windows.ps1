@@ -133,7 +133,13 @@ else {
 $godotDetected = "not configured; expected $($lock.godot.version) ($($lock.godot.commit))"
 if (-not [string]::IsNullOrWhiteSpace($env:LMM_GODOT_EXE) -and (Test-Path -LiteralPath $env:LMM_GODOT_EXE -PathType Leaf)) {
     $godotHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $env:LMM_GODOT_EXE).Hash
-    $expectedGodotHash = ([string]$lock.godot.windows_x86_64_executable_sha256).ToUpperInvariant()
+    $godotFileName = [IO.Path]::GetFileName($env:LMM_GODOT_EXE)
+    $expectedGodotHash = if ($godotFileName.EndsWith("_console.exe", [StringComparison]::OrdinalIgnoreCase)) {
+        ([string]$lock.godot.windows_x86_64_console_executable_sha256).ToUpperInvariant()
+    }
+    else {
+        ([string]$lock.godot.windows_x86_64_executable_sha256).ToUpperInvariant()
+    }
     if ($godotHash -ne $expectedGodotHash) {
         throw "Godot executable SHA256 does not match lock. Expected $expectedGodotHash, got $godotHash"
     }

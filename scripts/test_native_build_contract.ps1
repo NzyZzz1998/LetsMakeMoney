@@ -7,6 +7,19 @@ $ErrorActionPreference = "Stop"
 $build = Join-Path $ProjectRoot "scripts\build_native_windows.ps1"
 $lock = Join-Path $ProjectRoot "third_party\native-toolchain.lock.json"
 $godotCpp = Join-Path $ProjectRoot "native\windows\godot-cpp"
+$bootstrapGodot = Get-Content -LiteralPath (Join-Path $ProjectRoot "scripts\bootstrap_godot.ps1") -Raw -Encoding UTF8
+$lockData = Get-Content -LiteralPath $lock -Raw -Encoding UTF8 | ConvertFrom-Json
+
+if ([string]::IsNullOrWhiteSpace([string]$lockData.godot.windows_x86_64_executable_sha256) -or
+    [string]::IsNullOrWhiteSpace([string]$lockData.godot.windows_x86_64_console_executable_sha256)) {
+    throw "Native toolchain lock must pin both Godot GUI and console executable hashes."
+}
+if ($lockData.godot.windows_x86_64_executable_sha256 -eq $lockData.godot.windows_x86_64_console_executable_sha256) {
+    throw "Godot GUI and console executable hashes must be independently pinned."
+}
+if (-not $bootstrapGodot.Contains("windows_x86_64_console_executable_sha256")) {
+    throw "Godot bootstrap must validate the console executable against its dedicated hash."
+}
 
 $output = & $build -DependencyLockPath $lock -GodotCppPath $godotCpp -Msys2Bash $Msys2Bash -ValidateOnly 2>&1 | Out-String
 if ($LASTEXITCODE -ne 0) {
