@@ -13,6 +13,16 @@
 - EXE SHA256：`749F18E35E757A250EDA8D3DE5B712BD554861082E33D607E1D07835AA943E3B`。
 - native DLL SHA256：`AB57D3720FDDADA94397F2249C2827C43D1ADB0BDE3641BDC91AFD8AFCEFF696`。
 
+## A0 定向回归（2026-07-12）
+
+- 执行基线：实施阶段；事实源为 `doc/releases/v0.7/prd.md`、`doc/releases/v0.7/dev_plan_v0.7.md`、`doc/releases/v0.7/progress_v0.7.md`；本轮不重写 PRD 或 dev plan。
+- V07-A0-001：当前分支为 `main`，HEAD 为 `44858879f21d82984bbce471612679974edfde35`，`v0.6-beta` tag 为 `5d1681b5d0647609245957569edf23d87243d007`；工作树有未提交改动，本轮未提交、未推送、未创建 tag 或 Release。
+- V07-A0-002 至 V07-A0-005：`check_docs_status.ps1` 通过；v0.7 开发态、v0.6 发布基线、状态/验证/readiness、候选清单和排除清单入口均存在且可访问。
+- V07-A0-006：9 类私有路径均被 `.gitignore` 命中；README、current、PRD、dev plan 和 progress 5 类候选入口均未被误忽略。
+- V07-A0-007：`check_public_candidate.ps1` 只读扫描 460 个候选文件，0 失败、0 警告；公开候选正反夹具均通过，风险夹具按预期非零失败。资产许可检查及正反夹具也通过。
+- V07-A0-008：`git diff --check` 通过；`doc/releases/v0.6/` 和 `doc/logs/dev_log_v0.6.md` 无工作树差异。v0.7 便携 Zip SHA256 为 `205C60CAF2B42A6B19EE2249D5623752A9F1624CF5B3ECE1DE3473B2BA5B74D8`，测试安装器 SHA256 为 `0036EAF2026A679B838C6AE4C4F203B14CF4FCB78404A713D1978A083621E923`。
+- 结论：A0-001 至 A0-008 定向回归通过；仍处于未提交工作树，未进入 Acceptance 或发布写操作。
+
 ## A0 检查矩阵
 
 | 检查 | 命令/入口 | 预期 | 结果 |
@@ -155,13 +165,13 @@
 | Actions 供应链 | 通过 | 最小权限；checkout/setup-python/msys2/cache/upload-artifact 固定不可变 commit |
 | v0.7 自动验证 | 通过 | `verify_v07.ps1` 与 docs suite；当前树 457 文件、0 失败、0 警告 |
 | v0.7 便携 Zip | 通过 | 解压、版本、EXE/DLL、manifest/checksum/LICENSES 与启动 smoke 通过 |
-| 干净环境与 GUI | 待 Acceptance | 见 `manual-verification.md` |
+| 干净环境与 GUI | 暂不验证 | 当前无独立 Windows 用户或 VM；自动化、本机构建与 GUI 证据不冒充干净环境通过，见 `manual-verification.md` |
 
 ### 候选产物身份
 
 - Zip：`releases/v0.7/LetsMakeMoney-v0.7-beta-windows-x86_64.zip`
-- Zip SHA256：`9FF99E26FC135D939EB9349E4274D04428E89E734E2F016972AEB7EABCF84091`
-- EXE SHA256：`2DB628ACA2968936480D5B5B05A317D9580CE303F1D607178C6673C6C5328E2B`
+- Zip SHA256：`205C60CAF2B42A6B19EE2249D5623752A9F1624CF5B3ECE1DE3473B2BA5B74D8`
+- EXE SHA256：`2A1365672507C34F78C2EE5E49E9790C44C86758374169484F0953F5057EDA57`
 - native DLL SHA256：`5D21CFFAA2A26F25958CD50FF138449D8575B1A1E512B5F30304AC58A28D1BE4`
 - 测试安装器 SHA256：`0036EAF2026A679B838C6AE4C4F203B14CF4FCB78404A713D1978A083621E923`，签名 `NotSigned`
 
@@ -177,28 +187,51 @@
 | Settings 保存失败 | 输入保留、配置哈希不变、失败语义日志完整；UI 未显示失败提示 | 未通过 | `19`、`20` 截图；`save-failure-before-hash.txt`；`settings_save_failed` |
 | Wizard 取消/关闭 | 状态恢复且未写入半成品 | 通过 | `17`、`18` 截图；`wizard_state_restored`、`wizard_cancelled` |
 | Popup/Modal 穿透保护 | 打开/关闭日志成对，关闭后恢复 | 通过 | `passthrough_suspended/resumed` 日志 |
-| 纯桌宠任务栏策略 | 进程继续运行，Computer Use 应用列表不再暴露窗口，native 隐藏返回 true | 部分通过 | `set_taskbar_visible ... false / ok=true`；真实托盘左键待人工 |
-| DPI/多显示器 | 100% DPI、单显示器通过；本机无其他环境 | 部分通过 | `acceptance-runtime-summary.json`；125%+ 与跨屏待人工 |
+| 纯桌宠任务栏策略 | 进程继续运行，Computer Use 应用列表不再暴露窗口，native 隐藏返回 true；项目所有者人工确认托盘左键恢复后无任务栏入口 | 通过 | `set_taskbar_visible ... false / ok=true`；`V07-MAN-001` 人工记录 |
+| DPI/多显示器 | 100%、125%、150%、200% DPI 的 Panel、菜单、Settings、Wizard 实机通过；本机仅单显示器 | 部分通过 | `.tmp_acceptance/v0.7-dpi-20260712/evidence/`；多显示器暂不验证 |
 | 安装器取消 | 取消后无程序目录和卸载记录残留 | 通过 | `22`、`23` 截图与文件检查 |
 | 正常安装与覆盖/修复 | 当前用户目录正确；EXE/DLL 哈希一致；两次 GUI 安装完成 | 通过 | `24`-`27` 截图与安装文件哈希 |
 | 卸载保留数据 | 程序目录删除，APPDATA 配置保留 | 通过 | `28` 截图与卸载后文件检查 |
-| 卸载主动删除数据 | 未执行，避免通用 `unins000.exe` 名称冲突误操作其他软件 | 待验证 | `manual-verification.md` |
-| SmartScreen/签名 | 安装器为 `NotSigned`，没有可信发布者证据 | 未通过（安装器附件） | installer manifest / Get-AuthenticodeSignature |
+| 卸载主动删除数据 | 使用 LetsMakeMoney 精确卸载路径，勾选删除数据并通过不可恢复二次确认；隔离测试 APPDATA 与安装目录均清除，原用户配置随后恢复 | 通过 | `.tmp_acceptance/v0.7-delete-data-20260712-203736/evidence/` |
+| SmartScreen/签名 | 安装器为 `NotSigned`；证书尚未获批 | 暂不验证（非阻塞，安装器不发布） | installer manifest / Get-AuthenticodeSignature |
 | 包内许可和双语入口 | LICENSES、notices、README、manifest/checksum 完整 | 通过 | 包验证与 `LICENSES/` 清单 |
 | 环境恢复 | 原 APPDATA、注册表恢复；安装目录移除；进程 0 | 通过 | `environment-restored.json` |
 
 ### 发布判断
 
 - 源码仓库：可继续公开。历史、许可、安全和当前树门禁未回退。
-- 便携 Zip：功能主体通过，但 `V07-BUG-001` 属于当前候选的用户可见失败反馈缺陷，因此暂不可发布。
+- 便携 Zip：`V07-BUG-001` 已由新候选包定向复验关闭；仍需完成或明确接受剩余系统级人工补证边界后再作最终发布判断。
 - 未签名安装器：不可公开发布。
-- v0.7：暂不可进入发布收口；先修复 `V07-BUG-001` 并定向复验。签名仍决定安装器附件是否可发布。
+- v0.7：Acceptance 仍为部分通过；真实通知区/任务栏、高 DPI 与显式删除数据已通过。多显示器、干净 Windows 用户/VM、签名暂不验证，不阻塞便携 Zip 和版本收口。
+
+## V07-BUG-001 定向复验（2026-07-11）
+
+| 检查 | 结果 | 证据 |
+|---|---|---|
+| 运行态布局合同 | 修复前因反馈不在固定 action row 按预期失败；修复后反馈可见且矩形完全位于 Settings Shell 内 | `scripts/verify_v07_ui_contract.gd` |
+| v0.7 / v0.5 / v0.4 回归 | 通过 | `verify_v07.ps1`、`verify_v05.ps1`、`verify_v04.ps1` |
+| 新候选包 | 导出、许可 staging、包验证与启动 smoke 通过 | Zip SHA256 `205C60CAF2B42A6B19EE2249D5623752A9F1624CF5B3ECE1DE3473B2BA5B74D8` |
+| 保存失败反馈 | 0.6 秒和 1.5 秒稳定观察点均清晰显示 `保存失败` 及原因 | `.tmp_acceptance/v0.7-bugfix-20260711-235257/evidence/03-settings-save-failed-600ms.png`、`04-settings-save-failed-1500ms.png` |
+| 输入保留 | 失败后输入框继续显示 `15322` | 同上截图 |
+| 旧配置保护 | 配置 SHA256 前后均为 `E003D145D827576200040C4351B486A1737E5E625D2C8036AA543FAE78FE3378` | `config-before-sha256.txt` 与复验输出 |
+| 失败语义日志 | 同时包含 `config_save_failed` 与 `settings_save_failed` | `.tmp_acceptance/v0.7-bugfix-20260711-235257/evidence/debug-tail.txt` |
+| 环境恢复 | 进程为 0，原 APPDATA 已恢复，故障注入目录不存在 | 定向复验恢复检查 |
+
+**结论**：`V07-BUG-001` 通过，关闭功能发布阻塞；安装器保持未签名且不发布，签名相关验收按项目所有者决定暂不验证。
+
+### 本地测试安装清理（2026-07-12）
+
+- `V07-MAN-004` 已补测：使用精确 LetsMakeMoney 卸载器勾选“同时删除设置和日志”，确认不可恢复提示后，隔离测试数据与安装目录均被清除；验收结束后恢复原用户配置。
+- 使用精确安装路径启动 LetsMakeMoney 卸载器，保持删除数据复选框未勾选并完成标准卸载确认。
+- 结果：`%LOCALAPPDATA%\Programs\LetsMakeMoney` 不存在，卸载注册项为 0，相关进程为 0；`%APPDATA%\LetsMakeMoney\config.json` 保留。
+- 证据：`.tmp_acceptance/v0.7-uninstall-delete-20260712-004740/evidence/01-uninstall-success-preserve-data.png`。
+- 观察：`InitializeUninstall()` 的自定义确认页不区分静默卸载，传入 `/VERYSILENT` 仍会弹窗；记录为安装器自动化边界，不冒充显式删除数据通过。
 
 ## V07-B1 固定依赖与可复现构建
 
 | 检查 | 结果 | 证据 |
 |---|---|---|
-| Godot 4.7 stable 身份 | 通过 | 官方 Windows x86_64 归档 SHA256 `02A5312236F4E0209C78BCB2F52135B1963E6B8888C873C9CEE81459E60BCD71`；本机可执行文件 SHA256 `B2CA888D5115A6CEDEE564764A2EE494A625F2EC2EDBABD010FE33C9A88A6BF8` |
+| Godot 4.7 stable 身份 | 通过 | 官方 Windows x86_64 归档 SHA256 `02A5312236F4E0209C78BCB2F52135B1963E6B8888C873C9CEE81459E60BCD71`；GUI EXE SHA256 `B2CA888D5115A6CEDEE564764A2EE494A625F2EC2EDBABD010FE33C9A88A6BF8`；Console EXE SHA256 `D8055FB8C7E7F5010D7439EC69BE051554055DAE55A265F8647BD7301C34161C` |
 | godot-cpp lock | 通过 | `ba0edfed90512ec64aba51d4295a3e7e30112f86`；在线 mirror 与离线 clone 均检出同一 commit |
 | bootstrap 正反向测试 | 通过 | 正常在线、离线缓存通过；缺缓存和错误 commit 非零失败 |
 | 构建合同测试 | 通过 | Python、SCons、MSYS2/GCC、Godot、godot-cpp、缓存和目标身份可读；错误 Godot SHA256 与缺 MSYS2 非零失败 |
@@ -246,4 +279,25 @@
 | native capability health | 通过 | `test_native_health_contract.ps1`；兼容布尔字段保留 |
 | shared native protocol | 通过 | JSON/header 合同与 native Release 编译 |
 | 托盘与任务栏 | 通过 | 当前源码导出后 normal/pure 各 10 轮 |
-| 多显示器/DPI/真实通知区 | 待人工补证 | 转交 E4/Acceptance |
+| DPI | 通过 | 100%、125%、150%、200% 实机截图证据齐全，测试后恢复 100% |
+| 多显示器 | 暂不验证 | 当前仅单显示器，不冒充跨屏、记忆与断开回落通过 |
+
+## 最终发布前复核（2026-07-13）
+
+**结论**：通过；产品、便携 Zip、本机回归和 GitHub 网页治理门禁均闭环，可进入发布收口。
+
+| 验收项 | 结果 | 证据 |
+|---|---|---|
+| 候选身份 | 通过 | `main` / `44858879f21d82984bbce471612679974edfde35`；最终文档快照重新打包后 Zip SHA256 `16F47A844EFD78D387E9D08FBCD3DE76C8C8BDD518731C1B0BA022E7F598121F`；测试安装器 SHA256 `0036EAF2026A679B838C6AE4C4F203B14CF4FCB78404A713D1978A083621E923` |
+| 安装取消、覆盖/修复、卸载 | 通过 | 既有真实 GUI 证据继续有效；安装目录、卸载项和用户数据边界符合文档 |
+| 安装失败提示与残留 | 通过 | 受控使用“同名文件占用目标目录”触发 Error 183；安装器显示可读错误；结束后默认安装目录不存在、卸载注册项为 0、相关进程为 0 |
+| 更新链路 | 通过 | 真实 GitHub 检查返回已是最新；版本比较、稳定/测试通道、可信来源、缺失 SHA256、取消、HTTP/下载/校验/签名失败清理和当前版本保护由 `verify_v07_update_service.gd`、`test_update_contract.ps1` 与实现日志合同覆盖 |
+| 配置兼容 | 通过 | 安装版和便携版按设计共享 `%APPDATA%\LetsMakeMoney`；不得同时运行；安全写入、损坏恢复、保存失败不污染旧配置和历史回归通过 |
+| 英文 README | 通过 | 自然表达、术语、链接、构建命令、安装/便携边界已人工复核；真实托盘/任务栏/DPI 与暂不验证项口径已同步 |
+| 自动与历史回归 | 通过 | v0.7、v0.6 config、v0.5、v0.4、M4、M5、文档、公开候选、素材许可、第三方合规和包验证全部通过；`git diff --check` 通过 |
+| GitHub 仓库身份 | 通过 | GitHub 插件确认仓库为 public、默认分支 `main`、当前账号具备 admin/push 权限 |
+| Release dry run | 通过（仓库内合同） | 新增 `windows-release-dry-run.yml`；仅 `workflow_dispatch`，`contents: read`，不读取 secrets，不创建 Release，只上传 Zip 与 SHA256 dry-run artifact |
+| 分支保护与 Private Vulnerability Reporting | 通过 | 项目所有者截图确认 `Protect main` 为 Active，要求 PR、必要 CI、禁止 force push/删除；Advanced Security 页面确认 Private Vulnerability Reporting 已启用 |
+
+**暂不验证且不阻塞便携 Beta**：多显示器、干净 Windows 用户/VM、Authenticode/SmartScreen、真实 Windows 登录后的开机自启。未签名安装器不得上传 Release。
+| 真实通知区 | 通过 | 项目所有者完成人工补证，普通/纯桌宠左键隐藏恢复及任务栏策略符合预期 |

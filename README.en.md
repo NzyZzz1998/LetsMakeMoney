@@ -6,7 +6,7 @@ LetsMakeMoney is a Windows desktop pet and earnings-progress widget built with G
 
 ## Project status
 
-The latest published baseline is **v0.6 Beta**. The `main` branch is public development for **v0.7 Beta**, which has not completed Acceptance or release. Use [doc/current.md](doc/current.md) and [the v0.7 status](doc/releases/v0.7/current.md) as the current facts.
+The current release is **v0.7 Beta**. The source repository, portable Zip, licensing, and public-governance gates have passed Acceptance. The unsigned test installer is not a public attachment. Use [doc/current.md](doc/current.md) and [the v0.7 status](doc/releases/v0.7/current.md) as the current facts.
 
 The supported product platform is Windows x86_64. iOS, macOS, and Android are roadmap research only; iOS has the highest future research priority.
 
@@ -54,7 +54,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run_ci_verification.ps1 -Suit
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_v06.ps1
 ```
 
-Real tray clicks, taskbar behavior, DPI, multi-monitor behavior, Authenticode, and startup after a real Windows sign-in remain GUI/manual Acceptance boundaries.
+Real tray clicks, normal/pure-pet taskbar behavior, and 100%-200% DPI have passed Windows desktop Acceptance. Multi-monitor behavior, a clean Windows user or VM, Authenticode/SmartScreen, and startup after a real Windows sign-in remain explicitly unverified Beta boundaries.
 
 ## Contributing and security
 
@@ -71,5 +71,6 @@ Do not extract restricted visual assets for another project or distribute unoffi
 ## Known Beta limits and rollback
 
 - Windows x86_64 only.
+- The public v0.7 Beta release contains the portable Zip only. The test installer is unsigned and is not a Release attachment.
 - Real startup after Windows sign-in is still an observed limitation unless a release explicitly records manual evidence.
 - Keep the previous stable Zip and a configuration backup. To roll back, exit the current version, restore the backup if needed, and restart the previous release.

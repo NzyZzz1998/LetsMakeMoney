@@ -220,28 +220,6 @@ func _build_compact_ui() -> void:
 	_add_settings_section(nav, content_holder, "General", _build_general_tab())
 	_select_settings_section("Salary")
 
-	save_status_label = Label.new()
-	save_status_label.name = "SaveStatusLabel"
-	save_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	save_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	save_status_label.add_theme_font_size_override("font_size", 13)
-	save_status_label.add_theme_color_override("font_color", ACCENT_MINT)
-
-	save_feedback_panel = PanelContainer.new()
-	save_feedback_panel.name = "SaveFeedbackPanel"
-	save_feedback_panel.visible = false
-	save_feedback_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	save_feedback_panel.add_theme_stylebox_override("panel", _stylebox(Color(0.918, 0.980, 0.886, 0.98), Color(0.427, 0.624, 0.447, 0.42), 1, 9, 8))
-	save_feedback_panel.add_child(save_status_label)
-	var feedback_margin := MarginContainer.new()
-	feedback_margin.name = "SaveFeedbackMargin"
-	feedback_margin.add_theme_constant_override("margin_left", 24)
-	feedback_margin.add_theme_constant_override("margin_top", 0)
-	feedback_margin.add_theme_constant_override("margin_right", 24)
-	feedback_margin.add_theme_constant_override("margin_bottom", 4)
-	feedback_margin.add_child(save_feedback_panel)
-	shell_box.add_child(feedback_margin)
-
 	var action_divider := ColorRect.new()
 	action_divider.name = "ActionDivider"
 	action_divider.custom_minimum_size = Vector2(0, 1)
@@ -264,6 +242,21 @@ func _build_compact_ui() -> void:
 	action_row.alignment = BoxContainer.ALIGNMENT_END
 	action_row.add_theme_constant_override("separation", 10)
 	action_margin.add_child(action_row)
+
+	save_status_label = Label.new()
+	save_status_label.name = "SaveStatusLabel"
+	save_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	save_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	save_status_label.add_theme_font_size_override("font_size", 13)
+	save_status_label.add_theme_color_override("font_color", ACCENT_MINT)
+
+	save_feedback_panel = PanelContainer.new()
+	save_feedback_panel.name = "SaveFeedbackPanel"
+	save_feedback_panel.visible = false
+	save_feedback_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	save_feedback_panel.add_theme_stylebox_override("panel", _stylebox(Color(0.918, 0.980, 0.886, 0.98), Color(0.427, 0.624, 0.447, 0.42), 1, 9, 7))
+	save_feedback_panel.add_child(save_status_label)
+	action_row.add_child(save_feedback_panel)
 
 	cancel_button = Button.new()
 	cancel_button.name = "CancelButton"
@@ -1395,7 +1388,7 @@ func _set_save_status(message: String) -> void:
 			panel_color = Color(1.0, 0.952, 0.842, 0.98)
 			border_color = Color(0.965, 0.714, 0.243, 0.52)
 			text_color = SETTINGS_WARN
-		save_feedback_panel.add_theme_stylebox_override("panel", _stylebox(panel_color, border_color, 1, 12, 12))
+		save_feedback_panel.add_theme_stylebox_override("panel", _stylebox(panel_color, border_color, 1, 9, 7))
 		save_status_label.add_theme_color_override("font_color", text_color)
 	if general_message_label != null:
 		general_message_label.visible = false

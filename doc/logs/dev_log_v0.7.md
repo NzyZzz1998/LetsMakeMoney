@@ -203,6 +203,21 @@
 
 当前无 v0.7 bugfix。发现具体缺陷后创建 `doc/logs/v0.7-bugfix-log.md`，本节只保留摘要链接。
 
+### 2026-07-12 / V07-A0 修复后回归
+
+- 以现有 PRD、`dev_plan_v0.7.md` 和 `progress_v0.7.md` 为事实源，未重新生成需求或扩大范围。
+- 重新确认 `main`、当前 HEAD、`v0.6-beta` tag、未提交工作树和“不提交、不推送”边界。
+- 运行 `check_docs_status.ps1`、`check_public_candidate.ps1`、`test_check_public_candidate.ps1` 和资产许可正反夹具；正常候选扫描为 460 个文件、0 失败、0 警告，风险夹具按预期失败。
+- 复核 `.gitignore`、严格 UTF-8、v0.7 活动文档本地链接、候选/排除清单以及 `git diff --check`；确认 v0.6 文档和 v0.6 开发日志没有本轮差异。
+- 结果：V07-A0-001 至 V07-A0-008 回归通过；未修改业务代码、PRD、开发计划或 v0.6 历史，未执行提交、推送、tag 或 Release 操作。
+
+### 2026-07-12 / V07-A0 定向回归
+
+- 事实源：`doc/releases/v0.7/prd.md`、`doc/releases/v0.7/dev_plan_v0.7.md`、`doc/releases/v0.7/progress_v0.7.md`；本轮按实施阶段执行，不重写需求或计划。
+- 重新确认 `main` HEAD 为 `44858879f21d82984bbce471612679974edfde35`，`v0.6-beta` tag 为 `5d1681b5d0647609245957569edf23d87243d007`，工作树有未提交改动。
+- `check_docs_status.ps1`、公开候选只读扫描、公开候选正反夹具、资产许可正反夹具和 ignore 命中/误伤检查通过；正常候选为 460 文件、0 失败、0 警告，风险夹具按预期失败。
+- `git diff --check` 通过，v0.6 文档和 `dev_log_v0.6.md` 无差异；未执行提交、推送、tag、Release 或其他外部写操作。
+
 ## Spike / 技术探索摘要
 
 | 主题 | 当前结论 | 是否进入本版本 | 后续动作 |

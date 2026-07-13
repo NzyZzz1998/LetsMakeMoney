@@ -1,5 +1,27 @@
 # 更新日志
 
+## v0.7 Beta - 开源公开与可信分发基础版（2026-07-13）
+
+### 状态
+
+- 最终 Acceptance 通过，可发布 Windows x86_64 便携 Zip。
+- 未签名测试安装器不作为 GitHub Release 附件。
+- `main` 已启用 PR、必要 CI、禁止 force push/删除的保护规则；Private Vulnerability Reporting 已启用。
+
+### 新增与变更
+
+- 建立 MIT 代码许可、受限素材许可、第三方声明和双语 README。
+- 固定 Godot、godot-cpp、Python、SCons、MSYS2/GCC 与 Inno Setup 工具链身份。
+- 增加 Windows 文档/合规、native/Godot CI 和维护者手动 Release dry run。
+- 完成 Main/native 窗口、托盘、任务栏和点击穿透状态合同治理。
+- 增加用户确认的更新检查、下载、SHA256、发布者校验、取消和回退路径。
+- 完成安装、覆盖/修复、卸载保留/删除数据和受控安装失败验收。
+
+### 已知边界
+
+- 多显示器、干净 Windows 用户/VM、Authenticode/SmartScreen、真实登录后的开机自启暂不验证，不得写为通过。
+- v0.7 Release 只提供便携 Zip；测试安装器保持本地验收用途。
+
 ## v0.6 Beta - 发布后体验稳定与验证增强版（2026-07-11）
 
 ### 状态

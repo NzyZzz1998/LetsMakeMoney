@@ -133,7 +133,13 @@ else {
 $godotDetected = "not configured; expected $($lock.godot.version) ($($lock.godot.commit))"
 if (-not [string]::IsNullOrWhiteSpace($env:LMM_GODOT_EXE) -and (Test-Path -LiteralPath $env:LMM_GODOT_EXE -PathType Leaf)) {
     $godotHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $env:LMM_GODOT_EXE).Hash
-    $expectedGodotHash = ([string]$lock.godot.windows_x86_64_executable_sha256).ToUpperInvariant()
+    $godotFileName = [IO.Path]::GetFileName($env:LMM_GODOT_EXE)
+    $expectedGodotHash = if ($godotFileName.EndsWith("_console.exe", [StringComparison]::OrdinalIgnoreCase)) {
+        ([string]$lock.godot.windows_x86_64_console_executable_sha256).ToUpperInvariant()
+    }
+    else {
+        ([string]$lock.godot.windows_x86_64_executable_sha256).ToUpperInvariant()
+    }
     if ($godotHash -ne $expectedGodotHash) {
         throw "Godot executable SHA256 does not match lock. Expected $expectedGodotHash, got $godotHash"
     }
@@ -171,7 +177,7 @@ if ($compilerMode -eq "MSYS2 UCRT64") {
 
     $homeMsys = ConvertTo-MsysPath $msysHome
     $tmpMsys = ConvertTo-MsysPath $msysTmp
-    $bashCommand = "export HOME='$homeMsys'; export TMPDIR='$tmpMsys'; export TEMP='$tmpMsys'; export TMP='$tmpMsys'; export PATH=/ucrt64/bin:/usr/bin:`$PATH; cd '$nativeMsys'; '$pythonMsys' -m SCons platform=windows target=$Target arch=x86_64 -j$Jobs"
+    $bashCommand = "export HOME='$homeMsys'; export TMPDIR='$tmpMsys'; export TEMP='$tmpMsys'; export TMP='$tmpMsys'; export PATH=/ucrt64/bin:/usr/bin:`$PATH; cd '$nativeMsys'; '$pythonMsys' -m SCons platform=windows use_mingw=yes target=$Target arch=x86_64 -j$Jobs"
     Invoke-Captured { & $Msys2Bash -lc $bashCommand } "Native build failed" | Write-Output
 }
 else {

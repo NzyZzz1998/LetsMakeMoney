@@ -36,7 +36,11 @@ foreach ($version in @("04", "05", "06")) {
 $docsWorkflow = Read-Required ".github/workflows/windows-docs.yml"
 $mainWorkflow = Read-Required ".github/workflows/windows-verify.yml"
 Assert-True ($docsWorkflow.Contains("permissions:") -and $docsWorkflow.Contains("contents: read")) "Docs workflow must use read-only permissions"
+Assert-True ($docsWorkflow.Contains("name: Windows docs and compliance")) "Docs job name must match the protected-branch status context"
 Assert-True ($mainWorkflow.Contains("pull_request") -and $mainWorkflow.Contains("third_party/native-toolchain.lock.json")) "Main workflow must cover PRs and lock-aware caching"
+Assert-True ($mainWorkflow.Contains("name: Windows native and Godot verification")) "Native job name must match the protected-branch status context"
 Assert-True (-not $mainWorkflow.Contains("secrets.")) "Fork-safe verification workflow must not read secrets"
+Assert-True ($mainWorkflow.Contains("id: msys2") -and $mainWorkflow.Contains("steps.msys2.outputs.msys2-location")) "Main workflow must use the setup-msys2 installation output"
+Assert-True (-not $mainWorkflow.Contains("Get-Command bash")) "Main workflow must not accidentally select Git Bash"
 
 Write-Host "CI/script contract tests passed" -ForegroundColor Green
