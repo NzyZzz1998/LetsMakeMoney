@@ -1,0 +1,65 @@
+name: Windows release dry run
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12.8'
+          cache: pip
+      - uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2
+        with:
+          msystem: UCRT64
+          update: false
+          install: mingw-w64-ucrt-x86_64-gcc
+      - name: Cache fixed native dependencies
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            .cache/dependencies
+            .cache/native-build
+          key: native-${{ runner.os }}-${{ hashFiles('third_party/native-toolchain.lock.json') }}
+      - name: Install SCons
+        run: python -m pip install scons==4.10.1
+      - name: Bootstrap fixed toolchain
+        shell: pwsh
+        run: |
+          ./scripts/bootstrap_native_dependencies.ps1
+          $godot = ./scripts/bootstrap_godot.ps1
+          "LMM_GODOT_EXE=$godot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $bash = (Get-Command bash -ErrorAction Stop).Source
+          "LMM_MSYS2_BASH=$bash" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Build native release
+        shell: pwsh
+        run: ./scripts/build_native_windows.ps1 -Target template_release
+      - name: Verify release candidate
+        shell: pwsh
+        run: ./scripts/run_ci_verification.ps1 -Suite all -GodotExe $env:LMM_GODOT_EXE
+      - name: Package portable beta
+        shell: pwsh
+        run: ./scripts/package_v07.ps1 -GodotExe $env:LMM_GODOT_EXE
+      - name: Verify portable beta
+        shell: pwsh
+        run: ./scripts/verify_v07_package.ps1
+      - name: Stage checksum
+        shell: pwsh
+        run: |
+          $zip = Resolve-Path ./releases/v0.7/LetsMakeMoney-v0.7-beta-windows-x86_64.zip
+          $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $([IO.Path]::GetFileName($zip))" | Set-Content ./releases/v0.7/SHA256SUMS.txt -Encoding UTF8
+      - name: Upload dry-run candidate
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: LetsMakeMoney-v0.7-beta-release-dry-run
+          path: |
+            releases/v0.7/LetsMakeMoney-v0.7-beta-windows-x86_64.zip
+            releases/v0.7/SHA256SUMS.txt
+          if-no-files-found: error
