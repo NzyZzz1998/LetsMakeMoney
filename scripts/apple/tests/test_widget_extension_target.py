@@ -103,6 +103,7 @@ class WidgetExtensionTargetTests(unittest.TestCase):
         widget_source = WIDGET_SOURCE.read_text(encoding="utf-8")
         self.assertIn("smallReadyView", widget_source)
         self.assertIn("todayEarnedMinor", widget_source)
+        self.assertIn("return switch entry.content", widget_source)
         for key in (
             '"status.beforeWork"',
             '"status.working"',

@@ -191,7 +191,7 @@ struct SalaryWidgetView: View {
 
     private var showsActivityControl: Bool {
         guard !widgetFamily.isAccessory else { return false }
-        switch entry.content {
+        return switch entry.content {
         case .ready, .expired: true
         case .placeholder, .unconfigured, .unavailable: false
         }
