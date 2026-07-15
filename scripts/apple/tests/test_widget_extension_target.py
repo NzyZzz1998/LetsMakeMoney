@@ -9,6 +9,9 @@ WIDGET_ENTITLEMENTS = ROOT / "apple" / "Config" / "LetsMakeMoneyWidget.entitleme
 APP_MODEL = ROOT / "apple" / "App" / "AppModel.swift"
 WIDGET_BUNDLE = ROOT / "apple" / "WidgetExtension" / "LetsMakeMoneyWidgetBundle.swift"
 WIDGET_SOURCE = ROOT / "apple" / "WidgetExtension" / "SalaryWidget.swift"
+ACTIVITY_ATTRIBUTES = (
+    ROOT / "apple" / "WidgetExtension" / "SalaryActivityAttributes.swift"
+)
 LOCALIZATIONS = ROOT / "apple" / "Shared" / "Resources" / "Localizable.xcstrings"
 BOOTSTRAP = ROOT / "scripts" / "apple" / "bootstrap_xcodegen.sh"
 WORKFLOW = ROOT / ".github" / "workflows" / "apple-sdk-experimental.yml"
@@ -162,6 +165,16 @@ class WidgetExtensionTargetTests(unittest.TestCase):
         localizations = LOCALIZATIONS.read_text(encoding="utf-8")
         self.assertIn('"widget.updated"', localizations)
         self.assertIn('"widget.expired"', localizations)
+
+    def test_live_activity_attributes_bind_activitykit_to_the_versioned_core_contract(self):
+        source = ACTIVITY_ATTRIBUTES.read_text(encoding="utf-8")
+        self.assertIn("import ActivityKit", source)
+        self.assertIn("struct SalaryActivityAttributes: ActivityAttributes", source)
+        self.assertIn(
+            "typealias ContentState = SalaryActivityContentState",
+            source,
+        )
+        self.assertIn("SalaryActivityStaticContext", source)
 
 
 if __name__ == "__main__":
