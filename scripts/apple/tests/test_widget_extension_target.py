@@ -10,7 +10,7 @@ APP_MODEL = ROOT / "apple" / "App" / "AppModel.swift"
 WIDGET_BUNDLE = ROOT / "apple" / "WidgetExtension" / "LetsMakeMoneyWidgetBundle.swift"
 WIDGET_SOURCE = ROOT / "apple" / "WidgetExtension" / "SalaryWidget.swift"
 ACTIVITY_ATTRIBUTES = (
-    ROOT / "apple" / "WidgetExtension" / "SalaryActivityAttributes.swift"
+    ROOT / "apple" / "Shared" / "LiveActivity" / "SalaryActivityAttributes.swift"
 )
 LIVE_ACTIVITY_SOURCE = (
     ROOT / "apple" / "WidgetExtension" / "SalaryLiveActivity.swift"

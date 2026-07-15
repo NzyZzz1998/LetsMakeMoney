@@ -24,7 +24,10 @@ struct AppRootView: View {
         .fullScreenCover(isPresented: modalBinding(.onboarding)) { OnboardingView() }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
-            Task { await model.refreshNotificationStatus() }
+            Task {
+                await model.refreshNotificationStatus()
+                await model.refreshLiveActivityDecision()
+            }
         }
     }
 

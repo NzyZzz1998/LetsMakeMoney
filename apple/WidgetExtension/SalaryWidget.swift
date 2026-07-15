@@ -1,4 +1,5 @@
 import Foundation
+import AppIntents
 import SalaryCore
 import SwiftUI
 import WidgetKit
@@ -173,6 +174,26 @@ struct SalaryWidgetView: View {
             } else {
                 Color(red: 1.0, green: 0.97, blue: 0.90)
             }
+        }
+        .overlay(alignment: .topTrailing) {
+            if showsActivityControl {
+                Button(intent: ToggleSalaryActivityIntent()) {
+                    Image(systemName: "timer")
+                        .font(.caption.weight(.semibold))
+                        .frame(width: 28, height: 28)
+                        .background(Color.white.opacity(0.68), in: Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("activity.manual.toggle")
+            }
+        }
+    }
+
+    private var showsActivityControl: Bool {
+        guard !widgetFamily.isAccessory else { return false }
+        switch entry.content {
+        case .ready, .expired: true
+        case .placeholder, .unconfigured, .unavailable: false
         }
     }
 

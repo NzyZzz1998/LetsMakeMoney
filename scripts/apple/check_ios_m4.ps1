@@ -15,7 +15,11 @@ $required = @(
     'apple/WidgetExtension/SalaryWidget.swift',
     'scripts/apple/tests/test_widget_extension_target.py',
     'apple/App/Platform/NotificationPermissionController.swift',
-    'scripts/apple/tests/test_notification_permission_flow.py'
+    'scripts/apple/tests/test_notification_permission_flow.py',
+    'apple/Shared/LiveActivity/SalaryActivityCoordinator.swift',
+    'apple/Shared/LiveActivity/SalaryActivityIntents.swift',
+    'apple/WidgetExtension/SalaryActivityControl.swift',
+    'scripts/apple/tests/test_live_activity_manual_entries.py'
 )
 
 $missing = @($required | Where-Object {
@@ -38,6 +42,9 @@ try {
 
     python -m unittest scripts.apple.tests.test_notification_permission_flow -v
     if ($LASTEXITCODE -ne 0) { throw 'M4 notification permission contract failed.' }
+
+    python -m unittest scripts.apple.tests.test_live_activity_manual_entries -v
+    if ($LASTEXITCODE -ne 0) { throw 'M4 manual Live Activity contract failed.' }
 
     Write-Host 'IOS_M4_WINDOWS_CONTRACTS_PASS'
     Write-Warning 'APPLE_PLATFORM_G3_BUILD_PENDING: GitHub macOS must compile the App, Widget/Activity and Watch probes before M4-001 can pass.'

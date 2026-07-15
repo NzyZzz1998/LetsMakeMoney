@@ -46,6 +46,7 @@ struct TodayView: View {
                 metricCard("today.month_total", value: money(snapshot.monthEarnedMinor))
                 metricCard("today.progress", value: percent(snapshot.progressBasisPoints))
             }
+            activityManualControl
             scheduleCard
             if isOutOfRange {
                 Label("calendar.out_of_range", systemImage: "info.circle")
@@ -54,6 +55,49 @@ struct TodayView: View {
                     .accessibilityLabel("calendar.out_of_range")
             }
         }
+    }
+
+    private var activityManualControl: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button {
+                Task { await model.toggleLiveActivity() }
+            } label: {
+                Label(activityButtonTitle, systemImage: activityButtonIcon)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(WarmSecondaryButtonStyle())
+            .disabled(activityUnavailable)
+            .accessibilityIdentifier("activity.manual.toggle")
+
+            if let feedbackKey = model.feedbackKey,
+               feedbackKey.hasPrefix("activity.manual") {
+                Text(LocalizedStringKey(feedbackKey))
+                    .font(.footnote)
+                    .foregroundStyle(WarmPalette.muted)
+                    .accessibilityIdentifier("activity.manual.feedback")
+            }
+        }
+    }
+
+    private var activityButtonTitle: LocalizedStringKey {
+        switch model.liveActivityDecision {
+        case .start: "activity.manual.start"
+        case .stop: "activity.manual.stop"
+        case .unavailable: "activity.manual.unavailable"
+        }
+    }
+
+    private var activityButtonIcon: String {
+        switch model.liveActivityDecision {
+        case .start: "play.circle"
+        case .stop: "stop.circle"
+        case .unavailable: "exclamationmark.circle"
+        }
+    }
+
+    private var activityUnavailable: Bool {
+        if case .unavailable = model.liveActivityDecision { return true }
+        return false
     }
 
     private func amountCard(_ snapshot: SalarySnapshot) -> some View {

@@ -6,5 +6,6 @@ struct LetsMakeMoneyWidgetBundle: WidgetBundle {
     var body: some Widget {
         SalaryWidget()
         SalaryLiveActivity()
+        SalaryActivityControl()
     }
 }

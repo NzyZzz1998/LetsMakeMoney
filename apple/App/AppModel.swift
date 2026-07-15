@@ -10,6 +10,8 @@ final class AppModel: ObservableObject {
     @Published var feedbackKey: String?
     @Published var selectedDate: Date?
     @Published private(set) var notificationStatus: NotificationPreference = .notRequested
+    @Published private(set) var liveActivityDecision: SalaryActivityManualDecision =
+        .unavailable(.missingLaunchContext)
 
     private let store: ConfigurationStore
     private let logger: LocalEventLogger
@@ -17,6 +19,7 @@ final class AppModel: ObservableObject {
     private let timeZone: TimeZone
     private let sharedSnapshotWriter: (any SharedSnapshotWriting)?
     private let notificationController: any NotificationPermissionControlling
+    private let liveActivityCoordinator: SystemSalaryActivityCoordinator
 
     init(
         store: ConfigurationStore,
@@ -24,7 +27,8 @@ final class AppModel: ObservableObject {
         holidays: HolidayCalendar,
         timeZone: TimeZone = .current,
         sharedSnapshotWriter: (any SharedSnapshotWriting)? = nil,
-        notificationController: any NotificationPermissionControlling = SystemNotificationPermissionController()
+        notificationController: any NotificationPermissionControlling = SystemNotificationPermissionController(),
+        liveActivityCoordinator: SystemSalaryActivityCoordinator = SystemSalaryActivityCoordinator()
     ) {
         self.store = store
         self.logger = logger
@@ -32,6 +36,7 @@ final class AppModel: ObservableObject {
         self.timeZone = timeZone
         self.sharedSnapshotWriter = sharedSnapshotWriter
         self.notificationController = notificationController
+        self.liveActivityCoordinator = liveActivityCoordinator
     }
 
     func load(now: Date = Date()) async {
@@ -41,6 +46,7 @@ final class AppModel: ObservableObject {
             configuration = result.configuration
             let snapshot = refresh(now: now)
             await publishSharedSnapshot(snapshot, generatedAt: now)
+            await refreshLiveActivityDecision()
             if configuration.monthlySalaryMinor <= 0 { present(.onboarding) }
             try? await logger.record(level: .info, event: "app.configuration.loaded")
         } catch {
@@ -82,6 +88,7 @@ final class AppModel: ObservableObject {
             }
             let snapshot = refresh(now: now)
             await publishSharedSnapshot(snapshot, generatedAt: now)
+            await refreshLiveActivityDecision()
             return true
         } catch {
             feedbackKey = "feedback.save_failed"
@@ -150,6 +157,20 @@ final class AppModel: ObservableObject {
             feedbackKey = "notification.settings_failed"
             try? await logger.record(level: .error, event: "notification.settings_open_failed")
         }
+    }
+
+    func refreshLiveActivityDecision() async {
+        liveActivityDecision = await liveActivityCoordinator.decision(
+            notificationPreference: notificationStatus
+        )
+    }
+
+    func toggleLiveActivity() async {
+        let result = await liveActivityCoordinator.toggle(
+            notificationPreference: notificationStatus
+        )
+        feedbackKey = result.feedbackKey
+        await refreshLiveActivityDecision()
     }
 
     private func publishSharedSnapshot(_ snapshot: SalarySnapshot?, generatedAt: Date) async {

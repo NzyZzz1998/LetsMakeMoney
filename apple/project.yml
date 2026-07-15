@@ -29,6 +29,7 @@ targets:
     platform: iOS
     sources:
       - path: App
+      - path: Shared/LiveActivity
       - path: Shared/Resources/Localizable.xcstrings
         buildPhase: resources
       - path: ../shared/salary-schema/v1/holidays/cn-2025.json
@@ -52,6 +53,7 @@ targets:
     platform: iOS
     sources:
       - path: WidgetExtension
+      - path: Shared/LiveActivity
       - path: Shared/Resources/Localizable.xcstrings
         buildPhase: resources
     settings:

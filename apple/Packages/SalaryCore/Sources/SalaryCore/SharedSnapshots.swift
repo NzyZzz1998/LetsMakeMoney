@@ -48,6 +48,7 @@ public struct SharedScheduleSnapshot: Codable, Equatable, Sendable {
 public struct SharedSnapshotBundle: Codable, Equatable, Sendable {
     public let salary: IdentifiedSalarySnapshot
     public let activity: ActivityState
+    public let activityLaunchContext: SalaryActivityStaticContext?
     public let watch: WatchSnapshot
     public let schedule: SharedScheduleSnapshot?
 
@@ -56,9 +57,17 @@ public struct SharedSnapshotBundle: Codable, Equatable, Sendable {
         salary: SalarySnapshot,
         generatedAt: Date,
         remainingSeconds: Int,
-        id: String = UUID().uuidString
+        id: String = UUID().uuidString,
+        timeZone: TimeZone = .current
     ) -> SharedSnapshotBundle {
-        SharedSnapshotBundle(
+        let launchContext = try? SalaryActivityLaunchContextFactory.make(
+            configuration: configuration,
+            salary: salary,
+            snapshotID: id,
+            generatedAt: generatedAt,
+            timeZone: timeZone
+        )
+        return SharedSnapshotBundle(
             salary: IdentifiedSalarySnapshot(
                 id: id,
                 generatedAt: generatedAt,
@@ -73,6 +82,7 @@ public struct SharedSnapshotBundle: Codable, Equatable, Sendable {
                 todayEarnedMinor: salary.todayEarnedMinor,
                 progressBasisPoints: salary.progressBasisPoints
             ),
+            activityLaunchContext: launchContext,
             watch: WatchSnapshot(
                 snapshotID: id,
                 generatedAt: generatedAt,
