@@ -45,6 +45,39 @@ jobs:
             -derivedDataPath ../DerivedData \
             CODE_SIGNING_ALLOWED=NO \
             build | tee ../xcodebuild.log
+      - name: List G3 platform probe schemes
+        working-directory: apple/Packages/ApplePlatformGate
+        run: xcodebuild -list | tee ../../../build/apple-sdk-ci/g3-schemes.log
+      - name: Compile G3 App probe against the iOS Simulator SDK
+        working-directory: apple/Packages/ApplePlatformGate
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -scheme G3AppProbe \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath ../../../build/apple-sdk-ci/G3AppDerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee ../../../build/apple-sdk-ci/g3-app.log
+      - name: Compile G3 Widget and Activity probe against the iOS Simulator SDK
+        working-directory: apple/Packages/ApplePlatformGate
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -scheme G3WidgetActivityProbe \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath ../../../build/apple-sdk-ci/G3WidgetDerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee ../../../build/apple-sdk-ci/g3-widget-activity.log
+      - name: Compile G3 Watch probe against the watchOS Simulator SDK
+        working-directory: apple/Packages/ApplePlatformGate
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -scheme G3WatchProbe \
+            -destination 'generic/platform=watchOS Simulator' \
+            -derivedDataPath ../../../build/apple-sdk-ci/G3WatchDerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee ../../../build/apple-sdk-ci/g3-watch.log
       - name: Upload experimental diagnostics
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -53,5 +86,9 @@ jobs:
           path: |
             build/apple-sdk-ci/xcodebuild-list.log
             build/apple-sdk-ci/xcodebuild.log
+            build/apple-sdk-ci/g3-schemes.log
+            build/apple-sdk-ci/g3-app.log
+            build/apple-sdk-ci/g3-widget-activity.log
+            build/apple-sdk-ci/g3-watch.log
             build/apple-sdk-ci/LetsMakeMoneyAppleSDK-playgrounds.zip
           if-no-files-found: warn
