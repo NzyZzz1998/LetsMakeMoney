@@ -27,7 +27,7 @@ class NotificationPermissionFlowTests(unittest.TestCase):
         source = CONTROLLER.read_text(encoding="utf-8")
         for needle in {
             "import UIKit",
-            "import UserNotifications",
+            "@preconcurrency import UserNotifications",
             "protocol NotificationPermissionControlling",
             "SystemNotificationPermissionController",
             "notificationSettings()",

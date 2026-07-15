@@ -1,6 +1,6 @@
 import SalaryCore
 import UIKit
-import UserNotifications
+@preconcurrency import UserNotifications
 
 @MainActor
 protocol NotificationPermissionControlling {
