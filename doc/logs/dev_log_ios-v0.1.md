@@ -10,9 +10,19 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 开始 1/17，G3 Apple SDK 环境门禁已通过
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 2/17，正式 App 与 Widget Extension 编译门禁已通过
 
 ## 开发记录
+
+### 2026-07-15 M4-002 正式 Widget Extension 与共享快照
+
+- 测试先行新增 `test_widget_extension_target.py`；RED 阶段因正式工程声明、entitlement、Widget 源码、XcodeGen 引导和远端构建步骤均不存在而按预期失败。
+- 新增 `apple/project.yml`，使用固定 XcodeGen `2.45.4` 生成 `LetsMakeMoneyApp` 与 `LetsMakeMoneyWidget` 正式 target；不提交手工维护的 `.xcodeproj`。
+- App 与 Widget 共用 App Group 标识合同。App 在加载或保存配置并成功计算后写入 `SharedSnapshotBundle`；Widget 只依赖 `SharedSnapshotReading`，不具备主配置写权限。
+- 本地 M4 门禁通过：Widget 目标合同 4/4，SalaryCore 44/44，既有 M3、导出和本地化回归保持通过。
+- GitHub run `29399501853` 首次暴露 shell 可执行位问题；run `29399812855` 暴露 XcodeGen 输出目录参数问题；run `29400009214` 进入正式 Swift 编译后暴露 Swift 6 completion closure 并发边界。三项均按日志做最小修复，没有放宽编译门禁。
+- GitHub Actions run `29400350747` 在 HEAD `fe27cb5`、Xcode 16.4（16F6）、iOS Simulator 18.5 下成功生成正式工程、构建 App/Widget、复制 `LetsMakeMoneyWidget.appex` 到 App 的 `PlugIns`，并通过 `ValidateEmbeddedBinary` 与 `BUILD SUCCEEDED`。
+- `IOS01-M4-002` 关闭。当前证据不包含签名、真机 App Group 容器、桌面添加 Widget 或时间线刷新；这些仍由 M4 后续任务和 M7 真机验收承担。
 
 ### 2026-07-15 M4-001 G3 Apple SDK 环境门禁
 
