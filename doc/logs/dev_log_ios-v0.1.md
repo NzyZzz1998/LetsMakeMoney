@@ -10,9 +10,19 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 7/17，Widget 桌面/锁屏 families、时间线、最后更新时间和过期态已实现
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 8/17，Widget families 与 Live Activity 版本化数据合同已建立
 
 ## 开发记录
+
+### 2026-07-15 M4-008 Activity Attributes、ContentState 与版本兼容
+
+- 测试先行新增 `SalaryActivityContractTests` 和正式 Widget Extension 源码合同；RED 阶段分别因缺少版本化内容模型和 `SalaryActivityAttributes.swift` 而按预期失败。
+- `SalaryCore` 新增 schema v1 的静态上下文与动态 ContentState：静态数据记录币种、工作日、四个作息时间锚点、日薪和标准有效工时；动态数据记录快照身份、生成时间、工作阶段、锚点金额、进度和下一次状态切换时间。
+- Activity phase 明确限制为工作、午休、完成和提前结束；新构造对象只能写入当前 schema v1。历史数据缺少 `schemaVersion` 时按 v1 解码，未来版本明确以 `DecodingError` 拒绝，避免静默误读。
+- 正式 Widget Extension 使用 `SalaryActivityAttributes: ActivityAttributes`，并以 `SalaryActivityContentState` 作为 ActivityKit `ContentState`；本任务没有实现 Activity 启动、更新、结束、锁屏布局或持续后台定时器。
+- 本地 M4 门禁通过：SalaryCore 55/55、Widget Extension 合同 11/11，M1-M4、M3、Playgrounds 导出和本地化回归全部通过；`git diff --check` 无错误。
+- 实现提交为 `b43875d`。GitHub macOS run `29410130942` 在 Xcode 16.4 下成功编译 SalaryCore、G3 Widget/Activity probe、正式 App 与内嵌 Widget Extension，结论为 `success`。
+- 当前证据只证明版本合同和 Apple SDK 编译成立，不证明 ActivityKit 真机授权、启动/恢复、锁屏或灵动岛行为；这些由 M4-009 至 M4-017 与 M7 验收承担。
 
 ### 2026-07-15 M4-007 Widget 时间线、最后更新时间与过期态
 
