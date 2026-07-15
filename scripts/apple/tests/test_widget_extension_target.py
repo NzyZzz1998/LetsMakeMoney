@@ -9,6 +9,7 @@ WIDGET_ENTITLEMENTS = ROOT / "apple" / "Config" / "LetsMakeMoneyWidget.entitleme
 APP_MODEL = ROOT / "apple" / "App" / "AppModel.swift"
 WIDGET_BUNDLE = ROOT / "apple" / "WidgetExtension" / "LetsMakeMoneyWidgetBundle.swift"
 WIDGET_SOURCE = ROOT / "apple" / "WidgetExtension" / "SalaryWidget.swift"
+LOCALIZATIONS = ROOT / "apple" / "Shared" / "Resources" / "Localizable.xcstrings"
 BOOTSTRAP = ROOT / "scripts" / "apple" / "bootstrap_xcodegen.sh"
 WORKFLOW = ROOT / ".github" / "workflows" / "apple-sdk-experimental.yml"
 M4_GATE = ROOT / "scripts" / "apple" / "check_ios_m4.ps1"
@@ -63,6 +64,38 @@ class WidgetExtensionTargetTests(unittest.TestCase):
 
         gate = M4_GATE.read_text(encoding="utf-8")
         self.assertIn("test_widget_extension_target", gate)
+
+    def test_small_widget_distinguishes_ready_unconfigured_and_unavailable_states(self):
+        widget_source = WIDGET_SOURCE.read_text(encoding="utf-8")
+        self.assertIn("enum SalaryWidgetContentState", widget_source)
+        self.assertIn("case ready(SharedSnapshotBundle)", widget_source)
+        self.assertIn("case unconfigured", widget_source)
+        self.assertIn("case unavailable", widget_source)
+        self.assertIn("SharedSnapshotReadError.missingSnapshot", widget_source)
+        self.assertIn('title: "widget.unavailable.title"', widget_source)
+        self.assertIn('message: "widget.unavailable.message"', widget_source)
+        self.assertIn('message: "widget.configure.message"', widget_source)
+
+        localizations = LOCALIZATIONS.read_text(encoding="utf-8")
+        for key in (
+            "widget.unavailable.title",
+            "widget.unavailable.message",
+            "widget.configure.message",
+        ):
+            self.assertIn(f'"{key}"', localizations)
+
+    def test_small_widget_renders_amount_and_localized_salary_status(self):
+        widget_source = WIDGET_SOURCE.read_text(encoding="utf-8")
+        self.assertIn("smallReadyView", widget_source)
+        self.assertIn("todayEarnedMinor", widget_source)
+        for key in (
+            '"status.beforeWork"',
+            '"status.working"',
+            '"status.lunchBreak"',
+            '"status.finished"',
+            '"status.restDay"',
+        ):
+            self.assertIn(key, widget_source)
 
 
 if __name__ == "__main__":

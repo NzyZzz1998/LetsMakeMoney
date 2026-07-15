@@ -74,6 +74,11 @@ public protocol SharedSnapshotWriting: Sendable {
     func write(_ bundle: SharedSnapshotBundle) async throws
 }
 
+public enum SharedSnapshotReadError: Error, Equatable, Sendable {
+    case missingSnapshot
+    case invalidSnapshot
+}
+
 public actor SharedSnapshotStore: SharedSnapshotReading, SharedSnapshotWriting {
     private let directoryURL: URL
     private let fileURL: URL
@@ -92,9 +97,16 @@ public actor SharedSnapshotStore: SharedSnapshotReading, SharedSnapshotWriting {
     }
 
     public func read() throws -> SharedSnapshotBundle {
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            throw SharedSnapshotReadError.missingSnapshot
+        }
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .millisecondsSince1970
-        return try decoder.decode(SharedSnapshotBundle.self, from: Data(contentsOf: fileURL))
+        do {
+            return try decoder.decode(SharedSnapshotBundle.self, from: Data(contentsOf: fileURL))
+        } catch {
+            throw SharedSnapshotReadError.invalidSnapshot
+        }
     }
 }
 

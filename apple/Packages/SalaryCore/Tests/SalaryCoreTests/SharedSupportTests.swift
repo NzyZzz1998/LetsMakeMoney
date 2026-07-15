@@ -58,6 +58,39 @@ struct SharedSupportTests {
         }
     }
 
+    @Test("Missing shared snapshot has a structured read error")
+    func missingSharedSnapshot() async throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appending(path: "lmm-missing-snapshot-\(UUID().uuidString)", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let store = SharedSnapshotStore(directoryURL: directory)
+        do {
+            _ = try await store.read()
+            Issue.record("Expected a missing snapshot error")
+        } catch let error as SharedSnapshotReadError {
+            #expect(error == .missingSnapshot)
+        }
+    }
+
+    @Test("Invalid shared snapshot has a structured read error")
+    func invalidSharedSnapshot() async throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appending(path: "lmm-invalid-snapshot-\(UUID().uuidString)", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        try Data("not-json".utf8).write(to: directory.appending(path: "salary-snapshot.json"))
+
+        let store = SharedSnapshotStore(directoryURL: directory)
+        do {
+            _ = try await store.read()
+            Issue.record("Expected an invalid snapshot error")
+        } catch let error as SharedSnapshotReadError {
+            #expect(error == .invalidSnapshot)
+        }
+    }
+
     private func makeSnapshot(index: Int) -> SharedSnapshotBundle {
             var salary = sampleSalarySnapshot()
             salary = SalarySnapshot(

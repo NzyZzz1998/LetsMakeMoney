@@ -3,9 +3,16 @@ import SalaryCore
 import SwiftUI
 import WidgetKit
 
+enum SalaryWidgetContentState: Equatable {
+    case placeholder
+    case ready(SharedSnapshotBundle)
+    case unconfigured
+    case unavailable
+}
+
 struct SalaryWidgetEntry: TimelineEntry {
     let date: Date
-    let snapshot: SharedSnapshotBundle?
+    let content: SalaryWidgetContentState
 }
 
 struct SalaryWidgetProvider: TimelineProvider {
@@ -16,7 +23,7 @@ struct SalaryWidgetProvider: TimelineProvider {
     }
 
     func placeholder(in context: Context) -> SalaryWidgetEntry {
-        SalaryWidgetEntry(date: Date(), snapshot: nil)
+        SalaryWidgetEntry(date: Date(), content: .placeholder)
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SalaryWidgetEntry) -> Void) {
@@ -36,8 +43,18 @@ struct SalaryWidgetProvider: TimelineProvider {
         let timelineCompletion = WidgetTimelineCompletion(completion)
         Task {
             timelineCompletion.call(
-                SalaryWidgetEntry(date: Date(), snapshot: try? await reader.read())
+                SalaryWidgetEntry(date: Date(), content: await loadContent())
             )
+        }
+    }
+
+    private func loadContent() async -> SalaryWidgetContentState {
+        do {
+            return .ready(try await reader.read())
+        } catch SharedSnapshotReadError.missingSnapshot {
+            return .unconfigured
+        } catch {
+            return .unavailable
         }
     }
 }
@@ -78,23 +95,116 @@ struct SalaryWidgetView: View {
     let entry: SalaryWidgetEntry
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("today.amount")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            if let snapshot = entry.snapshot {
-                Text(amount(snapshot.salary.value.todayEarnedMinor))
-                    .font(.title2.weight(.semibold).monospacedDigit())
-                Text(LocalizedStringKey("status.\(snapshot.salary.value.status.rawValue)"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } else {
-                Text("state.configure")
-                    .font(.subheadline.weight(.medium))
+        Group {
+            switch entry.content {
+            case .placeholder:
+                smallPlaceholderView
+            case .ready(let snapshot):
+                smallReadyView(snapshot)
+            case .unconfigured:
+                emptyStateView(
+                    icon: "slider.horizontal.3",
+                    title: "state.configure",
+                    message: "widget.configure.message"
+                )
+            case .unavailable:
+                emptyStateView(
+                    icon: "exclamationmark.triangle",
+                    title: "widget.unavailable.title",
+                    message: "widget.unavailable.message"
+                )
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .containerBackground(.background, for: .widget)
+        .containerBackground(for: .widget) {
+            Color(red: 1.0, green: 0.97, blue: 0.90)
+        }
+    }
+
+    private func smallReadyView(_ snapshot: SharedSnapshotBundle) -> some View {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(spacing: 6) {
+                Image(systemName: "yensign.circle.fill")
+                    .foregroundStyle(Color(red: 0.95, green: 0.58, blue: 0.12))
+                Text("today.amount")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Color(red: 0.40, green: 0.29, blue: 0.18))
+            }
+
+            Text(amount(snapshot.salary.value.todayEarnedMinor))
+                .font(.title2.weight(.bold).monospacedDigit())
+                .foregroundStyle(Color(red: 0.20, green: 0.14, blue: 0.09))
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+
+            Spacer(minLength: 2)
+
+            HStack(spacing: 5) {
+                Circle()
+                    .fill(statusColor(snapshot.salary.value.status))
+                    .frame(width: 7, height: 7)
+                Text(statusKey(snapshot.salary.value.status))
+                    .font(.caption2.weight(.semibold))
+                    .lineLimit(1)
+            }
+            .foregroundStyle(Color(red: 0.34, green: 0.25, blue: 0.16))
+            .padding(.horizontal, 9)
+            .padding(.vertical, 5)
+            .background(
+                Capsule().fill(Color.white.opacity(0.62))
+            )
+        }
+    }
+
+    private var smallPlaceholderView: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Label("today.amount", systemImage: "yensign.circle.fill")
+                .font(.caption.weight(.medium))
+            Text("¥ 186.42")
+                .font(.title2.weight(.bold).monospacedDigit())
+            Spacer(minLength: 2)
+            Text("status.working")
+                .font(.caption2.weight(.semibold))
+        }
+        .redacted(reason: .placeholder)
+    }
+
+    private func emptyStateView(
+        icon: String,
+        title: LocalizedStringKey,
+        message: LocalizedStringKey
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Image(systemName: icon)
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(Color(red: 0.95, green: 0.58, blue: 0.12))
+            Text(title)
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(Color(red: 0.20, green: 0.14, blue: 0.09))
+            Text(message)
+                .font(.caption2)
+                .foregroundStyle(Color(red: 0.46, green: 0.36, blue: 0.25))
+                .lineLimit(3)
+        }
+    }
+
+    private func statusKey(_ status: SalaryStatus) -> LocalizedStringKey {
+        switch status {
+        case .beforeWork: "status.beforeWork"
+        case .working: "status.working"
+        case .lunchBreak: "status.lunchBreak"
+        case .finished: "status.finished"
+        case .restDay: "status.restDay"
+        }
+    }
+
+    private func statusColor(_ status: SalaryStatus) -> Color {
+        switch status {
+        case .working: Color(red: 0.39, green: 0.66, blue: 0.43)
+        case .lunchBreak: Color(red: 0.95, green: 0.58, blue: 0.12)
+        case .finished: Color(red: 0.31, green: 0.60, blue: 0.46)
+        case .beforeWork, .restDay: Color(red: 0.53, green: 0.43, blue: 0.31)
+        }
     }
 
     private func amount(_ minor: Int64) -> String {
