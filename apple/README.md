@@ -4,9 +4,9 @@
 
 - 目标版本：`ios-v0.1-beta`
 - 开发分支：`ios-main`
-- 当前阶段：M2 配置、安全写入与共享快照已完成，准备进入 M3
-- 当前可执行范围：文档、schema、纯 Swift 计算与数据层、iPad Playgrounds App 原型
-- 当前环境限制：没有 macOS/Xcode；Widget、Live Activity、Watch、多 Target、签名和 TestFlight 尚不可验证
+- 当前阶段：M0-M3 与 M3R 已完成，M4 已进入 Widget/Activity 实施
+- 当前可执行范围：文档、schema、SalaryCore、iPhone/iPad SwiftUI App、iPad Playgrounds 包，以及 GitHub macOS Apple SDK 编译门禁
+- 当前环境限制：本地没有 macOS/Xcode；GitHub 已通过 App、Widget/Activity 与 Watch SDK probe 编译，但正式 Extension、entitlement、签名、XCTest 和 TestFlight 尚未验证
 
 ## 产品边界
 
@@ -25,7 +25,7 @@ Apple 产品线不是 Windows 桌宠的移植：
 | `Shared/Models/` | Apple Targets 的工程装配与共享模型入口 | M3 接入；当前模型事实源位于 SalaryCore |
 | `Shared/Resources/` | 节假日数据、本地化与共享设计资源 | String Catalog 已建立，设计资源随 M3 补齐 |
 | `App/` | iPhone/iPad SwiftUI 主 App | M2-M3 建立 |
-| `WidgetExtension/` | Widget 与 Live Activity UI | M4 建立 |
+| `WidgetExtension/` | Widget 与 Live Activity UI | M4 当前实施入口 |
 | `WatchApp/` | Apple Watch App 与通信协调 | M5 建立 |
 | `WatchWidgetExtension/` | Watch 复杂功能与 Smart Stack | M5 建立 |
 | `Tests/` | 集成、UI、快照和跨 Target 一致性测试 | 随模块建立 |
@@ -38,8 +38,9 @@ Apple 产品线不是 Windows 桌宠的移植：
 
 1. Windows 可以运行文档、UTF-8、schema 和 JSON 测试向量检查，但不能证明 Apple Target 可构建。
 2. Swift Playgrounds 可用于 iPad 上的 SwiftUI App 和 Swift Package 能力验证；实际结果记录在 `doc/releases/ios-v0.1/playgrounds-verification.md`。
-3. Xcode workspace、多 Target、entitlements、签名和真实设备调试必须在 macOS/Xcode 环境完成。
-4. 未拥有的工具、权限或设备证据必须写“待补证”，不得用静态代码检查替代。
+3. GitHub macOS 使用 `Packages/ApplePlatformGate/` 验证 iOS/watchOS SDK 与 Framework 编译边界；probe 不是正式产品 Target。
+4. Xcode workspace、正式 Extension、多 Target entitlements、签名和真实设备调试仍必须在 macOS/Xcode 或真机环境完成。
+5. 未拥有的工具、权限或设备证据必须写“待补证”，不得用静态代码检查替代。
 
 Apple 官方资料：
 
@@ -55,6 +56,7 @@ Apple 官方资料：
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\apple\check_ios_m0.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\apple\test_check_ios_m0.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\apple\test_check_ios_m2.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\apple\check_ios_m4.ps1 -RequireSwift
 ```
 
-M2 门禁会运行 Python 契约、本地化检查和 Swift Package 测试。Windows 结果不代表 Xcode 多 Target、App Group entitlement 或真实 Apple 设备行为已通过。
+M4 Windows 门禁会保留 M1-M3 回归并检查 G3 probe 与工作流合同；真正的 Apple SDK 编译由 GitHub macOS 工作流执行。任何本地合同或 probe 结果都不代表 App Group entitlement、签名或真实 Apple 设备行为已通过。

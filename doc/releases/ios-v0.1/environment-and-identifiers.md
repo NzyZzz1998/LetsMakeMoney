@@ -4,14 +4,14 @@
 
 | 项目 | 策略 | 当前证据 |
 | --- | --- | --- |
-| iOS/iPadOS/watchOS 最低版本 | 26.5，与 PRD 和目标设备一致 | 文档已冻结，待 Xcode 验证可选 SDK |
-| Swift 语言模式 | 使用正式 Xcode 所附稳定 Swift；M0 不猜测具体小版本 | 待 G3 |
-| Swift Package tools version | 在首次可用 macOS/Xcode 环境按实际版本固定 | 待 G3 |
-| Xcode | 选择支持目标系统的稳定正式版，记录完整 build version | 待 G3 |
-| Swift Playgrounds | iPad 上验证 App Playground 与 Package 接入 | 待 G2 人工补证 |
+| 编译部署下限 | SalaryCore 与 G3 probe 当前固定为 iOS/iPadOS 18、watchOS 11；目标设备 26.x 是验收系统，不等同部署下限 | GitHub macOS G3 编译通过；发布前仍需正式 Xcode 工程复核 |
+| Swift 语言模式 | Swift 6；使用正式 Xcode 所附稳定 Swift | GitHub runner 为 Apple Swift 6.1.2 |
+| Swift Package tools version | `swift-tools-version: 6.0` | SalaryCore 与 ApplePlatformGate manifest 已验证 |
+| Xcode | GitHub `macos-15` runner 的 Xcode 16.4（16F6）作为当前无签名编译基线 | Actions run `29397574782` 通过 |
+| Swift Playgrounds | iPad 上验证 App Playground 与 Package 接入 | G2 已通过，Swift Playgrounds 4.7 |
 | 第三方依赖 | 首版默认无第三方运行时依赖 | 已确认策略 |
 
-M0 不提交未经编译验证的 Xcode 工程元数据。取得 macOS/Xcode 后，必须把 Xcode、SDK、Swift 和构建目标写入构建 manifest。
+G3 使用 `apple/Packages/ApplePlatformGate/` 验证 App、Widget/Activity 与 Watch 所需 SDK 边界。该 probe 只证明工具链和 Framework 可编译，不替代正式 Extension target、entitlement、签名、XCTest 或真机证据。
 
 ## 标识符模板
 

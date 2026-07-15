@@ -2,7 +2,7 @@
 
 ## 追踪信息
 
-- 当前状态：M3 完成 17/17，M3R 完成 14/14；GitHub macOS 已通过 Apple SDK App 编译门禁，G3 多 Target 与 XCTest 仍待 M4 验证
+- 当前状态：M3 完成 17/17，M3R 完成 14/14；M4 已开始 1/17，GitHub macOS 已通过 G3 App、Widget/Activity、Watch SDK 环境门禁
 - 目标版本：`ios-v0.1-beta`
 - 目标分支：`ios-main`（独立 worktree；M0 基线已推送至远端 `test`）
 - 来源 PRD：`doc/releases/ios-v0.1/prd.md`
@@ -21,8 +21,8 @@
 
 - PRD 与原型：已确认。
 - 开发承接文档：已确认。
-- 业务实现：M0-M3 与 M3R 已完成；M3 App、Windows 门禁、iPad 真机主路径、Preview 矩阵和 UI 自动化源码入口均已收口。GitHub macOS 已完成导出 App scheme 的 iOS Simulator SDK 编译；Apple SDK UI Test 和多 Target 构建尚未执行，转交 M4 前置 G3。
-- 当前环境：Windows + iPad；GitHub macOS runner 可提供 Apple SDK 编译证据，但本地仍无 macOS/Xcode，Apple 多 Target、XCTest、签名和真机扩展能力仍有后置门禁。
+- 业务实现：M0-M3 与 M3R 已完成；M3 App、Windows 门禁、iPad 真机主路径、Preview 矩阵和 UI 自动化源码入口均已收口。GitHub macOS 已完成导出 App scheme，以及 App、Widget/Activity、Watch 独立 probe scheme 的 Simulator SDK 编译。正式 Extension target、entitlement、XCTest 和真机扩展证据仍按 M4-M7 逐项取得。
+- 当前环境：Windows + iPad；GitHub macOS runner 已提供 Xcode 16.4、Swift 6.1.2 的 G3 SDK 编译证据。本地仍无 macOS/Xcode，签名、App Group 与真实系统扩展行为不能由 probe 替代。
 
 ## 总体进度概览
 
@@ -33,7 +33,7 @@
 | IOS01-M2 | 配置、安全写入与共享快照 | FR-002、011、013、014 | 已完成 | 14/14 |
 | IOS01-M3 | iPhone/iPad App、引导与日历 | FR-003～005、012 | 已完成 | 17/17 |
 | IOS01-M3R | 首次引导输入与作息推算返工 | FR-002、003 | 已完成 | 14/14 |
-| IOS01-M4 | Widget、Live Activity 与通知 | FR-006、007、010、012 | 未开始 | 0/17 |
+| IOS01-M4 | Widget、Live Activity 与通知 | FR-006、007、010、012 | 进行中 | 1/17 |
 | IOS01-M5 | Watch App 与复杂功能 | FR-008、009、012 | 未开始 | 0/14 |
 | IOS01-M6 | 跨 Target 一致性与质量 | FR-001～014 | 未开始 | 0/13 |
 | IOS01-M7 | 候选构建、真机验收与 Beta | 全部 | 未开始 | 0/15 |
@@ -126,7 +126,7 @@
 
 ## IOS01-M4 Widget、Live Activity、通知与快捷操作
 
-- [ ] IOS01-M4-001 验证 G3 macOS/Xcode 多 Target 环境；未通过不得继续标完成。
+- [x] IOS01-M4-001 验证 G3 macOS/Xcode 多 Target 环境；GitHub Actions run `29397574782` 已用 iOS/watchOS Simulator SDK 编译 App、Widget/Activity、Watch probe schemes。
 - [ ] IOS01-M4-002 创建 Widget Extension 并接入共享快照。
 - [ ] IOS01-M4-003 实现小组件金额与状态。
 - [ ] IOS01-M4-004 实现中组件金额、状态和进度。
@@ -209,19 +209,19 @@
 - 验证时间：2026-07-15
 - 验证对象：M0-M3 合同、SalaryCore、配置/快照、App 状态、引导、日历语义、日期覆盖、M3R 金额/大小周/作息纯逻辑、SwiftUI 源码合同、本地化与反例门禁。
 - 验证方式：Python 3.12.8 标准库参考验证、PowerShell 5.1 门禁、Swift 6.3.3 Windows 工具链、MSVC 14.44 与 Windows SDK 10.0.22621.0。
-- 结果：Apple/Python 既有合同与参考测试通过，Swift 测试 44/44、本地化验证测试 3/3、M3 源码合同 8/8、Playgrounds 导出合同 2/2、M3 反例门禁通过；M1、M2、M3 Windows 正向门禁全部通过。GitHub Actions macOS run `29396376249` 在 HEAD `a5e0b0f` 完成 SalaryCore、源码合同、Playgrounds 导出和 `LetsMakeMoneyAppleSDK` iOS Simulator SDK 编译，结论为 `success`。SwiftPM 在未启用 Windows 开发者模式时仍报告 `.build/debug` 符号链接警告，但编译与测试成功。
+- 结果：Apple/Python 既有合同与参考测试通过，Swift 测试 44/44、本地化验证测试 3/3、M3 源码合同 8/8、Playgrounds 导出合同 2/2、M3 反例门禁通过；M1、M2、M3 Windows 正向门禁全部通过。GitHub Actions macOS run `29396376249` 在 HEAD `a5e0b0f` 完成 SalaryCore、源码合同、Playgrounds 导出和 `LetsMakeMoneyAppleSDK` iOS Simulator SDK 编译。随后 run `29397574782` 在 HEAD `7952b40` 使用 Xcode 16.4（16F6）、Apple Swift 6.1.2，继续完成 G3 App、Widget/Activity 与 Watch probe scheme 编译，结论为 `success`。SwiftPM 在未启用 Windows 开发者模式时仍报告 `.build/debug` 符号链接警告，但编译与测试成功。
 - R10 包：`build/apple-playgrounds/LetsMakeMoneyM3R10-playgrounds.zip`，SHA256 `19327DC3BCA420EA07C8E1CA3DA04169DF11F1299C002580616CD649990D81E2`；使用自定义底部导航阻止 iPadOS 顶部浮动页签，页面背景填满可用区域，今日状态改为固定中文本地化映射，并为无效月薪增加明确错误提示。包内关键实现与中文资源 5/5 检查通过。
 - iPad 证据：R9 在 iPad Pro M4、Swift Playgrounds 4.7 完成完整手动验证；R10 对无效月薪提示、今日中文状态、iPad 竖屏底部导航和横竖屏页面边缘完成定向复测，项目所有者确认全部通过。
-- Preview/UI 自动化矩阵：`AppRootView.swift` 已覆盖 iPhone 竖屏、iPad 竖屏/横屏、深色、大字、Settings 和 Onboarding 七类 Preview；`M3SmokeUITests.swift` 已覆盖确定配置下的今日/日历/设置关闭和无配置首次引导。源码矩阵完成，但 Xcode `XCTest` 执行仍等待 G3，不写成已运行通过。
-- 调试基线：新增可恢复 Debug Hub；GitHub macOS Apple SDK 工作流支持 `ios-main` Apple 路径自动触发及手动触发，首次有效远端运行已通过。工作流仅证明导出 App scheme 可在 Apple SDK 编译，不替代多 Target、XCTest 和真机证据。
-- 证据状态：M0-M3 与 M3R 的 Windows 合同和 iPad 主路径已收口；Apple SDK App 编译证据已取得，UI Test 与 Widget/Activity/Watch 多 Target 证据转交 G3。
+- Preview/UI 自动化矩阵：`AppRootView.swift` 已覆盖 iPhone 竖屏、iPad 竖屏/横屏、深色、大字、Settings 和 Onboarding 七类 Preview；`M3SmokeUITests.swift` 已覆盖确定配置下的今日/日历/设置关闭和无配置首次引导。源码矩阵完成，但 Xcode `XCTest` 尚未运行，不写成已通过。
+- 调试基线：新增可恢复 Debug Hub；GitHub macOS Apple SDK 工作流支持 `ios-main` Apple 路径自动触发及手动触发，已能上传 App 与 G3 平台 probe 编译日志。probe 只证明 Framework/Simulator SDK 编译边界，不替代正式 Extension、entitlement、XCTest 和真机证据。
+- 证据状态：M0-M3 与 M3R 的 Windows 合同和 iPad 主路径已收口；G3 Apple SDK 环境门禁已通过，M4 正式 Widget/Activity target 与 M5 Watch 产品能力尚未实现。
 - 失效条件：schema、配置/快照模型、App/SwiftUI 源码、本地化资源、测试或 Swift 工具链版本变化时重测。
 
 ## 下一步
 
-1. 进入 `IOS01-M4-001`，在已通过 App 编译的 GitHub macOS 基线上建立并验证 App、Widget、Activity、Watch 多 Target/scheme；未通过不得勾选后续 M4 任务。
-2. 在 G3 中执行现有 `M3SmokeUITests` 或等价 Xcode UI Test，将结果作为 M4 前置证据，不回写成 Windows 已执行。
-3. G3 多 Target 与 XCTest 通过后再推进 Widget Extension、ActivityKit 与 App Intent；任一门禁不通过时停在对应环境或工程决策点。
+1. 进入 `IOS01-M4-002`，建立正式 Widget Extension 并接入 `SharedSnapshotBundle` 只读快照；不得把 G3 probe 当作产品 target。
+2. 在 GitHub macOS 为正式 Widget/Activity target 增加无签名 Simulator 编译门禁，再推进小、中、大与锁屏 families。
+3. 正式 Xcode 工程具备 UI Test target 后执行 `M3SmokeUITests`；在此之前继续标记为待执行，不影响已取得的 G3 SDK 环境结论。
 
 ## 记录边界
 

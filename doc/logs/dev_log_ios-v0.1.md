@@ -10,9 +10,18 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；GitHub macOS Apple SDK App 编译已通过，等待 M4 前置 G3 多 Target 与 XCTest
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 开始 1/17，G3 Apple SDK 环境门禁已通过
 
 ## 开发记录
+
+### 2026-07-15 M4-001 G3 Apple SDK 环境门禁
+
+- 先新增 `test_apple_platform_gate.py` 并执行 RED；测试因 ApplePlatformGate、三个 probe 与 M4 门禁脚本不存在而按预期失败。
+- 建立 `ApplePlatformGate` Swift Package，将 App、Widget/Activity、Watch 的 Apple Framework 边界拆成三个独立 target/scheme；它们只验证 SDK 可编译，不承载产品功能。
+- 扩展 GitHub macOS 工作流，在现有 Playgrounds App iOS Simulator 编译后，分别编译 G3 App、Widget/Activity 与 Watch probe。
+- 本地 `check_ios_m4.ps1 -RequireSwift` 通过，包含 SalaryCore 44/44、M3 源码/导出/本地化回归和 G3 合同 4/4。
+- GitHub Actions run `29397574782` 在 HEAD `7952b40` 使用 Xcode 16.4（16F6）、Apple Swift 6.1.2 完成全部四条 App/平台编译，耗时 2 分 44 秒，结论 `success`。
+- `IOS01-M4-001` 关闭；正式 Widget Extension、Activity entitlement、Watch App、XCTest、签名与真机行为保持后续门禁，未因 probe 通过而提前声明完成。
 
 ### 2026-07-15 GitHub macOS Apple SDK App 编译门禁通过
 
