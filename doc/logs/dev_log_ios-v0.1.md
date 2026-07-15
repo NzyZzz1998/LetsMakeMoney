@@ -10,9 +10,19 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 9/17，Widget families、Live Activity 版本化数据合同与确定性阶段状态机已建立
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 10/17，Widget families、Live Activity 数据合同、阶段状态机与锁屏布局已建立
 
 ## 开发记录
+
+### 2026-07-15 M4-010 锁屏 Live Activity 布局
+
+- 测试先行扩展 Widget Extension 源码合同；RED 阶段因缺少 `SalaryLiveActivity.swift` 按预期失败，随后接入正式 `ActivityConfiguration` 和 Widget Bundle 转绿。
+- 锁屏布局按 M4-009 阶段语义展示：工作态显示今日金额、进度和距离下班；午休态隐藏金额，显示暂停说明与距离复工；正常完成和提前结束使用稳定终态文案，不继续显示倒计时。
+- 倒计时使用 SwiftUI `Text(timerInterval:countsDown:)` 与作息时间锚点，不增加后台秒级定时器。金额使用静态上下文中的币种格式化，进度统一限制在 0%-100%。
+- Activity Configuration 的灵动岛闭包仅提供编译所需的最小兼容占位，不作为 M4-011 的正式灵动岛产品布局；紧凑、最小和展开信息层级仍在下一任务实现。
+- 本地 M4 门禁通过：SalaryCore 62/62、Widget Extension 合同 12/12，M1-M4、M3、Playgrounds 导出和本地化回归全部通过；`git diff --check` 无错误。
+- 实现提交为 `aa02dac`。GitHub macOS run `29412597489` 在 Xcode 16.4 下成功编译 G3 probes、正式 App 与内嵌 Widget/Activity Extension，结论为 `success`。
+- 当前证据证明锁屏 Live Activity 源码合同与 Apple SDK 编译成立，不证明真机锁屏渲染、系统限流、系统自动清除或触控行为；这些继续由 M4 后续任务和 M7 真机验收承担。
 
 ### 2026-07-15 M4-009 Live Activity 阶段状态机
 
