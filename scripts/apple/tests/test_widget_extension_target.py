@@ -197,6 +197,31 @@ class WidgetExtensionTargetTests(unittest.TestCase):
         self.assertIn("accessibilityLabel", source)
         self.assertIn("SalaryLiveActivity()", bundle_source)
 
+    def test_dynamic_island_has_minimal_compact_expanded_and_narrow_fallbacks(self):
+        source = LIVE_ACTIVITY_SOURCE.read_text(encoding="utf-8")
+
+        for region in (
+            "DynamicIslandExpandedRegion(.leading)",
+            "DynamicIslandExpandedRegion(.trailing)",
+            "DynamicIslandExpandedRegion(.bottom)",
+            "compactLeading:",
+            "compactTrailing:",
+            "minimal:",
+        ):
+            self.assertIn(region, source)
+
+        self.assertIn("SalaryDynamicIslandContent", source)
+        self.assertIn("expandedLeading", source)
+        self.assertIn("expandedTrailing", source)
+        self.assertIn("expandedBottom", source)
+        self.assertIn("compactLeading", source)
+        self.assertIn("compactTrailing", source)
+        self.assertIn("minimal", source)
+        self.assertIn("ViewThatFits(in: .horizontal)", source)
+        self.assertIn("showsEarnedAmount", source)
+        self.assertIn("timerInterval:", source)
+        self.assertIn("accessibilityLabel", source)
+
 
 if __name__ == "__main__":
     unittest.main()

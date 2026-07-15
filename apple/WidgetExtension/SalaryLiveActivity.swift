@@ -13,17 +13,23 @@ struct SalaryLiveActivity: Widget {
                     Color(red: 0.20, green: 0.14, blue: 0.09)
                 )
         } dynamicIsland: { context in
+            let content = SalaryDynamicIslandContent(context: context)
             DynamicIsland {
-                DynamicIslandExpandedRegion(.center) {
-                    SalaryActivityIslandPlaceholder(context: context)
+                DynamicIslandExpandedRegion(.leading) {
+                    content.expandedLeading
+                }
+                DynamicIslandExpandedRegion(.trailing) {
+                    content.expandedTrailing
+                }
+                DynamicIslandExpandedRegion(.bottom) {
+                    content.expandedBottom
                 }
             } compactLeading: {
-                Image(systemName: phaseIcon(context.state.phase))
+                content.compactLeading
             } compactTrailing: {
-                Text(percent(context.state.progressBasisPoints))
-                    .font(.caption2.weight(.semibold).monospacedDigit())
+                content.compactTrailing
             } minimal: {
-                Image(systemName: phaseIcon(context.state.phase))
+                content.minimal
             }
             .keylineTint(Color(red: 0.95, green: 0.58, blue: 0.12))
         }
@@ -132,16 +138,137 @@ struct SalaryLockScreenLiveActivityView: View {
     }
 }
 
-private struct SalaryActivityIslandPlaceholder: View {
+private struct SalaryDynamicIslandContent {
     let context: ActivityViewContext<SalaryActivityAttributes>
 
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: phaseIcon(context.state.phase))
+    var expandedLeading: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Label(phaseTitle, systemImage: phaseIcon(context.state.phase))
+                .font(.caption.weight(.semibold))
+
+            if context.state.showsEarnedAmount {
+                Text(amount(
+                    context.state.todayEarnedMinor,
+                    currencyCode: context.attributes.context.currencyCode
+                ))
+                .font(.headline.weight(.bold).monospacedDigit())
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+                .accessibilityLabel("today.amount")
+            } else {
+                Text("activity.lunch.amount_hidden")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    var expandedTrailing: some View {
+        transitionLabel(showTitle: true)
+            .font(.caption.weight(.semibold).monospacedDigit())
+            .multilineTextAlignment(.trailing)
+            .lineLimit(2)
+    }
+
+    var expandedBottom: some View {
+        HStack(spacing: 10) {
+            ProgressView(
+                value: Double(clampedProgress(context.state.progressBasisPoints)),
+                total: 10_000
+            )
+            .tint(Color(red: 0.95, green: 0.58, blue: 0.12))
+            .accessibilityLabel("today.progress")
+            .accessibilityValue(percent(context.state.progressBasisPoints))
+
             Text(percent(context.state.progressBasisPoints))
                 .font(.caption.weight(.semibold).monospacedDigit())
+                .frame(minWidth: 34, alignment: .trailing)
+        }
+    }
+
+    var compactLeading: some View {
+        Image(systemName: phaseIcon(context.state.phase))
+            .foregroundStyle(Color(red: 0.95, green: 0.58, blue: 0.12))
+            .accessibilityLabel(phaseTitle)
+    }
+
+    @ViewBuilder
+    var compactTrailing: some View {
+        ViewThatFits(in: .horizontal) {
+            compactPrimary
+            Text(percent(context.state.progressBasisPoints))
+                .monospacedDigit()
+        }
+        .font(.caption2.weight(.semibold))
+    }
+
+    var minimal: some View {
+        Image(systemName: phaseIcon(context.state.phase))
+            .foregroundStyle(Color(red: 0.95, green: 0.58, blue: 0.12))
+            .accessibilityLabel(phaseTitle)
+    }
+
+    @ViewBuilder
+    private var compactPrimary: some View {
+        if context.state.showsEarnedAmount {
+            Text(compactAmount(
+                context.state.todayEarnedMinor,
+                currencyCode: context.attributes.context.currencyCode
+            ))
+            .monospacedDigit()
+        } else {
+            transitionLabel(showTitle: false)
+        }
+    }
+
+    @ViewBuilder
+    private func transitionLabel(showTitle: Bool) -> some View {
+        switch context.state.phase {
+        case .working:
+            timerLabel(
+                title: "activity.until_work_end",
+                end: context.attributes.context.workEndAt,
+                showTitle: showTitle
+            )
+        case .lunchBreak:
+            timerLabel(
+                title: "activity.until_resume",
+                end: context.state.nextTransitionAt ?? context.attributes.context.lunchEndAt,
+                showTitle: showTitle
+            )
+        case .finished:
+            Text("activity.finished")
+        case .endedEarly:
+            Text("activity.ended_early")
+        }
+    }
+
+    private func timerLabel(
+        title: LocalizedStringKey,
+        end: Date,
+        showTitle: Bool
+    ) -> some View {
+        HStack(spacing: 3) {
+            if showTitle {
+                Text(title)
+            }
+            Text(
+                timerInterval: min(context.state.generatedAt, end)...end,
+                countsDown: true
+            )
         }
         .accessibilityElement(children: .combine)
+    }
+
+    private var phaseTitle: LocalizedStringKey {
+        switch context.state.phase {
+        case .working: "status.working"
+        case .lunchBreak: "status.lunchBreak"
+        case .finished: "status.finished"
+        case .endedEarly: "activity.ended_early"
+        }
     }
 }
 
@@ -167,5 +294,11 @@ private func percent(_ basisPoints: Int) -> String {
 private func amount(_ minor: Int64, currencyCode: String) -> String {
     (Double(minor) / 100).formatted(
         .currency(code: currencyCode).precision(.fractionLength(2))
+    )
+}
+
+private func compactAmount(_ minor: Int64, currencyCode: String) -> String {
+    (Double(minor) / 100).formatted(
+        .currency(code: currencyCode).precision(.fractionLength(0))
     )
 }
