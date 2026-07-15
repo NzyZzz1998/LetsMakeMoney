@@ -81,7 +81,7 @@ jobs:
       - name: Bootstrap pinned XcodeGen
         run: bash ./scripts/apple/bootstrap_xcodegen.sh "$RUNNER_TEMP/lmm-xcodegen"
       - name: Generate the formal Apple project
-        run: xcodegen generate --spec apple/project.yml --project apple/LetsMakeMoney.xcodeproj
+        run: xcodegen generate --spec apple/project.yml --project apple
       - name: List formal App and Widget schemes
         run: xcodebuild -project apple/LetsMakeMoney.xcodeproj -list | tee build/apple-sdk-ci/formal-schemes.log
       - name: Compile the real App and embedded Widget Extension
