@@ -10,9 +10,19 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 8/17，Widget families 与 Live Activity 版本化数据合同已建立
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 9/17，Widget families、Live Activity 版本化数据合同与确定性阶段状态机已建立
 
 ## 开发记录
+
+### 2026-07-15 M4-009 Live Activity 阶段状态机
+
+- 测试先行新增 `SalaryActivityStateMachineTests`；RED 阶段因缺少状态机、事件和错误类型而按预期编译失败，随后以最小纯 Swift 实现转绿。
+- 状态机按上班、午休开始、午休结束和下班四个静态锚点推导工作/午休/完成阶段及 `nextTransitionAt`；零时长午休会直接跳过午休态，不产生伪切换。
+- 用户确认提前结束会进入不可逆 `endedEarly` 终态；到达下班锚点自动进入不可逆 `finished` 终态，已结束状态不会被后续时钟事件重新激活。确认发生在计划下班时刻或之后时仍归类为正常完成。
+- 非法作息、上班前初始化和早于当前状态时间戳的倒序事件均返回结构化错误；午休阶段明确隐藏金额。状态转换只携带现有快照金额和进度，不在本任务实现时间费率推导或后台秒级定时器，后者保留给 M4-012。
+- 本地 M4 门禁通过：SalaryCore 62/62、Widget Extension 合同 11/11，M1-M4、M3、Playgrounds 导出和本地化回归全部通过；`git diff --check` 无错误。
+- 实现提交为 `318466f`。GitHub macOS run `29411454091` 在 Xcode 16.4 下成功运行 SalaryCore 测试，并编译 G3 App/Widget/Activity/Watch probe、正式 App 与内嵌 Widget Extension，结论为 `success`。
+- 当前证据证明纯状态机合同和 Apple SDK 编译成立，不证明 ActivityKit 真机启动、恢复、系统自动清除、锁屏或灵动岛展示；这些仍由 M4-010 至 M4-017 与 M7 真机验收承担。
 
 ### 2026-07-15 M4-008 Activity Attributes、ContentState 与版本兼容
 
