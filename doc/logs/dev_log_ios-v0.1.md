@@ -10,9 +10,20 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 11/17，Widget families、Live Activity 数据合同、阶段状态机、锁屏与灵动岛布局已建立
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 12/17，Widget families、Live Activity 数据合同、阶段状态机、锁屏/灵动岛布局及时间费率投影已建立
 
 ## 开发记录
+
+### 2026-07-15 M4-012 Live Activity 时间锚点与费率推导
+
+- 测试先行新增 `SalaryActivityProjectionTests`；RED 阶段因投影器与错误类型尚不存在而按预期编译失败，随后以纯 Swift 时间投影实现转绿。溢出保护也先通过失败用例确认，再补充安全初始化校验。
+- 投影器按上班、午休开始、午休结束和下班四个锚点计算有效工作秒数、今日金额和基点进度：上班前归零、午休期间冻结、复工后排除午休时长、下班及之后封顶为完整日薪与 100%。零时长午休保持连续计算。
+- 金额继续复用 `SalaryCalculator` 的整数半入舍入规则，并在构造阶段拒绝非法锚点、负日薪、非正标准工时和可能溢出的输入，避免 Live Activity 与 App 主计算口径漂移。
+- `SalaryActivityStateMachine` 在初始化、时钟推进和确认提前结束时重新消费投影结果，不再携带陈旧快照金额；完成与提前结束终态仍保持不可逆和稳定。
+- Widget 源码合同新增禁止 `Timer`、`DispatchSourceTimer`、`Task.sleep` 等后台秒级循环的检查。系统倒计时仍由 `Text(timerInterval:countsDown:)` 渲染；金额和进度只在系统或业务状态刷新时重算，不承诺后台逐秒重绘。
+- 本地 M4 门禁通过：SalaryCore 67/67、Widget Extension 合同 14/14，M1-M4、M3、Playgrounds 导出和本地化回归全部通过；`git diff --check` 无错误。
+- 实现提交为 `754451b`。GitHub macOS run `29416653484` 在 Xcode 16.4 下成功运行测试并编译正式 App 与内嵌 Widget/Activity Extension，结论为 `success`。
+- 当前证据证明时间/费率投影合同、状态机集成与 Apple SDK 编译成立，不证明 ActivityKit 真机启动、系统刷新频率、锁屏/灵动岛实时重绘或自动结束；这些继续由 M4-014 至 M4-017 与 M7 真机验收承担。
 
 ### 2026-07-15 M4-011 灵动岛最小、紧凑与展开布局
 
