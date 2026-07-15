@@ -15,6 +15,15 @@ ACTIVITY_ATTRIBUTES = (
 LIVE_ACTIVITY_SOURCE = (
     ROOT / "apple" / "WidgetExtension" / "SalaryLiveActivity.swift"
 )
+ACTIVITY_PROJECTION = (
+    ROOT
+    / "apple"
+    / "Packages"
+    / "SalaryCore"
+    / "Sources"
+    / "SalaryCore"
+    / "SalaryActivityProjection.swift"
+)
 LOCALIZATIONS = ROOT / "apple" / "Shared" / "Resources" / "Localizable.xcstrings"
 BOOTSTRAP = ROOT / "scripts" / "apple" / "bootstrap_xcodegen.sh"
 WORKFLOW = ROOT / ".github" / "workflows" / "apple-sdk-experimental.yml"
@@ -222,6 +231,31 @@ class WidgetExtensionTargetTests(unittest.TestCase):
         self.assertIn("showsEarnedAmount", source)
         self.assertIn("timerInterval:", source)
         self.assertIn("accessibilityLabel", source)
+
+    def test_live_activity_projection_uses_anchors_without_background_timers(self):
+        projection = ACTIVITY_PROJECTION.read_text(encoding="utf-8")
+        state_machine = (
+            ROOT
+            / "apple"
+            / "Packages"
+            / "SalaryCore"
+            / "Sources"
+            / "SalaryCore"
+            / "SalaryActivityStateMachine.swift"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("struct SalaryActivityProjection", projection)
+        self.assertIn("completedEffectiveSeconds", projection)
+        self.assertIn("dailySalaryMinor", projection)
+        self.assertIn("SalaryActivityProjection(context: context)", state_machine)
+        for forbidden in (
+            "Timer.",
+            "scheduledTimer",
+            "DispatchSourceTimer",
+            "Task.sleep",
+        ):
+            self.assertNotIn(forbidden, projection)
+            self.assertNotIn(forbidden, state_machine)
 
 
 if __name__ == "__main__":

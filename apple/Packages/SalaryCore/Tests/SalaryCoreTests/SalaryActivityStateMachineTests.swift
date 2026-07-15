@@ -90,7 +90,7 @@ struct SalaryActivityStateMachineTests {
             from: snapshot,
             at: workStart.addingTimeInterval(3_600)
         )
-        let endedAt = workStart.addingTimeInterval(2 * 3_600)
+        let endedAt = workStart.addingTimeInterval(3 * 3_600)
 
         let ended = try machine.transition(
             active,
@@ -99,6 +99,8 @@ struct SalaryActivityStateMachineTests {
         #expect(ended.phase == .endedEarly)
         #expect(ended.nextTransitionAt == nil)
         #expect(ended.isTerminal)
+        #expect(ended.todayEarnedMinor == 18_750)
+        #expect(ended.progressBasisPoints == 3_750)
 
         let later = try machine.transition(
             ended,
@@ -185,8 +187,8 @@ struct SalaryActivityStateMachineTests {
         }
     }
 
-    @Test("State transitions carry the latest snapshot values without deriving money")
-    func carriesSnapshotValues() throws {
+    @Test("State transitions derive current money from time anchors")
+    func derivesCurrentValues() throws {
         let machine = try SalaryActivityStateMachine(context: context)
         let state = try machine.initialState(
             from: snapshot,
@@ -198,7 +200,9 @@ struct SalaryActivityStateMachineTests {
         )
 
         #expect(lunch.snapshotID == snapshot.snapshotID)
-        #expect(lunch.todayEarnedMinor == snapshot.todayEarnedMinor)
-        #expect(lunch.progressBasisPoints == snapshot.progressBasisPoints)
+        #expect(state.todayEarnedMinor == 104)
+        #expect(state.progressBasisPoints == 21)
+        #expect(lunch.todayEarnedMinor == 25_000)
+        #expect(lunch.progressBasisPoints == 5_000)
     }
 }

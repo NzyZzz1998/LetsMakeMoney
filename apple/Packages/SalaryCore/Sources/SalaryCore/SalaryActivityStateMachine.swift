@@ -40,6 +40,7 @@ public extension SalaryActivityContentState {
 
 public struct SalaryActivityStateMachine: Sendable {
     public let context: SalaryActivityStaticContext
+    private let projection: SalaryActivityProjection
 
     public init(context: SalaryActivityStaticContext) throws {
         guard context.workStartAt <= context.lunchStartAt,
@@ -50,6 +51,11 @@ public struct SalaryActivityStateMachine: Sendable {
             throw SalaryActivityStateMachineError.invalidSchedule
         }
         self.context = context
+        do {
+            self.projection = try SalaryActivityProjection(context: context)
+        } catch {
+            throw SalaryActivityStateMachineError.invalidSchedule
+        }
     }
 
     public func initialState(
@@ -59,8 +65,6 @@ public struct SalaryActivityStateMachine: Sendable {
         try makeState(
             snapshotID: snapshot.snapshotID,
             generatedAt: date,
-            todayEarnedMinor: snapshot.todayEarnedMinor,
-            progressBasisPoints: snapshot.progressBasisPoints,
             at: date
         )
     }
@@ -83,8 +87,6 @@ public struct SalaryActivityStateMachine: Sendable {
             return try makeState(
                 snapshotID: current.snapshotID,
                 generatedAt: date,
-                todayEarnedMinor: current.todayEarnedMinor,
-                progressBasisPoints: current.progressBasisPoints,
                 at: date
             )
         case .confirmEarlyEnd:
@@ -94,12 +96,13 @@ public struct SalaryActivityStateMachine: Sendable {
             let phase: SalaryActivityPhase = date >= context.workEndAt
                 ? .finished
                 : .endedEarly
+            let projected = projection.value(at: date)
             return SalaryActivityContentState(
                 snapshotID: current.snapshotID,
                 generatedAt: date,
                 phase: phase,
-                todayEarnedMinor: current.todayEarnedMinor,
-                progressBasisPoints: current.progressBasisPoints,
+                todayEarnedMinor: projected.todayEarnedMinor,
+                progressBasisPoints: projected.progressBasisPoints,
                 nextTransitionAt: nil
             )
         }
@@ -108,8 +111,6 @@ public struct SalaryActivityStateMachine: Sendable {
     private func makeState(
         snapshotID: String,
         generatedAt: Date,
-        todayEarnedMinor: Int64,
-        progressBasisPoints: Int,
         at date: Date
     ) throws -> SalaryActivityContentState {
         guard date >= context.workStartAt else {
@@ -134,12 +135,13 @@ public struct SalaryActivityStateMachine: Sendable {
                 : context.workEndAt
         }
 
+        let projected = projection.value(at: date)
         return SalaryActivityContentState(
             snapshotID: snapshotID,
             generatedAt: generatedAt,
             phase: phase,
-            todayEarnedMinor: todayEarnedMinor,
-            progressBasisPoints: progressBasisPoints,
+            todayEarnedMinor: projected.todayEarnedMinor,
+            progressBasisPoints: projected.progressBasisPoints,
             nextTransitionAt: nextTransitionAt
         )
     }
