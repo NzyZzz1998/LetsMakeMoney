@@ -211,6 +211,7 @@ class WidgetExtensionTargetTests(unittest.TestCase):
             self.assertIn(region, source)
 
         self.assertIn("SalaryDynamicIslandContent", source)
+        self.assertIn("return DynamicIsland {", source)
         self.assertIn("expandedLeading", source)
         self.assertIn("expandedTrailing", source)
         self.assertIn("expandedBottom", source)

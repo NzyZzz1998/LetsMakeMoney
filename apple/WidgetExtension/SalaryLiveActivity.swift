@@ -14,7 +14,7 @@ struct SalaryLiveActivity: Widget {
                 )
         } dynamicIsland: { context in
             let content = SalaryDynamicIslandContent(context: context)
-            DynamicIsland {
+            return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     content.expandedLeading
                 }
