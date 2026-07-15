@@ -46,6 +46,8 @@ class WidgetExtensionTargetTests(unittest.TestCase):
         widget_source = WIDGET_SOURCE.read_text(encoding="utf-8")
         self.assertIn("SharedSnapshotReading", widget_source)
         self.assertIn("SharedSnapshotStore", widget_source)
+        self.assertIn("WidgetTimelineCompletion", widget_source)
+        self.assertIn("@unchecked Sendable", widget_source)
         self.assertNotIn(".write(", widget_source)
 
     def test_github_generates_and_builds_the_real_widget_extension(self):

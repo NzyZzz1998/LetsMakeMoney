@@ -33,9 +33,24 @@ struct SalaryWidgetProvider: TimelineProvider {
     }
 
     private func load(completion: @escaping (SalaryWidgetEntry) -> Void) {
+        let timelineCompletion = WidgetTimelineCompletion(completion)
         Task {
-            completion(SalaryWidgetEntry(date: Date(), snapshot: try? await reader.read()))
+            timelineCompletion.call(
+                SalaryWidgetEntry(date: Date(), snapshot: try? await reader.read())
+            )
         }
+    }
+}
+
+private final class WidgetTimelineCompletion<Value>: @unchecked Sendable {
+    private let callback: (Value) -> Void
+
+    init(_ callback: @escaping (Value) -> Void) {
+        self.callback = callback
+    }
+
+    func call(_ value: Value) {
+        callback(value)
     }
 }
 
