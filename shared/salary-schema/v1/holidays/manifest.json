@@ -1,0 +1,26 @@
+{
+  "datasetVersion": "cn-mainland-2025-2026-v1",
+  "region": "CN-mainland",
+  "coveredYears": [2025, 2026],
+  "unavailableYears": [2027],
+  "files": [
+    {
+      "path": "cn-2025.json",
+      "year": 2025,
+      "status": "official",
+      "sha256": "9920DF6D9EA2E5CF7747910B24AF1041BDA94716465D6E65448B9A5345203C3F"
+    },
+    {
+      "path": "cn-2026.json",
+      "year": 2026,
+      "status": "official",
+      "sha256": "C3815E053AEFB43B725BB4FD7254A957177C0FAAD4EBBE9BD157C5D9BE9074FF"
+    },
+    {
+      "path": "cn-2027-unavailable.json",
+      "year": 2027,
+      "status": "unavailable",
+      "sha256": "5729DFBC51AED9322F1B244B56E21BFF0A5F68A3C1C02890B1D531688DDB9729"
+    }
+  ]
+}

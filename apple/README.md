@@ -4,8 +4,8 @@
 
 - 目标版本：`ios-v0.1-beta`
 - 开发分支：`ios-main`
-- 当前阶段：M0 基线与环境门禁
-- 当前可执行范围：文档、schema 契约、测试向量准备与纯 Swift 模块设计
+- 当前阶段：M2 配置、安全写入与共享快照已完成，准备进入 M3
+- 当前可执行范围：文档、schema、纯 Swift 计算与数据层、iPad Playgrounds App 原型
 - 当前环境限制：没有 macOS/Xcode；Widget、Live Activity、Watch、多 Target、签名和 TestFlight 尚不可验证
 
 ## 产品边界
@@ -21,9 +21,9 @@ Apple 产品线不是 Windows 桌宠的移植：
 
 | 路径 | 职责 | 当前状态 |
 | --- | --- | --- |
-| `Packages/SalaryCore/` | 纯 Swift 工资、工作日、午休与状态计算 | M1 建立 |
-| `Shared/Models/` | App、Widget、Activity、Watch 共享 Codable 模型 | M2 建立 |
-| `Shared/Resources/` | 节假日数据、本地化与共享设计资源 | M1-M3 建立 |
+| `Packages/SalaryCore/` | 工资计算、配置持久化、共享快照与结构化日志 | M1-M2 已实现并通过 Windows Swift 测试 |
+| `Shared/Models/` | Apple Targets 的工程装配与共享模型入口 | M3 接入；当前模型事实源位于 SalaryCore |
+| `Shared/Resources/` | 节假日数据、本地化与共享设计资源 | String Catalog 已建立，设计资源随 M3 补齐 |
 | `App/` | iPhone/iPad SwiftUI 主 App | M2-M3 建立 |
 | `WidgetExtension/` | Widget 与 Live Activity UI | M4 建立 |
 | `WatchApp/` | Apple Watch App 与通信协调 | M5 建立 |
@@ -54,6 +54,7 @@ Apple 官方资料：
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\apple\check_ios_m0.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\apple\test_check_ios_m0.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\apple\test_check_ios_m2.ps1
 ```
 
-这些命令只验证 M0 当前树契约，不编译 Swift，也不代表 App 已可运行。
+M2 门禁会运行 Python 契约、本地化检查和 Swift Package 测试。Windows 结果不代表 Xcode 多 Target、App Group entitlement 或真实 Apple 设备行为已通过。

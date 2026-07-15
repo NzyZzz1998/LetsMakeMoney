@@ -1,0 +1,26 @@
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[3]
+WORKFLOW = ROOT / ".github" / "workflows" / "apple-sdk-experimental.yml"
+
+
+class AppleSDKWorkflowTests(unittest.TestCase):
+    def test_workflow_is_manual_and_uses_a_macos_runner(self):
+        source = WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("workflow_dispatch:", source)
+        self.assertNotIn("pull_request:", source)
+        self.assertNotIn("push:", source)
+        self.assertIn("runs-on: macos-", source)
+        self.assertIn("xcodebuild -version", source)
+        self.assertIn("swift test --package-path apple/Packages/SalaryCore", source)
+        self.assertIn("export_playgrounds_m3.ps1", source)
+        self.assertIn("xcodebuild", source)
+        self.assertIn("CODE_SIGNING_ALLOWED=NO", source)
+        self.assertIn("upload-artifact", source)
+        self.assertIn("experimental", source.lower())
+
+
+if __name__ == "__main__":
+    unittest.main()

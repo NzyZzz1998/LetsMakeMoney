@@ -1,0 +1,49 @@
+name: Apple SDK experimental gate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apple-sdk-experimental:
+    name: Experimental Apple SDK compile
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Record Apple toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+          xcrun simctl list devices available
+      - name: Test SalaryCore on macOS
+        run: swift test --package-path apple/Packages/SalaryCore
+      - name: Run source contracts
+        run: python3 -m unittest discover -s scripts/apple/tests -p 'test_*.py'
+      - name: Export the Playgrounds application
+        shell: pwsh
+        run: ./scripts/apple/export_playgrounds_m3.ps1 -OutputRoot build/apple-sdk-ci -PackageName LetsMakeMoneyAppleSDK -BundleIdentifier com.nzyzzz.letsmakemoney.applesdk -ExcludePreviews
+      - name: List generated Apple schemes
+        working-directory: build/apple-sdk-ci/LetsMakeMoneyAppleSDK.swiftpm
+        run: xcodebuild -list | tee ../xcodebuild-list.log
+      - name: Compile against the iOS Simulator SDK
+        working-directory: build/apple-sdk-ci/LetsMakeMoneyAppleSDK.swiftpm
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -scheme LetsMakeMoney \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath ../DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee ../xcodebuild.log
+      - name: Upload experimental diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: apple-sdk-experimental-diagnostics
+          path: |
+            build/apple-sdk-ci/xcodebuild-list.log
+            build/apple-sdk-ci/xcodebuild.log
+            build/apple-sdk-ci/LetsMakeMoneyAppleSDK-playgrounds.zip
+          if-no-files-found: warn

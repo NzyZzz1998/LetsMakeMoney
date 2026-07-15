@@ -2,7 +2,7 @@
 
 ## 追踪信息
 
-- 当前状态：开发承接已确认，M0 实施中
+- 当前状态：M3 基线已建立；2026-07-14 首次引导增量需求已确认，先执行 M3R 定向返工，再恢复 M3 Preview/UI 与真机补证
 - 目标版本：`ios-v0.1-beta`
 - 目标分支：`ios-main`
 - 上游来源：`doc/releases/ios-v0.1/prd.md` 中 `FR-001` 至 `FR-014`
@@ -11,7 +11,7 @@
 - 原型说明：`doc/prototypes/ios-v0.1/prototype-spec.md`
 - 下游承接：`progress_ios-v0.1.md`、`doc/logs/dev_log_ios-v0.1.md`、后续 Acceptance
 - 当前事实源：范围以 PRD 为准，实施顺序以本文为准，完成度以 progress 为准
-- 最后更新：2026-07-13
+- 最后更新：2026-07-14
 
 ## 1. 开发范围
 
@@ -48,9 +48,9 @@
 
 | 门禁 | 适用阶段 | 通过标准 | 当前状态 | 失败处理 |
 | --- | --- | --- | --- | --- |
-| G0 文档与契约 | M0 | PRD、原型、schema 边界和目录结构一致 | 可立即执行 | 阻止业务实现，回补文档 |
-| G1 Swift 内核可执行 | M1 | `SalaryCore` 与测试向量在可用 Swift 工具链通过 | 待建立 | 允许继续数据准备，不允许接 UI |
-| G2 iPad Playgrounds 可行性 | M2 前 | iPad 可打开 App 原型并运行计算快照 | 待真实 iPad 补证 | 若能力不足，转 macOS/Xcode，不伪造通过 |
+| G0 文档与契约 | M0 | PRD、原型、schema 边界和目录结构一致 | 已通过 | 阻止业务实现，回补文档 |
+| G1 Swift 内核可执行 | M1 | `SalaryCore` 与测试向量在可用 Swift 工具链通过 | 已通过（Swift 6.3.3 Windows） | 允许继续数据准备，不允许接 UI |
+| G2 iPad Playgrounds 可行性 | M2 前 | iPad 可打开 App 原型并运行计算快照 | 已通过（Swift Playgrounds 4.7） | 若能力不足，转 macOS/Xcode，不伪造通过 |
 | G3 macOS/Xcode 多 Target | M4 前 | App、Widget、Activity、Watch schemes 可构建测试 | 当前缺少环境 | 阻塞 M4-M7，不阻塞 M0-M3 的设计与纯模块 |
 | G4 开发者签名 | M7 | App Group、Activity、Watch 与真机 entitlement 生效 | 待 Apple Developer Program | 阻塞完整 Beta，不阻塞本地内核开发 |
 | G5 真实设备 | Acceptance | iPhone 16 Pro Max、iPad Pro M4、Watch Series 10 通过人工验收 | 待实现后执行 | 未补证不得发布完整 Beta |
@@ -174,10 +174,32 @@ flowchart LR
 - 验证：SwiftUI Preview、UI 自动化、尺寸矩阵、iPhone/iPad 真机走查。
 - 完成标准：App 主路径可独立使用；原型关键交互均有真实实现和错误出口。
 
+### IOS01-M3R 首次引导输入与作息推算返工
+
+- 目标：依据 2026-07-14 iPad 实机反馈，替换 M3 首版引导中的自由文本和技术化输入，形成可直接理解、可推算、可回退的三步配置链路。
+- 前置：增量 PRD、追踪矩阵和正式原型已由项目所有者确认；M1/M2 的 schema v1、安全写入与配置事务继续继承。
+- 影响：FR-002、FR-003；`OnboardingView.swift`、`AppFlow.swift`、作息草稿纯计算、金额编辑状态、本地化资源、Playgrounds 导出合同与 M3 设备验证。
+- 不影响：Settings 信息架构、配置字段、schema 版本、工资计算公式、今日页、日历页、Widget/Activity/Watch 范围。
+- 关键任务：
+  1. 先为金额规范化、大小周锚点转换、作息推算和午休双向联动补充纯逻辑测试。
+  2. 增加不改变 schema 的引导草稿辅助类型；禁止把瞬时编辑文本直接当成有效配置写入。
+  3. 将金额输入改为 `0.00` 初值、零值首次聚焦清空、整数优先和最多两位小数；非法输入保留并阻止前进。
+  4. 将大小周日期文本框替换为“本周大周/本周小周”选择，并转换为既有 `alternatingAnchor`。
+  5. 将作息自由文本替换为系统时间选择和 0-3 小时、30 分钟步进的午休时长选择。
+  6. 实现默认 `08:00 + 8 小时有效工时 + 2 小时午休 = 18:00` 的同页推算摘要。
+  7. 实现午休开始/结束双向联动保持时长，以及上下班调整后重算有效工时。
+  8. 固定中文标题、无文字进度条、可滚动内容和底部操作区；横屏键盘不得使标题与进度重叠。
+  9. 保留上一步、取消、关闭、完成失败和重试语义；失败不得污染最后有效配置。
+  10. 更新本地化、辅助功能、Playgrounds 导出与源码合同，并生成新的 iPad 验证包。
+- 自动验证：Swift 单元测试、Python 源码合同、Playgrounds 导出合同、文档状态、UTF-8、`git diff --check`。
+- 真实设备验证：iPad 横竖屏、横屏键盘、金额焦点、大小周选择、时间选择、推算联动、返回/取消/完成失败；受影响项通过后再继续 M3-016/M3-017。
+- 回退：若 Swift Playgrounds 4.7 对选定系统时间组件兼容不足，保留既有配置字段与纯逻辑，降级为受约束的滚轮/菜单式时间组件，不恢复自由文本输入。
+- 完成标准：M3R 自动门禁通过，iPad 定向主路径无静默崩溃、无原始本地化键、无键盘布局重叠，最终配置与确认摘要一致。
+
 ### IOS01-M4 Widget、Live Activity、通知与快捷操作
 
 - 目标：实现 Apple 生态高频入口，并保持系统限制下的信息诚实。
-- 前置：G3、M2、M3 通过。
+- 前置：G3、M2、M3R 与 M3 通过。
 - 影响：FR-006、FR-007、FR-010、FR-012；WidgetKit、ActivityKit、App Intents、UserNotifications。
 - 关键任务：
   1. 实现桌面小/中/大 Widget 和必要锁屏 accessory families。

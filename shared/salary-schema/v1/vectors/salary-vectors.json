@@ -1,0 +1,192 @@
+{
+  "contractVersion": 1,
+  "vectorSetId": "salary-core-v1-baseline",
+  "generatedAt": "2026-07-14",
+  "cases": [
+    {
+      "id": "double-weekend-working-morning",
+      "description": "普通双休月份，上午工作两小时",
+      "timeZone": "Asia/Shanghai",
+      "now": "2026-07-14T10:00:00",
+      "config": {
+        "schemaVersion": 1,
+        "monthlySalaryMinor": 1000000,
+        "currencyCode": "CNY",
+        "restMode": "doubleWeekend",
+        "workStart": "08:00",
+        "workEnd": "18:00",
+        "lunchStart": "12:00",
+        "lunchEnd": "14:00",
+        "standardWorkSeconds": 28800,
+        "dateOverrides": [],
+        "holidayDatasetVersion": "cn-mainland-2025-2026-v1",
+        "notificationPreference": "notRequested",
+        "watchMetric": "remainingTime"
+      },
+      "expected": {
+        "monthPaidWorkdays": 23,
+        "dailySalaryMinor": 43478,
+        "standardHourlySalaryMinor": 5435,
+        "todayEarnedMinor": 10870,
+        "monthEarnedMinor": 402172,
+        "completedEffectiveSeconds": 7200,
+        "progressBasisPoints": 2500,
+        "status": "working",
+        "warnings": []
+      }
+    },
+    {
+      "id": "lunch-pauses-income",
+      "description": "午休期间收入与进度冻结在上午结束点",
+      "timeZone": "Asia/Shanghai",
+      "now": "2026-07-14T13:00:00",
+      "configRef": "double-weekend-working-morning",
+      "expected": {
+        "monthPaidWorkdays": 23,
+        "dailySalaryMinor": 43478,
+        "standardHourlySalaryMinor": 5435,
+        "todayEarnedMinor": 21739,
+        "monthEarnedMinor": 413041,
+        "completedEffectiveSeconds": 14400,
+        "progressBasisPoints": 5000,
+        "status": "lunchBreak",
+        "warnings": []
+      }
+    },
+    {
+      "id": "official-adjusted-saturday",
+      "description": "官方调休周六覆盖双休规则",
+      "timeZone": "Asia/Shanghai",
+      "now": "2026-10-10T10:00:00",
+      "configRef": "double-weekend-working-morning",
+      "expected": {
+        "monthPaidWorkdays": 18,
+        "dailySalaryMinor": 55556,
+        "standardHourlySalaryMinor": 6945,
+        "todayEarnedMinor": 13889,
+        "monthEarnedMinor": 125001,
+        "completedEffectiveSeconds": 7200,
+        "progressBasisPoints": 2500,
+        "status": "working",
+        "warnings": []
+      }
+    },
+    {
+      "id": "manual-override-beats-holiday",
+      "description": "手动覆盖把国庆休息日改为计薪工作日",
+      "timeZone": "Asia/Shanghai",
+      "now": "2026-10-02T10:00:00",
+      "config": {
+        "schemaVersion": 1,
+        "monthlySalaryMinor": 1000000,
+        "currencyCode": "CNY",
+        "restMode": "doubleWeekend",
+        "workStart": "08:00",
+        "workEnd": "18:00",
+        "lunchStart": "12:00",
+        "lunchEnd": "14:00",
+        "standardWorkSeconds": 28800,
+        "dateOverrides": [
+          { "date": "2026-10-02", "isWorkday": true, "isPaid": true }
+        ],
+        "holidayDatasetVersion": "cn-mainland-2025-2026-v1",
+        "notificationPreference": "notRequested",
+        "watchMetric": "remainingTime"
+      },
+      "expected": {
+        "monthPaidWorkdays": 19,
+        "dailySalaryMinor": 52632,
+        "standardHourlySalaryMinor": 6579,
+        "todayEarnedMinor": 13158,
+        "monthEarnedMinor": 13158,
+        "completedEffectiveSeconds": 7200,
+        "progressBasisPoints": 2500,
+        "status": "working",
+        "warnings": []
+      }
+    },
+    {
+      "id": "alternating-weekend-working-saturday",
+      "description": "锚点周六休息，下一周周六工作",
+      "timeZone": "Asia/Shanghai",
+      "now": "2026-07-11T10:00:00",
+      "config": {
+        "schemaVersion": 1,
+        "monthlySalaryMinor": 1000000,
+        "currencyCode": "CNY",
+        "restMode": "alternatingWeekend",
+        "alternatingAnchor": "2026-07-04",
+        "workStart": "08:00",
+        "workEnd": "18:00",
+        "lunchStart": "12:00",
+        "lunchEnd": "14:00",
+        "standardWorkSeconds": 28800,
+        "dateOverrides": [],
+        "holidayDatasetVersion": "cn-mainland-2025-2026-v1",
+        "notificationPreference": "notRequested",
+        "watchMetric": "remainingTime"
+      },
+      "expected": {
+        "monthPaidWorkdays": 25,
+        "dailySalaryMinor": 40000,
+        "standardHourlySalaryMinor": 5000,
+        "todayEarnedMinor": 10000,
+        "monthEarnedMinor": 330000,
+        "completedEffectiveSeconds": 7200,
+        "progressBasisPoints": 2500,
+        "status": "working",
+        "warnings": []
+      }
+    },
+    {
+      "id": "out-of-range-weekly-fallback",
+      "description": "2027 官方数据未发布，按周规则回退并给出警告",
+      "timeZone": "Asia/Shanghai",
+      "now": "2027-01-04T09:00:00",
+      "configRef": "double-weekend-working-morning",
+      "expected": {
+        "monthPaidWorkdays": 21,
+        "dailySalaryMinor": 47619,
+        "standardHourlySalaryMinor": 5952,
+        "todayEarnedMinor": 5952,
+        "monthEarnedMinor": 53571,
+        "completedEffectiveSeconds": 3600,
+        "progressBasisPoints": 1250,
+        "status": "working",
+        "warnings": ["holidayDatasetOutOfRange"]
+      }
+    },
+    {
+      "id": "leap-year-single-weekend",
+      "description": "闰年二月单休工作日计数",
+      "timeZone": "Asia/Shanghai",
+      "now": "2028-02-29T19:00:00",
+      "config": {
+        "schemaVersion": 1,
+        "monthlySalaryMinor": 1000000,
+        "currencyCode": "CNY",
+        "restMode": "singleWeekend",
+        "workStart": "08:00",
+        "workEnd": "18:00",
+        "lunchStart": "12:00",
+        "lunchEnd": "14:00",
+        "standardWorkSeconds": 28800,
+        "dateOverrides": [],
+        "holidayDatasetVersion": "cn-mainland-2025-2026-v1",
+        "notificationPreference": "notRequested",
+        "watchMetric": "remainingTime"
+      },
+      "expected": {
+        "monthPaidWorkdays": 25,
+        "dailySalaryMinor": 40000,
+        "standardHourlySalaryMinor": 5000,
+        "todayEarnedMinor": 40000,
+        "monthEarnedMinor": 1000000,
+        "completedEffectiveSeconds": 28800,
+        "progressBasisPoints": 10000,
+        "status": "finished",
+        "warnings": ["holidayDatasetOutOfRange"]
+      }
+    }
+  ]
+}

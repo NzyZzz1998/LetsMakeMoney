@@ -1,0 +1,179 @@
+{
+  "sourceLanguage" : "zh-Hans",
+  "strings" : {
+    "app.title" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "LetsMakeMoney" } } } },
+    "calendar.adjusted_workday" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "调休工作" } } } },
+    "calendar.confirm_change" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "确认应用这次日期调整？" } } } },
+    "calendar.confirm_delete" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除后将恢复默认日历规则" } } } },
+    "calendar.effective_hours" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "有效工时" } } } },
+    "calendar.is_paid" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "计入工资" } } } },
+    "calendar.is_workday" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "工作日" } } } },
+    "calendar.official_holiday" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "法定节假日" } } } },
+    "calendar.out_of_range" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "该年份暂无官方节假日数据，已按周休规则计算" } } } },
+    "calendar.override" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "手动调整" } } } },
+    "calendar.rest_day" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "休息日" } } } },
+    "calendar.title" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "日历" } } } },
+    "calendar.weekday.1" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "日" } } } },
+    "calendar.weekday.2" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "一" } } } },
+    "calendar.weekday.3" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "二" } } } },
+    "calendar.weekday.4" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "三" } } } },
+    "calendar.weekday.5" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "四" } } } },
+    "calendar.weekday.6" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "五" } } } },
+    "calendar.weekday.7" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "六" } } } },
+    "calendar.workday" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "工作日" } } } },
+    "common.cancel" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "取消" } } } },
+    "common.close" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关闭" } } } },
+    "common.delete" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除" } } } },
+    "common.retry" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重试" } } } },
+    "common.save" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "保存" } } } },
+    "currency.cny" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "人民币" } } } },
+    "feedback.save_failed" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "保存失败，输入已保留" } } } },
+    "feedback.saved" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已保存" } } } },
+    "feedback.unchanged" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "没有需要保存的更改" } } } },
+    "nav.calendar" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "日历" } } } },
+    "nav.settings" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "设置" } } } },
+    "nav.today" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "今日" } } } },
+    "notification.allowed" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已允许" } } } },
+    "notification.denied" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已拒绝" } } } },
+    "notification.notRequested" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "尚未请求" } } } },
+    "onboarding.back" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "上一步" } } } },
+    "onboarding.daily_salary" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "预计日薪" } } } },
+    "onboarding.complete" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "完成配置" } } } },
+    "onboarding.confirm_exit" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退出后下次仍需完成配置" } } } },
+    "onboarding.exit" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退出引导" } } } },
+    "onboarding.big_week" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "本周大周" } } } },
+    "onboarding.current_week_prompt" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "本周是大周还是小周？" } } } },
+    "onboarding.inferred_schedule" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "根据选择推算的作息" } } } },
+    "onboarding.lunch_duration" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "午休时长" } } } },
+    "onboarding.lunch_duration.0" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "0 小时" } } } },
+    "onboarding.lunch_duration.30" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "0.5 小时" } } } },
+    "onboarding.lunch_duration.60" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "1 小时" } } } },
+    "onboarding.lunch_duration.90" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "1.5 小时" } } } },
+    "onboarding.lunch_duration.120" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "2 小时" } } } },
+    "onboarding.lunch_duration.150" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "2.5 小时" } } } },
+    "onboarding.lunch_duration.180" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "3 小时" } } } },
+    "onboarding.month_workdays" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "本月计薪工作日" } } } },
+    "onboarding.next" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下一步" } } } },
+    "onboarding.retry" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重新保存" } } } },
+    "onboarding.progress" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "配置进度" } } } },
+    "onboarding.salary_placeholder" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "0.00" } } } },
+    "onboarding.salary_prompt" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "你的税前月薪是多少？" } } } },
+    "onboarding.schedule_prompt" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "先选择上班时间和午休时长" } } } },
+    "onboarding.small_week" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "本周小周" } } } },
+    "onboarding.step.compensation" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "工资与休息制度" } } } },
+    "onboarding.step.schedule" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "工作与午休时间" } } } },
+    "onboarding.step.summary" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "确认计算结果" } } } },
+    "onboarding.summary.ready" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "配置已准备好" } } } },
+    "onboarding.title" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "开始配置收入进度" } } } },
+    "onboarding.today_preview" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "今日示例" } } } },
+    "onboarding.validation.salary" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请输入大于 0 的月薪，最多保留两位小数" } } } },
+    "onboarding.validation_failed" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请检查当前步骤中的输入" } } } },
+    "rest.alternatingWeekend" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "大小周" } } } },
+    "rest.alternating_weekend" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "大小周" } } } },
+    "rest.double_weekend" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "双休" } } } },
+    "rest.doubleWeekend" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "双休" } } } },
+    "rest.single_weekend" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "单休" } } } },
+    "rest.singleWeekend" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "单休" } } } },
+    "schedule.lunch" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "午休" } } } },
+    "schedule.lunch_end" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "午休结束" } } } },
+    "schedule.lunch_start" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "午休开始" } } } },
+    "schedule.work_end" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下班" } } } },
+    "schedule.work_start" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "上班" } } } },
+    "settings.alternating_anchor" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "双休周周六日期" } } } },
+    "settings.currency" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "币种" } } } },
+    "settings.effective_hours" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "每日有效工时" } } } },
+    "settings.holiday_version" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "节假日数据版本" } } } },
+    "settings.monthly_salary" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "月薪" } } } },
+    "settings.notification_status" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "通知状态" } } } },
+    "settings.notifications" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "通知" } } } },
+    "settings.reconfigure" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重新运行配置引导" } } } },
+    "settings.rest_mode" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "休息模式" } } } },
+    "settings.salary" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "工资" } } } },
+    "settings.schedule" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "作息" } } } },
+    "settings.system" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "系统状态" } } } },
+    "state.configuration_error" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "暂时无法计算" } } } },
+    "state.configure" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "开始配置" } } } },
+    "state.unconfigured" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "还没有工资配置" } } } },
+    "status.beforeWork" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "等待上班" } } } },
+    "status.finished" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "今日完成" } } } },
+    "status.lunchBreak" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "午休中" } } } },
+    "status.restDay" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "休息日" } } } },
+    "status.working" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "工作中" } } } },
+    "time.placeholder" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "08:00" } } } },
+    "today.amount" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "今日已赚" } } } },
+    "today.month_total" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "本月累计" } } } },
+    "today.progress" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "工作进度" } } } },
+    "today.schedule" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "今日安排" } } } },
+    "salary.error.duplicate_date_override" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同一日期存在重复覆盖"
+          }
+        }
+      }
+    },
+    "salary.error.holiday_dataset_mismatch" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "节假日数据版本与配置不匹配"
+          }
+        }
+      }
+    },
+    "salary.error.invalid_configuration" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工资配置不完整或包含非法值"
+          }
+        }
+      }
+    },
+    "salary.error.invalid_time_range" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上下班或午休时间关系不合法"
+          }
+        }
+      }
+    },
+    "salary.error.missing_alternating_anchor" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "大小周需要选择一个已知双休周的周六"
+          }
+        }
+      }
+    },
+    "salary.error.no_paid_workdays" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前月份没有计薪工作日"
+          }
+        }
+      }
+    },
+    "salary.error.unsupported_schema" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不支持的工资配置版本"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

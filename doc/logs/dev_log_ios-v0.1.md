@@ -5,14 +5,145 @@
 ## 基本信息
 
 - 版本：`ios-v0.1-beta`
-- 目标分支：`ios-main`（独立 worktree，尚未推送）
+- 目标分支：`ios-main`（独立 worktree；M0 基线曾推送至远端 `test`，M1-M3 由本批 `ios-main` 收口提交承载）
 - 对应 PRD：`doc/releases/ios-v0.1/prd.md`
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M0 部分通过，等待 iPad Swift Playgrounds 人工补证
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；等待 M4 前置 G3 macOS/Xcode 多 Target 环境
 
 ## 开发记录
+
+### 2026-07-15 M3 Preview 与 UI 自动化矩阵收口
+
+- 修正 `M3SmokeUITests` 对旧原生 `TabView` 的依赖，改用自定义底部页签和侧栏共用的稳定无障碍标识；补充设置关闭断言。
+- 增加 `-ui-test-configured` 测试启动参数，与 `-ui-test-reset-configuration` 组合后可在干净模拟器确定性进入已配置主路径；首次引导测试继续只使用重置参数。
+- Preview 矩阵扩展为 iPhone 竖屏、iPad 竖屏、iPad 横屏、深色、大字、Settings 和 Onboarding 七类场景。
+- 测试先行新增矩阵源码合同，确认旧代码失败后完成实现；完整 M3 门禁通过：Swift 44/44、本地化 3/3、M3 源码合同 8/8、Playgrounds 导出合同 2/2。
+- `IOS01-M3-016` 关闭，M3 达到 17/17。Windows 不能运行 Xcode UI Test，实际 `XCTest` 执行明确转交 M4 前置 G3，不伪造为已运行通过。
+
+### 2026-07-15 R10 真机定向复测通过
+
+- 项目所有者确认 R10 原有主路径无异常；定向复测中的无效月薪提示、今日中文状态、iPad 竖屏底部导航和横竖屏页面边缘均通过。
+- `IOS01-M3R-014` 关闭，M3R 达到 14/14；R9 的其余手动通过证据继续继承。
+- `IOS01-M3-017` 关闭。M3 当前只剩 Preview/UI 自动化矩阵收口，不把真机通过结果替代尚未执行的 Apple SDK UI 自动化。
+
+### 2026-07-15 R9 设备反馈、iPad 导航根因与 R10 候选
+
+- R9 手动验证除无效月薪错误提示外均通过。设备截图补充暴露两项显示问题：今日金额下方状态出现英文/内部键，以及 iPad 横竖屏暖色内容之外出现白色边缘。
+- 根因一是今日状态使用运行时拼接的动态本地化键，Playgrounds 的旧式 `.strings` 资源不能稳定解析；改为 `SalaryStatus` 到固定 `LocalizedStringKey` 的完整映射。
+- 根因二是 iPadOS 会将原生 `TabView` 自适应为顶部浮动页签，与已确认的底部导航原型冲突；紧凑布局改用应用内自定义底部页签，横屏 regular 宽度继续保留侧栏/双栏。根视图、今日页和日历页同时显式铺满暖色安全区，消除内容外白边。
+- 无效月薪改用明确的 `LocalizedStringKey`：提示“请输入大于 0 的月薪，最多保留两位小数”，输入与配置安全写入逻辑未改变。
+- 测试先行补充自适应导航、固定状态本地化、全屏背景和错误提示合同；定向测试 2/2、M3 源码合同 7/7、Swift 44/44、本地化 3/3、Playgrounds 导出合同 2/2 及完整 M3 Windows 门禁通过。
+- 导出 `LetsMakeMoneyM3R10-playgrounds.zip`，SHA256 `19327DC3BCA420EA07C8E1CA3DA04169DF11F1299C002580616CD649990D81E2`；包内关键实现与中文资源 5/5 检查通过，等待 iPad 对错误提示、中文状态、竖屏底部导航和横竖屏边缘进行定向复测。
+
+### 2026-07-15 iPad 竖屏导航与 R9 候选
+
+- 按已确认原型 A 调整自适应导航：仅 iPad 横屏 regular 宽度使用侧栏与双栏；iPad 竖屏、窄分屏和 iPhone 统一使用底部“今日/日历”页签，不再提供拥挤的竖屏侧栏。
+- 在紧凑布局的今日页和日历页增加可见设置按钮，避免 iPhone 无导航容器时外层 toolbar 不显示。
+- 首次引导改为三步特定中文标题；确认页使用固定枚举到本地化键的映射，休息模式只显示“单休”“双休”或“大小周”。
+- 新增自适应导航与引导本地化源码合同；Swift 44/44、本地化 3/3、M3 源码合同 6/6 及完整 M3 Windows 门禁通过。
+- 导出 `LetsMakeMoneyM3R9-playgrounds.zip`，SHA256 `D95AFC8F6C5999F726C06651651418497475940A55FA25126625A00C7703AA36`；等待 iPad Swift Playgrounds 4.7 对横竖屏、手机设置入口和引导标题进行定向复测。
+
+### 2026-07-15 M3R 固定八小时推算与 R8 候选
+
+- 新增初次上班时间专用推算：用户选择上班时间后，始终按净工作 8 小时与当前午休时长计算下班时间；确认页仍允许用户手动微调边界并重新计算工时。
+- 双休、单休、大小周改为分段选择，选择时主动结束月薪输入焦点，避免休息制度操作继续占用数字键盘。
+- 午休阶段改为完整语义行：左侧显示“午休时长”，右侧使用菜单选择 `0` 至 `3` 小时，不再孤立显示时间或暴露英文内部键。
+- 新增初次上班时间推算单元测试和 SwiftUI 源码合同；Swift 44/44、M1/M2/M3、本地化及 Playgrounds 导出合同全部通过。
+- 导出 `LetsMakeMoneyM3R8-playgrounds.zip`，SHA256 `DFBF59C50443C6ACC811443684090C7C1656AFD5E70FAFC65512C01056CF0EA9`；等待 iPad Swift Playgrounds 4.7 定向复测。
+
+### 2026-07-15 M3R 作息页渐进填写与 R7 候选
+
+- 第二步改为三层渐进填写：先确认上班时间，再选择午休时长，最后展示午休起止、下班时间和有效工时供用户微调。
+- “上一步”同步支持逐层返回，避免从推算结果直接跳回工资页；进入摘要后返回时恢复完整推算层。
+- 午休选项统一为 `0 / 0.5 / 1 / 1.5 / 2 / 2.5 / 3 小时`，不再通过动态键展示内部英文名称。
+- 新增源码合同覆盖渐进阶段、前后导航和静态午休文案；Swift 语法解析、43 项 Swift 测试、M1/M2/M3 与本地化门禁全部通过。
+- 导出 `LetsMakeMoneyM3R7-playgrounds.zip`，SHA256 `295A1E51C5AF57E74718206B7D8AF0605834C96E0BB8B566BD9877136DE4765A`；R7 尚未在 iPad 编译运行，`M3R-014` 保持未完成。
+
+### 2026-07-14 M3R 首次引导 UI 接入与 R6 候选
+
+- `OnboardingView` 已接入金额编辑草稿、自然语言大小周、系统时间选择和午休时长选择；移除锚点日期与时间自由文本输入。
+- 引导页改为固定无文字进度条、可滚动内容和底部安全区操作栏，避免横屏键盘压缩时步骤标题与进度重叠。
+- 作息草稿新增午休时长联动：调整时长同步推算午休结束和下班时间，并保持有效工时不变；调整午休起止继续双向保持时长。
+- 新增中文本地化键和进度辅助功能标签；金额非法文本继续保留，但会阻止进入下一步。
+- Swift 测试 43/43、M3 源码合同 4/4、M3 正向/反例门禁及 Playgrounds 导出合同通过。
+- 导出 `LetsMakeMoneyM3R6-playgrounds.zip`，SHA256 `0A706CC0D69F37C14578035E0102D0EFCB6A138E2210634FC7DF795FA9BC39BB`。本批次仅关闭 `IOS01-M3R-005` 至 `013`，R6 尚未在 iPad 编译运行，`M3R-014` 保持未完成。
+
+### 2026-07-14 M3R 金额、大小周与作息纯逻辑
+
+- 按测试先行新增 `OnboardingInputTests`，先确认金额草稿、大小周语义和作息推算类型缺失导致红灯，再补最小实现转绿。
+- 新增 `SalaryAmountDraft`：零值初始显示 `0.00`、首次聚焦清空；非零值保持；整数和最多两位小数可转换为最小货币单位，非法文本原样保留且不给出有效金额。
+- 新增 `AlternatingWeekResolver`：小周映射到本周休息周六，大周映射到下周休息周六；可从既有锚点反推本周类型，并覆盖周六、周日自然周边界。
+- 新增 `WorkScheduleDraft`：默认从 08:00 上班、12:00 午休、2 小时午休和 8 小时有效工时推算 14:00/18:00；拒绝跨日、非 30 分钟步进及超过 3 小时午休。
+- 午休开始和结束的双向调整保持午休总时长；上下班边界调整即时重算有效工时，非法调整抛错并保留最后一组有效安排。
+- 按 PRD 放开 `lunchStart == lunchEnd` 的零午休配置，仍要求 `上班 < 午休开始 <= 午休结束 <= 下班`，没有放宽跨日和越界规则。
+- `swift test` 42/42 通过；M1、M2、M3 Windows 门禁通过。SwiftPM 的 `.build/debug` 符号链接警告源于 Windows 开发者模式未启用，不影响本轮编译和测试结论。
+- 本批次仅关闭 `IOS01-M3R-001` 至 `004`；金额、大小周和时间控件尚未接入 SwiftUI，iPad 引导相关证据继续保持失效。
+
+### 2026-07-14 M3R 首次引导增量开发承接
+
+- 项目所有者确认 2026-07-14 增量 PRD 与高保真原型，开发授权继续有效。
+- 需求变化限定在首次引导：金额编辑、大小周自然语言选择、系统时间组件、午休与下班推算、横屏键盘布局；Settings、schema v1 和工资公式不在本轮重做范围。
+- 既有 M3-003/M3-004 保留为首版实现历史，不回退完成记录；新增 `IOS01-M3R` 独立返工批次承接替换逻辑和定向复验。
+- M0-M2 证据继续继承；引导输入、作息和相关布局证据失效，M3R 完成后必须重新导出 iPad 包验证。
+- 本轮仅更新 PRD、dev plan、progress 与 dev log，没有修改 Swift 业务代码。
+
+### 2026-07-14 M3 静默崩溃根因与分层调试基线
+
+- 针对 Swift Playgrounds 仅显示 `Build failed`、重启后静默退出且没有可见日志的问题，按 Core、资源、AppModel、单页面、导航和完整根视图逐层二分。
+- Core、主 Bundle 资源、AppModel、Today、Calendar、Settings/Onboarding 均可独立运行；最小导航首次仍静默退出，排除了工资内核、资源、配置加载和页面主体。
+- 单变量实验确认 `Binding(get:set:)` 直接接收 `@MainActor` 实例方法引用 `set: model.select` 会在 Swift Playgrounds 4.7 真机运行时静默崩溃；改为显式闭包 `set: { model.select($0) }` 后相同探针运行成功。
+- 在 `AppRootView` 应用最小修复，并新增 `test_app_root_playgrounds_compatibility.py` 防止方法引用回归；Windows 回归 24 项、SalaryCore 33/33 与 M3 门禁通过。
+- 生成 R5 完整包 `build/apple-playgrounds-m3-r5/LetsMakeMoneyM3R5-playgrounds.zip`，SHA256 为 `4D90D4048D3115B9CEC1D2F3A2F4B6A46C8F716C5979D9845BC831590361253C`；用户在 iPad Pro M4、Swift Playgrounds 4.7 确认完整 App 可启动。
+- 新增单一 `LMMDebugHub` 导出器。Hub 默认进入安全首页，页面按层单独打开；打开前和显示后将阶段写入 `UserDefaults`，静默退出后重新启动即可查看最后边界。
+- 新增手动触发的 `apple-sdk-experimental.yml`，计划在 GitHub macOS runner 上执行 SalaryCore、源码合同和 iOS Simulator SDK 编译。该工作流尚未远端运行，因此只记录为实验性能力，不作为 Apple SDK 已通过证据。
+- M3-016/M3-017 保持未完成；完整 App 启动只关闭 `M3-MAN-001/002`，不替代引导、布局、动态字体、VoiceOver 和主路径验收。
+
+### 2026-07-14 M3 iPhone/iPad App 源码与 Windows 门禁
+
+- 以测试先行建立 App 导航、三步引导会话、取消恢复、步骤校验、完成失败重试、页面呈现状态、日期覆盖编辑、日历状态语义和有效工时计算；Swift Testing 累计 33/33 通过。
+- 新增 SwiftUI App 入口、依赖注入、暖色自适应设计 Token、iPhone Tab、iPad `NavigationSplitView`、今日页、日历、日期覆盖、设置和三步引导。
+- 今日页覆盖未配置、配置错误、年份越界和正常工资快照；日历区分手动工作/休息、法定节假日、调休工作日和常规工作/休息日。
+- 设置与引导共享可靠配置草稿，作息变化自动重算有效工时；完成摘要显示月工作日、日薪和今日收入示例。
+- 接入深浅色、动态字体、VoiceOver 标识、提高对比度和降低动态效果；补充 iPhone/iPad、深色和辅助字号 Preview 及 UI 测试源码骨架。
+- 建立 M3 SwiftUI 源码合同、String Catalog 覆盖和缺失页面变异门禁；11 个 App Swift 文件通过 Windows Swift 前端语法解析。该结果不替代 Apple SDK 类型检查与真机运行。
+- 新增 `export_playgrounds_m3.ps1`，导出可交给 iPad Swift Playgrounds 的 `.swiftpm` 与 Zip；最新 Zip SHA256 为 `5B31BAA2AC242BED274EF17A07F670209F0F1107BF8394563A00DE593CF5C4E2`。
+- 首次 iPad 编译暴露 Swift Playgrounds 4.7 缺少 `/xcstringstool`。根因是 Playgrounds 包直接处理 `.xcstrings`；导出器现将 String Catalog 转为 `zh-Hans.lproj/Localizable.strings`，正式 App 资源不变，并增加导出合同测试防止回归。
+- 第二次 iPad 编译暴露 Windows 语法解析无法发现的 Apple SDK 类型兼容问题。已将 iPad 侧栏选择改为显式按钮、动态颜色改为明确 UIKit provider、只读步骤改为值访问，并移除当前 SDK 不支持的 Live Region modifier；新增 Playgrounds SwiftUI API 兼容合同。
+- M3-016/M3-017 保持未完成，等待 iPad 对编译、Preview、横竖屏、分屏、动态字体和 VoiceOver 的真实补证。
+
+### 2026-07-14 M2 配置、安全写入与共享快照
+
+- 采用测试先行方式建立 `AppConfiguration` 默认值、字段级结构化校验、配置草稿和无变化判断；取消或关闭恢复原值，不改变最后有效配置。
+- 建立 `ConfigurationCodec` 与 actor 隔离的 `ConfigurationStore`，覆盖临时写入、读回校验、原子替换、提交失败保护、损坏文件备份、schema 0 到 1 迁移、未来版本与未知字段严格拒绝。
+- Windows 首轮测试暴露两个真实问题：并行测试临时目录的 UUID 被写成普通文本，以及损坏 JSON 的 Foundation 错误未映射到恢复分支。修复测试隔离和 `malformedDocument` 映射后，配置持久化测试通过。
+- 建立统一身份的 `SalarySnapshot`、`ActivityState`、`WatchSnapshot` 投影及 actor 隔离的共享快照存储；并发读写测试确认读取结果始终是完整 JSON 且三种投影身份一致。
+- 建立 App Group 容器抽象和 entitlement 不可用的结构化降级错误。Windows 仅验证接口与降级分支；真实 Apple 容器仍保留 G3/G4 后置门禁。
+- 建立 JSON Lines 本地日志、有限轮换和路径、工资、账号、令牌类字段脱敏测试。
+- 将核心错误中文迁入 `Localizable.xcstrings`，核心层只暴露稳定本地化键；新增 Python 静态扫描、单元测试和硬编码中文变异门禁。
+- `test_check_ios_m2.ps1` 通过：Python 合同测试 6/6、Swift Testing 21/21、本地化测试 3/3，M2 正向与变异门禁均成功。
+- 未创建 Xcode Target，未修改 Widget、Activity、Watch 或 Windows 业务实现；未提交、推送或打 tag。
+
+### 2026-07-14 M1 Windows Swift 工具链与 G1 收口
+
+- 在 `D:\Work\Software\swift-windows` 建立专用环境：Swift 6.3.3、Python 3.10.11、Visual Studio Build Tools MSVC 14.44 和 Windows SDK 10.0.22621.0；Swift 默认安装路径通过目录联接落到 D 盘。
+- `swift --version` 真实输出目标 `x86_64-unknown-windows-msvc`。Windows SwiftPM 需要 VS x64 开发环境，并通过 `SDKROOT` 指向 Swift 自带 `Windows.sdk` 才能解析 Package Manifest。
+- 项目参考验证继续使用原有 Python 3.12.8；专用 Python 3.10 保留给 Swift 官方依赖。原因是 Windows Python 3.10 默认缺少 IANA 时区数据，直接运行参考测试会把 `Asia/Shanghai` 判为无效。
+- `check_ios_m1.ps1 -RequireSwift` 通过：Python 参考测试 6/6、Swift Testing 7/7、共享 JSON 向量一致性和变异测试全部成功，`IOS01-M1-016` 与 G1 关闭。
+- SwiftPM 报告无法创建 `.build/debug` 符号链接，因为 Windows 开发人员模式未启用；实际 build/test 均成功，该警告不阻塞 M2。
+- 本次环境验证只证明纯 Swift Windows Target 可执行，不替代 macOS/Xcode、App Group、Widget、Activity、Watch 或签名证据。
+
+### 2026-07-14 M1 Schema、节假日与 SalaryCore
+
+- 先编写跨端契约测试并执行 RED：校验器不存在时 4 组测试按预期失败；随后补标准库参考实现并转为 GREEN。
+- 固定 `salary-schema v1` 字段、严格写入、未来版本拒绝覆盖、整数金额、本地时间、日期覆盖和结构化错误契约；明确不包含口令 UI 与加班字段。
+- 收录国务院办公厅 2025、2026 年节假日/调休数据及官方文件身份；截至 2026-07-14 未发现 2027 官方安排，因此记录为不可用并回退周规则，没有使用预测数据。
+- 建立 7 个跨端向量，覆盖普通工作日上午、午休冻结、官方调休、手动覆盖、大小周、2027 越界回退及闰年单休。
+- 建立纯 Swift Package、公开计算 API、不可变快照、配置校验、节假日日历、规则优先级、整数舍入、日薪/时薪/今日收入/本月累计实现，以及 Swift 单元测试与共享向量测试。
+- 新增 PowerShell 5.1 可运行的 M1 门禁。初版中文 PowerShell 源码在旧宿主按本地代码页解析失败，改为纯 ASCII 可执行脚本，中文说明保留在 Markdown。
+- Windows 参考验证 6/6 通过，节假日 SHA256 变异与非法时区反例均被拒绝；Swift 6.3.3 后续实测 7/7 通过，`IOS01-M1-016` 与 G1 已关闭。
+- 未修改 App UI、Widget、Activity、Watch 或 Windows 业务实现；未提交、推送或打 tag。
 
 ### 2026-07-13 M0 基线、分支与可行性
 
@@ -25,6 +156,14 @@
 - 新增 Windows PowerShell 5.1 可运行的 M0 检查器及反例测试。初版因乱码字面量和旧 .NET 缺少 `Path.GetRelativePath` 失败，改为 Unicode 码点标记和根路径前缀截取后通过。
 - Windows v0.7 基线与文档状态检查通过；M0 检查器真实项目、干净夹具、绝对路径反例及缺失文件反例均符合预期。
 - 当前结论：G0 通过；G2 等待 iPad 真机补证；G1、G3、G4 尚未取得，不写为通过。M0 完成度 9/10。
+
+### 2026-07-14 M0 iPad 真机补证
+
+- 验证设备：iPad Pro M4；Swift Playgrounds 4.7。
+- App Playground 创建、`CapabilityModel.swift` 跨文件引用、SwiftUI Preview 与全屏运行通过，页面正确显示 `1,200,000`。
+- 添加菜单存在“Swift 软件包”入口；共享面板将项目识别为 Swift Package，并可“保存到文件”。
+- 导出文件名为“我的app”；iPadOS 界面未展示扩展名，因此只记录可见事实，不猜测扩展名。
+- G2 通过，`IOS01-M0-007` 关闭；M0 总计 10/10。G1、G3、G4 仍未取得，不受本次证据影响。
 
 ### 2026-07-13 开发承接
 
@@ -57,12 +196,12 @@
 
 | 主题 | 当前结论 | 是否进入本版本 | 后续动作 |
 | --- | --- | --- | --- |
-| iPad Swift Playgrounds | 仅 PRD 级可行性，尚无真实项目证据 | 是，作为阶段一门禁 | M0 真机验证并记录迁移边界 |
+| iPad Swift Playgrounds | App、跨文件引用、Preview、运行、Package 入口与导出均已验证 | 是，G2 已通过 | M1 后续可尝试导入 SalaryCore，正式编译证据仍以 Swift/Xcode 为准 |
 | macOS/Xcode 获取方式 | 当前无本地环境 | 是，属于完整 Beta 前置 | M0 比较云 Mac、借用或后续购置，不提前付费 |
 
 ## 验证摘要
 
-- 自动化验证：交互原型、Windows v0.7 基线、文档状态及 M0 合同检查通过；尚无 Swift/Xcode 自动化。
+- 自动化验证：M0 合同、M1 schema/节假日/跨端向量、变异测试与 Windows Swift 6.3.3 测试通过；尚无 Xcode/Apple Target 执行证据。
 - 手动验证：原型由项目所有者确认整体方向和底部导航位置。
 - 打包验证：尚未开始。
 - 未覆盖项：所有 Apple 原生实现、签名、系统扩展和真实设备行为。
@@ -72,4 +211,4 @@
 - 文档同步：PRD 状态、追踪矩阵、dev plan、progress 与本日志已建立关联。
 - 发布说明：尚未开始。
 - 回滚方式：开发承接仅修改文档；若计划需调整，回退对应文档，不影响 Windows 业务代码。
-- 下一阶段建议：确认开发承接后，仅执行 IOS01-M0。
+- 下一阶段建议：进入 M2，先实现纯 Swift 配置、安全写入与共享快照；Apple entitlement 相关能力保留 G3/G4 门禁。

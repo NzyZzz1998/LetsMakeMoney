@@ -3,7 +3,7 @@
 ## 状态
 
 - 验收 ID：`IOS01-M0-007`
-- 当前结论：待人工补证
+- 当前结论：通过
 - 设备：iPad Pro M4，iPadOS 26.5.2（由项目所有者提供）
 - 目标：确认 App Playground、多个 Swift 文件、SwiftUI Preview 和添加 Swift Package 的真实可用性
 - 边界：不验证 Widget、Live Activity、Watch、多 Target、签名或 TestFlight
@@ -60,18 +60,19 @@ struct CapabilityModel {
 ## 结果填写
 
 ```text
-验证日期：
-Swift Playgrounds 版本：
-创建 App：通过 / 未通过
-多 Swift 文件：通过 / 未通过
-SwiftUI Preview：通过 / 未通过
-全屏运行：通过 / 未通过
-添加 Package 入口：通过 / 部分通过 / 未通过
-导出项目：通过 / 未通过
-导出扩展名：
+验证日期：2026-07-14
+Swift Playgrounds 版本：4.7
+创建 App：通过
+多 Swift 文件：通过
+SwiftUI Preview：通过
+全屏运行：通过
+添加 Package 入口：通过
+导出项目：通过
+导出文件名：我的app
+导出扩展名：iPadOS 界面未显示；共享面板明确识别为 Swift Package
 错误信息：
-截图路径或文件名：
-备注：
+截图路径或文件名：用户已提供跨文件引用、全屏运行、Swift 软件包入口及共享面板截图
+备注：ContentView 成功读取 CapabilityModel.monthlySalaryMinor，Preview 与全屏均显示 1,200,000；添加菜单包含“Swift 软件包”，共享面板将项目识别为 Swift Package 并提供“保存到文件”，导出文件名为“我的app”。
 ```
 
 ## 判定

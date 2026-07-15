@@ -130,6 +130,34 @@
     .ipad-main { padding: 25px; min-width: 0; }
     .ipad-main h3 { margin: 0 0 17px; font-size: 22px; }
     .ipad-columns { display: grid; grid-template-columns: .9fr 1.1fr; gap: 16px; }
+    .portrait-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-bottom: 20px; }
+    .portrait-choice { min-height: 54px; border: 1px solid var(--line); border-radius: 14px; padding: 8px 12px; background: var(--surface); color: var(--ink); text-align: left; }
+    .portrait-choice strong, .portrait-choice small { display: block; }
+    .portrait-choice small { margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .portrait-choice.active { border-color: color-mix(in srgb, var(--gold) 74%, var(--line)); background: var(--gold-soft); box-shadow: 0 4px 14px rgba(91, 61, 20, .08); }
+    .portrait-layout { display: grid; grid-template-columns: minmax(360px, 520px) 1fr; gap: 28px; align-items: center; }
+    .ipad-portrait { width: min(100%, 500px); min-height: 680px; margin: auto; padding: 9px; border-radius: 38px; background: #151515; box-shadow: 0 20px 48px rgba(0,0,0,.22); }
+    .portrait-screen { position: relative; min-height: 662px; overflow: hidden; border-radius: 30px; background: var(--surface); }
+    .portrait-scheme, .portrait-page { display: none; }
+    .portrait-scheme.active, .portrait-page.active { display: block; }
+    .portrait-shell { min-height: 662px; padding: 25px 26px 76px; }
+    .portrait-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+    .portrait-header h3 { margin: 0; font-size: 23px; }
+    .portrait-body { display: grid; grid-template-columns: 1fr .94fr; gap: 14px; }
+    .portrait-body .hero { margin-top: 0; }
+    .portrait-body > .schedule { margin-top: 0; align-self: start; }
+    .portrait-body .calendar-card { padding: 14px; }
+    .portrait-body .days { gap: 4px; }
+    .portrait-body .day { border-radius: 7px; }
+    .portrait-bottom-nav { position: absolute; left: 24px; right: 24px; bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 5px; border: 1px solid var(--line); border-radius: 15px; background: color-mix(in srgb, var(--surface) 92%, transparent); box-shadow: 0 8px 22px rgba(62,43,23,.09); backdrop-filter: blur(12px); }
+    .portrait-bottom-nav button, .portrait-segmented button { min-height: 38px; border: 0; border-radius: 11px; background: transparent; color: var(--muted); }
+    .portrait-bottom-nav button.active, .portrait-segmented button.active { background: var(--gold-soft); color: var(--ink); font-weight: 700; }
+    .portrait-segmented { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: min(320px, 100%); margin: 0 auto 18px; padding: 4px; border-radius: 14px; background: var(--surface-2); }
+    .portrait-drill-action { display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: 52px; margin-top: 13px; padding: 0 15px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); color: var(--ink); }
+    .portrait-drill-action span:last-child { color: var(--gold-strong); font-weight: 800; }
+    .portrait-back { border: 0; background: transparent; color: var(--gold-strong); padding: 5px 0; }
+    .portrait-rationale { display: none; }
+    .portrait-rationale.active { display: grid; }
     .calendar-card, .compact-card { padding: 16px; }
     .days { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; margin-top: 12px; }
     .day { aspect-ratio: 1; display: grid; place-items: center; background: var(--surface-2); border-radius: 8px; font-size: 11px; }
@@ -184,6 +212,16 @@
     .danger-button { color: var(--danger); min-width: 92px; }
     .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .summary-grid .metric { background: var(--surface-2); }
+    .choice-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .choice-button { min-height: 42px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); color: var(--ink); }
+    .choice-button.active { border-color: var(--gold); background: var(--gold-soft); font-weight: 700; }
+    .inference-card { margin-top: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface-2); }
+    .inference-card .schedule-row { font-size: 13px; }
+    .inference-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 6px; }
+    .inference-head small { color: var(--muted); }
+    .detail-times { display: none; margin-top: 12px; }
+    .detail-times.open { display: block; }
+    .field-note { grid-column: 2; margin: -5px 0 8px; color: var(--muted); font-size: 11px; }
     .modal-backdrop { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; padding: 18px; background: rgba(22,18,13,.48); backdrop-filter: blur(8px); }
     .modal-backdrop.open { display: grid; }
     .modal { width: min(520px, 100%); max-height: min(680px, calc(100vh - 36px)); overflow: auto; border: 1px solid var(--line); border-radius: 24px; background: var(--surface); color: var(--ink); box-shadow: 0 28px 80px rgba(0,0,0,.28); }
@@ -210,6 +248,8 @@
       .sidebar { padding: 18px 8px; }
       .sidebar .app-mark span { display: none; }
       .ipad-columns { grid-template-columns: 1fr; }
+      .portrait-layout { grid-template-columns: 1fr; }
+      .portrait-controls { grid-template-columns: 1fr; }
     }
     @media (max-width: 520px) {
       .header { gap: 10px; }
@@ -223,6 +263,9 @@
       .sidebar .app-mark { display: none; }
       .nav-item { text-align: center; margin: 0; }
       .ipad-main { padding: 15px; }
+      .portrait-body { grid-template-columns: 1fr; }
+      .ipad-portrait { min-height: 720px; }
+      .portrait-screen, .portrait-shell { min-height: 702px; }
       .form-row { grid-template-columns: 1fr; gap: 6px; padding: 9px 0; }
       .summary-grid { grid-template-columns: 1fr; }
     }
@@ -241,6 +284,7 @@
     <nav class="tabs" aria-label="原型视图">
       <button class="tab active" data-view="iphone">iPhone 今日</button>
       <button class="tab" data-view="ipad">iPad 横屏</button>
+      <button class="tab" data-view="ipadPortrait">iPad 竖屏方案</button>
       <button class="tab" data-view="system">Widget 与实时活动</button>
       <button class="tab" data-view="watch">Apple Watch</button>
       <button class="tab" data-view="wizard">首次引导</button>
@@ -275,6 +319,42 @@
       </div></div>
     </div></section>
 
+    <section class="view" id="ipadPortrait"><div class="stage">
+      <div class="stage-title"><div><h2>iPad 竖屏导航方案对比</h2><p>竖屏不显示侧边栏。切换 A/B/C，直接比较导航密度、内容连贯性与日历入口。</p></div><span class="status-pill">iPad Pro · 竖屏</span></div>
+      <div class="portrait-controls" aria-label="竖屏导航方案">
+        <button class="portrait-choice active" data-portrait-scheme="a"><strong>A · 底部双页签（已确认）</strong><small>与 iPhone 一致，学习成本最低</small></button>
+        <button class="portrait-choice" data-portrait-scheme="b"><strong>B · 顶部分段切换</strong><small>内容更集中，页面底部更干净</small></button>
+        <button class="portrait-choice" data-portrait-scheme="c"><strong>C · 今日页下钻</strong><small>今日优先，通过卡片进入完整日历</small></button>
+      </div>
+      <div class="portrait-layout">
+        <div class="ipad-portrait"><div class="portrait-screen">
+          <div class="portrait-scheme active" data-portrait-panel="a"><div class="portrait-shell">
+            <div class="portrait-header"><h3 data-portrait-title="a">今日</h3><button class="settings-button" data-open-modal="settingsModal" aria-label="打开设置">⚙</button></div>
+            <div class="portrait-page active" data-portrait-page="a-today"><div class="portrait-body"><div><div class="hero"><div class="eyebrow">今日已赚</div><div class="amount">¥ 186.42</div><div class="state-line">工作中 · 距离午休 38 分钟</div><div class="progress"><span></span></div></div><div class="metrics"><div class="metric"><small>本月累计</small><b>¥ 3,842.00</b></div><div class="metric"><small>工作进度</small><b>56%</b></div></div></div><div class="schedule"><div class="section-head"><strong>今日安排</strong><button class="text-link" data-open-modal="dayModal">调整今天</button></div><div class="schedule-row"><span>上班</span><span>08:00</span></div><div class="schedule-row"><span>午休</span><span>12:00-14:00</span></div><div class="schedule-row"><span>下班</span><span>18:00</span></div></div></div></div>
+            <div class="portrait-page" data-portrait-page="a-calendar"><div class="calendar-card"><div class="section-head"><strong>2026 年 7 月</strong><span class="status-pill">23 个工作日</span></div><div class="days"><div class="day">日</div><div class="day">一</div><div class="day">二</div><div class="day">三</div><div class="day">四</div><div class="day">五</div><div class="day">六</div><div class="day">5</div><div class="day work">6</div><div class="day work">7</div><div class="day today">8</div><div class="day work">9</div><div class="day work">10</div><div class="day">11</div><div class="day">12</div><div class="day work">13</div><div class="day work">14</div><div class="day override">15</div><div class="day work">16</div><div class="day work">17</div><div class="day">18</div></div><div class="metrics"><div class="metric"><small>预计日薪</small><b>¥ 521.74</b></div><div class="metric"><small>本月累计</small><b>¥ 3,842.00</b></div></div></div></div>
+            <div class="portrait-bottom-nav"><button class="active" data-portrait-nav="a-today">今日</button><button data-portrait-nav="a-calendar">日历</button></div>
+          </div></div>
+
+          <div class="portrait-scheme" data-portrait-panel="b"><div class="portrait-shell">
+            <div class="portrait-header"><h3>收入进度</h3><button class="settings-button" data-open-modal="settingsModal" aria-label="打开设置">⚙</button></div>
+            <div class="portrait-segmented"><button class="active" data-portrait-nav="b-today">今日</button><button data-portrait-nav="b-calendar">日历</button></div>
+            <div class="portrait-page active" data-portrait-page="b-today"><div class="portrait-body"><div><div class="hero"><div class="eyebrow">今日已赚</div><div class="amount">¥ 186.42</div><div class="state-line">工作中 · 08:00-18:00</div><div class="progress"><span></span></div></div><div class="metrics"><div class="metric"><small>本月累计</small><b>¥ 3,842.00</b></div><div class="metric"><small>工作进度</small><b>56%</b></div></div></div><div class="schedule"><div class="section-head"><strong>今日安排</strong><button class="text-link" data-open-modal="dayModal">调整今天</button></div><div class="schedule-row"><span>上班</span><span>08:00</span></div><div class="schedule-row"><span>午休</span><span>12:00-14:00</span></div><div class="schedule-row"><span>下班</span><span>18:00</span></div></div></div></div>
+            <div class="portrait-page" data-portrait-page="b-calendar"><div class="calendar-card"><div class="section-head"><strong>2026 年 7 月</strong><button class="primary-button" data-open-modal="dayModal">调整日期</button></div><div class="days"><div class="day">日</div><div class="day">一</div><div class="day">二</div><div class="day">三</div><div class="day">四</div><div class="day">五</div><div class="day">六</div><div class="day">5</div><div class="day work">6</div><div class="day work">7</div><div class="day today">8</div><div class="day work">9</div><div class="day work">10</div><div class="day">11</div><div class="day">12</div><div class="day work">13</div><div class="day work">14</div><div class="day override">15</div><div class="day work">16</div><div class="day work">17</div><div class="day">18</div></div></div></div>
+          </div></div>
+
+          <div class="portrait-scheme" data-portrait-panel="c"><div class="portrait-shell">
+            <div class="portrait-page active" data-portrait-page="c-today"><div class="portrait-header"><h3>今日</h3><button class="settings-button" data-open-modal="settingsModal" aria-label="打开设置">⚙</button></div><div class="portrait-body"><div><div class="hero"><div class="eyebrow">今日已赚</div><div class="amount">¥ 186.42</div><div class="state-line">工作中 · 距离午休 38 分钟</div><div class="progress"><span></span></div></div><div class="metrics"><div class="metric"><small>本月累计</small><b>¥ 3,842.00</b></div><div class="metric"><small>工作进度</small><b>56%</b></div></div></div><div class="schedule"><div class="section-head"><strong>今日安排</strong><button class="text-link" data-open-modal="dayModal">调整今天</button></div><div class="schedule-row"><span>上班</span><span>08:00</span></div><div class="schedule-row"><span>午休</span><span>12:00-14:00</span></div><div class="schedule-row"><span>下班</span><span>18:00</span></div></div></div><button class="portrait-drill-action" data-portrait-nav="c-calendar"><span><strong>查看本月日历</strong><br><small class="state-line">23 个工作日 · 预计日薪 ¥521.74</small></span><span>›</span></button></div>
+            <div class="portrait-page" data-portrait-page="c-calendar"><div class="portrait-header"><div><button class="portrait-back" data-portrait-nav="c-today">‹ 返回今日</button><h3 style="margin-top:6px">2026 年 7 月</h3></div><button class="settings-button" data-open-modal="settingsModal" aria-label="打开设置">⚙</button></div><div class="calendar-card"><div class="section-head"><strong>本月日历</strong><button class="primary-button" data-open-modal="dayModal">调整日期</button></div><div class="days"><div class="day">日</div><div class="day">一</div><div class="day">二</div><div class="day">三</div><div class="day">四</div><div class="day">五</div><div class="day">六</div><div class="day">5</div><div class="day work">6</div><div class="day work">7</div><div class="day today">8</div><div class="day work">9</div><div class="day work">10</div><div class="day">11</div><div class="day">12</div><div class="day work">13</div><div class="day work">14</div><div class="day override">15</div><div class="day work">16</div><div class="day work">17</div><div class="day">18</div></div></div></div>
+          </div></div>
+        </div></div>
+        <div>
+          <div class="notes portrait-rationale active" data-portrait-rationale="a"><div class="note"><b>A 的优势</b><span>与 iPhone 的“今日/日历”结构完全一致，单手点击位置稳定，竖屏内容不会因侧栏挤压。</span></div><div class="note"><b>需要接受</b><span>底部会长期占用一条导航空间，但两个核心页面都能一步到达。</span></div></div>
+          <div class="notes portrait-rationale" data-portrait-rationale="b"><div class="note"><b>B 的优势</b><span>底部完全留给内容，顶部切换和页面标题形成一个紧凑工作区，更像 iPad 工具。</span></div><div class="note"><b>需要接受</b><span>顶部同时存在标题、切换和设置，视觉重心会比 A 更靠上。</span></div></div>
+          <div class="notes portrait-rationale" data-portrait-rationale="c"><div class="note"><b>C 的优势</b><span>首页只服务“今天”，导航最少，今日安排与收入进度最突出。</span></div><div class="note"><b>需要接受</b><span>日历不是常驻页签，需要进入再返回；高频查看日历时会多一步。</span></div></div>
+        </div>
+      </div>
+    </div></section>
+
     <section class="view" id="system"><div class="stage">
       <div class="stage-title"><div><h2>Widget 与 Live Activity</h2><p>切换工作、午休、完成和未配置状态，检查系统入口的信息层级。</p></div><span class="status-pill">WidgetKit + ActivityKit</span></div>
       <div class="control-bar" aria-label="系统状态"><button class="chip active" data-system-state="working">工作中</button><button class="chip" data-system-state="lunch">午休中</button><button class="chip" data-system-state="finished">已完成</button><button class="chip" data-system-state="empty">未配置</button><button class="primary-button" id="liveToggle">启动实时活动</button></div>
@@ -288,11 +368,11 @@
     </div></section>
 
     <section class="view" id="wizard"><div class="stage">
-      <div class="stage-title"><div><h2>三步首次引导</h2><p>工资制度、工作午休时间和计算预览都可前后切换。</p></div><span class="status-pill" id="wizardStatus">第 1 步，共 3 步</span></div>
+      <div class="stage-title"><div><h2>三步首次引导</h2><p>用少量输入推算完整工作安排，再按需要细调。</p></div><span class="status-pill" id="wizardStatus">第 1 步，共 3 步</span></div>
       <div class="wizard"><div class="stepper"><div class="step active"></div><div class="step"></div><div class="step"></div></div>
-        <div class="wizard-step active" data-wizard-step="0"><h3>设置工资与休息制度</h3><p>日薪按当月实际计薪工作日计算。</p><div class="form-section"><div class="form-row"><span>月薪</span><input class="field" id="wizardSalary" value="12000" inputmode="decimal" aria-label="月薪"></div><div class="form-row"><span>休息制度</span><select class="field" id="wizardRest"><option>双休</option><option>单休</option><option>大小周</option></select></div><div class="form-row"><span>大小周锚点</span><select class="field"><option>本周为双休周</option><option>本周为单休周</option></select></div></div></div>
-        <div class="wizard-step" data-wizard-step="1"><h3>设置工作与午休时间</h3><p>收入只在有效工作时间内增长，午休期间自动暂停。</p><div class="form-section"><div class="form-row"><span>上班时间</span><input class="field" value="08:00" aria-label="上班时间"></div><div class="form-row"><span>下班时间</span><input class="field" value="18:00" aria-label="下班时间"></div><div class="form-row"><span>午休开始</span><input class="field" value="12:00" aria-label="午休开始"></div><div class="form-row"><span>午休结束</span><input class="field" value="14:00" aria-label="午休结束"></div><div class="form-row"><span>标准有效工时</span><input class="field" value="8 小时" readonly aria-label="标准有效工时"></div></div></div>
-        <div class="wizard-step" data-wizard-step="2"><h3>确认计算预览</h3><p>确认后保存到当前设备；iPhone 与 iPad 首版不自动同步。</p><div class="summary-grid"><div class="metric"><small>月薪</small><b id="summarySalary">¥ 12,000</b></div><div class="metric"><small>休息制度</small><b id="summaryRest">双休</b></div><div class="metric"><small>预计工作日</small><b>23 天</b></div><div class="metric"><small>预计日薪</small><b>¥ 521.74</b></div><div class="metric"><small>工作时间</small><b>08:00-18:00</b></div><div class="metric"><small>午休</small><b>12:00-14:00</b></div></div></div>
+        <div class="wizard-step active" data-wizard-step="0"><h3>设置工资与休息制度</h3><p>日薪按当月实际计薪工作日计算。</p><div class="form-section"><div class="form-row"><span>月薪</span><input class="field" id="wizardSalary" value="0.00" inputmode="decimal" aria-label="月薪" autocomplete="off"></div><div class="field-note">可输入整数或最多两位小数</div><div class="form-row"><span>币种</span><select class="field" aria-label="币种"><option>人民币 CNY</option></select></div><div class="form-row"><span>休息制度</span><select class="field" id="wizardRest"><option>双休</option><option>单休</option><option>大小周</option></select></div><div class="form-row" id="alternatingWeekRow" hidden><span>本周是大周还是小周</span><div class="choice-group"><button class="choice-button" type="button" data-week-kind="big">大周 · 周六上班</button><button class="choice-button active" type="button" data-week-kind="small">小周 · 周六休息</button></div></div></div></div>
+        <div class="wizard-step" data-wizard-step="1"><h3>设置工作安排</h3><p>告诉我们几点上班和午休多久，系统先按 8 小时有效工作推算。</p><div class="form-section"><div class="form-row"><span>上班时间</span><input class="field" id="wizardWorkStart" type="time" value="08:00" aria-label="上班时间"></div><div class="form-row"><span>午休时长</span><select class="field" id="wizardLunchDuration" aria-label="午休时长"><option value="0">无午休</option><option value="30">30 分钟</option><option value="60">1 小时</option><option value="90">1.5 小时</option><option value="120" selected>2 小时</option><option value="150">2.5 小时</option><option value="180">3 小时</option></select></div><div class="inference-card"><div class="inference-head"><div><strong>已为你推算</strong><br><small>可继续调整详细时间</small></div><button class="soft-button" type="button" id="toggleScheduleDetails">调整详细时间</button></div><div class="schedule-row"><span>上班</span><strong id="inferredWorkStart">08:00</strong></div><div class="schedule-row"><span>午休</span><strong id="inferredLunch">12:00-14:00</strong></div><div class="schedule-row"><span>下班</span><strong id="inferredWorkEnd">18:00</strong></div><div class="schedule-row"><span>有效工时</span><strong id="inferredEffective">8 小时</strong></div><div class="detail-times" id="scheduleDetails"><div class="form-row"><span>午休开始</span><input class="field" id="wizardLunchStart" type="time" value="12:00" aria-label="午休开始"></div><div class="form-row"><span>午休结束</span><input class="field" id="wizardLunchEnd" type="time" value="14:00" aria-label="午休结束"></div><div class="form-row"><span>下班时间</span><input class="field" id="wizardWorkEnd" type="time" value="18:00" aria-label="下班时间"></div></div></div></div></div>
+        <div class="wizard-step" data-wizard-step="2"><h3>确认计算预览</h3><p>确认后保存到当前设备；iPhone 与 iPad 首版不自动同步。</p><div class="summary-grid"><div class="metric"><small>月薪</small><b id="summarySalary">¥ 0.00</b></div><div class="metric"><small>休息制度</small><b id="summaryRest">双休</b></div><div class="metric"><small>预计工作日</small><b>23 天</b></div><div class="metric"><small>预计日薪</small><b id="summaryDaily">--</b></div><div class="metric"><small>工作时间</small><b id="summarySchedule">08:00-18:00</b></div><div class="metric"><small>午休</small><b id="summaryLunch">12:00-14:00</b></div></div></div>
         <div class="actions"><button class="danger-button" id="wizardCancel">取消</button><button class="soft-button" id="wizardBack" disabled>上一步</button><button class="primary-button" id="wizardNext">下一步</button></div>
       </div>
     </div></section>
@@ -367,6 +447,22 @@
     $$('[data-ipad-jump]').forEach(button => button.addEventListener('click', () => setIpadPage(button.dataset.ipadJump)));
     $$('[data-feedback]').forEach(button => button.addEventListener('click', () => showToast(button.dataset.feedback)));
 
+    $$('[data-portrait-scheme]').forEach(button => button.addEventListener('click', () => {
+      const scheme = button.dataset.portraitScheme;
+      $$('[data-portrait-scheme]').forEach(item => item.classList.toggle('active', item === button));
+      $$('[data-portrait-panel]').forEach(panel => panel.classList.toggle('active', panel.dataset.portraitPanel === scheme));
+      $$('[data-portrait-rationale]').forEach(note => note.classList.toggle('active', note.dataset.portraitRationale === scheme));
+    }));
+    $$('[data-portrait-nav]').forEach(button => button.addEventListener('click', () => {
+      const target = button.dataset.portraitNav;
+      const scheme = target.split('-')[0];
+      const panel = document.querySelector(`[data-portrait-panel="${scheme}"]`);
+      panel.querySelectorAll('[data-portrait-page]').forEach(page => page.classList.toggle('active', page.dataset.portraitPage === target));
+      panel.querySelectorAll('[data-portrait-nav]').forEach(item => item.classList.toggle('active', item.dataset.portraitNav === target));
+      const title = panel.querySelector(`[data-portrait-title="${scheme}"]`);
+      if (title) title.textContent = target.endsWith('calendar') ? '日历' : '今日';
+    }));
+
     const systemStates = {
       working: ['今日已赚', '工作中', '¥ 186.42', '工作进度 56%', '¥', '¥ 186.42', '工作进度 56%', '02:22', '56%'],
       lunch: ['午休中', '12:00-14:00', '¥ 186.42', '收入与进度已暂停', 'Ⅱ', '午休中', '距离复工', '00:38', '56%'],
@@ -412,6 +508,38 @@
     });
 
     let wizardStep = 0;
+    let zeroSalaryCleared = false;
+    let lunchDurationMinutes = 120;
+    let selectedWeekKind = 'small';
+    const toMinutes = value => {
+      const [hour, minute] = value.split(':').map(Number);
+      return hour * 60 + minute;
+    };
+    const toTime = value => {
+      const normalized = ((value % 1440) + 1440) % 1440;
+      return `${String(Math.floor(normalized / 60)).padStart(2, '0')}:${String(normalized % 60).padStart(2, '0')}`;
+    };
+    const effectiveMinutes = () => Math.max(0, toMinutes($('#wizardWorkEnd').value) - toMinutes($('#wizardWorkStart').value) - lunchDurationMinutes);
+    const renderSchedule = () => {
+      const start = $('#wizardWorkStart').value;
+      const lunchStart = $('#wizardLunchStart').value;
+      const lunchEnd = $('#wizardLunchEnd').value;
+      const end = $('#wizardWorkEnd').value;
+      const effective = effectiveMinutes();
+      $('#inferredWorkStart').textContent = start;
+      $('#inferredLunch').textContent = lunchDurationMinutes === 0 ? '无午休' : `${lunchStart}-${lunchEnd}`;
+      $('#inferredWorkEnd').textContent = end;
+      $('#inferredEffective').textContent = `${(effective / 60).toLocaleString('zh-CN', { maximumFractionDigits: 1 })} 小时`;
+      $('#summarySchedule').textContent = `${start}-${end}`;
+      $('#summaryLunch').textContent = lunchDurationMinutes === 0 ? '无午休' : `${lunchStart}-${lunchEnd}`;
+    };
+    const inferSchedule = () => {
+      lunchDurationMinutes = Number($('#wizardLunchDuration').value);
+      $('#wizardLunchStart').value = '12:00';
+      $('#wizardLunchEnd').value = toTime(12 * 60 + lunchDurationMinutes);
+      $('#wizardWorkEnd').value = toTime(toMinutes($('#wizardWorkStart').value) + 8 * 60 + lunchDurationMinutes);
+      renderSchedule();
+    };
     const renderWizard = () => {
       $$('.wizard-step').forEach((item, index) => item.classList.toggle('active', index === wizardStep));
       $$('.stepper .step').forEach((item, index) => item.classList.toggle('active', index <= wizardStep));
@@ -420,15 +548,62 @@
       $('#wizardNext').textContent = wizardStep === 2 ? '完成配置' : '下一步';
       if (wizardStep === 2) {
         const salary = Number($('#wizardSalary').value || 0);
-        $('#summarySalary').textContent = `¥ ${salary.toLocaleString('zh-CN')}`;
-        $('#summaryRest').textContent = $('#wizardRest').value;
+        $('#summarySalary').textContent = `¥ ${salary.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        $('#summaryDaily').textContent = salary > 0 ? `¥ ${(salary / 23).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '--';
+        $('#summaryRest').textContent = $('#wizardRest').value === '大小周' ? `大小周 · 本周${selectedWeekKind === 'big' ? '大周' : '小周'}` : $('#wizardRest').value;
+        renderSchedule();
       }
     };
+    $('#wizardSalary').addEventListener('focus', event => {
+      if (!zeroSalaryCleared && Number(event.target.value) === 0) {
+        event.target.value = '';
+        zeroSalaryCleared = true;
+      }
+    });
+    $('#wizardSalary').addEventListener('input', event => {
+      const filtered = event.target.value.replace(/[^0-9.]/g, '');
+      const [whole = '', ...fractionParts] = filtered.split('.');
+      event.target.value = fractionParts.length ? `${whole}.${fractionParts.join('').slice(0, 2)}` : whole;
+    });
+    $('#wizardSalary').addEventListener('blur', event => {
+      const value = Number(event.target.value);
+      if (event.target.value !== '' && Number.isFinite(value)) event.target.value = value.toFixed(2);
+    });
+    $('#wizardRest').addEventListener('change', event => {
+      $('#alternatingWeekRow').hidden = event.target.value !== '大小周';
+    });
+    $$('[data-week-kind]').forEach(button => button.addEventListener('click', () => {
+      selectedWeekKind = button.dataset.weekKind;
+      $$('[data-week-kind]').forEach(item => item.classList.toggle('active', item === button));
+    }));
+    $('#wizardWorkStart').addEventListener('change', inferSchedule);
+    $('#wizardLunchDuration').addEventListener('change', inferSchedule);
+    $('#wizardLunchStart').addEventListener('change', () => {
+      $('#wizardLunchEnd').value = toTime(toMinutes($('#wizardLunchStart').value) + lunchDurationMinutes);
+      renderSchedule();
+    });
+    $('#wizardLunchEnd').addEventListener('change', () => {
+      $('#wizardLunchStart').value = toTime(toMinutes($('#wizardLunchEnd').value) - lunchDurationMinutes);
+      renderSchedule();
+    });
+    $('#wizardWorkEnd').addEventListener('change', renderSchedule);
+    $('#toggleScheduleDetails').addEventListener('click', event => {
+      const open = $('#scheduleDetails').classList.toggle('open');
+      event.target.textContent = open ? '收起详细时间' : '调整详细时间';
+    });
     $('#wizardNext').addEventListener('click', () => {
-      if (wizardStep === 0 && Number($('#wizardSalary').value) <= 0) {
+      const salaryPattern = /^\d+(\.\d{1,2})?$/;
+      if (wizardStep === 0 && (!salaryPattern.test($('#wizardSalary').value) || Number($('#wizardSalary').value) <= 0)) {
         $('#wizardSalary').classList.add('error');
-        showToast('请输入有效月薪');
+        showToast('请输入大于 0 且最多两位小数的月薪');
         return;
+      }
+      if (wizardStep === 1) {
+        const valid = toMinutes($('#wizardWorkStart').value) < toMinutes($('#wizardLunchStart').value)
+          && toMinutes($('#wizardLunchStart').value) <= toMinutes($('#wizardLunchEnd').value)
+          && toMinutes($('#wizardLunchEnd').value) <= toMinutes($('#wizardWorkEnd').value)
+          && effectiveMinutes() > 0;
+        if (!valid) { showToast('请检查工作和午休时间顺序'); return; }
       }
       $('#wizardSalary').classList.remove('error');
       if (wizardStep < 2) { wizardStep += 1; renderWizard(); }
@@ -436,6 +611,7 @@
     });
     $('#wizardBack').addEventListener('click', () => { if (wizardStep > 0) { wizardStep -= 1; renderWizard(); } });
     $('#wizardCancel').addEventListener('click', () => { wizardStep = 0; renderWizard(); showToast('已取消引导，未保存更改'); });
+    inferSchedule();
   </script>
 </body>
 </html>

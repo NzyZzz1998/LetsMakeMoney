@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "monthlySalaryMinor": 1000000,
+  "currencyCode": "CNY",
+  "restMode": "doubleWeekend",
+  "workStart": "08:00",
+  "workEnd": "18:00",
+  "lunchStart": "12:00",
+  "lunchEnd": "14:00",
+  "standardWorkSeconds": 28800,
+  "dateOverrides": [
+    { "date": "2026-07-14", "isWorkday": true, "isPaid": true },
+    { "date": "2026-07-14", "isWorkday": false, "isPaid": false }
+  ],
+  "holidayDatasetVersion": "cn-mainland-2025-2026-v1",
+  "notificationPreference": "notRequested",
+  "watchMetric": "remainingTime"
+}
