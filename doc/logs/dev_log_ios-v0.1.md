@@ -10,9 +10,18 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 5/17，小/中/大组件金额、状态、进度和降级态已实现，大组件额外展示今日安排
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 6/17，小/中/大与锁屏 accessory 组件的金额、状态、进度和降级态已实现
 
 ## 开发记录
+
+### 2026-07-15 M4-006 锁屏 accessory families 与窄宽度降级
+
+- 测试先行增加锁屏 family、专用紧凑视图、`ViewThatFits` 和短错误态合同；RED 阶段因缺少 `.accessoryInline`、`.accessoryCircular`、`.accessoryRectangular` 和 family 路由而按预期失败。
+- 内联组件优先显示“状态 · 金额”，宽度不足时退化为状态；圆形组件只显示工作进度；矩形组件显示金额、状态、百分比与进度条，避免把桌面大组件布局硬塞进锁屏。
+- 未配置和快照不可用沿用既有内容状态，但锁屏仅显示图标与短标题，不展示多行解释；三种锁屏 family 使用系统强调色并保持桌面组件行为不变。
+- 本地 M4 门禁通过：SalaryCore 47/47、Widget Extension 合同 9/9，M1-M4、M3、Playgrounds 导出和本地化回归全部通过；`git diff --check` 无错误。
+- 实现提交为 `a872d2c`。GitHub macOS run `29406926128` 在 Xcode 16.4 下成功编译正式 App 与内嵌 Widget Extension，并通过全部 Apple SDK 编译步骤。
+- 当前证据不包含签名、App Group 真机读写、锁屏添加与不同壁纸/系统渲染模式的视觉验收；这些由 M7 真机矩阵承担，不以 Simulator 编译替代。
 
 ### 2026-07-15 M4-005 大组件金额、进度与今日安排
 
