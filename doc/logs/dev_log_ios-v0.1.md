@@ -10,9 +10,19 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 2/17，正式 App 与 Widget Extension 编译门禁已通过
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 3/17，小组件金额、状态和降级态已实现
 
 ## 开发记录
+
+### 2026-07-15 M4-003 小组件金额、状态与降级态
+
+- 测试先行扩展共享快照与 Widget 源码合同；RED 阶段分别因缺少结构化快照读取错误、三态投影、金额/状态文案和降级界面而按预期失败。
+- `SharedSnapshotStore.read()` 现在明确区分“尚无快照”和“快照损坏/不可读”，Widget 将其投影为 `unconfigured` 与 `unavailable`，不再把所有失败混成空白界面。
+- `.systemSmall` 就绪态显示今日已赚金额、暖色金币标识和显式中文工作状态；同时提供占位、未配置提示和数据暂不可用提示。
+- 状态文案使用 `SalaryStatus` 的穷举映射，不依赖运行时拼接本地化键；金额使用人民币货币格式和稳定数字观感。
+- 本地 M4 门禁通过：Widget Extension 合同 6/6、SalaryCore 46/46，M1-M4、M3、Playgrounds 导出和本地化回归全部通过；`git diff --check` 无错误。
+- 实现提交为 `42cf60f`。GitHub macOS run `29402002179` 在 Xcode 16.4 下成功编译正式 App 与 Widget Extension，将 `LetsMakeMoneyWidget.appex` 复制到 App 的 `PlugIns`，并通过 `ValidateEmbeddedBinary` 与 `BUILD SUCCEEDED`。
+- 当前证据仍不包含真实签名、App Group 容器、系统桌面添加与时间线刷新；这些边界没有因 Simulator 编译通过而提前关闭。
 
 ### 2026-07-15 M4-002 正式 Widget Extension 与共享快照
 
