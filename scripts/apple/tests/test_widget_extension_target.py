@@ -97,6 +97,16 @@ class WidgetExtensionTargetTests(unittest.TestCase):
         ):
             self.assertIn(key, widget_source)
 
+    def test_medium_widget_adds_progress_without_changing_content_states(self):
+        widget_source = WIDGET_SOURCE.read_text(encoding="utf-8")
+        self.assertIn("@Environment(\\.widgetFamily)", widget_source)
+        self.assertIn("mediumReadyView", widget_source)
+        self.assertIn("progressBasisPoints", widget_source)
+        self.assertIn("ProgressView", widget_source)
+        self.assertIn('Text("today.progress")', widget_source)
+        self.assertIn("[.systemSmall, .systemMedium]", widget_source)
+        self.assertEqual(widget_source.count("enum SalaryWidgetContentState"), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

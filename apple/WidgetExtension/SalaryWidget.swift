@@ -93,14 +93,15 @@ private struct MissingSharedSnapshotReader: SharedSnapshotReading {
 
 struct SalaryWidgetView: View {
     let entry: SalaryWidgetEntry
+    @Environment(\.widgetFamily) private var widgetFamily
 
     var body: some View {
         Group {
             switch entry.content {
             case .placeholder:
-                smallPlaceholderView
+                placeholderView
             case .ready(let snapshot):
-                smallReadyView(snapshot)
+                readyView(snapshot)
             case .unconfigured:
                 emptyStateView(
                     icon: "slider.horizontal.3",
@@ -118,6 +119,24 @@ struct SalaryWidgetView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .containerBackground(for: .widget) {
             Color(red: 1.0, green: 0.97, blue: 0.90)
+        }
+    }
+
+    @ViewBuilder
+    private func readyView(_ snapshot: SharedSnapshotBundle) -> some View {
+        if widgetFamily == .systemMedium {
+            mediumReadyView(snapshot)
+        } else {
+            smallReadyView(snapshot)
+        }
+    }
+
+    @ViewBuilder
+    private var placeholderView: some View {
+        if widgetFamily == .systemMedium {
+            mediumPlaceholderView
+        } else {
+            smallPlaceholderView
         }
     }
 
@@ -139,20 +158,7 @@ struct SalaryWidgetView: View {
 
             Spacer(minLength: 2)
 
-            HStack(spacing: 5) {
-                Circle()
-                    .fill(statusColor(snapshot.salary.value.status))
-                    .frame(width: 7, height: 7)
-                Text(statusKey(snapshot.salary.value.status))
-                    .font(.caption2.weight(.semibold))
-                    .lineLimit(1)
-            }
-            .foregroundStyle(Color(red: 0.34, green: 0.25, blue: 0.16))
-            .padding(.horizontal, 9)
-            .padding(.vertical, 5)
-            .background(
-                Capsule().fill(Color.white.opacity(0.62))
-            )
+            statusBadge(snapshot.salary.value.status)
         }
     }
 
@@ -165,6 +171,72 @@ struct SalaryWidgetView: View {
             Spacer(minLength: 2)
             Text("status.working")
                 .font(.caption2.weight(.semibold))
+        }
+        .redacted(reason: .placeholder)
+    }
+
+    private func mediumReadyView(_ snapshot: SharedSnapshotBundle) -> some View {
+        HStack(spacing: 18) {
+            VStack(alignment: .leading, spacing: 7) {
+                Label("today.amount", systemImage: "yensign.circle.fill")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Color(red: 0.40, green: 0.29, blue: 0.18))
+
+                Text(amount(snapshot.salary.value.todayEarnedMinor))
+                    .font(.title2.weight(.bold).monospacedDigit())
+                    .foregroundStyle(Color(red: 0.20, green: 0.14, blue: 0.09))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+
+                statusBadge(snapshot.salary.value.status)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Divider()
+                .overlay(Color(red: 0.55, green: 0.42, blue: 0.28).opacity(0.18))
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("today.progress")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Color(red: 0.40, green: 0.29, blue: 0.18))
+
+                Text(percent(snapshot.salary.value.progressBasisPoints))
+                    .font(.title3.weight(.bold).monospacedDigit())
+                    .foregroundStyle(Color(red: 0.20, green: 0.14, blue: 0.09))
+
+                ProgressView(
+                    value: Double(clampedProgress(snapshot.salary.value.progressBasisPoints)),
+                    total: 10_000
+                )
+                .tint(Color(red: 0.95, green: 0.58, blue: 0.12))
+                .accessibilityLabel("today.progress")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var mediumPlaceholderView: some View {
+        HStack(spacing: 18) {
+            VStack(alignment: .leading, spacing: 7) {
+                Label("today.amount", systemImage: "yensign.circle.fill")
+                    .font(.caption.weight(.medium))
+                Text("¥ 186.42")
+                    .font(.title2.weight(.bold).monospacedDigit())
+                Text("status.working")
+                    .font(.caption2.weight(.semibold))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("today.progress")
+                    .font(.caption.weight(.medium))
+                Text("56%")
+                    .font(.title3.weight(.bold).monospacedDigit())
+                ProgressView(value: 0.56)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .redacted(reason: .placeholder)
     }
@@ -207,6 +279,31 @@ struct SalaryWidgetView: View {
         }
     }
 
+    private func statusBadge(_ status: SalaryStatus) -> some View {
+        HStack(spacing: 5) {
+            Circle()
+                .fill(statusColor(status))
+                .frame(width: 7, height: 7)
+            Text(statusKey(status))
+                .font(.caption2.weight(.semibold))
+                .lineLimit(1)
+        }
+        .foregroundStyle(Color(red: 0.34, green: 0.25, blue: 0.16))
+        .padding(.horizontal, 9)
+        .padding(.vertical, 5)
+        .background(Capsule().fill(Color.white.opacity(0.62)))
+    }
+
+    private func clampedProgress(_ basisPoints: Int) -> Int {
+        min(max(basisPoints, 0), 10_000)
+    }
+
+    private func percent(_ basisPoints: Int) -> String {
+        (Double(clampedProgress(basisPoints)) / 10_000).formatted(
+            .percent.precision(.fractionLength(0))
+        )
+    }
+
     private func amount(_ minor: Int64) -> String {
         (Double(minor) / 100).formatted(
             .currency(code: "CNY").precision(.fractionLength(2))
@@ -223,6 +320,6 @@ struct SalaryWidget: Widget {
         }
         .configurationDisplayName("app.title")
         .description("today.amount")
-        .supportedFamilies([.systemSmall])
+        .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
