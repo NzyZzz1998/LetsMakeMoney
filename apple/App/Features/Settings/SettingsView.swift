@@ -27,7 +27,19 @@ struct SettingsView: View {
                     }
                     Section("settings.notifications") {
                         LabeledContent("settings.notification_status") {
-                            Text(LocalizedStringKey("notification.\(binding.value.notificationPreference.wrappedValue.rawValue)"))
+                            Text(LocalizedStringKey("notification.\(model.notificationStatus.rawValue)"))
+                        }
+                        switch NotificationPermissionPolicy.primaryAction(for: model.notificationStatus) {
+                        case .requestAuthorization:
+                            Button("notification.request") {
+                                Task { await model.requestNotificationAuthorization() }
+                            }
+                        case .openSystemSettings:
+                            Button("notification.open_settings") {
+                                Task { await model.openNotificationSettings() }
+                            }
+                        case .none:
+                            EmptyView()
                         }
                     }
                     Section("settings.system") {

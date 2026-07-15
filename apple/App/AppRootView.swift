@@ -4,6 +4,7 @@ import SwiftUI
 struct AppRootView: View {
     @EnvironmentObject private var model: AppModel
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         ZStack {
@@ -21,6 +22,10 @@ struct AppRootView: View {
         .tint(WarmPalette.orange)
         .sheet(isPresented: modalBinding(.settings)) { SettingsView() }
         .fullScreenCover(isPresented: modalBinding(.onboarding)) { OnboardingView() }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active else { return }
+            Task { await model.refreshNotificationStatus() }
+        }
     }
 
     private var landscapeNavigation: some View {

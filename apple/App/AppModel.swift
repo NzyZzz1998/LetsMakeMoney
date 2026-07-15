@@ -9,28 +9,33 @@ final class AppModel: ObservableObject {
     @Published var navigation = AppNavigationState()
     @Published var feedbackKey: String?
     @Published var selectedDate: Date?
+    @Published private(set) var notificationStatus: NotificationPreference = .notRequested
 
     private let store: ConfigurationStore
     private let logger: LocalEventLogger
     private let holidays: HolidayCalendar
     private let timeZone: TimeZone
     private let sharedSnapshotWriter: (any SharedSnapshotWriting)?
+    private let notificationController: any NotificationPermissionControlling
 
     init(
         store: ConfigurationStore,
         logger: LocalEventLogger,
         holidays: HolidayCalendar,
         timeZone: TimeZone = .current,
-        sharedSnapshotWriter: (any SharedSnapshotWriting)? = nil
+        sharedSnapshotWriter: (any SharedSnapshotWriting)? = nil,
+        notificationController: any NotificationPermissionControlling = SystemNotificationPermissionController()
     ) {
         self.store = store
         self.logger = logger
         self.holidays = holidays
         self.timeZone = timeZone
         self.sharedSnapshotWriter = sharedSnapshotWriter
+        self.notificationController = notificationController
     }
 
     func load(now: Date = Date()) async {
+        await refreshNotificationStatus()
         do {
             let result = try await store.load()
             configuration = result.configuration
@@ -106,6 +111,46 @@ final class AppModel: ObservableObject {
     func select(_ destination: AppDestination) { navigation.select(destination) }
     func present(_ modal: AppModal) { navigation.present(modal) }
     func dismissModal() { navigation.dismissModal() }
+
+    func refreshNotificationStatus() async {
+        notificationStatus = await notificationController.currentStatus()
+        try? await logger.record(
+            level: .info,
+            event: "notification.status_refreshed",
+            metadata: ["status": notificationStatus.rawValue]
+        )
+    }
+
+    func requestNotificationAuthorization() async {
+        guard NotificationPermissionPolicy.primaryAction(for: notificationStatus)
+            == .requestAuthorization
+        else { return }
+        do {
+            notificationStatus = try await notificationController.requestAuthorization()
+            feedbackKey = nil
+            try? await logger.record(
+                level: .info,
+                event: "notification.request_succeeded",
+                metadata: ["status": notificationStatus.rawValue]
+            )
+        } catch {
+            feedbackKey = "notification.request_failed"
+            try? await logger.record(level: .error, event: "notification.request_failed")
+        }
+    }
+
+    func openNotificationSettings() async {
+        guard NotificationPermissionPolicy.primaryAction(for: notificationStatus)
+            == .openSystemSettings
+        else { return }
+        if await notificationController.openSystemSettings() {
+            feedbackKey = nil
+            try? await logger.record(level: .info, event: "notification.settings_opened")
+        } else {
+            feedbackKey = "notification.settings_failed"
+            try? await logger.record(level: .error, event: "notification.settings_open_failed")
+        }
+    }
 
     private func publishSharedSnapshot(_ snapshot: SalarySnapshot?, generatedAt: Date) async {
         guard let snapshot, let sharedSnapshotWriter else { return }
