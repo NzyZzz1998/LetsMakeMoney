@@ -10,9 +10,18 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 6/17，小/中/大与锁屏 accessory 组件的金额、状态、进度和降级态已实现
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 7/17，Widget 桌面/锁屏 families、时间线、最后更新时间和过期态已实现
 
 ## 开发记录
+
+### 2026-07-15 M4-007 Widget 时间线、最后更新时间与过期态
+
+- 测试先行为共享快照刷新策略和 Widget 时间线源码合同增加失败用例；RED 阶段因缺少 `SharedSnapshotRefreshPolicy`、过期内容状态、过期时间线 entry 与更新时间文案而按预期失败。
+- 新增独立刷新策略：默认每 15 分钟请求一次 WidgetKit 刷新，快照生成 30 分钟后判定过期；未来时间戳不会推迟周期刷新，已过期快照继续保留最后有效值并按周期重试。
+- 时间线在快照过期边界加入过期 entry，即使系统延后实际刷新也能切换到明确过期展示；桌面与锁屏 families 显示更新时间或紧凑过期提示，不承诺系统按秒刷新。
+- 本地 M4 门禁通过：SalaryCore 51/51、Widget Extension 合同 10/10，M1-M4、M3、Playgrounds 导出和本地化回归全部通过；本地化 JSON 与 `git diff --check` 无错误。
+- 实现提交为 `b45d457`。GitHub macOS run `29408598821` 在 Xcode 16.4 下成功编译正式 App 与内嵌 Widget Extension，并通过全部 Apple SDK 编译步骤。
+- 当前证据不包含签名、App Group 真机读写、WidgetKit 系统预算下的真实刷新时刻、桌面/锁屏添加或视觉验收；这些由 M7 真机矩阵承担，不以 Simulator 编译替代。
 
 ### 2026-07-15 M4-006 锁屏 accessory families 与窄宽度降级
 
