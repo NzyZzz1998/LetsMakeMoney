@@ -79,7 +79,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             build | tee ../../../build/apple-sdk-ci/g3-watch.log
       - name: Bootstrap pinned XcodeGen
-        run: ./scripts/apple/bootstrap_xcodegen.sh "$RUNNER_TEMP/lmm-xcodegen"
+        run: bash ./scripts/apple/bootstrap_xcodegen.sh "$RUNNER_TEMP/lmm-xcodegen"
       - name: Generate the formal Apple project
         run: xcodegen generate --spec apple/project.yml --project apple/LetsMakeMoney.xcodeproj
       - name: List formal App and Widget schemes
