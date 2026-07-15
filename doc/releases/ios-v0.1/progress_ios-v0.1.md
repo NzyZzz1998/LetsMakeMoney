@@ -213,7 +213,7 @@
 - R10 包：`build/apple-playgrounds/LetsMakeMoneyM3R10-playgrounds.zip`，SHA256 `19327DC3BCA420EA07C8E1CA3DA04169DF11F1299C002580616CD649990D81E2`；使用自定义底部导航阻止 iPadOS 顶部浮动页签，页面背景填满可用区域，今日状态改为固定中文本地化映射，并为无效月薪增加明确错误提示。包内关键实现与中文资源 5/5 检查通过。
 - iPad 证据：R9 在 iPad Pro M4、Swift Playgrounds 4.7 完成完整手动验证；R10 对无效月薪提示、今日中文状态、iPad 竖屏底部导航和横竖屏页面边缘完成定向复测，项目所有者确认全部通过。
 - Preview/UI 自动化矩阵：`AppRootView.swift` 已覆盖 iPhone 竖屏、iPad 竖屏/横屏、深色、大字、Settings 和 Onboarding 七类 Preview；`M3SmokeUITests.swift` 已覆盖确定配置下的今日/日历/设置关闭和无配置首次引导。源码矩阵完成，但 Xcode `XCTest` 执行仍等待 G3，不写成已运行通过。
-- 调试基线：新增可恢复 Debug Hub；GitHub macOS Apple SDK 工作流为手动实验性门禁，等待首次远端运行，当前不计为通过。
+- 调试基线：新增可恢复 Debug Hub；GitHub macOS Apple SDK 工作流支持 `ios-main` Apple 路径自动触发及手动触发，等待首次远端运行，当前不计为通过。
 - 证据状态：M0-M3 与 M3R 的 Windows 合同和 iPad 主路径已收口；Apple SDK 编译及 UI Test 运行证据转交 G3。
 - 失效条件：schema、配置/快照模型、App/SwiftUI 源码、本地化资源、测试或 Swift 工具链版本变化时重测。
 

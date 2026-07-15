@@ -97,7 +97,7 @@
 - 在 `AppRootView` 应用最小修复，并新增 `test_app_root_playgrounds_compatibility.py` 防止方法引用回归；Windows 回归 24 项、SalaryCore 33/33 与 M3 门禁通过。
 - 生成 R5 完整包 `build/apple-playgrounds-m3-r5/LetsMakeMoneyM3R5-playgrounds.zip`，SHA256 为 `4D90D4048D3115B9CEC1D2F3A2F4B6A46C8F716C5979D9845BC831590361253C`；用户在 iPad Pro M4、Swift Playgrounds 4.7 确认完整 App 可启动。
 - 新增单一 `LMMDebugHub` 导出器。Hub 默认进入安全首页，页面按层单独打开；打开前和显示后将阶段写入 `UserDefaults`，静默退出后重新启动即可查看最后边界。
-- 新增手动触发的 `apple-sdk-experimental.yml`，计划在 GitHub macOS runner 上执行 SalaryCore、源码合同和 iOS Simulator SDK 编译。该工作流尚未远端运行，因此只记录为实验性能力，不作为 Apple SDK 已通过证据。
+- 新增 `apple-sdk-experimental.yml`，支持手动触发，并仅在 `ios-main` 的 Apple 相关路径发生变更时自动运行；计划在 GitHub macOS runner 上执行 SalaryCore、源码合同和 iOS Simulator SDK 编译。首次远端结果完成前只记录为实验性能力，不作为 Apple SDK 已通过证据。
 - M3-016/M3-017 保持未完成；完整 App 启动只关闭 `M3-MAN-001/002`，不替代引导、布局、动态字体、VoiceOver 和主路径验收。
 
 ### 2026-07-14 M3 iPhone/iPad App 源码与 Windows 门禁

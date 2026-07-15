@@ -16,7 +16,7 @@
 
 1. 在 Windows 修改代码并运行对应 Swift/Python/合同测试。
 2. 运行 `scripts/apple/check_ios_m3.ps1`；失败时不传 iPad。
-3. 需要 Apple SDK 类型证据时，手动运行 `.github/workflows/apple-sdk-experimental.yml`。
+3. 需要 Apple SDK 类型证据时，推送 `ios-main` 的 Apple 相关变更以自动运行 `.github/workflows/apple-sdk-experimental.yml`，也可在工作流注册后手动触发。
 4. macOS 工作流首次验证通过前只作为实验性门禁；失败时下载 `apple-sdk-experimental-diagnostics` 查看 `xcodebuild.log`。
 5. Apple SDK 编译通过后，再将完整候选包传入 iPad。
 6. 完整候选包静默崩溃时，改用 Debug Hub，不再立即创建新探针。

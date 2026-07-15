@@ -7,11 +7,14 @@ WORKFLOW = ROOT / ".github" / "workflows" / "apple-sdk-experimental.yml"
 
 
 class AppleSDKWorkflowTests(unittest.TestCase):
-    def test_workflow_is_manual_and_uses_a_macos_runner(self):
+    def test_workflow_is_manual_or_ios_branch_scoped_and_uses_a_macos_runner(self):
         source = WORKFLOW.read_text(encoding="utf-8")
         self.assertIn("workflow_dispatch:", source)
         self.assertNotIn("pull_request:", source)
-        self.assertNotIn("push:", source)
+        self.assertIn("push:", source)
+        self.assertIn("- ios-main", source)
+        self.assertIn("- 'apple/**'", source)
+        self.assertIn("- 'scripts/apple/**'", source)
         self.assertIn("runs-on: macos-", source)
         self.assertIn("xcodebuild -version", source)
         self.assertIn("swift test --package-path apple/Packages/SalaryCore", source)

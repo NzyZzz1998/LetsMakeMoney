@@ -2,6 +2,14 @@ name: Apple SDK experimental gate
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - ios-main
+    paths:
+      - 'apple/**'
+      - 'shared/salary-schema/**'
+      - 'scripts/apple/**'
+      - '.github/workflows/apple-sdk-experimental.yml'
 
 permissions:
   contents: read
