@@ -313,6 +313,16 @@
 - 未验证/待补证：iPad Swift Playgrounds 能力、Swift 编译、Xcode 多 Target、App Group、Activity、Watch 与真实设备。
 - 关联 bugfix/spike：后续 M0 需要 iPad Playgrounds 与 macOS/Xcode 环境 Spike。
 
+### 2026-07-15 M4 手动 Live Activity 入口与自动化收口
+
+- 建立共享 `SystemSalaryActivityCoordinator`，统一 App、Widget、控制中心与 App Intent 的 ActivityKit 启停语义；协调器只读取版本化共享启动上下文，并记录启动、结束、不可用和失败事件。
+- 通知权限与手动 Live Activity 明确解耦：通知拒绝只影响通知提示，不作为手动启停门禁；新增纯 Swift 反例测试锁定该边界。
+- App 今日页、桌面 Widget、控制中心 Control Widget 及快捷指令动作均接入同一协调器，避免四套入口分别维护状态判断。
+- Windows M4 门禁累计 76 个 Swift 测试、14 个 Widget Extension 合同、5 个通知权限合同和 5 个手动入口合同通过。
+- macOS CI 连续发现并关闭三项 Windows 无法暴露的 Apple SDK 问题：Playgrounds 导出缺少共享 Activity 源码、Swift 6 actor 隔离要求协调器可安全发送、Widget getter 缺少显式 `return`。
+- GitHub Actions run `29431334029` 在 HEAD `61df1b9` 使用 Xcode 16.4 完成正式 App 与内嵌 Widget Extension 的 Simulator SDK 编译，所有步骤通过。
+- 新增 `m4-device-verification.md`，将签名/App Group、锁屏、灵动岛、系统限流、自动结束及四个真实入口保留为 iPhone 16 Pro Max 真机门禁。未取得正式签名包前不把 CI 编译写成系统行为通过。
+
 ## 关键决策
 
 | 决策 | 背景 | 取舍 | 影响范围 | 后续观察 |
