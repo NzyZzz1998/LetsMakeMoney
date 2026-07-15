@@ -10,9 +10,19 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 3/17，小组件金额、状态和降级态已实现
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 4/17，小/中组件金额、状态、进度和降级态已实现
 
 ## 开发记录
+
+### 2026-07-15 M4-004 中组件金额、状态与工作进度
+
+- 测试先行新增中尺寸 Widget 契约；RED 阶段因缺少 `.systemMedium`、family 分流、中组件视图和进度展示而按预期失败。
+- `SalaryWidgetView` 使用 `widgetFamily` 在同一 `SalaryWidgetContentState` 上选择小/中布局，没有复制共享快照读取或错误状态机。
+- `.systemMedium` 就绪态展示今日金额、显式中文工作状态、工作进度百分比和进度条；进度限制在 `0...10_000` 基点范围，金额与状态复用小组件规则。
+- 中尺寸占位态同步提供金额、状态和进度骨架；未配置与快照不可用继续复用已有降级界面，未提前引入大组件、时间线刷新或 Live Activity。
+- 本地 M4 门禁通过：Widget Extension 合同 7/7、SalaryCore 46/46，M1-M4、M3、Playgrounds 导出和本地化回归全部通过；`git diff --check` 无错误。
+- 实现提交为 `1855715`。GitHub macOS run `29403617023` 在 Xcode 16.4 下成功编译正式 App 与 Widget Extension，将 `LetsMakeMoneyWidget.appex` 复制到 App 的 `PlugIns`，并通过 `ValidateEmbeddedBinary` 与 `BUILD SUCCEEDED`。
+- 当前证据仍不包含真实签名、App Group 容器、系统桌面添加与中组件视觉验收；这些边界继续由 M4 后续任务与 M7 真机验收承担。
 
 ### 2026-07-15 M4-003 小组件金额、状态与降级态
 

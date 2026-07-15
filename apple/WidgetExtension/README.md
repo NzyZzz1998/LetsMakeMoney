@@ -5,8 +5,9 @@
 - `LetsMakeMoneyWidget` 已作为正式 iOS App Extension target 写入 `apple/project.yml`。
 - GitHub macOS 使用固定 XcodeGen 生成工程，并以 Xcode 16.4 无签名构建 App 与 Widget。
 - `SalaryWidgetProvider` 通过 `SharedSnapshotReading` 读取 App Group 中的 `SharedSnapshotBundle`，不得写主配置。
-- `.systemSmall` 已展示今日金额和显式工作状态，并覆盖占位、未配置与快照不可用三类降级界面。
-- 中、大、锁屏 families、时间线过期策略、Live Activity 与通知仍按 `IOS01-M4-004` 之后的任务推进。
+- `.systemSmall` 已展示今日金额和显式工作状态；`.systemMedium` 在此基础上增加工作进度百分比和进度条。
+- 两种尺寸共用占位、未配置与快照不可用三类降级界面，不复制快照读取或错误状态机。
+- 大、锁屏 families、时间线过期策略、Live Activity 与通知仍按 `IOS01-M4-005` 之后的任务推进。
 
 ## 数据边界
 
