@@ -104,7 +104,8 @@ class WidgetExtensionTargetTests(unittest.TestCase):
         self.assertIn("progressBasisPoints", widget_source)
         self.assertIn("ProgressView", widget_source)
         self.assertIn('Text("today.progress")', widget_source)
-        self.assertIn("[.systemSmall, .systemMedium, .systemLarge]", widget_source)
+        for family in (".systemSmall", ".systemMedium", ".systemLarge"):
+            self.assertIn(family, widget_source)
         self.assertEqual(widget_source.count("enum SalaryWidgetContentState"), 1)
 
     def test_large_widget_adds_today_schedule_from_shared_projection(self):
@@ -116,7 +117,34 @@ class WidgetExtensionTargetTests(unittest.TestCase):
         self.assertIn('scheduleRow("schedule.lunch"', widget_source)
         self.assertIn('scheduleRow("schedule.work_end"', widget_source)
         self.assertIn(".systemLarge", widget_source)
-        self.assertIn("[.systemSmall, .systemMedium, .systemLarge]", widget_source)
+        self.assertEqual(widget_source.count("enum SalaryWidgetContentState"), 1)
+
+    def test_lock_screen_families_use_compact_views_and_narrow_width_fallback(self):
+        widget_source = WIDGET_SOURCE.read_text(encoding="utf-8")
+        for family in (
+            ".accessoryInline",
+            ".accessoryCircular",
+            ".accessoryRectangular",
+        ):
+            self.assertIn(family, widget_source)
+
+        for view in (
+            "accessoryInlineReadyView",
+            "accessoryCircularReadyView",
+            "accessoryRectangularReadyView",
+            "accessoryEmptyStateView",
+        ):
+            self.assertIn(view, widget_source)
+
+        self.assertIn("ViewThatFits(in: .horizontal)", widget_source)
+        self.assertIn("inlineSummary", widget_source)
+        self.assertIn("widgetFamily.isAccessory", widget_source)
+        self.assertIn(".widgetAccentable()", widget_source)
+        self.assertIn(
+            "[.systemSmall, .systemMedium, .systemLarge, .accessoryInline, "
+            ".accessoryCircular, .accessoryRectangular]",
+            widget_source,
+        )
         self.assertEqual(widget_source.count("enum SalaryWidgetContentState"), 1)
 
 

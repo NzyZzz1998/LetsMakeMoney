@@ -91,6 +91,14 @@ private struct MissingSharedSnapshotReader: SharedSnapshotReading {
     }
 }
 
+private extension WidgetFamily {
+    var isAccessory: Bool {
+        self == .accessoryInline
+            || self == .accessoryCircular
+            || self == .accessoryRectangular
+    }
+}
+
 struct SalaryWidgetView: View {
     let entry: SalaryWidgetEntry
     @Environment(\.widgetFamily) private var widgetFamily
@@ -118,13 +126,23 @@ struct SalaryWidgetView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .containerBackground(for: .widget) {
-            Color(red: 1.0, green: 0.97, blue: 0.90)
+            if widgetFamily.isAccessory {
+                Color.clear
+            } else {
+                Color(red: 1.0, green: 0.97, blue: 0.90)
+            }
         }
     }
 
     @ViewBuilder
     private func readyView(_ snapshot: SharedSnapshotBundle) -> some View {
-        if widgetFamily == .systemLarge {
+        if widgetFamily == .accessoryInline {
+            accessoryInlineReadyView(snapshot)
+        } else if widgetFamily == .accessoryCircular {
+            accessoryCircularReadyView(snapshot)
+        } else if widgetFamily == .accessoryRectangular {
+            accessoryRectangularReadyView(snapshot)
+        } else if widgetFamily == .systemLarge {
             largeReadyView(snapshot)
         } else if widgetFamily == .systemMedium {
             mediumReadyView(snapshot)
@@ -135,7 +153,9 @@ struct SalaryWidgetView: View {
 
     @ViewBuilder
     private var placeholderView: some View {
-        if widgetFamily == .systemLarge {
+        if widgetFamily.isAccessory {
+            accessoryPlaceholderView
+        } else if widgetFamily == .systemLarge {
             largePlaceholderView
         } else if widgetFamily == .systemMedium {
             mediumPlaceholderView
@@ -176,6 +196,100 @@ struct SalaryWidgetView: View {
             Text("status.working")
                 .font(.caption2.weight(.semibold))
         }
+        .redacted(reason: .placeholder)
+    }
+
+    private func accessoryInlineReadyView(_ snapshot: SharedSnapshotBundle) -> some View {
+        ViewThatFits(in: .horizontal) {
+            inlineSummary(snapshot)
+            Text(statusKey(snapshot.salary.value.status))
+        }
+        .font(.caption.weight(.semibold).monospacedDigit())
+        .widgetAccentable()
+    }
+
+    private func inlineSummary(_ snapshot: SharedSnapshotBundle) -> Text {
+        Text(statusKey(snapshot.salary.value.status))
+            + Text(verbatim: " · \(amount(snapshot.salary.value.todayEarnedMinor))")
+    }
+
+    private func accessoryCircularReadyView(_ snapshot: SharedSnapshotBundle) -> some View {
+        let progress = Double(clampedProgress(snapshot.salary.value.progressBasisPoints)) / 10_000
+        return ZStack {
+            Circle()
+                .stroke(Color.secondary.opacity(0.24), lineWidth: 4)
+            Circle()
+                .trim(from: 0, to: progress)
+                .stroke(
+                    Color.accentColor,
+                    style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+            Text(percent(snapshot.salary.value.progressBasisPoints))
+                .font(.caption2.weight(.bold).monospacedDigit())
+                .minimumScaleFactor(0.72)
+        }
+        .widgetAccentable()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("today.progress")
+        .accessibilityValue(percent(snapshot.salary.value.progressBasisPoints))
+    }
+
+    private func accessoryRectangularReadyView(_ snapshot: SharedSnapshotBundle) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(amount(snapshot.salary.value.todayEarnedMinor))
+                .font(.headline.weight(.bold).monospacedDigit())
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+
+            HStack(spacing: 5) {
+                Text(statusKey(snapshot.salary.value.status))
+                    .lineLimit(1)
+                Spacer(minLength: 4)
+                Text(percent(snapshot.salary.value.progressBasisPoints))
+                    .monospacedDigit()
+            }
+            .font(.caption2.weight(.semibold))
+
+            ProgressView(
+                value: Double(clampedProgress(snapshot.salary.value.progressBasisPoints)),
+                total: 10_000
+            )
+            .accessibilityLabel("today.progress")
+        }
+        .widgetAccentable()
+    }
+
+    @ViewBuilder
+    private var accessoryPlaceholderView: some View {
+        Group {
+            if widgetFamily == .accessoryInline {
+                Text("status.working") + Text(verbatim: " · ¥ 186.42")
+            } else if widgetFamily == .accessoryCircular {
+                ZStack {
+                    Circle().stroke(Color.secondary.opacity(0.24), lineWidth: 4)
+                    Circle()
+                        .trim(from: 0, to: 0.56)
+                        .stroke(Color.accentColor, lineWidth: 4)
+                        .rotationEffect(.degrees(-90))
+                    Text("56%")
+                        .font(.caption2.weight(.bold).monospacedDigit())
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("¥ 186.42")
+                        .font(.headline.weight(.bold).monospacedDigit())
+                    HStack {
+                        Text("status.working")
+                        Spacer()
+                        Text("56%").monospacedDigit()
+                    }
+                    .font(.caption2.weight(.semibold))
+                    ProgressView(value: 0.56)
+                }
+            }
+        }
+        .widgetAccentable()
         .redacted(reason: .placeholder)
     }
 
@@ -349,23 +463,54 @@ struct SalaryWidgetView: View {
         .font(.subheadline)
     }
 
+    @ViewBuilder
     private func emptyStateView(
         icon: String,
         title: LocalizedStringKey,
         message: LocalizedStringKey
     ) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Image(systemName: icon)
-                .font(.title2.weight(.semibold))
-                .foregroundStyle(Color(red: 0.95, green: 0.58, blue: 0.12))
-            Text(title)
-                .font(.subheadline.weight(.bold))
-                .foregroundStyle(Color(red: 0.20, green: 0.14, blue: 0.09))
-            Text(message)
-                .font(.caption2)
-                .foregroundStyle(Color(red: 0.46, green: 0.36, blue: 0.25))
-                .lineLimit(3)
+        if widgetFamily.isAccessory {
+            accessoryEmptyStateView(icon: icon, title: title)
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                Image(systemName: icon)
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(Color(red: 0.95, green: 0.58, blue: 0.12))
+                Text(title)
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(Color(red: 0.20, green: 0.14, blue: 0.09))
+                Text(message)
+                    .font(.caption2)
+                    .foregroundStyle(Color(red: 0.46, green: 0.36, blue: 0.25))
+                    .lineLimit(3)
+            }
         }
+    }
+
+    @ViewBuilder
+    private func accessoryEmptyStateView(
+        icon: String,
+        title: LocalizedStringKey
+    ) -> some View {
+        Group {
+            if widgetFamily == .accessoryInline {
+                Label(title, systemImage: icon)
+                    .font(.caption.weight(.semibold))
+            } else if widgetFamily == .accessoryCircular {
+                Image(systemName: icon)
+                    .font(.title2.weight(.semibold))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                HStack(spacing: 7) {
+                    Image(systemName: icon)
+                        .font(.headline.weight(.semibold))
+                    Text(title)
+                        .font(.caption.weight(.semibold))
+                        .lineLimit(2)
+                }
+            }
+        }
+        .widgetAccentable()
     }
 
     private func statusKey(_ status: SalaryStatus) -> LocalizedStringKey {
@@ -428,6 +573,6 @@ struct SalaryWidget: Widget {
         }
         .configurationDisplayName("app.title")
         .description("today.amount")
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryInline, .accessoryCircular, .accessoryRectangular])
     }
 }
