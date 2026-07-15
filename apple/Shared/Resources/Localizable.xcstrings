@@ -105,8 +105,10 @@
     "today.progress" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "工作进度" } } } },
     "today.schedule" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "今日安排" } } } },
     "widget.configure.message" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开 App，填写工资与作息后即可查看" } } } },
+    "widget.expired" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "数据已过期" } } } },
     "widget.unavailable.message" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开 App 刷新数据后再试" } } } },
     "widget.unavailable.title" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "数据暂不可用" } } } },
+    "widget.updated" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "更新于" } } } },
     "salary.error.duplicate_date_override" : {
       "localizations" : {
         "zh-Hans" : {

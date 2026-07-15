@@ -6,6 +6,7 @@ import WidgetKit
 enum SalaryWidgetContentState: Equatable {
     case placeholder
     case ready(SharedSnapshotBundle)
+    case expired(SharedSnapshotBundle)
     case unconfigured
     case unavailable
 }
@@ -17,9 +18,14 @@ struct SalaryWidgetEntry: TimelineEntry {
 
 struct SalaryWidgetProvider: TimelineProvider {
     private let reader: any SharedSnapshotReading
+    private let refreshPolicy: SharedSnapshotRefreshPolicy
 
-    init(reader: any SharedSnapshotReading = WidgetSnapshotReader.make()) {
+    init(
+        reader: any SharedSnapshotReading = WidgetSnapshotReader.make(),
+        refreshPolicy: SharedSnapshotRefreshPolicy = SharedSnapshotRefreshPolicy()
+    ) {
         self.reader = reader
+        self.refreshPolicy = refreshPolicy
     }
 
     func placeholder(in context: Context) -> SalaryWidgetEntry {
@@ -31,10 +37,37 @@ struct SalaryWidgetProvider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<SalaryWidgetEntry>) -> Void) {
-        load { entry in
-            completion(Timeline(
-                entries: [entry],
-                policy: .after(entry.date.addingTimeInterval(15 * 60))
+        let now = Date()
+        let timelineCompletion = WidgetTimelineCompletion(completion)
+        Task {
+            let content = await loadContent(now: now)
+            var entries = [SalaryWidgetEntry(date: now, content: content)]
+            var nextRefresh = now.addingTimeInterval(refreshPolicy.refreshInterval)
+
+            if case .ready(let snapshot) = content {
+                let generatedAt = snapshot.salary.generatedAt
+                let expiration = refreshPolicy.expirationDate(generatedAt: generatedAt)
+                let expiredEntry = SalaryWidgetEntry(
+                    date: expiration,
+                    content: .expired(snapshot)
+                )
+                if expiration > now {
+                    entries.append(expiredEntry)
+                }
+                nextRefresh = refreshPolicy.nextRefreshDate(
+                    generatedAt: generatedAt,
+                    now: now
+                )
+            } else if case .expired(let snapshot) = content {
+                nextRefresh = refreshPolicy.nextRefreshDate(
+                    generatedAt: snapshot.salary.generatedAt,
+                    now: now
+                )
+            }
+
+            timelineCompletion.call(Timeline(
+                entries: entries,
+                policy: .after(nextRefresh)
             ))
         }
     }
@@ -43,14 +76,21 @@ struct SalaryWidgetProvider: TimelineProvider {
         let timelineCompletion = WidgetTimelineCompletion(completion)
         Task {
             timelineCompletion.call(
-                SalaryWidgetEntry(date: Date(), content: await loadContent())
+                SalaryWidgetEntry(date: Date(), content: await loadContent(now: Date()))
             )
         }
     }
 
-    private func loadContent() async -> SalaryWidgetContentState {
+    private func loadContent(now: Date) async -> SalaryWidgetContentState {
         do {
-            return .ready(try await reader.read())
+            let snapshot = try await reader.read()
+            switch refreshPolicy.freshness(
+                generatedAt: snapshot.salary.generatedAt,
+                now: now
+            ) {
+            case .current: return .ready(snapshot)
+            case .expired: return .expired(snapshot)
+            }
         } catch SharedSnapshotReadError.missingSnapshot {
             return .unconfigured
         } catch {
@@ -109,7 +149,9 @@ struct SalaryWidgetView: View {
             case .placeholder:
                 placeholderView
             case .ready(let snapshot):
-                readyView(snapshot)
+                readyView(snapshot, freshness: .current)
+            case .expired(let snapshot):
+                readyView(snapshot, freshness: .expired)
             case .unconfigured:
                 emptyStateView(
                     icon: "slider.horizontal.3",
@@ -135,19 +177,22 @@ struct SalaryWidgetView: View {
     }
 
     @ViewBuilder
-    private func readyView(_ snapshot: SharedSnapshotBundle) -> some View {
+    private func readyView(
+        _ snapshot: SharedSnapshotBundle,
+        freshness: SharedSnapshotFreshness
+    ) -> some View {
         if widgetFamily == .accessoryInline {
-            accessoryInlineReadyView(snapshot)
+            accessoryInlineReadyView(snapshot, freshness: freshness)
         } else if widgetFamily == .accessoryCircular {
-            accessoryCircularReadyView(snapshot)
+            accessoryCircularReadyView(snapshot, freshness: freshness)
         } else if widgetFamily == .accessoryRectangular {
-            accessoryRectangularReadyView(snapshot)
+            accessoryRectangularReadyView(snapshot, freshness: freshness)
         } else if widgetFamily == .systemLarge {
-            largeReadyView(snapshot)
+            largeReadyView(snapshot, freshness: freshness)
         } else if widgetFamily == .systemMedium {
-            mediumReadyView(snapshot)
+            mediumReadyView(snapshot, freshness: freshness)
         } else {
-            smallReadyView(snapshot)
+            smallReadyView(snapshot, freshness: freshness)
         }
     }
 
@@ -164,7 +209,10 @@ struct SalaryWidgetView: View {
         }
     }
 
-    private func smallReadyView(_ snapshot: SharedSnapshotBundle) -> some View {
+    private func smallReadyView(
+        _ snapshot: SharedSnapshotBundle,
+        freshness: SharedSnapshotFreshness
+    ) -> some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack(spacing: 6) {
                 Image(systemName: "yensign.circle.fill")
@@ -179,6 +227,8 @@ struct SalaryWidgetView: View {
                 .foregroundStyle(Color(red: 0.20, green: 0.14, blue: 0.09))
                 .lineLimit(1)
                 .minimumScaleFactor(0.72)
+
+            freshnessLabel(snapshot, freshness: freshness)
 
             Spacer(minLength: 2)
 
@@ -199,9 +249,17 @@ struct SalaryWidgetView: View {
         .redacted(reason: .placeholder)
     }
 
-    private func accessoryInlineReadyView(_ snapshot: SharedSnapshotBundle) -> some View {
+    private func accessoryInlineReadyView(
+        _ snapshot: SharedSnapshotBundle,
+        freshness: SharedSnapshotFreshness
+    ) -> some View {
         ViewThatFits(in: .horizontal) {
-            inlineSummary(snapshot)
+            inlineSummary(snapshot, freshness: freshness)
+            if freshness == .expired {
+                Text("widget.expired")
+            } else {
+                inlineSummary(snapshot)
+            }
             Text(statusKey(snapshot.salary.value.status))
         }
         .font(.caption.weight(.semibold).monospacedDigit())
@@ -213,7 +271,24 @@ struct SalaryWidgetView: View {
             + Text(verbatim: " · \(amount(snapshot.salary.value.todayEarnedMinor))")
     }
 
-    private func accessoryCircularReadyView(_ snapshot: SharedSnapshotBundle) -> some View {
+    private func inlineSummary(
+        _ snapshot: SharedSnapshotBundle,
+        freshness: SharedSnapshotFreshness
+    ) -> Text {
+        if freshness == .expired {
+            return Text("widget.expired")
+                + Text(verbatim: " · ")
+                + Text(snapshot.salary.generatedAt, style: .time)
+        }
+        return inlineSummary(snapshot)
+            + Text(verbatim: " · ")
+            + Text(snapshot.salary.generatedAt, style: .time)
+    }
+
+    private func accessoryCircularReadyView(
+        _ snapshot: SharedSnapshotBundle,
+        freshness: SharedSnapshotFreshness
+    ) -> some View {
         let progress = Double(clampedProgress(snapshot.salary.value.progressBasisPoints)) / 10_000
         return ZStack {
             Circle()
@@ -225,9 +300,14 @@ struct SalaryWidgetView: View {
                     style: StrokeStyle(lineWidth: 4, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
-            Text(percent(snapshot.salary.value.progressBasisPoints))
-                .font(.caption2.weight(.bold).monospacedDigit())
-                .minimumScaleFactor(0.72)
+            if freshness == .expired {
+                Image(systemName: "clock.badge.exclamationmark")
+                    .font(.caption.weight(.bold))
+            } else {
+                Text(percent(snapshot.salary.value.progressBasisPoints))
+                    .font(.caption2.weight(.bold).monospacedDigit())
+                    .minimumScaleFactor(0.72)
+            }
         }
         .widgetAccentable()
         .accessibilityElement(children: .ignore)
@@ -235,7 +315,10 @@ struct SalaryWidgetView: View {
         .accessibilityValue(percent(snapshot.salary.value.progressBasisPoints))
     }
 
-    private func accessoryRectangularReadyView(_ snapshot: SharedSnapshotBundle) -> some View {
+    private func accessoryRectangularReadyView(
+        _ snapshot: SharedSnapshotBundle,
+        freshness: SharedSnapshotFreshness
+    ) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(amount(snapshot.salary.value.todayEarnedMinor))
                 .font(.headline.weight(.bold).monospacedDigit())
@@ -243,8 +326,7 @@ struct SalaryWidgetView: View {
                 .minimumScaleFactor(0.72)
 
             HStack(spacing: 5) {
-                Text(statusKey(snapshot.salary.value.status))
-                    .lineLimit(1)
+                freshnessLabel(snapshot, freshness: freshness)
                 Spacer(minLength: 4)
                 Text(percent(snapshot.salary.value.progressBasisPoints))
                     .monospacedDigit()
@@ -293,7 +375,10 @@ struct SalaryWidgetView: View {
         .redacted(reason: .placeholder)
     }
 
-    private func mediumReadyView(_ snapshot: SharedSnapshotBundle) -> some View {
+    private func mediumReadyView(
+        _ snapshot: SharedSnapshotBundle,
+        freshness: SharedSnapshotFreshness
+    ) -> some View {
         HStack(spacing: 18) {
             VStack(alignment: .leading, spacing: 7) {
                 Label("today.amount", systemImage: "yensign.circle.fill")
@@ -307,6 +392,7 @@ struct SalaryWidgetView: View {
                     .minimumScaleFactor(0.72)
 
                 statusBadge(snapshot.salary.value.status)
+                freshnessLabel(snapshot, freshness: freshness)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -359,7 +445,10 @@ struct SalaryWidgetView: View {
         .redacted(reason: .placeholder)
     }
 
-    private func largeReadyView(_ snapshot: SharedSnapshotBundle) -> some View {
+    private func largeReadyView(
+        _ snapshot: SharedSnapshotBundle,
+        freshness: SharedSnapshotFreshness
+    ) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top, spacing: 16) {
                 VStack(alignment: .leading, spacing: 8) {
@@ -372,6 +461,7 @@ struct SalaryWidgetView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.72)
                     statusBadge(snapshot.salary.value.status)
+                    freshnessLabel(snapshot, freshness: freshness)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -545,6 +635,28 @@ struct SalaryWidgetView: View {
         .padding(.horizontal, 9)
         .padding(.vertical, 5)
         .background(Capsule().fill(Color.white.opacity(0.62)))
+    }
+
+    private func freshnessLabel(
+        _ snapshot: SharedSnapshotBundle,
+        freshness: SharedSnapshotFreshness
+    ) -> some View {
+        HStack(spacing: 3) {
+            if freshness == .expired {
+                Text("widget.expired")
+            } else {
+                Text("widget.updated")
+            }
+            Text(snapshot.salary.generatedAt, style: .time)
+        }
+        .font(.caption2.weight(freshness == .expired ? .semibold : .regular))
+        .foregroundStyle(
+            freshness == .expired
+                ? Color(red: 0.76, green: 0.32, blue: 0.16)
+                : Color(red: 0.46, green: 0.36, blue: 0.25)
+        )
+        .lineLimit(1)
+        .minimumScaleFactor(0.75)
     }
 
     private func clampedProgress(_ basisPoints: Int) -> Int {

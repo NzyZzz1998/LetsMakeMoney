@@ -147,6 +147,22 @@ class WidgetExtensionTargetTests(unittest.TestCase):
         )
         self.assertEqual(widget_source.count("enum SalaryWidgetContentState"), 1)
 
+    def test_timeline_exposes_last_update_and_transitions_to_expired_state(self):
+        widget_source = WIDGET_SOURCE.read_text(encoding="utf-8")
+        self.assertIn("SharedSnapshotRefreshPolicy", widget_source)
+        self.assertIn("case expired(SharedSnapshotBundle)", widget_source)
+        self.assertIn("expirationDate(generatedAt:", widget_source)
+        self.assertIn("nextRefreshDate(", widget_source)
+        self.assertIn("generatedAt: generatedAt", widget_source)
+        self.assertIn("expiredEntry", widget_source)
+        self.assertIn('Text("widget.updated")', widget_source)
+        self.assertIn('Text("widget.expired")', widget_source)
+        self.assertIn("snapshot.salary.generatedAt", widget_source)
+
+        localizations = LOCALIZATIONS.read_text(encoding="utf-8")
+        self.assertIn('"widget.updated"', localizations)
+        self.assertIn('"widget.expired"', localizations)
+
 
 if __name__ == "__main__":
     unittest.main()
