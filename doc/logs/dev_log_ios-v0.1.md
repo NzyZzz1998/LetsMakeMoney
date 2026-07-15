@@ -10,9 +10,20 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 12/17，Widget families、Live Activity 数据合同、阶段状态机、锁屏/灵动岛布局及时间费率投影已建立
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 13/17，Widget families、Live Activity 数据合同、阶段状态机、锁屏/灵动岛布局、时间费率投影及通知权限链路已建立
 
 ## 开发记录
+
+### 2026-07-15 M4-013 通知权限事实源与系统设置跳转
+
+- 测试先行增加 `NotificationPermissionPolicyTests` 与通知权限源码合同；RED 阶段分别因缺少权限动作策略、系统控制器、前台刷新、设置入口和本地化键按预期失败。
+- 新增纯 Swift `NotificationPermissionPolicy`：未请求时允许发起授权，拒绝后仅跳转系统通知设置，已允许时不重复请求。系统权限由 `UNUserNotificationCenter` 读取，不把配置快照中的通知偏好当作授权事实。
+- `SystemNotificationPermissionController` 负责读取系统状态、申请 alert/sound/badge 权限及打开 App 通知设置；`AppModel` 在加载和 App 回到前台时刷新状态，并记录状态刷新、请求成功/失败和系统设置跳转结果。
+- Settings 仅按系统事实展示动作：未请求显示“允许通知”，拒绝显示“前往系统设置”，已允许不显示多余按钮。权限申请失败与设置跳转失败保留可读反馈，不影响配置保存。
+- 首次 macOS run `29419573876` 暴露 Swift 6 严格并发下 `UNNotificationSettings` 非 `Sendable` 跨异步边界。新增回归合同后，使用 `@preconcurrency import UserNotifications` 对 Apple SDK 旧并发标注做最小桥接，没有关闭 Swift 6 严格检查或伪造成功。
+- 实现提交为 `c8a7ba8`，并发兼容修复提交为 `5643cf8`。本地 M4 门禁通过：SalaryCore 70/70、Widget Extension 合同 14/14、通知权限源码合同 5/5，M1-M4、M3、Playgrounds 导出和本地化回归全部通过；`git diff --check` 无错误。
+- GitHub macOS run `29420537949` 在 HEAD `5643cf8`、Xcode 16.4 下成功编译 G3 probes、正式 App 与内嵌 Widget/Activity Extension，结论为 `success`。
+- 当前证据证明权限决策、系统 API 接线、前台刷新和 Apple SDK 编译成立；不证明真机系统授权弹窗、拒绝、撤销、系统设置往返或通知送达。上述行为继续由 M4-015、M4-017 和 M7 真机验收承担。
 
 ### 2026-07-15 M4-012 Live Activity 时间锚点与费率推导
 
