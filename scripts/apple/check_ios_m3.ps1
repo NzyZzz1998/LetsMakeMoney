@@ -17,6 +17,8 @@ $required = @(
     'apple/App/Features/Calendar/DateOverrideSheet.swift',
     'apple/App/Features/Settings/SettingsView.swift',
     'apple/App/Features/Onboarding/OnboardingView.swift',
+    'scripts/apple/tests/test_app_root_playgrounds_compatibility.py',
+    'scripts/apple/tests/test_apple_sdk_workflow.py',
     'scripts/apple/tests/test_ios_m3_source_contract.py',
     'scripts/apple/tests/test_playgrounds_m3_export.py'
 )
@@ -38,6 +40,9 @@ try {
 
     python -m unittest scripts.apple.tests.test_playgrounds_m3_export -v
     if ($LASTEXITCODE -ne 0) { throw 'M3 Playgrounds export contract failed.' }
+
+    python -m unittest scripts.apple.tests.test_app_root_playgrounds_compatibility scripts.apple.tests.test_apple_sdk_workflow -v
+    if ($LASTEXITCODE -ne 0) { throw 'M3 navigation and Apple workflow compatibility contract failed.' }
 
     python scripts/apple/validate_apple_localization.py --root $root
     if ($LASTEXITCODE -ne 0) { throw 'M3 localization validation failed.' }
