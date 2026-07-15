@@ -12,6 +12,8 @@ class LiveActivityManualEntriesTests(unittest.TestCase):
     def test_shared_coordinator_uses_activitykit_and_shared_snapshot(self) -> None:
         source = self.read("apple/Shared/LiveActivity/SalaryActivityCoordinator.swift")
         self.assertIn("import ActivityKit", source)
+        self.assertIn("struct SystemSalaryActivityCoordinator: Sendable", source)
+        self.assertIn("private let now: @Sendable () -> Date", source)
         self.assertIn("SharedSnapshotStore", source)
         self.assertIn("SalaryActivityManualAccessPolicy.decision", source)
         self.assertIn("Activity<SalaryActivityAttributes>.request", source)

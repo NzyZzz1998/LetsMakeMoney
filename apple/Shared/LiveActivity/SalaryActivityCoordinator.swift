@@ -19,11 +19,11 @@ enum SalaryActivityOperationResult: Equatable {
     }
 }
 
-struct SystemSalaryActivityCoordinator {
+struct SystemSalaryActivityCoordinator: Sendable {
     private let bundle: Bundle
-    private let now: () -> Date
+    private let now: @Sendable () -> Date
 
-    init(bundle: Bundle = .main, now: @escaping () -> Date = Date.init) {
+    init(bundle: Bundle = .main, now: @escaping @Sendable () -> Date = Date.init) {
         self.bundle = bundle
         self.now = now
     }
