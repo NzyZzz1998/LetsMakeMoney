@@ -1,6 +1,11 @@
 {
   "sourceLanguage" : "zh-Hans",
   "strings" : {
+    "activity.ended_early" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已提前结束" } } } },
+    "activity.finished" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "今日工作已完成" } } } },
+    "activity.lunch.amount_hidden" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "午休期间收入暂停累计" } } } },
+    "activity.until_resume" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "距离复工" } } } },
+    "activity.until_work_end" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "距离下班" } } } },
     "app.title" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "LetsMakeMoney" } } } },
     "calendar.adjusted_workday" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "调休工作" } } } },
     "calendar.confirm_change" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "确认应用这次日期调整？" } } } },

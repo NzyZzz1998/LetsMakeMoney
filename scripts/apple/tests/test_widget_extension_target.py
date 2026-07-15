@@ -12,6 +12,9 @@ WIDGET_SOURCE = ROOT / "apple" / "WidgetExtension" / "SalaryWidget.swift"
 ACTIVITY_ATTRIBUTES = (
     ROOT / "apple" / "WidgetExtension" / "SalaryActivityAttributes.swift"
 )
+LIVE_ACTIVITY_SOURCE = (
+    ROOT / "apple" / "WidgetExtension" / "SalaryLiveActivity.swift"
+)
 LOCALIZATIONS = ROOT / "apple" / "Shared" / "Resources" / "Localizable.xcstrings"
 BOOTSTRAP = ROOT / "scripts" / "apple" / "bootstrap_xcodegen.sh"
 WORKFLOW = ROOT / ".github" / "workflows" / "apple-sdk-experimental.yml"
@@ -175,6 +178,24 @@ class WidgetExtensionTargetTests(unittest.TestCase):
             source,
         )
         self.assertIn("SalaryActivityStaticContext", source)
+
+    def test_lock_screen_live_activity_covers_all_phases_and_hides_lunch_amount(self):
+        source = LIVE_ACTIVITY_SOURCE.read_text(encoding="utf-8")
+        bundle_source = WIDGET_BUNDLE.read_text(encoding="utf-8")
+
+        self.assertIn("struct SalaryLiveActivity: Widget", source)
+        self.assertIn("ActivityConfiguration(for: SalaryActivityAttributes.self)", source)
+        self.assertIn("SalaryLockScreenLiveActivityView", source)
+        self.assertIn("case .working", source)
+        self.assertIn("case .lunchBreak", source)
+        self.assertIn("case .finished", source)
+        self.assertIn("case .endedEarly", source)
+        self.assertIn("showsEarnedAmount", source)
+        self.assertIn("timerInterval:", source)
+        self.assertIn("ProgressView", source)
+        self.assertIn("activityBackgroundTint", source)
+        self.assertIn("accessibilityLabel", source)
+        self.assertIn("SalaryLiveActivity()", bundle_source)
 
 
 if __name__ == "__main__":
