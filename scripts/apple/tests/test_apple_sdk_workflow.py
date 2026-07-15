@@ -26,6 +26,7 @@ class AppleSDKWorkflowTests(unittest.TestCase):
         self.assertIn("swift test --package-path apple/Packages/SalaryCore", source)
         self.assertIn("export_playgrounds_m3.ps1", source)
         self.assertIn("xcodebuild", source)
+        self.assertIn("-scheme LetsMakeMoneyAppleSDK", source)
         self.assertIn("CODE_SIGNING_ALLOWED=NO", source)
         self.assertIn("upload-artifact", source)
         self.assertIn("experimental", source.lower())

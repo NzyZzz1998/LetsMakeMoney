@@ -40,7 +40,7 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild \
-            -scheme LetsMakeMoney \
+            -scheme LetsMakeMoneyAppleSDK \
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath ../DerivedData \
             CODE_SIGNING_ALLOWED=NO \
