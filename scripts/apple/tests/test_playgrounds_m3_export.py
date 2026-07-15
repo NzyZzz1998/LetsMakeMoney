@@ -31,6 +31,12 @@ class PlaygroundsM3ExportContractTests(unittest.TestCase):
         ]
         self.assertGreater(len(translated), 20)
 
+    def test_exporter_includes_shared_live_activity_sources(self):
+        source = EXPORTER.read_text(encoding="utf-8")
+        self.assertIn("Shared\\LiveActivity", source)
+        self.assertIn("$liveActivitySource", source)
+        self.assertIn("Copy-Item -LiteralPath $_.FullName -Destination $destination", source)
+
 
 if __name__ == "__main__":
     unittest.main()

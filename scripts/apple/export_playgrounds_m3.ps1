@@ -35,6 +35,7 @@ $output = Join-Path $root $OutputRoot
 $package = Join-Path $output "$PackageName.swiftpm"
 $zip = Join-Path $output "$PackageName-playgrounds.zip"
 $appSource = Join-Path (Join-Path $root 'apple') 'App'
+$liveActivitySource = Join-Path (Join-Path (Join-Path $root 'apple') 'Shared') 'LiveActivity'
 $coreSource = Join-Path (Join-Path (Join-Path (Join-Path (Join-Path $root 'apple') 'Packages') 'SalaryCore') 'Sources') 'SalaryCore'
 $catalogPath = Join-Path (Join-Path (Join-Path (Join-Path $root 'apple') 'Shared') 'Resources') 'Localizable.xcstrings'
 $holidayRoot = Join-Path (Join-Path (Join-Path (Join-Path $root 'shared') 'salary-schema') 'v1') 'holidays'
@@ -59,6 +60,11 @@ Get-ChildItem $appSource -Recurse -Filter *.swift | ForEach-Object {
     } else {
         Copy-Item -LiteralPath $_.FullName -Destination $destination
     }
+}
+Get-ChildItem $liveActivitySource -Filter *.swift | ForEach-Object {
+    $destination = Join-Path $appTarget (Join-Path 'Shared\LiveActivity' $_.Name)
+    New-Item -ItemType Directory -Path (Split-Path $destination) -Force | Out-Null
+    Copy-Item -LiteralPath $_.FullName -Destination $destination
 }
 Copy-Item -Path (Join-Path $coreSource '*.swift') -Destination $coreTarget
 $legacyStrings = Join-Path $resources 'zh-Hans.lproj\Localizable.strings'
