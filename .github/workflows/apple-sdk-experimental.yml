@@ -78,6 +78,25 @@ jobs:
             -derivedDataPath ../../../build/apple-sdk-ci/G3WatchDerivedData \
             CODE_SIGNING_ALLOWED=NO \
             build | tee ../../../build/apple-sdk-ci/g3-watch.log
+      - name: Bootstrap pinned XcodeGen
+        run: ./scripts/apple/bootstrap_xcodegen.sh "$RUNNER_TEMP/lmm-xcodegen"
+      - name: Generate the formal Apple project
+        run: xcodegen generate --spec apple/project.yml --project apple/LetsMakeMoney.xcodeproj
+      - name: List formal App and Widget schemes
+        run: xcodebuild -project apple/LetsMakeMoney.xcodeproj -list | tee build/apple-sdk-ci/formal-schemes.log
+      - name: Compile the real App and embedded Widget Extension
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project apple/LetsMakeMoney.xcodeproj \
+            -scheme LetsMakeMoneyApp \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/apple-sdk-ci/FormalDerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee build/apple-sdk-ci/formal-app-widget.log
+          widget_path="$(find build/apple-sdk-ci/FormalDerivedData -type d -name 'LetsMakeMoneyWidget.appex' -print -quit)"
+          test -n "$widget_path"
+          echo "$widget_path" | tee build/apple-sdk-ci/formal-widget-product.log
       - name: Upload experimental diagnostics
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -90,5 +109,8 @@ jobs:
             build/apple-sdk-ci/g3-app.log
             build/apple-sdk-ci/g3-widget-activity.log
             build/apple-sdk-ci/g3-watch.log
+            build/apple-sdk-ci/formal-schemes.log
+            build/apple-sdk-ci/formal-app-widget.log
+            build/apple-sdk-ci/formal-widget-product.log
             build/apple-sdk-ci/LetsMakeMoneyAppleSDK-playgrounds.zip
           if-no-files-found: warn

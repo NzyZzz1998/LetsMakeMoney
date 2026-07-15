@@ -14,24 +14,28 @@ final class AppModel: ObservableObject {
     private let logger: LocalEventLogger
     private let holidays: HolidayCalendar
     private let timeZone: TimeZone
+    private let sharedSnapshotWriter: (any SharedSnapshotWriting)?
 
     init(
         store: ConfigurationStore,
         logger: LocalEventLogger,
         holidays: HolidayCalendar,
-        timeZone: TimeZone = .current
+        timeZone: TimeZone = .current,
+        sharedSnapshotWriter: (any SharedSnapshotWriting)? = nil
     ) {
         self.store = store
         self.logger = logger
         self.holidays = holidays
         self.timeZone = timeZone
+        self.sharedSnapshotWriter = sharedSnapshotWriter
     }
 
     func load(now: Date = Date()) async {
         do {
             let result = try await store.load()
             configuration = result.configuration
-            refresh(now: now)
+            let snapshot = refresh(now: now)
+            await publishSharedSnapshot(snapshot, generatedAt: now)
             if configuration.monthlySalaryMinor <= 0 { present(.onboarding) }
             try? await logger.record(level: .info, event: "app.configuration.loaded")
         } catch {
@@ -40,7 +44,8 @@ final class AppModel: ObservableObject {
         }
     }
 
-    func refresh(now: Date = Date()) {
+    @discardableResult
+    func refresh(now: Date = Date()) -> SalarySnapshot? {
         do {
             let snapshot = try SalaryCalculator.calculate(
                 configuration: configuration,
@@ -49,10 +54,13 @@ final class AppModel: ObservableObject {
                 holidays: holidays
             )
             presentation = AppPresentation.build(configuration: configuration, snapshot: snapshot, failure: nil)
+            return snapshot
         } catch let error as SalaryCoreError {
             presentation = AppPresentation.build(configuration: configuration, snapshot: nil, failure: error)
+            return nil
         } catch {
             presentation = .error(.invalidConfiguration)
+            return nil
         }
     }
 
@@ -67,7 +75,8 @@ final class AppModel: ObservableObject {
                 feedbackKey = "feedback.unchanged"
                 try? await logger.record(level: .info, event: "settings.unchanged")
             }
-            refresh(now: now)
+            let snapshot = refresh(now: now)
+            await publishSharedSnapshot(snapshot, generatedAt: now)
             return true
         } catch {
             feedbackKey = "feedback.save_failed"
@@ -97,6 +106,22 @@ final class AppModel: ObservableObject {
     func select(_ destination: AppDestination) { navigation.select(destination) }
     func present(_ modal: AppModal) { navigation.present(modal) }
     func dismissModal() { navigation.dismissModal() }
+
+    private func publishSharedSnapshot(_ snapshot: SalarySnapshot?, generatedAt: Date) async {
+        guard let snapshot, let sharedSnapshotWriter else { return }
+        let bundle = SharedSnapshotBundle.make(
+            configuration: configuration,
+            salary: snapshot,
+            generatedAt: generatedAt,
+            remainingSeconds: 0
+        )
+        do {
+            try await sharedSnapshotWriter.write(bundle)
+            try? await logger.record(level: .info, event: "shared_snapshot.published")
+        } catch {
+            try? await logger.record(level: .warning, event: "shared_snapshot.publish_failed")
+        }
+    }
 
     func seedPreview(configuration: AppConfiguration, snapshot: SalarySnapshot) {
         self.configuration = configuration

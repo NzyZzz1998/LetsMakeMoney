@@ -21,10 +21,12 @@ struct LetsMakeMoneyApp: App {
             }
         }
         let holidays = HolidayDataLoader.load()
+        let sharedSnapshotWriter = Self.makeSharedSnapshotWriter()
         _model = StateObject(wrappedValue: AppModel(
             store: ConfigurationStore(directoryURL: root),
             logger: LocalEventLogger(directoryURL: root),
-            holidays: holidays
+            holidays: holidays,
+            sharedSnapshotWriter: sharedSnapshotWriter
         ))
     }
 
@@ -34,5 +36,17 @@ struct LetsMakeMoneyApp: App {
                 .environmentObject(model)
                 .task { await model.load() }
         }
+    }
+
+    private static func makeSharedSnapshotWriter() -> (any SharedSnapshotWriting)? {
+        guard let identifier = Bundle.main.object(
+            forInfoDictionaryKey: "LMMAppGroupIdentifier"
+        ) as? String,
+              !identifier.isEmpty,
+              let directoryURL = try? AppGroupContainerProvider(
+                  identifier: identifier
+              ).containerURL()
+        else { return nil }
+        return SharedSnapshotStore(directoryURL: directoryURL)
     }
 }

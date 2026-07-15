@@ -9,7 +9,11 @@ $required = @(
     'apple/Packages/ApplePlatformGate/Sources/G3AppProbe/G3AppProbe.swift',
     'apple/Packages/ApplePlatformGate/Sources/G3WidgetActivityProbe/G3WidgetActivityProbe.swift',
     'apple/Packages/ApplePlatformGate/Sources/G3WatchProbe/G3WatchProbe.swift',
-    'scripts/apple/tests/test_apple_platform_gate.py'
+    'scripts/apple/tests/test_apple_platform_gate.py',
+    'apple/project.yml',
+    'apple/WidgetExtension/LetsMakeMoneyWidgetBundle.swift',
+    'apple/WidgetExtension/SalaryWidget.swift',
+    'scripts/apple/tests/test_widget_extension_target.py'
 )
 
 $missing = @($required | Where-Object {
@@ -26,6 +30,9 @@ try {
 
     python -m unittest scripts.apple.tests.test_apple_platform_gate -v
     if ($LASTEXITCODE -ne 0) { throw 'M4 Apple platform source contract failed.' }
+
+    python -m unittest scripts.apple.tests.test_widget_extension_target -v
+    if ($LASTEXITCODE -ne 0) { throw 'M4 Widget Extension contract failed.' }
 
     Write-Host 'IOS_M4_WINDOWS_CONTRACTS_PASS'
     Write-Warning 'APPLE_PLATFORM_G3_BUILD_PENDING: GitHub macOS must compile the App, Widget/Activity and Watch probes before M4-001 can pass.'

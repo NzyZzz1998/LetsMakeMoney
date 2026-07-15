@@ -70,7 +70,11 @@ public protocol SharedSnapshotReading: Sendable {
     func read() async throws -> SharedSnapshotBundle
 }
 
-public actor SharedSnapshotStore: SharedSnapshotReading {
+public protocol SharedSnapshotWriting: Sendable {
+    func write(_ bundle: SharedSnapshotBundle) async throws
+}
+
+public actor SharedSnapshotStore: SharedSnapshotReading, SharedSnapshotWriting {
     private let directoryURL: URL
     private let fileURL: URL
 

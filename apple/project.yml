@@ -1,0 +1,67 @@
+name: LetsMakeMoney
+
+options:
+  deploymentTarget:
+    iOS: "18.0"
+
+configs:
+  Debug: debug
+  Release: release
+
+configFiles:
+  Debug: Config/Identifiers.example.xcconfig
+  Release: Config/Identifiers.example.xcconfig
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_LANGUAGE: zh-Hans
+
+packages:
+  SalaryCore:
+    path: Packages/SalaryCore
+
+targets:
+  LetsMakeMoneyApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+      - path: Shared/Resources/Localizable.xcstrings
+        buildPhase: resources
+      - path: ../shared/salary-schema/v1/holidays/cn-2025.json
+        buildPhase: resources
+      - path: ../shared/salary-schema/v1/holidays/cn-2026.json
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_NAME: LetsMakeMoney
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_IDENTIFIER)
+        INFOPLIST_FILE: App/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Config/LetsMakeMoneyApp.entitlements
+        LMMAppGroupIdentifier: $(APP_GROUP_IDENTIFIER)
+    dependencies:
+      - package: SalaryCore
+      - target: LetsMakeMoneyWidget
+        embed: true
+
+  LetsMakeMoneyWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: WidgetExtension
+      - path: Shared/Resources/Localizable.xcstrings
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_NAME: LetsMakeMoneyWidget
+        PRODUCT_BUNDLE_IDENTIFIER: $(WIDGET_BUNDLE_IDENTIFIER)
+        INFOPLIST_FILE: WidgetExtension/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Config/LetsMakeMoneyWidget.entitlements
+        LMMAppGroupIdentifier: $(APP_GROUP_IDENTIFIER)
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+    dependencies:
+      - package: SalaryCore
