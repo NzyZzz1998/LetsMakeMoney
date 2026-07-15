@@ -10,9 +10,18 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 4/17，小/中组件金额、状态、进度和降级态已实现
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 5/17，小/中/大组件金额、状态、进度和降级态已实现，大组件额外展示今日安排
 
 ## 开发记录
+
+### 2026-07-15 M4-005 大组件金额、进度与今日安排
+
+- 测试先行为共享作息投影、旧快照兼容和大尺寸 Widget 源码合同补充失败用例；RED 阶段分别因缺少 `SharedScheduleSnapshot`、`schedule` 字段和 `.systemLarge` 布局而按预期失败。
+- `SharedSnapshotBundle` 增加可选的只读作息投影，包含上班、午休起止和下班时间；字段保持可选，旧 JSON 快照缺失该字段时仍可解码，不触发数据迁移或伪造安排。
+- `.systemLarge` 复用既有金额、状态和进度投影，并增加“今日安排”三行；旧快照无作息数据时显示明确不可用提示，小/中组件行为不变。
+- 本地 `check_ios_m4.ps1 -RequireSwift` 通过：SalaryCore 47/47、Widget Extension 合同 8/8，M1-M4、M3、Playgrounds 导出和本地化回归全部通过；`git diff --check` 无错误。
+- 实现提交为 `3d98eda`。GitHub macOS run `29405142288` 在 Xcode 16.4 下成功生成正式工程、编译 App 与内嵌 Widget Extension，并通过 `ValidateEmbeddedBinary` 与 `BUILD SUCCEEDED`。
+- 当前证据仍不包含真实签名、App Group 容器、系统桌面添加与大组件视觉验收；锁屏 families 和时间线过期策略继续由 M4-006/M4-007 承接。
 
 ### 2026-07-15 M4-004 中组件金额、状态与工作进度
 

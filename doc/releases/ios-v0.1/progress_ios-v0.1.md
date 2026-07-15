@@ -2,7 +2,7 @@
 
 ## 追踪信息
 
-- 当前状态：M3 完成 17/17，M3R 完成 14/14；M4 已完成 4/17，小/中组件已实现今日金额、明确工作状态、工作进度、未配置与快照不可用降级态
+- 当前状态：M3 完成 17/17，M3R 完成 14/14；M4 已完成 5/17，小/中/大组件已实现今日金额、明确工作状态、工作进度及降级态，大组件额外展示今日安排
 - 目标版本：`ios-v0.1-beta`
 - 目标分支：`ios-main`（独立 worktree；M0 基线已推送至远端 `test`）
 - 来源 PRD：`doc/releases/ios-v0.1/prd.md`
@@ -33,7 +33,7 @@
 | IOS01-M2 | 配置、安全写入与共享快照 | FR-002、011、013、014 | 已完成 | 14/14 |
 | IOS01-M3 | iPhone/iPad App、引导与日历 | FR-003～005、012 | 已完成 | 17/17 |
 | IOS01-M3R | 首次引导输入与作息推算返工 | FR-002、003 | 已完成 | 14/14 |
-| IOS01-M4 | Widget、Live Activity 与通知 | FR-006、007、010、012 | 进行中 | 4/17 |
+| IOS01-M4 | Widget、Live Activity 与通知 | FR-006、007、010、012 | 进行中 | 5/17 |
 | IOS01-M5 | Watch App 与复杂功能 | FR-008、009、012 | 未开始 | 0/14 |
 | IOS01-M6 | 跨 Target 一致性与质量 | FR-001～014 | 未开始 | 0/13 |
 | IOS01-M7 | 候选构建、真机验收与 Beta | 全部 | 未开始 | 0/15 |
@@ -130,7 +130,7 @@
 - [x] IOS01-M4-002 创建 Widget Extension 并接入共享快照；XcodeGen 生成正式 App/Extension target，GitHub Actions run `29400350747` 已构建、内嵌并验证 `LetsMakeMoneyWidget.appex`。
 - [x] IOS01-M4-003 实现小组件金额与状态；`.systemSmall` 已覆盖今日金额、显式中文状态、未配置、快照不可用与占位状态。
 - [x] IOS01-M4-004 实现中组件金额、状态和进度；`.systemMedium` 复用三态投影，显示今日金额、显式状态、百分比与进度条。
-- [ ] IOS01-M4-005 实现大组件金额、进度和今日安排。
+- [x] IOS01-M4-005 实现大组件金额、进度和今日安排；作息由 App 配置只读投影到可选共享快照，旧快照缺少作息字段时安全降级。
 - [ ] IOS01-M4-006 实现锁屏 accessory families 与窄宽度降级。
 - [ ] IOS01-M4-007 实现 Widget 时间线、最后更新时间、过期和未配置状态。
 - [ ] IOS01-M4-008 定义 Activity Attributes、ContentState 和版本兼容。
@@ -207,20 +207,20 @@
 ## 最近验证
 
 - 验证时间：2026-07-15
-- 验证对象：M0-M3 合同、SalaryCore、配置/快照、App 状态、引导、日历语义、日期覆盖、M3R 金额/大小周/作息纯逻辑、SwiftUI 源码合同、本地化、Widget 三态投影与反例门禁。
+- 验证对象：M0-M3 合同、SalaryCore、配置/快照、App 状态、引导、日历语义、日期覆盖、M3R 金额/大小周/作息纯逻辑、SwiftUI 源码合同、本地化、Widget 三态投影、大小尺寸布局与反例门禁。
 - 验证方式：Python 3.12.8 标准库参考验证、PowerShell 5.1 门禁、Swift 6.3.3 Windows 工具链、MSVC 14.44 与 Windows SDK 10.0.22621.0。
-- 结果：Apple/Python 既有合同与参考测试通过，Swift 测试 46/46、本地化验证测试 3/3、M3 源码合同 8/8、Widget Extension 合同 7/7、Playgrounds 导出合同 2/2、M3 反例门禁通过；M1、M2、M3、M4 Windows 正向门禁全部通过。GitHub Actions macOS run `29396376249` 在 HEAD `a5e0b0f` 完成 SalaryCore、源码合同、Playgrounds 导出和 `LetsMakeMoneyAppleSDK` iOS Simulator SDK 编译；run `29397574782` 在 HEAD `7952b40` 完成 G3 App、Widget/Activity 与 Watch probe scheme 编译；run `29400350747` 在 HEAD `fe27cb5` 使用 Xcode 16.4（16F6）生成正式工程并验证最小 Widget；run `29402002179` 在 HEAD `42cf60f` 编译 M4-003 三态小组件；run `29403617023` 在 HEAD `1855715` 编译 M4-004 中组件金额、状态和进度。两次正式 Widget 构建均将 `LetsMakeMoneyWidget.appex` 复制到 App 的 `PlugIns`，通过 `ValidateEmbeddedBinary` 与 `BUILD SUCCEEDED`，结论为 `success`。SwiftPM 在未启用 Windows 开发者模式时仍报告 `.build/debug` 符号链接警告，但编译与测试成功。
+- 结果：Apple/Python 既有合同与参考测试通过，Swift 测试 47/47、本地化验证测试 3/3、M3 源码合同 8/8、Widget Extension 合同 8/8、Playgrounds 导出合同 2/2、M3 反例门禁通过；M1、M2、M3、M4 Windows 正向门禁全部通过。GitHub Actions macOS run `29396376249` 在 HEAD `a5e0b0f` 完成 SalaryCore、源码合同、Playgrounds 导出和 `LetsMakeMoneyAppleSDK` iOS Simulator SDK 编译；run `29397574782` 在 HEAD `7952b40` 完成 G3 App、Widget/Activity 与 Watch probe scheme 编译；run `29400350747` 在 HEAD `fe27cb5` 使用 Xcode 16.4（16F6）生成正式工程并验证最小 Widget；run `29402002179` 在 HEAD `42cf60f` 编译 M4-003 三态小组件；run `29403617023` 在 HEAD `1855715` 编译 M4-004 中组件金额、状态和进度；run `29405142288` 在 HEAD `3d98eda` 编译 M4-005 大组件金额、进度、今日安排及旧快照兼容。正式 Widget 构建均将 `LetsMakeMoneyWidget.appex` 复制到 App 的 `PlugIns`，通过 `ValidateEmbeddedBinary` 与 `BUILD SUCCEEDED`，结论为 `success`。SwiftPM 在未启用 Windows 开发者模式时仍报告 `.build/debug` 符号链接警告，但编译与测试成功。
 - R10 包：`build/apple-playgrounds/LetsMakeMoneyM3R10-playgrounds.zip`，SHA256 `19327DC3BCA420EA07C8E1CA3DA04169DF11F1299C002580616CD649990D81E2`；使用自定义底部导航阻止 iPadOS 顶部浮动页签，页面背景填满可用区域，今日状态改为固定中文本地化映射，并为无效月薪增加明确错误提示。包内关键实现与中文资源 5/5 检查通过。
 - iPad 证据：R9 在 iPad Pro M4、Swift Playgrounds 4.7 完成完整手动验证；R10 对无效月薪提示、今日中文状态、iPad 竖屏底部导航和横竖屏页面边缘完成定向复测，项目所有者确认全部通过。
 - Preview/UI 自动化矩阵：`AppRootView.swift` 已覆盖 iPhone 竖屏、iPad 竖屏/横屏、深色、大字、Settings 和 Onboarding 七类 Preview；`M3SmokeUITests.swift` 已覆盖确定配置下的今日/日历/设置关闭和无配置首次引导。源码矩阵完成，但 Xcode `XCTest` 尚未运行，不写成已通过。
 - 调试基线：新增可恢复 Debug Hub；GitHub macOS Apple SDK 工作流支持 `ios-main` Apple 路径自动触发及手动触发，已上传 App、G3 probe、正式工程和 Widget 产品路径日志。正式 Widget target 已通过无签名 Simulator 编译，但该证据不替代签名、XCTest、App Group 真机读写和系统桌面展示。
-- 证据状态：M0-M3 与 M3R 的 Windows 合同和 iPad 主路径已收口；G3 Apple SDK 环境门禁及 M4 正式 Widget Extension 编译门禁已通过。小/中组件金额、显式状态、进度、未配置与快照不可用分支已实现；真实 App Group 读写、系统桌面展示与刷新仍未取得设备证据。大/锁屏 families、Live Activity、通知、Intent 与 M5 Watch 产品能力尚未实现。
+- 证据状态：M0-M3 与 M3R 的 Windows 合同和 iPad 主路径已收口；G3 Apple SDK 环境门禁及 M4 正式 Widget Extension 编译门禁已通过。小/中/大组件金额、显式状态、进度、未配置与快照不可用分支已实现，大组件已增加今日安排；真实 App Group 读写、系统桌面展示与刷新仍未取得设备证据。锁屏 families、Live Activity、通知、Intent 与 M5 Watch 产品能力尚未实现。
 - 失效条件：schema、配置/快照模型、App/SwiftUI 源码、本地化资源、测试或 Swift 工具链版本变化时重测。
 
 ## 下一步
 
-1. 进入 `IOS01-M4-005`，实现大组件金额、进度和今日安排，并继续复用现有三态投影。
-2. 按 M4-006 至 M4-007 推进锁屏 families 与时间线/过期策略，继续以 GitHub macOS 正式 target 编译为门禁。
+1. 进入 `IOS01-M4-006`，实现锁屏 accessory families 与窄宽度降级，并继续复用现有快照和三态投影。
+2. 按 M4-007 推进时间线、最后更新时间和过期策略，继续以 GitHub macOS 正式 target 编译为门禁。
 3. 正式 Xcode 工程具备 UI Test target 后执行 `M3SmokeUITests`；在此之前继续标记为待执行，不影响已取得的 G3 SDK 环境结论。
 
 ## 记录边界
