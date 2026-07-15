@@ -10,9 +10,18 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 10/17，Widget families、Live Activity 数据合同、阶段状态机与锁屏布局已建立
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 11/17，Widget families、Live Activity 数据合同、阶段状态机、锁屏与灵动岛布局已建立
 
 ## 开发记录
+
+### 2026-07-15 M4-011 灵动岛最小、紧凑与展开布局
+
+- 测试先行扩展 Widget Extension 源码合同；RED 阶段因正式灵动岛仅有占位布局而按预期失败，随后实现最小、紧凑、展开和窄宽度降级层级。
+- 展开态左侧显示阶段及金额，午休阶段改为金额隐藏提示；右侧显示距离下班或复工倒计时，底部显示工作进度。紧凑态优先显示金额或午休倒计时，空间不足时通过 `ViewThatFits` 降级为进度；最小态只保留阶段图标。
+- 所有倒计时继续使用系统 `Text(timerInterval:countsDown:)` 和静态时间锚点，不新增后台秒级定时器；金额、进度和阶段均消费 M4-008/M4-009 的版本化合同，不在视图层重新推导工资。
+- 首次 GitHub macOS run `29413340412` 暴露正式 `dynamicIsland` 闭包在局部变量之后缺少显式 `return`，而 G3 probe 未覆盖这一语法分支。补充回归合同后以独立提交 `a36e959` 修复，没有放宽正式构建门禁。
+- 本地 M4 门禁通过：SalaryCore 62/62、Widget Extension 合同 13/13，M1-M4、M3、Playgrounds 导出和本地化回归全部通过；`git diff --check` 无错误。GitHub macOS run `29414089375` 在 Xcode 16.4 下成功编译 G3 probes、正式 App 与内嵌 Widget/Activity Extension，结论为 `success`。
+- 当前证据证明灵动岛产品源码合同与 Apple SDK 编译成立，不证明 iPhone 16 Pro Max 真机的最小/紧凑/展开视觉、系统限流、触控或自动结束行为；这些继续由 M4-017 与 M7 真机验收承担。
 
 ### 2026-07-15 M4-010 锁屏 Live Activity 布局
 

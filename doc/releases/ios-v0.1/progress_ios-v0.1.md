@@ -2,7 +2,7 @@
 
 ## 追踪信息
 
-- 当前状态：M3 完成 17/17，M3R 完成 14/14；M4 已完成 10/17，Widget 已覆盖桌面与锁屏 families，Live Activity 已建立版本化合同、阶段状态机与锁屏布局
+- 当前状态：M3 完成 17/17，M3R 完成 14/14；M4 已完成 11/17，Widget 已覆盖桌面与锁屏 families，Live Activity 已建立版本化合同、阶段状态机、锁屏与灵动岛布局
 - 目标版本：`ios-v0.1-beta`
 - 目标分支：`ios-main`（独立 worktree；M0 基线已推送至远端 `test`）
 - 来源 PRD：`doc/releases/ios-v0.1/prd.md`
@@ -33,7 +33,7 @@
 | IOS01-M2 | 配置、安全写入与共享快照 | FR-002、011、013、014 | 已完成 | 14/14 |
 | IOS01-M3 | iPhone/iPad App、引导与日历 | FR-003～005、012 | 已完成 | 17/17 |
 | IOS01-M3R | 首次引导输入与作息推算返工 | FR-002、003 | 已完成 | 14/14 |
-| IOS01-M4 | Widget、Live Activity 与通知 | FR-006、007、010、012 | 进行中 | 10/17 |
+| IOS01-M4 | Widget、Live Activity 与通知 | FR-006、007、010、012 | 进行中 | 11/17 |
 | IOS01-M5 | Watch App 与复杂功能 | FR-008、009、012 | 未开始 | 0/14 |
 | IOS01-M6 | 跨 Target 一致性与质量 | FR-001～014 | 未开始 | 0/13 |
 | IOS01-M7 | 候选构建、真机验收与 Beta | 全部 | 未开始 | 0/15 |
@@ -136,7 +136,7 @@
 - [x] IOS01-M4-008 定义 Activity Attributes、ContentState 和版本兼容；新写入固定 schema v1，旧数据缺版本按 v1 读取，未来版本明确拒绝。
 - [x] IOS01-M4-009 实现工作、午休、完成和提前结束状态机；按四个作息锚点确定阶段和下次切换时间，零午休安全跳过午休态，完成与确认提前结束均为不可逆终态。
 - [x] IOS01-M4-010 实现锁屏 Live Activity 布局；工作态显示金额、进度和距离下班，午休态隐藏金额并显示距离复工，完成与提前结束态使用稳定终态文案。
-- [ ] IOS01-M4-011 实现灵动岛最小、紧凑和展开布局。
+- [x] IOS01-M4-011 实现灵动岛最小、紧凑和展开布局；最小态显示阶段图标，紧凑态按阶段显示金额、倒计时或进度降级，展开态显示阶段、金额/午休隐藏提示、倒计时和进度。
 - [ ] IOS01-M4-012 实现时间锚点/费率推导，禁止依赖后台秒级定时器。
 - [ ] IOS01-M4-013 实现通知授权、拒绝、撤销和系统设置跳转。
 - [ ] IOS01-M4-014 实现 App/Widget/控制中心/App Intent 手动启停入口。
@@ -209,18 +209,18 @@
 - 验证时间：2026-07-15
 - 验证对象：M0-M3 合同、SalaryCore、配置/快照、App 状态、引导、日历语义、日期覆盖、M3R 金额/大小周/作息纯逻辑、SwiftUI 源码合同、本地化、Widget 内容投影、桌面与锁屏尺寸布局、时间线刷新/过期策略、Live Activity 版本化数据合同及反例门禁。
 - 验证方式：Python 3.12.8 标准库参考验证、PowerShell 5.1 门禁、Swift 6.3.3 Windows 工具链、MSVC 14.44 与 Windows SDK 10.0.22621.0。
-- 结果：Apple/Python 既有合同与参考测试通过，Swift 测试 62/62、本地化验证测试 3/3、M3 源码合同 8/8、Widget Extension 合同 12/12、Playgrounds 导出合同 2/2、M3 反例门禁通过；M1、M2、M3、M4 Windows 正向门禁全部通过。GitHub Actions macOS run `29396376249` 在 HEAD `a5e0b0f` 完成 SalaryCore、源码合同、Playgrounds 导出和 `LetsMakeMoneyAppleSDK` iOS Simulator SDK 编译；run `29397574782` 在 HEAD `7952b40` 完成 G3 App、Widget/Activity 与 Watch probe scheme 编译；run `29400350747` 在 HEAD `fe27cb5` 使用 Xcode 16.4（16F6）生成正式工程并验证最小 Widget；run `29402002179` 在 HEAD `42cf60f` 编译 M4-003 三态小组件；run `29403617023` 在 HEAD `1855715` 编译 M4-004 中组件金额、状态和进度；run `29405142288` 在 HEAD `3d98eda` 编译 M4-005 大组件金额、进度、今日安排及旧快照兼容；run `29406926128` 在 HEAD `a872d2c` 编译 M4-006 三种锁屏 accessory family 与窄宽度降级；run `29408598821` 在 HEAD `b45d457` 编译 M4-007 时间线、最后更新时间和过期状态；run `29410130942` 在 HEAD `b43875d` 编译 M4-008 的版本化 ContentState 与正式 ActivityKit Attributes；run `29411454091` 在 HEAD `318466f` 编译 M4-009 的确定性阶段状态机；run `29412597489` 在 HEAD `aa02dac` 编译 M4-010 的锁屏 Live Activity、正式 App 与内嵌 Widget/Activity Extension。正式 Widget 构建均将 `LetsMakeMoneyWidget.appex` 复制到 App 的 `PlugIns`，通过 `ValidateEmbeddedBinary` 与 `BUILD SUCCEEDED`，结论为 `success`。SwiftPM 在未启用 Windows 开发者模式时仍报告 `.build/debug` 符号链接警告，但编译与测试成功。
+- 结果：Apple/Python 既有合同与参考测试通过，Swift 测试 62/62、本地化验证测试 3/3、M3 源码合同 8/8、Widget Extension 合同 13/13、Playgrounds 导出合同 2/2、M3 反例门禁通过；M1、M2、M3、M4 Windows 正向门禁全部通过。GitHub Actions macOS run `29396376249` 在 HEAD `a5e0b0f` 完成 SalaryCore、源码合同、Playgrounds 导出和 `LetsMakeMoneyAppleSDK` iOS Simulator SDK 编译；run `29397574782` 在 HEAD `7952b40` 完成 G3 App、Widget/Activity 与 Watch probe scheme 编译；run `29400350747` 在 HEAD `fe27cb5` 使用 Xcode 16.4（16F6）生成正式工程并验证最小 Widget；run `29402002179` 在 HEAD `42cf60f` 编译 M4-003 三态小组件；run `29403617023` 在 HEAD `1855715` 编译 M4-004 中组件金额、状态和进度；run `29405142288` 在 HEAD `3d98eda` 编译 M4-005 大组件金额、进度、今日安排及旧快照兼容；run `29406926128` 在 HEAD `a872d2c` 编译 M4-006 三种锁屏 accessory family 与窄宽度降级；run `29408598821` 在 HEAD `b45d457` 编译 M4-007 时间线、最后更新时间和过期状态；run `29410130942` 在 HEAD `b43875d` 编译 M4-008 的版本化 ContentState 与正式 ActivityKit Attributes；run `29411454091` 在 HEAD `318466f` 编译 M4-009 的确定性阶段状态机；run `29412597489` 在 HEAD `aa02dac` 编译 M4-010 的锁屏 Live Activity；run `29414089375` 在 HEAD `a36e959` 编译 M4-011 的灵动岛最小、紧凑、展开和窄宽度降级布局。正式 Widget 构建均将 `LetsMakeMoneyWidget.appex` 复制到 App 的 `PlugIns`，通过 `ValidateEmbeddedBinary` 与 `BUILD SUCCEEDED`，结论为 `success`。SwiftPM 在未启用 Windows 开发者模式时仍报告 `.build/debug` 符号链接警告，但编译与测试成功。
 - R10 包：`build/apple-playgrounds/LetsMakeMoneyM3R10-playgrounds.zip`，SHA256 `19327DC3BCA420EA07C8E1CA3DA04169DF11F1299C002580616CD649990D81E2`；使用自定义底部导航阻止 iPadOS 顶部浮动页签，页面背景填满可用区域，今日状态改为固定中文本地化映射，并为无效月薪增加明确错误提示。包内关键实现与中文资源 5/5 检查通过。
 - iPad 证据：R9 在 iPad Pro M4、Swift Playgrounds 4.7 完成完整手动验证；R10 对无效月薪提示、今日中文状态、iPad 竖屏底部导航和横竖屏页面边缘完成定向复测，项目所有者确认全部通过。
 - Preview/UI 自动化矩阵：`AppRootView.swift` 已覆盖 iPhone 竖屏、iPad 竖屏/横屏、深色、大字、Settings 和 Onboarding 七类 Preview；`M3SmokeUITests.swift` 已覆盖确定配置下的今日/日历/设置关闭和无配置首次引导。源码矩阵完成，但 Xcode `XCTest` 尚未运行，不写成已通过。
 - 调试基线：新增可恢复 Debug Hub；GitHub macOS Apple SDK 工作流支持 `ios-main` Apple 路径自动触发及手动触发，已上传 App、G3 probe、正式工程和 Widget 产品路径日志。正式 Widget target 已通过无签名 Simulator 编译，但该证据不替代签名、XCTest、App Group 真机读写和系统桌面展示。
-- 证据状态：M0-M3 与 M3R 的 Windows 合同和 iPad 主路径已收口；G3 Apple SDK 环境门禁及 M4 正式 Widget Extension 编译门禁已通过。小/中/大与锁屏内联、圆形、矩形组件已实现共享金额、状态、进度、最后更新时间和降级态，大组件已增加今日安排；时间线合同会请求周期刷新并在 30 分钟后显示过期。Live Activity 已建立版本化静态/动态合同、纯 Swift 状态机和锁屏布局：工作、午休、自动完成与用户确认提前结束均有确定展示，午休不显示金额，完成和提前结束不可逆。ActivityKit 启停协调、金额/进度时间锚点推导、正式灵动岛布局和真机系统展示尚未实现或验证。真实 App Group 读写、系统桌面/锁屏展示和 WidgetKit 实际调度仍未取得设备证据；通知、Intent 与 M5 Watch 产品能力尚未实现。
+- 证据状态：M0-M3 与 M3R 的 Windows 合同和 iPad 主路径已收口；G3 Apple SDK 环境门禁及 M4 正式 Widget Extension 编译门禁已通过。小/中/大与锁屏内联、圆形、矩形组件已实现共享金额、状态、进度、最后更新时间和降级态，大组件已增加今日安排；时间线合同会请求周期刷新并在 30 分钟后显示过期。Live Activity 已建立版本化静态/动态合同、纯 Swift 状态机、锁屏与灵动岛布局：工作、午休、自动完成与用户确认提前结束均有确定展示，午休不显示金额，完成和提前结束不可逆；灵动岛覆盖最小、紧凑、展开和窄宽度降级。ActivityKit 启停协调、金额/进度时间锚点推导和真机系统展示尚未实现或验证。真实 App Group 读写、系统桌面/锁屏/灵动岛展示和 WidgetKit 实际调度仍未取得设备证据；通知、Intent 与 M5 Watch 产品能力尚未实现。
 - 失效条件：schema、配置/快照模型、App/SwiftUI 源码、本地化资源、测试或 Swift 工具链版本变化时重测。
 
 ## 下一步
 
-1. 进入 `IOS01-M4-011`，实现灵动岛最小、紧凑和展开布局。
-2. 灵动岛继续消费 M4-008/M4-009 的版本化合同和阶段语义，不提前实现持续后台秒级定时器或启停入口。
+1. 进入 `IOS01-M4-012`，实现时间锚点与费率推导，继续禁止依赖后台秒级定时器。
+2. 时间推导继续消费 M4-008/M4-009 的版本化合同和阶段语义，不提前实现通知授权或手动启停入口。
 3. 正式 Xcode 工程具备 UI Test target 后执行 `M3SmokeUITests`；在此之前继续标记为待执行，不影响已取得的 G3 SDK 环境结论。
 
 ## 记录边界
