@@ -26,10 +26,30 @@ public struct WatchSnapshot: Codable, Equatable, Sendable {
     public let metric: WatchMetric
 }
 
+public struct SharedScheduleSnapshot: Codable, Equatable, Sendable {
+    public let workStart: String
+    public let lunchStart: String
+    public let lunchEnd: String
+    public let workEnd: String
+
+    public init(
+        workStart: String,
+        lunchStart: String,
+        lunchEnd: String,
+        workEnd: String
+    ) {
+        self.workStart = workStart
+        self.lunchStart = lunchStart
+        self.lunchEnd = lunchEnd
+        self.workEnd = workEnd
+    }
+}
+
 public struct SharedSnapshotBundle: Codable, Equatable, Sendable {
     public let salary: IdentifiedSalarySnapshot
     public let activity: ActivityState
     public let watch: WatchSnapshot
+    public let schedule: SharedScheduleSnapshot?
 
     public static func make(
         configuration: AppConfiguration,
@@ -61,6 +81,12 @@ public struct SharedSnapshotBundle: Codable, Equatable, Sendable {
                 progressBasisPoints: salary.progressBasisPoints,
                 remainingSeconds: max(0, remainingSeconds),
                 metric: configuration.watchMetric
+            ),
+            schedule: SharedScheduleSnapshot(
+                workStart: configuration.workStart,
+                lunchStart: configuration.lunchStart,
+                lunchEnd: configuration.lunchEnd,
+                workEnd: configuration.workEnd
             )
         )
     }

@@ -21,6 +21,38 @@ struct SharedSupportTests {
         #expect(bundle.salary.id == bundle.watch.snapshotID)
         #expect(bundle.watch.metric == .remainingTime)
         #expect(bundle.watch.remainingSeconds == 7_200)
+        #expect(bundle.schedule == SharedScheduleSnapshot(
+            workStart: "08:00",
+            lunchStart: "12:00",
+            lunchEnd: "14:00",
+            workEnd: "18:00"
+        ))
+    }
+
+    @Test("Older shared snapshots remain decodable without a schedule projection")
+    func legacySnapshotWithoutSchedule() throws {
+        let bundle = SharedSnapshotBundle.make(
+            configuration: .defaultValue,
+            salary: sampleSalarySnapshot(),
+            generatedAt: Date(timeIntervalSince1970: 1_721_085_600),
+            remainingSeconds: 7_200
+        )
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .millisecondsSince1970
+        var object = try #require(
+            JSONSerialization.jsonObject(with: encoder.encode(bundle)) as? [String: Any]
+        )
+        object.removeValue(forKey: "schedule")
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .millisecondsSince1970
+        let decoded = try decoder.decode(
+            SharedSnapshotBundle.self,
+            from: JSONSerialization.data(withJSONObject: object)
+        )
+
+        #expect(decoded.schedule == nil)
+        #expect(decoded.salary == bundle.salary)
     }
 
     @Test("Snapshot readers never observe partial JSON during replacement")

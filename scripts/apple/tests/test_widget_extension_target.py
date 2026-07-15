@@ -104,7 +104,19 @@ class WidgetExtensionTargetTests(unittest.TestCase):
         self.assertIn("progressBasisPoints", widget_source)
         self.assertIn("ProgressView", widget_source)
         self.assertIn('Text("today.progress")', widget_source)
-        self.assertIn("[.systemSmall, .systemMedium]", widget_source)
+        self.assertIn("[.systemSmall, .systemMedium, .systemLarge]", widget_source)
+        self.assertEqual(widget_source.count("enum SalaryWidgetContentState"), 1)
+
+    def test_large_widget_adds_today_schedule_from_shared_projection(self):
+        widget_source = WIDGET_SOURCE.read_text(encoding="utf-8")
+        self.assertIn("largeReadyView", widget_source)
+        self.assertIn("snapshot.schedule", widget_source)
+        self.assertIn('Text("today.schedule")', widget_source)
+        self.assertIn('scheduleRow("schedule.work_start"', widget_source)
+        self.assertIn('scheduleRow("schedule.lunch"', widget_source)
+        self.assertIn('scheduleRow("schedule.work_end"', widget_source)
+        self.assertIn(".systemLarge", widget_source)
+        self.assertIn("[.systemSmall, .systemMedium, .systemLarge]", widget_source)
         self.assertEqual(widget_source.count("enum SalaryWidgetContentState"), 1)
 
 

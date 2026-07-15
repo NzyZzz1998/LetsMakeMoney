@@ -124,7 +124,9 @@ struct SalaryWidgetView: View {
 
     @ViewBuilder
     private func readyView(_ snapshot: SharedSnapshotBundle) -> some View {
-        if widgetFamily == .systemMedium {
+        if widgetFamily == .systemLarge {
+            largeReadyView(snapshot)
+        } else if widgetFamily == .systemMedium {
             mediumReadyView(snapshot)
         } else {
             smallReadyView(snapshot)
@@ -133,7 +135,9 @@ struct SalaryWidgetView: View {
 
     @ViewBuilder
     private var placeholderView: some View {
-        if widgetFamily == .systemMedium {
+        if widgetFamily == .systemLarge {
+            largePlaceholderView
+        } else if widgetFamily == .systemMedium {
             mediumPlaceholderView
         } else {
             smallPlaceholderView
@@ -241,6 +245,110 @@ struct SalaryWidgetView: View {
         .redacted(reason: .placeholder)
     }
 
+    private func largeReadyView(_ snapshot: SharedSnapshotBundle) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top, spacing: 16) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Label("today.amount", systemImage: "yensign.circle.fill")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(Color(red: 0.40, green: 0.29, blue: 0.18))
+                    Text(amount(snapshot.salary.value.todayEarnedMinor))
+                        .font(.title.weight(.bold).monospacedDigit())
+                        .foregroundStyle(Color(red: 0.20, green: 0.14, blue: 0.09))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.72)
+                    statusBadge(snapshot.salary.value.status)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("today.progress")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(Color(red: 0.40, green: 0.29, blue: 0.18))
+                    Text(percent(snapshot.salary.value.progressBasisPoints))
+                        .font(.title2.weight(.bold).monospacedDigit())
+                        .foregroundStyle(Color(red: 0.20, green: 0.14, blue: 0.09))
+                    ProgressView(
+                        value: Double(clampedProgress(snapshot.salary.value.progressBasisPoints)),
+                        total: 10_000
+                    )
+                    .tint(Color(red: 0.95, green: 0.58, blue: 0.12))
+                    .accessibilityLabel("today.progress")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            Divider()
+                .overlay(Color(red: 0.55, green: 0.42, blue: 0.28).opacity(0.18))
+
+            VStack(alignment: .leading, spacing: 11) {
+                Text("today.schedule")
+                    .font(.headline)
+                    .foregroundStyle(Color(red: 0.20, green: 0.14, blue: 0.09))
+
+                if let schedule = snapshot.schedule {
+                    scheduleRow("schedule.work_start", value: schedule.workStart)
+                    Divider()
+                    scheduleRow(
+                        "schedule.lunch",
+                        value: "\(schedule.lunchStart)-\(schedule.lunchEnd)"
+                    )
+                    Divider()
+                    scheduleRow("schedule.work_end", value: schedule.workEnd)
+                } else {
+                    Text("widget.unavailable.message")
+                        .font(.caption)
+                        .foregroundStyle(Color(red: 0.46, green: 0.36, blue: 0.25))
+                }
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.white.opacity(0.56))
+            )
+        }
+    }
+
+    private var largePlaceholderView: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Label("today.amount", systemImage: "yensign.circle.fill")
+                    Text("¥ 186.42").font(.title.weight(.bold).monospacedDigit())
+                    Text("status.working")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("today.progress")
+                    Text("56%").font(.title2.weight(.bold).monospacedDigit())
+                    ProgressView(value: 0.56)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            Divider()
+            Text("today.schedule").font(.headline)
+            scheduleRow("schedule.work_start", value: "08:00")
+            scheduleRow("schedule.lunch", value: "12:00-14:00")
+            scheduleRow("schedule.work_end", value: "18:00")
+        }
+        .redacted(reason: .placeholder)
+    }
+
+    private func scheduleRow(_ key: LocalizedStringKey, value: String) -> some View {
+        HStack {
+            Text(key)
+                .foregroundStyle(Color(red: 0.46, green: 0.36, blue: 0.25))
+            Spacer()
+            Text(value)
+                .fontWeight(.medium)
+                .monospacedDigit()
+                .foregroundStyle(Color(red: 0.20, green: 0.14, blue: 0.09))
+        }
+        .font(.subheadline)
+    }
+
     private func emptyStateView(
         icon: String,
         title: LocalizedStringKey,
@@ -320,6 +428,6 @@ struct SalaryWidget: Widget {
         }
         .configurationDisplayName("app.title")
         .description("today.amount")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
