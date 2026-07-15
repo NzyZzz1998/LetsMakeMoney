@@ -17,7 +17,7 @@
 1. 在 Windows 修改代码并运行对应 Swift/Python/合同测试。
 2. 运行 `scripts/apple/check_ios_m3.ps1`；失败时不传 iPad。
 3. 需要 Apple SDK 类型证据时，推送 `ios-main` 的 Apple 相关变更以自动运行 `.github/workflows/apple-sdk-experimental.yml`，也可在工作流注册后手动触发。
-4. macOS 工作流首次验证通过前只作为实验性门禁；失败时下载 `apple-sdk-experimental-diagnostics` 查看 `xcodebuild.log`。
+4. macOS 工作流已在 run `29396376249` 通过导出 App scheme 的 iOS Simulator SDK 编译；后续失败时下载 `apple-sdk-experimental-diagnostics` 查看 `xcodebuild.log`。
 5. Apple SDK 编译通过后，再将完整候选包传入 iPad。
 6. 完整候选包静默崩溃时，改用 Debug Hub，不再立即创建新探针。
 
@@ -80,6 +80,6 @@ Binding(get: { model.navigation.destination }, set: { model.select($0) })
 ## 当前限制
 
 - Windows 官方 Swift 工具链不包含 SwiftUI/UIKit 运行环境。
-- macOS Actions 工作流尚需首次远端手动运行，当前不能写成已通过。
+- macOS Actions 已通过 Apple SDK App 编译门禁；该证据不包含 Widget/Activity/Watch 多 Target、XCTest、真机触控或签名。
 - Swift Playgrounds 的静默崩溃仍可能没有系统堆栈；Debug Hub 只能缩小边界，不能替代 Xcode 崩溃日志。
 - Widget、Live Activity、Apple Watch 和签名仍需要后续 Xcode 多 Target 环境。

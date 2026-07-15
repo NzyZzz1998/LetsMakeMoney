@@ -10,9 +10,17 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；等待 M4 前置 G3 macOS/Xcode 多 Target 环境
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；GitHub macOS Apple SDK App 编译已通过，等待 M4 前置 G3 多 Target 与 XCTest
 
 ## 开发记录
+
+### 2026-07-15 GitHub macOS Apple SDK App 编译门禁通过
+
+- 将 `.github/workflows/apple-sdk-experimental.yml` 约束为 `ios-main` Apple 相关路径自动触发，同时保留手动触发；本地 M3 门禁同步纳入工作流合同和 AppRoot Playgrounds 兼容合同。
+- 首次 run `29395751872` 暴露旧导航合同仍断言原生 `TabView`；第二次 run `29396154419` 暴露导出 scheme 名称误用。两项均先在本地补充/修正合同，再提交最小 CI 修复。
+- run `29396376249` 在 HEAD `a5e0b0f` 全部通过：SalaryCore、源码合同、Playgrounds 导出、scheme 枚举和 `LetsMakeMoneyAppleSDK` iOS Simulator SDK 编译成功。
+- 当前证据仅关闭“导出 App 可在 Apple SDK 编译”的第一阶段门禁；`IOS01-M4-001` 仍保持未完成，Widget、Activity、Watch 多 Target 与 `M3SmokeUITests` 必须在后续 G3 中单独验证。
+- GitHub Actions 提示 `checkout@v4` 与 `upload-artifact@v4` 的 Node 20 运行时将迁移到 Node 24；当前由 GitHub 强制 Node 24 后执行成功，记录为非阻塞维护项。
 
 ### 2026-07-15 M3 Preview 与 UI 自动化矩阵收口
 
