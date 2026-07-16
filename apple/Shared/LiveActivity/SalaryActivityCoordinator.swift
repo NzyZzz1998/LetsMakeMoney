@@ -53,7 +53,7 @@ struct SystemSalaryActivityCoordinator: Sendable {
             await record(
                 level: .warning,
                 event: "activity.manual.unavailable",
-                metadata: ["reason": String(describing: reason)]
+                metadata: ["reasonCode": unavailableReasonCode(reason)]
             )
             return .unavailable(reason)
         }
@@ -94,9 +94,9 @@ struct SystemSalaryActivityCoordinator: Sendable {
             await record(
                 level: .error,
                 event: "activity.manual.start_failed",
-                metadata: ["reason": String(describing: error)]
+                metadata: ["errorCode": activityErrorCode(error)]
             )
-            return .failed(String(describing: error))
+            return .failed(activityErrorCode(error))
         }
     }
 
@@ -151,5 +151,25 @@ struct SystemSalaryActivityCoordinator: Sendable {
             event: event,
             metadata: metadata
         )
+    }
+
+    private func unavailableReasonCode(
+        _ reason: SalaryActivityManualUnavailableReason
+    ) -> String {
+        switch reason {
+        case .activitiesDisabled: "activities_disabled"
+        case .missingLaunchContext: "missing_launch_context"
+        }
+    }
+
+    private func activityErrorCode(_ error: Error) -> String {
+        if let readError = error as? SharedSnapshotReadError {
+            switch readError {
+            case .missingSnapshot: return "snapshot_missing"
+            case .invalidSnapshot: return "snapshot_invalid"
+            }
+        }
+        if error is SharedContainerError { return "app_group_unavailable" }
+        return "activity_request_failed"
     }
 }

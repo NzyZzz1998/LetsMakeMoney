@@ -4,59 +4,91 @@
 
 - 目标版本：`ios-v0.1-beta`
 - 开发分支：`ios-main`
-- 当前阶段：M0-M3 与 M3R 已完成，M4 已进入 Widget/Activity 实施
-- 当前可执行范围：文档、schema、SalaryCore、iPhone/iPad SwiftUI App、iPad Playgrounds 包，以及 GitHub macOS Apple SDK 编译门禁
-- 当前环境限制：本地没有 macOS/Xcode；GitHub 已通过 App、Widget/Activity 与 Watch SDK probe 编译，但正式 Extension、entitlement、签名、XCTest 和 TestFlight 尚未验证
+- 当前阶段：M3/M3R 已完成；M4、M5 自动门禁通过并等待真机补证；M6 正在收口
+- 产品边界：iPhone、iPad、Widget、Live Activity、Apple Watch 与复杂功能
+- 环境边界：Windows 负责纯 Swift、静态合同和文档门禁；Apple SDK 编译由 GitHub macOS 执行；签名与真实系统行为必须由 Xcode/TestFlight 和真机证明
 
-## 产品边界
+未拥有的工具、签名或设备证据一律写“待补证”，不得用源码检查或 Preview 冒充真机通过。
 
-Apple 产品线不是 Windows 桌宠的移植：
+## 与 Windows 产品线的关系
+
+Apple 产品线不是 Godot 桌宠的移植：
 
 - Windows 继续使用 Godot、GDScript 和 Windows native integration。
 - Apple 使用 Swift、SwiftUI、WidgetKit、ActivityKit、App Intents、UserNotifications 和 WatchConnectivity。
-- 两条产品线仅共享 `salary-schema v1`、JSON 测试向量、算法口径和节假日数据契约。
-- Apple 实现不得依赖 Windows `config.json`、Godot scene、native DLL 或 `%APPDATA%`。
+- 两条产品线只共享 `salary-schema v1`、工资算法口径、测试向量和节假日数据契约。
+- Apple 实现不读取 Windows `config.json`、Godot scene、native DLL 或 `%APPDATA%`。
+- ios-v0.1 不包含桌宠、云同步、口令同步、加班、主题系统或更多宠物。
 
 ## 目录入口
 
-| 路径 | 职责 | 当前状态 |
-| --- | --- | --- |
-| `Packages/SalaryCore/` | 工资计算、配置持久化、共享快照与结构化日志 | M1-M2 已实现并通过 Windows Swift 测试 |
-| `Shared/Models/` | Apple Targets 的工程装配与共享模型入口 | M3 接入；当前模型事实源位于 SalaryCore |
-| `Shared/Resources/` | 节假日数据、本地化与共享设计资源 | String Catalog 已建立，设计资源随 M3 补齐 |
-| `App/` | iPhone/iPad SwiftUI 主 App | M2-M3 建立 |
-| `WidgetExtension/` | Widget 与 Live Activity UI | M4 当前实施入口 |
-| `WatchApp/` | Apple Watch App 与通信协调 | M5 建立 |
-| `WatchWidgetExtension/` | Watch 复杂功能与 Smart Stack | M5 建立 |
-| `Tests/` | 集成、UI、快照和跨 Target 一致性测试 | 随模块建立 |
-| `Playgrounds/` | iPad Swift Playgrounds 能力验证与迁移说明 | M0 验证 |
-| `Config/` | 无秘密的标识符示例；真实 Team ID 只保留本地 | M0 建立 |
+| 路径 | 职责 |
+| --- | --- |
+| `Packages/SalaryCore/` | 工资计算、配置持久化、共享快照、结构化日志与跨 Target 一致性 |
+| `Packages/ApplePlatformGate/` | iOS/watchOS SDK 编译探针，不是正式产品 Target |
+| `Shared/` | App、Widget、Activity 与 Watch 共用模型、资源和协调器 |
+| `App/` | iPhone/iPad SwiftUI App |
+| `WidgetExtension/` | 桌面/锁屏 Widget 与 Live Activity |
+| `WatchApp/` | Apple Watch App 与连接协调 |
+| `WatchWidgetExtension/` | 表盘复杂功能与 Smart Stack |
+| `Playgrounds/` | iPad Swift Playgrounds 能力验证与迁移探针 |
+| `Config/` | 无秘密的标识符示例；真实 Team ID 不提交 |
 
-详细目录契约见 `PROJECT_LAYOUT.md`。
+完整目录契约见 [`PROJECT_LAYOUT.md`](PROJECT_LAYOUT.md)。
 
-## 开发环境门禁
+## 开发环境
 
-1. Windows 可以运行文档、UTF-8、schema 和 JSON 测试向量检查，但不能证明 Apple Target 可构建。
-2. Swift Playgrounds 可用于 iPad 上的 SwiftUI App 和 Swift Package 能力验证；实际结果记录在 `doc/releases/ios-v0.1/playgrounds-verification.md`。
-3. GitHub macOS 使用 `Packages/ApplePlatformGate/` 验证 iOS/watchOS SDK 与 Framework 编译边界；probe 不是正式产品 Target。
-4. Xcode workspace、正式 Extension、多 Target entitlements、签名和真实设备调试仍必须在 macOS/Xcode 或真机环境完成。
-5. 未拥有的工具、权限或设备证据必须写“待补证”，不得用静态代码检查替代。
+### Windows
 
-Apple 官方资料：
+Windows 可运行：
 
-- [Swift Playgrounds](https://developer.apple.com/documentation/swift-playgrounds)
-- [在 App Playground 中添加 Swift Package](https://developer.apple.com/documentation/swift-playgrounds/add-a-swift-package)
-- [创建 Xcode App 工程](https://developer.apple.com/documentation/xcode/creating-an-xcode-project-for-an-app/)
+- SalaryCore 的 Windows Swift 单元测试；
+- schema、JSON、文档、本地化、隐私和源码合同检查；
+- Playgrounds 导出；
+- 原型与正式中文文案一致性检查。
 
-## 当前验证
+Windows 不能证明：
+
+- 正式 iOS/watchOS Target 可签名安装；
+- App Group、Widget、Activity、通知和 WatchConnectivity 的真实系统行为；
+- 真机外观、常亮显示、锁屏、低电量和系统限流行为。
+
+### iPad Swift Playgrounds
+
+Playgrounds 用于验证 Swift Package、主 App 代码和有限 SwiftUI 页面。它不能替代正式 Extension、entitlement、签名、TestFlight 或 Watch App 验收。操作与已知限制见 [`../doc/releases/ios-v0.1/playgrounds-verification.md`](../doc/releases/ios-v0.1/playgrounds-verification.md)。
+
+### macOS / GitHub Actions
+
+GitHub macOS 工作流会运行 SalaryCore 测试、源码合同、Playgrounds 导出和 Apple SDK 编译探针。正式 archive、签名、App Group entitlement、TestFlight 和真机验收仍需可用的 Apple Developer 环境。
+
+## 验证命令
 
 在仓库根目录运行：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\apple\check_ios_m0.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\apple\test_check_ios_m0.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\apple\test_check_ios_m2.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\apple\check_ios_m4.ps1 -RequireSwift
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\apple\check_ios_m5.ps1 -RequireSwift
+python .\scripts\apple\validate_apple_localization.py
+python .\scripts\apple\validate_apple_product_quality.py
+python .\scripts\apple\validate_ios_prototype_contract.py
+swift test --package-path .\apple\Packages\SalaryCore
 ```
 
-M4 Windows 门禁会保留 M1-M3 回归并检查 G3 probe 与工作流合同；真正的 Apple SDK 编译由 GitHub macOS 工作流执行。任何本地合同或 probe 结果都不代表 App Group entitlement、签名或真实 Apple 设备行为已通过。
+M6 全量入口建立后以 `scripts/apple/check_ios_m6.ps1` 为当前自动门禁。自动门禁通过仍不代表 M4、M5 或 M6 真机矩阵通过。
+
+## 人工验证入口
+
+- M3 iPhone/iPad App：[`../doc/releases/ios-v0.1/m3-device-verification.md`](../doc/releases/ios-v0.1/m3-device-verification.md)
+- M4 Widget/Activity：[`../doc/releases/ios-v0.1/m4-device-verification.md`](../doc/releases/ios-v0.1/m4-device-verification.md)
+- M5 Apple Watch：[`../doc/releases/ios-v0.1/m5-device-verification.md`](../doc/releases/ios-v0.1/m5-device-verification.md)
+- M6 跨 Target 与体验矩阵：[`../doc/releases/ios-v0.1/m6-device-verification.md`](../doc/releases/ios-v0.1/m6-device-verification.md)
+
+## 隐私与限制
+
+- 隐私说明：[`../doc/releases/ios-v0.1/privacy.md`](../doc/releases/ios-v0.1/privacy.md)
+- 已知限制：[`../doc/releases/ios-v0.1/known-limitations.md`](../doc/releases/ios-v0.1/known-limitations.md)
+
+Apple 官方资料：
+
+- [Swift Playgrounds](https://developer.apple.com/documentation/swift-playgrounds)
+- [Adding a Swift package to an app playground](https://developer.apple.com/documentation/swift-playgrounds/adding-a-swift-package-to-an-app-playground)
+- [Creating an Xcode project for an app](https://developer.apple.com/documentation/xcode/creating-an-xcode-project-for-an-app)
