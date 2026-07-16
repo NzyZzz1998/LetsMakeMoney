@@ -393,3 +393,11 @@
 - 发布说明：尚未开始。
 - 回滚方式：开发承接仅修改文档；若计划需调整，回退对应文档，不影响 Windows 业务代码。
 - 下一阶段建议：先完成 M6 真机矩阵与 M4/M5 遗留补证，再进入 M7 候选构建、签名和 Acceptance；没有真实证据的项目保持待补证。
+
+### 2026-07-16 等待 Mac 与签名环境检查点
+
+- 决定在 Mac 到位前暂停 iOS 业务推进，将开发重心切回 Windows 产品线。
+- 新增 `doc/releases/ios-v0.1/README.md` 与 `status.md`，统一记录当前里程碑、已完成能力、阻塞原因、恢复条件、安全边界和 Mac 到位后的执行顺序。
+- 当前自动证据保持有效：SalaryCore 86/86，M0-M6 自动门禁通过，GitHub macOS 已完成 App、Widget/Activity、Watch App 与 Watch Widget 的无签名 Simulator SDK 编译。
+- 未取得的证据保持未通过/待补证：M4 iPhone 系统行为、M5 Series 10、M6 四组真机矩阵、G4 签名、M7 archive 与 Beta Acceptance。
+- 本次只调整文档事实源，没有修改 Swift、资源、配置 schema 或 Windows 业务代码。

@@ -4,11 +4,13 @@
 
 - 目标版本：`ios-v0.1-beta`
 - 开发分支：`ios-main`
-- 当前阶段：M3/M3R 已完成；M4、M5 自动门禁通过并等待真机补证；M6 正在收口
+- 当前阶段：M3/M3R 已完成；M4 为 16/17，M5 为 13/14，M6 为 9/13；自动化与无签名编译范围已收口，现暂停于 Mac、签名和真机门禁
 - 产品边界：iPhone、iPad、Widget、Live Activity、Apple Watch 与复杂功能
 - 环境边界：Windows 负责纯 Swift、静态合同和文档门禁；Apple SDK 编译由 GitHub macOS 执行；签名与真实系统行为必须由 Xcode/TestFlight 和真机证明
 
 未拥有的工具、签名或设备证据一律写“待补证”，不得用源码检查或 Preview 冒充真机通过。
+
+当前检查点、阻塞原因、Mac 到位后的准备清单与恢复顺序见 [`../doc/releases/ios-v0.1/status.md`](../doc/releases/ios-v0.1/status.md)。
 
 ## 与 Windows 产品线的关系
 

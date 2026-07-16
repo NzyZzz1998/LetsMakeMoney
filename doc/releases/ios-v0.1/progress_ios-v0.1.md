@@ -2,14 +2,15 @@
 
 ## 追踪信息
 
-- 当前状态：M3 完成 17/17，M3R 完成 14/14；M4 已完成 16/17，只剩 iPhone 真机系统行为验收；M5 已完成 13/14，只剩 Series 10 真机验收；M6 自动化与文档任务完成 9/13，剩余 4 项均为 Apple 真机体验矩阵
+- 当前状态：M3 完成 17/17，M3R 完成 14/14；M4 已完成 16/17，M5 已完成 13/14，M6 已完成 9/13。Windows 自动化与 GitHub macOS 无签名编译范围已收口，开发暂停于 Mac、签名身份和 Apple 真机系统行为门禁
 - 目标版本：`ios-v0.1-beta`
 - 目标分支：`ios-main`（独立 worktree；M0 基线已推送至远端 `test`）
 - 来源 PRD：`doc/releases/ios-v0.1/prd.md`
 - 对应实施计划：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应开发日志：`doc/logs/dev_log_ios-v0.1.md`
 - 高保真原型：`doc/prototypes/ios-v0.1/index.html`
-- 下游承接：实际实现、Acceptance、Apple Beta 发布
+- 当前状态入口：`doc/releases/ios-v0.1/status.md`
+- 下游承接：Mac/Xcode 真机补证、M7 Acceptance、Apple Beta 发布
 - 当前事实源：本文
 - 最后更新：2026-07-16
 
@@ -219,9 +220,11 @@
 
 ## 下一步
 
-1. 按 `m4-device-verification.md`、`m5-device-verification.md` 和 `m6-device-verification.md` 并行完成 iPhone、iPad 与 Apple Watch 真机补证。
-2. 确认 Apple Developer Program、Team ID、正式 Bundle ID/App Group 和可用签名方式，关闭 G4；真实值只进入安全的本地或 CI secret，不提交仓库。
-3. M6 四项真机矩阵和 G4 未关闭前不进入 M7 候选 archive；Swift Playgrounds 或无签名 Simulator 编译不能替代该门禁。
+1. 等待可用 Mac，安装兼容 Xcode，并按 `status.md` 的恢复顺序复跑 SalaryCore、项目生成和 Apple SDK 门禁。
+2. 确认 Apple Developer Program、Team ID、正式 Bundle ID/App Group 和可用签名方式，关闭 G4；真实值只进入安全的本地配置或 CI Secret，不提交仓库。
+3. 按 `m4-device-verification.md`、`m5-device-verification.md` 和 `m6-device-verification.md` 完成 iPhone、iPad 与 Apple Watch 真机补证。
+4. M6 四项真机矩阵和 G4 未关闭前不进入 M7 候选 archive；Swift Playgrounds 或无签名 Simulator 编译不能替代该门禁。
+5. Mac 到位前，iOS 主线保持当前检查点，开发重心可切回 Windows 产品线。
 
 ## 记录边界
 
