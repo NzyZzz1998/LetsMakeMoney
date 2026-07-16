@@ -3,6 +3,18 @@ import SalaryCore
 import WatchConnectivity
 
 #if os(iOS)
+private final class WatchReplyHandler: @unchecked Sendable {
+    private let handler: ([String: Any]) -> Void
+
+    init(_ handler: @escaping ([String: Any]) -> Void) {
+        self.handler = handler
+    }
+
+    func callAsFunction(_ reply: [String: Any]) {
+        handler(reply)
+    }
+}
+
 final class PhoneWatchConnectivityController: NSObject, WatchSnapshotPublishing,
     WCSessionDelegate, @unchecked Sendable {
     private let session: WCSession
@@ -60,13 +72,14 @@ final class PhoneWatchConnectivityController: NSObject, WatchSnapshotPublishing,
             replyHandler(["error": "watch.message.invalid"])
             return
         }
+        let reply = WatchReplyHandler(replyHandler)
         Task {
             let response = await response(to: envelope)
             guard let data = try? WatchMessageCodec.encode(response) else {
-                replyHandler(["error": "watch.message.encode_failed"])
+                reply(["error": "watch.message.encode_failed"])
                 return
             }
-            replyHandler(["payload": data])
+            reply(["payload": data])
         }
     }
 
