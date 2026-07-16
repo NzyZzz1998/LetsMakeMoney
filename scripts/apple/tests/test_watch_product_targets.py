@@ -63,6 +63,16 @@ class WatchProductTargetTests(unittest.TestCase):
         self.assertIn("metricSwitchLabel", home)
         self.assertNotIn('Picker("watch.metric.picker"', home)
 
+    def test_watch_delegate_sends_reachability_value_not_session_across_actors(self):
+        session = PHONE_SESSION.read_text(encoding="utf-8")
+
+        self.assertGreaterEqual(
+            session.count("let reachable = session.isReachable"),
+            2,
+        )
+        self.assertIn("state.setReachable(reachable)", session)
+        self.assertNotIn("self?.state.setReachable(session.isReachable)", session)
+
     def test_watch_widget_supports_complications_smart_stack_and_metric_intent(self):
         widget = WATCH_WIDGET.read_text(encoding="utf-8")
         intent = WATCH_INTENT.read_text(encoding="utf-8")

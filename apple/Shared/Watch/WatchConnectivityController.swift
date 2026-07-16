@@ -266,16 +266,18 @@ extension WatchSessionController: WCSessionDelegate {
         activationDidCompleteWith activationState: WCSessionActivationState,
         error: Error?
     ) {
+        let reachable = session.isReachable
         Task { @MainActor [weak self] in
-            self?.state.setReachable(session.isReachable)
-            if session.isReachable { self?.requestSnapshot() }
+            self?.state.setReachable(reachable)
+            if reachable { self?.requestSnapshot() }
         }
     }
 
     nonisolated func sessionReachabilityDidChange(_ session: WCSession) {
+        let reachable = session.isReachable
         Task { @MainActor [weak self] in
-            self?.state.setReachable(session.isReachable)
-            if session.isReachable { self?.requestSnapshot() }
+            self?.state.setReachable(reachable)
+            if reachable { self?.requestSnapshot() }
         }
     }
 
