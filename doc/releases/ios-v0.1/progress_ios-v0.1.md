@@ -207,9 +207,9 @@
 ## 最近验证
 
 - 验证时间：2026-07-16
-- 验证对象：M0-M3 合同、SalaryCore、配置/快照、App 状态、引导、日历语义、日期覆盖、M3R 金额/大小周/作息纯逻辑、SwiftUI 源码合同、本地化、Widget 与 Live Activity，以及 M5 Watch 消息合同、连接状态、离线/重连/跨日恢复、指标切换、Activity 请求确认和 Watch Widget/复杂功能产品路径。
+- 验证对象：M0-M5 全部自动化回归，以及 M6 跨 Target 快照事实、配置/节假日版本、金额/状态/进度一致性、本地化、隐私、日志、原型文案和真机验收合同。
 - 验证方式：Python 3.12.8 标准库参考验证、PowerShell 5.1 门禁、Swift 6.3.3 Windows 工具链、MSVC 14.44 与 Windows SDK 10.0.22621.0。
-- 结果：`check_ios_m5.ps1 -RequireSwift` 通过；SalaryCore 84/84、Watch 合同 8/8、Watch 产品源码合同 8/8，M1-M4、M3、Playgrounds 导出、本地化与项目生成回归全部通过。GitHub Actions macOS run `29487055514` 在 HEAD `65f11e6` 使用 Xcode 16.4（16F6）完成 SalaryCore、Playgrounds App、G3 probes、正式 App 与内嵌 Widget/Activity Extension、正式 Watch App 与内嵌 Watch Widget Extension 的无签名 Simulator SDK 编译，所有步骤为 `success`。该结果关闭了 Watch 泛型 Picker 的 Swift 6.1 IRGen 崩溃和 `WCSession` 跨 actor 捕获问题，但不替代配对真机、常亮显示、表盘复杂功能或 Smart Stack 验收。
+- 结果：`check_ios_m6.ps1 -RequireSwift` 通过；SalaryCore 86/86、M6 定向 Python 合同 10/10、跨 Target 一致性 2/2，以及 M0-M5、Playgrounds 导出、本地化、产品质量和原型合同回归全部通过。GitHub Actions macOS run `29494499026` 在 HEAD `4a0769e` 使用 Xcode 16.4（16F6）完成正式 App、内嵌 Widget/Activity Extension、正式 Watch App 与内嵌 Watch Widget Extension 的无签名 Simulator SDK 编译，所有步骤为 `success`。该证据不替代签名、App Group 真机共享或系统行为验收。
 - R10 包：`build/apple-playgrounds/LetsMakeMoneyM3R10-playgrounds.zip`，SHA256 `19327DC3BCA420EA07C8E1CA3DA04169DF11F1299C002580616CD649990D81E2`；使用自定义底部导航阻止 iPadOS 顶部浮动页签，页面背景填满可用区域，今日状态改为固定中文本地化映射，并为无效月薪增加明确错误提示。包内关键实现与中文资源 5/5 检查通过。
 - iPad 证据：R9 在 iPad Pro M4、Swift Playgrounds 4.7 完成完整手动验证；R10 对无效月薪提示、今日中文状态、iPad 竖屏底部导航和横竖屏页面边缘完成定向复测，项目所有者确认全部通过。
 - Preview/UI 自动化矩阵：`AppRootView.swift` 已覆盖 iPhone 竖屏、iPad 竖屏/横屏、深色、大字、Settings 和 Onboarding 七类 Preview；`M3SmokeUITests.swift` 已覆盖确定配置下的今日/日历/设置关闭和无配置首次引导。源码矩阵完成，但 Xcode `XCTest` 尚未运行，不写成已通过。
@@ -219,9 +219,9 @@
 
 ## 下一步
 
-1. 按 `doc/releases/ios-v0.1/m5-device-verification.md` 在 Apple Watch Series 10 与配对 iPhone 上完成 `IOS01-M5-014`，重点验证在线、离线、重连、跨日、指标切换、Activity 确认、复杂功能、Smart Stack 与常亮显示。
-2. 按 `doc/releases/ios-v0.1/m4-device-verification.md` 在 iPhone 16 Pro Max 完成 `IOS01-M4-017`；M4 与 M5 的真机补证可以并行，不再互相阻塞实施。
-3. 真机包必须由包含 App Group、ActivityKit、WatchConnectivity 与 Watch Extension entitlement 的正式签名工程或 TestFlight 构建生成；Swift Playgrounds 包不能替代系统扩展和 Watch 真机验收。
+1. 按 `m4-device-verification.md`、`m5-device-verification.md` 和 `m6-device-verification.md` 并行完成 iPhone、iPad 与 Apple Watch 真机补证。
+2. 确认 Apple Developer Program、Team ID、正式 Bundle ID/App Group 和可用签名方式，关闭 G4；真实值只进入安全的本地或 CI secret，不提交仓库。
+3. M6 四项真机矩阵和 G4 未关闭前不进入 M7 候选 archive；Swift Playgrounds 或无签名 Simulator 编译不能替代该门禁。
 
 ## 记录边界
 

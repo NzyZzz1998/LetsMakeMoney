@@ -357,6 +357,7 @@
 - 重写乱码的 `apple/README.md`，补齐 Apple 产品线边界、目录职责、Windows/Playgrounds/macOS 能力边界、验证命令和人工验证入口。
 - 新增隐私说明、已知限制和 M6 真机验证矩阵；矩阵覆盖 App、Widget、Live Activity、Watch、深浅色、常亮、辅助功能、时区、跨日、锁屏、重启与低电量。
 - 新增 `check_ios_m6.ps1`。全量门禁继承 M0-M5，并运行产品质量、原型合同和跨 Target 一致性测试；SalaryCore 86/86、产品质量 4/4、原型合同 3/3、M6 门禁自身 3/3 通过，最终输出 `IOS_M6_AUTOMATED_GATE_PASS`。
+- GitHub Actions run `29494499026` 在 HEAD `4a0769e` 上完成正式 App、Widget/Activity Extension、Watch App 与 Watch Widget 的 macOS Apple SDK 编译，结论为 `success`；该结果只证明编译，不替代签名和真机系统行为。
 - 证据失效条件已写入 `m6-device-verification.md`：Target、配置/节假日版本、固定时刻/时区、系统版本、设备、外观或辅助功能设置变化后，受影响证据必须重测。
 - `IOS01-M6-011` 至 `IOS01-M6-013` 已关闭。`M6-007` 至 `M6-010` 仍要求 Apple 真机截图与系统行为证据，未被静态检查或 CI 替代。
 
