@@ -1,3 +1,4 @@
+import AppIntents
 import SalaryCore
 import SwiftUI
 import WidgetKit
@@ -28,6 +29,23 @@ struct WatchProgressProvider: AppIntentTimelineProvider {
         in context: Context
     ) async -> Timeline<WatchProgressEntry> {
         Timeline(entries: [entry(for: configuration)], policy: .after(.now.addingTimeInterval(900)))
+    }
+
+    func recommendations() -> [AppIntentRecommendation<WatchMetricIntent>] {
+        [
+            recommendation(.remainingTime, description: "watch.metric.remaining_time"),
+            recommendation(.todayIncome, description: "watch.metric.today_income"),
+            recommendation(.progress, description: "watch.metric.progress")
+        ]
+    }
+
+    private func recommendation(
+        _ metric: WatchMetricOption,
+        description: LocalizedStringResource
+    ) -> AppIntentRecommendation<WatchMetricIntent> {
+        var intent = WatchMetricIntent()
+        intent.metric = metric
+        return AppIntentRecommendation(intent: intent, description: description)
     }
 
     private func entry(for configuration: WatchMetricIntent) -> WatchProgressEntry {

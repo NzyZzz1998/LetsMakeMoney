@@ -61,6 +61,7 @@ class WatchProductTargetTests(unittest.TestCase):
         intent = WATCH_INTENT.read_text(encoding="utf-8")
 
         self.assertIn("AppIntentConfiguration", widget)
+        self.assertIn("func recommendations()", widget)
         for family in (
             ".accessoryInline",
             ".accessoryCircular",
