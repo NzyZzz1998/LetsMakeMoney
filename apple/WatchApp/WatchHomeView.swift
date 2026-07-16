@@ -19,7 +19,10 @@ struct WatchHomeView: View {
             .navigationTitle("watch.title.today")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    metricPicker
+                    Button(action: cycleMetric) {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                    }
+                    .accessibilityLabel(Text(metricSwitchLabel))
                 }
             }
             .refreshable { controller.requestSnapshot() }
@@ -147,16 +150,22 @@ struct WatchHomeView: View {
         }
     }
 
-    private var metricPicker: some View {
-        Picker("watch.metric.picker", selection: Binding(
-            get: { controller.selectedMetric },
-            set: controller.selectMetric
-        )) {
-            Text("watch.metric.remaining_time").tag(WatchMetric.remainingTime)
-            Text("watch.metric.today_income").tag(WatchMetric.todayIncome)
-            Text("watch.metric.progress").tag(WatchMetric.progress)
+    private var metricSwitchLabel: LocalizedStringKey {
+        switch controller.selectedMetric {
+        case .remainingTime: "watch.metric.remaining_time"
+        case .todayIncome: "watch.metric.today_income"
+        case .progress: "watch.metric.progress"
         }
-        .pickerStyle(.navigationLink)
+    }
+
+    private func cycleMetric() {
+        let next: WatchMetric
+        switch controller.selectedMetric {
+        case .remainingTime: next = .todayIncome
+        case .todayIncome: next = .progress
+        case .progress: next = .remainingTime
+        }
+        controller.selectMetric(next)
     }
 
     private func scheduleRow(_ title: LocalizedStringKey, _ value: String) -> some View {

@@ -56,6 +56,13 @@ class WatchProductTargetTests(unittest.TestCase):
         self.assertIn("requestTimeout", session)
         self.assertIn("applyActivityResult", session)
 
+    def test_watch_metric_switch_avoids_swift_61_picker_irgen_crash(self):
+        home = WATCH_HOME.read_text(encoding="utf-8")
+
+        self.assertIn("cycleMetric", home)
+        self.assertIn("metricSwitchLabel", home)
+        self.assertNotIn('Picker("watch.metric.picker"', home)
+
     def test_watch_widget_supports_complications_smart_stack_and_metric_intent(self):
         widget = WATCH_WIDGET.read_text(encoding="utf-8")
         intent = WATCH_INTENT.read_text(encoding="utf-8")
