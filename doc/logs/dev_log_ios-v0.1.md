@@ -10,9 +10,21 @@
 - 对应 dev plan：`doc/releases/ios-v0.1/dev_plan_ios-v0.1.md`
 - 对应 progress：`doc/releases/ios-v0.1/progress_ios-v0.1.md`
 - 对应原型：`doc/prototypes/ios-v0.1/index.html`
-- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 13/17，Widget families、Live Activity 数据合同、阶段状态机、锁屏/灵动岛布局、时间费率投影及通知权限链路已建立
+- 当前阶段：M3 完成 17/17、M3R 完成 14/14；M4 完成 16/17、M5 完成 13/14；M4/M5 产品代码与 Xcode Simulator 编译门禁已通过，分别等待 iPhone 与 Apple Watch 真机验收
 
 ## 开发记录
+
+### 2026-07-16 M5 Watch App、WatchConnectivity 与复杂功能收口
+
+- 测试先行建立版本化 Watch 消息合同、请求确认、超时/取消、离线/重连/跨日/重启恢复和 Watch 产品源码合同；随后实现正式 Watch App target、iPhone/Watch 双端连接控制器、持久化消息仓库、Watch Widget Extension、复杂功能和指标 App Intent。
+- Watch 首页只读展示今日收入、工作进度、状态、今日安排和最近同步时间；主指标可在剩余时间、今日收入、工作进度之间循环，并持久化最后选择。工作态显示距离下班，午休态显示距离复工。
+- Watch 发起 Live Activity 启停请求后必须等待 iPhone 确认；请求超时、失败或取消均保留真实状态，不做乐观成功。离线时保留最后有效快照、显示同步时间并禁用不可执行操作；恢复连接、跨日和重启均有明确刷新策略。
+- Watch Widget 支持 `accessoryInline`、`accessoryCircular`、`accessoryRectangular` 与 Smart Stack，指标通过 App Intent 配置；点击复杂功能打开 Watch App。Playgrounds 导出增加 Watch bridge 纯模型，供 iPad 继续验证共享契约，但不伪装为 Watch 系统扩展。
+- 首次 macOS run `29480217738` 在 Xcode 16.4 / Swift 6.1.2 的 IRGen 阶段崩溃，定位为泛型 `Picker` 直接绑定 `WatchMetric` 触发编译器缺陷。新增回归合同后改为显式循环指标按钮，避免依赖该编译器路径，业务语义不变。
+- 第二次 macOS run `29484720749` 暴露 Swift 6 严格并发错误：`WCSession` 被捕获并跨入 `MainActor` 任务。新增源码合同后在 delegate 回调边界先提取 `Bool` 可达性值，仅跨 actor 发送值类型，不放宽并发检查。
+- 本地 `check_ios_m5.ps1 -RequireSwift` 通过：SalaryCore 84/84、Watch 合同 8/8、Watch 产品源码合同 8/8，M1-M4、M3、Playgrounds 导出、本地化和项目生成回归全部通过；`git diff --check` 无错误。
+- GitHub Actions run `29487055514` 在 HEAD `65f11e6`、Xcode 16.4 下成功编译正式 iPhone/iPad App、Widget/Activity Extension、Watch App 和内嵌 Watch Widget Extension，所有步骤为 `success`。
+- 新增 `m5-device-verification.md`，将配对连接、真实 WatchConnectivity、常亮显示、复杂功能、Smart Stack、Live Activity 请求确认和离线/重连保留为 Series 10 真机门禁。CI 与 Simulator 编译不能替代签名安装和真实设备行为，`IOS01-M5-014` 因此保持未完成。
 
 ### 2026-07-15 M4-013 通知权限事实源与系统设置跳转
 

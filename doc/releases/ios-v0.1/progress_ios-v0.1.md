@@ -2,7 +2,7 @@
 
 ## 追踪信息
 
-- 当前状态：M3 完成 17/17，M3R 完成 14/14；M4 已完成 16/17，App、Widget、控制中心与 App Intent 手动启停入口已实现并通过正式 App/Extension 编译，只剩 iPhone 真机系统行为验收
+- 当前状态：M3 完成 17/17，M3R 完成 14/14；M4 已完成 16/17，只剩 iPhone 真机系统行为验收；M5 已完成 13/14，Watch App、WatchConnectivity、Watch Widget 与复杂功能已通过自动化和 Xcode 编译，只剩 Series 10 真机验收
 - 目标版本：`ios-v0.1-beta`
 - 目标分支：`ios-main`（独立 worktree；M0 基线已推送至远端 `test`）
 - 来源 PRD：`doc/releases/ios-v0.1/prd.md`
@@ -11,7 +11,7 @@
 - 高保真原型：`doc/prototypes/ios-v0.1/index.html`
 - 下游承接：实际实现、Acceptance、Apple Beta 发布
 - 当前事实源：本文
-- 最后更新：2026-07-15
+- 最后更新：2026-07-16
 
 ## 版本目标
 
@@ -34,7 +34,7 @@
 | IOS01-M3 | iPhone/iPad App、引导与日历 | FR-003～005、012 | 已完成 | 17/17 |
 | IOS01-M3R | 首次引导输入与作息推算返工 | FR-002、003 | 已完成 | 14/14 |
 | IOS01-M4 | Widget、Live Activity 与通知 | FR-006、007、010、012 | 待真机验收 | 16/17 |
-| IOS01-M5 | Watch App 与复杂功能 | FR-008、009、012 | 未开始 | 0/14 |
+| IOS01-M5 | Watch App 与复杂功能 | FR-008、009、012 | 待真机验收 | 13/14 |
 | IOS01-M6 | 跨 Target 一致性与质量 | FR-001～014 | 未开始 | 0/13 |
 | IOS01-M7 | 候选构建、真机验收与 Beta | 全部 | 未开始 | 0/15 |
 
@@ -146,19 +146,19 @@
 
 ## IOS01-M5 Apple Watch 与复杂功能
 
-- [ ] IOS01-M5-001 创建 Watch App target 并接入共享模型。
-- [ ] IOS01-M5-002 建立 WatchConnectivity 会话和消息版本契约。
-- [ ] IOS01-M5-003 实现今日收入、进度、状态、安排和同步时间。
-- [ ] IOS01-M5-004 实现剩余时间、收入、进度三种默认指标切换。
-- [ ] IOS01-M5-005 实现工作态距离下班和午休态距离复工。
-- [ ] IOS01-M5-006 实现启动/结束 Activity 请求与 iPhone 确认。
-- [ ] IOS01-M5-007 实现请求超时、失败和取消，不做乐观成功。
-- [ ] IOS01-M5-008 实现离线快照、禁用操作和最近同步提示。
-- [ ] IOS01-M5-009 实现重连同步、跨日和重启恢复。
-- [ ] IOS01-M5-010 创建 watchOS Widget Extension。
-- [ ] IOS01-M5-011 实现常用复杂功能 families 与 Smart Stack。
-- [ ] IOS01-M5-012 实现指标 App Intent 和打开对应 Watch 页面。
-- [ ] IOS01-M5-013 完成连接、编码、重试、离线与跨日自动测试。
+- [x] IOS01-M5-001 创建 Watch App target 并接入共享模型。
+- [x] IOS01-M5-002 建立 WatchConnectivity 会话和消息版本契约。
+- [x] IOS01-M5-003 实现今日收入、进度、状态、安排和同步时间。
+- [x] IOS01-M5-004 实现剩余时间、收入、进度三种默认指标切换。
+- [x] IOS01-M5-005 实现工作态距离下班和午休态距离复工。
+- [x] IOS01-M5-006 实现启动/结束 Activity 请求与 iPhone 确认。
+- [x] IOS01-M5-007 实现请求超时、失败和取消，不做乐观成功。
+- [x] IOS01-M5-008 实现离线快照、禁用操作和最近同步提示。
+- [x] IOS01-M5-009 实现重连同步、跨日和重启恢复。
+- [x] IOS01-M5-010 创建 watchOS Widget Extension。
+- [x] IOS01-M5-011 实现常用复杂功能 families 与 Smart Stack。
+- [x] IOS01-M5-012 实现指标 App Intent 和打开对应 Watch 页面。
+- [x] IOS01-M5-013 完成连接、编码、重试、离线与跨日自动测试。
 - [ ] IOS01-M5-014 在 Series 10 真机复测 App、常亮、复杂功能和 Smart Stack。
 
 ## IOS01-M6 跨 Target 一致性、体验与隐私
@@ -206,22 +206,22 @@
 
 ## 最近验证
 
-- 验证时间：2026-07-15
-- 验证对象：M0-M3 合同、SalaryCore、配置/快照、App 状态、引导、日历语义、日期覆盖、M3R 金额/大小周/作息纯逻辑、SwiftUI 源码合同、本地化、Widget 内容投影、桌面与锁屏尺寸布局、时间线刷新/过期策略、Live Activity 版本化数据合同、通知权限策略、手动启停入口及反例门禁。
+- 验证时间：2026-07-16
+- 验证对象：M0-M3 合同、SalaryCore、配置/快照、App 状态、引导、日历语义、日期覆盖、M3R 金额/大小周/作息纯逻辑、SwiftUI 源码合同、本地化、Widget 与 Live Activity，以及 M5 Watch 消息合同、连接状态、离线/重连/跨日恢复、指标切换、Activity 请求确认和 Watch Widget/复杂功能产品路径。
 - 验证方式：Python 3.12.8 标准库参考验证、PowerShell 5.1 门禁、Swift 6.3.3 Windows 工具链、MSVC 14.44 与 Windows SDK 10.0.22621.0。
-- 结果：Apple/Python 既有合同与参考测试通过，Swift 测试 76/76、本地化验证测试 3/3、M3 源码合同 8/8、Widget Extension 合同 14/14、通知权限源码合同 5/5、Live Activity 手动入口合同 5/5、Playgrounds 导出合同 3/3、M3 反例门禁通过；M1、M2、M3、M4 Windows 正向门禁全部通过。GitHub Actions macOS run `29431334029` 在 HEAD `61df1b9` 使用 Xcode 16.4（16F6）完成 SalaryCore、Playgrounds App、G3 App/Widget/Watch probe，以及正式 App 与内嵌 Widget Extension 的 Simulator SDK 编译，所有步骤为 `success`。正式构建将 `LetsMakeMoneyWidget.appex` 复制到 App 的 `PlugIns` 并通过嵌入校验。SwiftPM 在未启用 Windows 开发人员模式时仍报告 `.build/debug` 符号链接警告，但编译与测试成功。
+- 结果：`check_ios_m5.ps1 -RequireSwift` 通过；SalaryCore 84/84、Watch 合同 8/8、Watch 产品源码合同 8/8，M1-M4、M3、Playgrounds 导出、本地化与项目生成回归全部通过。GitHub Actions macOS run `29487055514` 在 HEAD `65f11e6` 使用 Xcode 16.4（16F6）完成 SalaryCore、Playgrounds App、G3 probes、正式 App 与内嵌 Widget/Activity Extension、正式 Watch App 与内嵌 Watch Widget Extension 的无签名 Simulator SDK 编译，所有步骤为 `success`。该结果关闭了 Watch 泛型 Picker 的 Swift 6.1 IRGen 崩溃和 `WCSession` 跨 actor 捕获问题，但不替代配对真机、常亮显示、表盘复杂功能或 Smart Stack 验收。
 - R10 包：`build/apple-playgrounds/LetsMakeMoneyM3R10-playgrounds.zip`，SHA256 `19327DC3BCA420EA07C8E1CA3DA04169DF11F1299C002580616CD649990D81E2`；使用自定义底部导航阻止 iPadOS 顶部浮动页签，页面背景填满可用区域，今日状态改为固定中文本地化映射，并为无效月薪增加明确错误提示。包内关键实现与中文资源 5/5 检查通过。
 - iPad 证据：R9 在 iPad Pro M4、Swift Playgrounds 4.7 完成完整手动验证；R10 对无效月薪提示、今日中文状态、iPad 竖屏底部导航和横竖屏页面边缘完成定向复测，项目所有者确认全部通过。
 - Preview/UI 自动化矩阵：`AppRootView.swift` 已覆盖 iPhone 竖屏、iPad 竖屏/横屏、深色、大字、Settings 和 Onboarding 七类 Preview；`M3SmokeUITests.swift` 已覆盖确定配置下的今日/日历/设置关闭和无配置首次引导。源码矩阵完成，但 Xcode `XCTest` 尚未运行，不写成已通过。
 - 调试基线：新增可恢复 Debug Hub；GitHub macOS Apple SDK 工作流支持 `ios-main` Apple 路径自动触发及手动触发，已上传 App、G3 probe、正式工程和 Widget 产品路径日志。正式 Widget target 已通过无签名 Simulator 编译，但该证据不替代签名、XCTest、App Group 真机读写和系统桌面展示。
-- 证据状态：M0-M3 与 M3R 的 Windows 合同和 iPad 主路径已收口；G3 Apple SDK 环境门禁及 M4 正式 App/Widget Extension 编译门禁已通过。小/中/大与锁屏组件、Live Activity 版本化合同、状态机、锁屏/灵动岛布局、通知权限系统事实、App/Widget/控制中心/App Intent 手动启停协调均已实现。共享协调器使用 ActivityKit 与 App Group 启动上下文，通知拒绝不会从业务层禁用手动启停。该实现不包含后台秒级定时器，也不承诺系统后台逐秒重绘金额。真实 App Group 读写、系统桌面/锁屏/灵动岛展示、WidgetKit 调度、ActivityKit 系统限流、自动结束，以及通知拒绝后的真机手动启停仍须按 `m4-device-verification.md` 补证；M5 Watch 产品能力尚未实现。
+- 证据状态：M0-M3 与 M3R 的 Windows 合同和 iPad 主路径已收口；M4 与 M5 的 Apple SDK 产品编译门禁已通过。Watch 已实现只读收入/进度/状态/安排、最近同步、三指标切换、工作/午休剩余时间、经 iPhone 确认的 Activity 请求、离线禁用、重连/跨日/重启恢复，以及 Inline/Circular/Rectangular 复杂功能和 Smart Stack。真实 App Group、ActivityKit、WidgetKit 与 WatchConnectivity 系统行为仍须分别按 `m4-device-verification.md` 和 `m5-device-verification.md` 补证；CI 结果不得写成真机通过。
 - 失效条件：schema、配置/快照模型、App/SwiftUI 源码、本地化资源、测试或 Swift 工具链版本变化时重测。
 
 ## 下一步
 
-1. 按 `doc/releases/ios-v0.1/m4-device-verification.md` 在 iPhone 16 Pro Max 完成 `IOS01-M4-017`，重点验证锁屏、灵动岛、四个手动入口、通知拒绝解耦、系统限流和自动结束。
-2. 真机包必须由包含 App Group 与 ActivityKit entitlement 的正式签名工程生成；Swift Playgrounds 包不能替代 Extension/Live Activity 真机验收。
-3. M4-017 通过后关闭 M4，再进入 IOS01-M5 Apple Watch 与复杂功能。
+1. 按 `doc/releases/ios-v0.1/m5-device-verification.md` 在 Apple Watch Series 10 与配对 iPhone 上完成 `IOS01-M5-014`，重点验证在线、离线、重连、跨日、指标切换、Activity 确认、复杂功能、Smart Stack 与常亮显示。
+2. 按 `doc/releases/ios-v0.1/m4-device-verification.md` 在 iPhone 16 Pro Max 完成 `IOS01-M4-017`；M4 与 M5 的真机补证可以并行，不再互相阻塞实施。
+3. 真机包必须由包含 App Group、ActivityKit、WatchConnectivity 与 Watch Extension entitlement 的正式签名工程或 TestFlight 构建生成；Swift Playgrounds 包不能替代系统扩展和 Watch 真机验收。
 
 ## 记录边界
 
