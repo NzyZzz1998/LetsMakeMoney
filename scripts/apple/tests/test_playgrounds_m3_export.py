@@ -37,6 +37,11 @@ class PlaygroundsM3ExportContractTests(unittest.TestCase):
         self.assertIn("$liveActivitySource", source)
         self.assertIn("Copy-Item -LiteralPath $_.FullName -Destination $destination", source)
 
+    def test_exporter_includes_phone_watch_connectivity_sources(self):
+        source = EXPORTER.read_text(encoding="utf-8")
+        self.assertIn("Shared\\Watch", source)
+        self.assertIn("$watchSource", source)
+
 
 if __name__ == "__main__":
     unittest.main()
