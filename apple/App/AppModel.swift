@@ -20,6 +20,7 @@ final class AppModel: ObservableObject {
     private let sharedSnapshotWriter: (any SharedSnapshotWriting)?
     private let notificationController: any NotificationPermissionControlling
     private let liveActivityCoordinator: SystemSalaryActivityCoordinator
+    private let watchSnapshotPublisher: (any WatchSnapshotPublishing)?
 
     init(
         store: ConfigurationStore,
@@ -28,7 +29,8 @@ final class AppModel: ObservableObject {
         timeZone: TimeZone = .current,
         sharedSnapshotWriter: (any SharedSnapshotWriting)? = nil,
         notificationController: any NotificationPermissionControlling = SystemNotificationPermissionController(),
-        liveActivityCoordinator: SystemSalaryActivityCoordinator = SystemSalaryActivityCoordinator()
+        liveActivityCoordinator: SystemSalaryActivityCoordinator = SystemSalaryActivityCoordinator(),
+        watchSnapshotPublisher: (any WatchSnapshotPublishing)? = nil
     ) {
         self.store = store
         self.logger = logger
@@ -37,6 +39,7 @@ final class AppModel: ObservableObject {
         self.sharedSnapshotWriter = sharedSnapshotWriter
         self.notificationController = notificationController
         self.liveActivityCoordinator = liveActivityCoordinator
+        self.watchSnapshotPublisher = watchSnapshotPublisher
     }
 
     func load(now: Date = Date()) async {
@@ -175,12 +178,20 @@ final class AppModel: ObservableObject {
 
     private func publishSharedSnapshot(_ snapshot: SalarySnapshot?, generatedAt: Date) async {
         guard let snapshot, let sharedSnapshotWriter else { return }
+        let remainingSeconds = (try? WatchRemainingTimeProjection.seconds(
+            configuration: configuration,
+            salary: snapshot,
+            generatedAt: generatedAt,
+            timeZone: timeZone
+        )) ?? 0
         let bundle = SharedSnapshotBundle.make(
             configuration: configuration,
             salary: snapshot,
             generatedAt: generatedAt,
-            remainingSeconds: 0
+            remainingSeconds: remainingSeconds,
+            timeZone: timeZone
         )
+        watchSnapshotPublisher?.publish(bundle)
         do {
             try await sharedSnapshotWriter.write(bundle)
             try? await logger.record(level: .info, event: "shared_snapshot.published")

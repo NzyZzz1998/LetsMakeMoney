@@ -21,12 +21,17 @@ struct LetsMakeMoneyApp: App {
             }
         }
         let holidays = HolidayDataLoader.load()
-        let sharedSnapshotWriter = Self.makeSharedSnapshotWriter()
+        let sharedSnapshotStore = Self.makeSharedSnapshotStore()
+        let watchConnectivity = sharedSnapshotStore.map {
+            PhoneWatchConnectivityController(snapshotReader: $0)
+        }
+        watchConnectivity?.activate()
         _model = StateObject(wrappedValue: AppModel(
             store: ConfigurationStore(directoryURL: root),
             logger: LocalEventLogger(directoryURL: root),
             holidays: holidays,
-            sharedSnapshotWriter: sharedSnapshotWriter
+            sharedSnapshotWriter: sharedSnapshotStore,
+            watchSnapshotPublisher: watchConnectivity
         ))
     }
 
@@ -38,7 +43,7 @@ struct LetsMakeMoneyApp: App {
         }
     }
 
-    private static func makeSharedSnapshotWriter() -> (any SharedSnapshotWriting)? {
+    private static func makeSharedSnapshotStore() -> SharedSnapshotStore? {
         guard let identifier = Bundle.main.object(
             forInfoDictionaryKey: "LMMAppGroupIdentifier"
         ) as? String,

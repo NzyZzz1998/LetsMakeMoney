@@ -3,6 +3,7 @@ name: LetsMakeMoney
 options:
   deploymentTarget:
     iOS: "18.0"
+    watchOS: "11.0"
 
 configs:
   Debug: debug
@@ -30,6 +31,7 @@ targets:
     sources:
       - path: App
       - path: Shared/LiveActivity
+      - path: Shared/Watch
       - path: Shared/Resources/Localizable.xcstrings
         buildPhase: resources
       - path: ../shared/salary-schema/v1/holidays/cn-2025.json
@@ -46,6 +48,8 @@ targets:
     dependencies:
       - package: SalaryCore
       - target: LetsMakeMoneyWidget
+        embed: true
+      - target: LetsMakeMoneyWatchApp
         embed: true
 
   LetsMakeMoneyWidget:
@@ -64,6 +68,49 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Config/LetsMakeMoneyWidget.entitlements
         LMMAppGroupIdentifier: $(APP_GROUP_IDENTIFIER)
         APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+    dependencies:
+      - package: SalaryCore
+
+  LetsMakeMoneyWatchApp:
+    type: application
+    platform: watchOS
+    sources:
+      - path: WatchApp
+      - path: Shared/Watch
+      - path: Shared/Resources/Localizable.xcstrings
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_NAME: LetsMakeMoneyWatchApp
+        PRODUCT_BUNDLE_IDENTIFIER: $(WATCH_BUNDLE_IDENTIFIER)
+        INFOPLIST_FILE: WatchApp/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Config/LetsMakeMoneyWatchApp.entitlements
+        LMMAppGroupIdentifier: $(APP_GROUP_IDENTIFIER)
+        TARGETED_DEVICE_FAMILY: "4"
+        SKIP_INSTALL: YES
+    dependencies:
+      - package: SalaryCore
+      - target: LetsMakeMoneyWatchWidget
+        embed: true
+
+  LetsMakeMoneyWatchWidget:
+    type: app-extension
+    platform: watchOS
+    sources:
+      - path: WatchWidgetExtension
+      - path: Shared/Watch/WatchMessageStore.swift
+      - path: Shared/Resources/Localizable.xcstrings
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_NAME: LetsMakeMoneyWatchWidget
+        PRODUCT_BUNDLE_IDENTIFIER: $(WATCH_WIDGET_BUNDLE_IDENTIFIER)
+        INFOPLIST_FILE: WatchWidgetExtension/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Config/LetsMakeMoneyWatchWidget.entitlements
+        LMMAppGroupIdentifier: $(APP_GROUP_IDENTIFIER)
+        APPLICATION_EXTENSION_API_ONLY: YES
+        TARGETED_DEVICE_FAMILY: "4"
         SKIP_INSTALL: YES
     dependencies:
       - package: SalaryCore

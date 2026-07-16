@@ -82,7 +82,7 @@ jobs:
         run: bash ./scripts/apple/bootstrap_xcodegen.sh "$RUNNER_TEMP/lmm-xcodegen"
       - name: Generate the formal Apple project
         run: xcodegen generate --spec apple/project.yml --project apple
-      - name: List formal App and Widget schemes
+      - name: List formal App, Widget and Watch schemes
         run: xcodebuild -project apple/LetsMakeMoney.xcodeproj -list | tee build/apple-sdk-ci/formal-schemes.log
       - name: Compile the real App and embedded Widget Extension
         run: |
@@ -97,6 +97,21 @@ jobs:
           widget_path="$(find build/apple-sdk-ci/FormalDerivedData -type d -name 'LetsMakeMoneyWidget.appex' -print -quit)"
           test -n "$widget_path"
           echo "$widget_path" | tee build/apple-sdk-ci/formal-widget-product.log
+      - name: Compile the real Watch App and embedded Watch Widget
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project apple/LetsMakeMoney.xcodeproj \
+            -scheme LetsMakeMoneyWatchApp \
+            -destination 'generic/platform=watchOS Simulator' \
+            -derivedDataPath build/apple-sdk-ci/FormalWatchDerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee build/apple-sdk-ci/formal-watch.log
+          watch_app_path="$(find build/apple-sdk-ci/FormalWatchDerivedData -type d -name 'LetsMakeMoneyWatchApp.app' -print -quit)"
+          watch_widget_path="$(find build/apple-sdk-ci/FormalWatchDerivedData -type d -name 'LetsMakeMoneyWatchWidget.appex' -print -quit)"
+          test -n "$watch_app_path"
+          test -n "$watch_widget_path"
+          printf '%s\n%s\n' "$watch_app_path" "$watch_widget_path" | tee build/apple-sdk-ci/formal-watch-products.log
       - name: Upload experimental diagnostics
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -112,5 +127,7 @@ jobs:
             build/apple-sdk-ci/formal-schemes.log
             build/apple-sdk-ci/formal-app-widget.log
             build/apple-sdk-ci/formal-widget-product.log
+            build/apple-sdk-ci/formal-watch.log
+            build/apple-sdk-ci/formal-watch-products.log
             build/apple-sdk-ci/LetsMakeMoneyAppleSDK-playgrounds.zip
           if-no-files-found: warn
