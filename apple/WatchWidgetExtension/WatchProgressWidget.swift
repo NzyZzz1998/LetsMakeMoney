@@ -33,15 +33,24 @@ struct WatchProgressProvider: AppIntentTimelineProvider {
 
     func recommendations() -> [AppIntentRecommendation<WatchMetricIntent>] {
         [
-            recommendation(.remainingTime, description: "watch.metric.remaining_time"),
-            recommendation(.todayIncome, description: "watch.metric.today_income"),
-            recommendation(.progress, description: "watch.metric.progress")
+            recommendation(
+                .remainingTime,
+                description: String(localized: "watch.metric.remaining_time")
+            ),
+            recommendation(
+                .todayIncome,
+                description: String(localized: "watch.metric.today_income")
+            ),
+            recommendation(
+                .progress,
+                description: String(localized: "watch.metric.progress")
+            )
         ]
     }
 
     private func recommendation(
         _ metric: WatchMetricOption,
-        description: LocalizedStringResource
+        description: String
     ) -> AppIntentRecommendation<WatchMetricIntent> {
         var intent = WatchMetricIntent()
         intent.metric = metric
