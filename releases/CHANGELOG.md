@@ -5,7 +5,7 @@
 ### 状态
 
 - 自动回归、候选包校验、新解压 smoke 与最终人工验收通过。
-- 可发布 Windows x86_64 便携 Zip；未签名安装器不作为公开 Release 附件。
+- Windows x86_64 便携 Zip 已通过 `v0.8-beta` GitHub Pre-release 发布；未签名安装器不作为公开 Release 附件。
 
 ### 新增与变更
 
