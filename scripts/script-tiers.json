@@ -39,6 +39,7 @@
         "test_update_contract.ps1",
         "test_v08_pet_fallback.ps1",
         "test_v08_release_boundaries.ps1",
+        "test_v08_salary_schedule.ps1",
         "test_v08_settings_governance.ps1",
         "test_verification_failure_injection.ps1",
         "test_window_state_contract.ps1",
@@ -56,6 +57,8 @@
         "verify_v07_update_service.gd.uid",
         "verify_v07_window_policy_coordinator.gd",
         "verify_v07_window_policy_coordinator.gd.uid",
+        "verify_v08_salary_schedule.gd",
+        "verify_v08_salary_schedule.gd.uid",
         "verify_v08_settings_governance.gd",
         "verify_v08_settings_governance.gd.uid"
       ]

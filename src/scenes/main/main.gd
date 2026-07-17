@@ -605,7 +605,17 @@ func _apply_config_change_scope(changed_keys: Array[String]) -> void:
 func _config_scope_requires_salary_refresh(changed_keys: Array[String]) -> bool:
 	if changed_keys.is_empty():
 		return true
-	for key in ["monthly_salary", "rest_mode", "work_start_time", "work_end_time", "work_hours_per_day"]:
+	for key in [
+		"monthly_salary",
+		"rest_mode",
+		"alternating_anchor_date",
+		"alternating_anchor_week_type",
+		"work_start_time",
+		"lunch_start_time",
+		"lunch_end_time",
+		"work_end_time",
+		"work_hours_per_day"
+	]:
 		if changed_keys.has(key):
 			return true
 	return false

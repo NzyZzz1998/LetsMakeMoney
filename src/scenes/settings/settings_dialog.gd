@@ -5,13 +5,20 @@ const WarmControlThemeScript := preload("res://src/ui/warm_control_theme.gd")
 const SettingsSectionBuilderScript := preload("res://src/ui/settings_section_builder.gd")
 const DiagnosticsServiceScript := preload("res://src/utils/diagnostics_service.gd")
 const SettingsTransactionControllerScript := preload("res://src/utils/settings_transaction_controller.gd")
+const SalaryScheduleCalculatorScript := preload("res://src/utils/salary_schedule_calculator.gd")
 
 var salary_input: SpinBox
 var rest_mode_option: OptionButton
 var rest_mode_single_toggle: CheckButton
+var alternating_week_type_option: OptionButton
+var alternating_week_type_row: Control
 var hours_input: SpinBox
 var start_hour_input: SpinBox
 var start_min_input: SpinBox
+var lunch_start_hour_input: SpinBox
+var lunch_start_min_input: SpinBox
+var lunch_end_hour_input: SpinBox
+var lunch_end_min_input: SpinBox
 var end_hour_input: SpinBox
 var end_min_input: SpinBox
 var pet_list: ItemList
@@ -353,23 +360,39 @@ func _build_salary_tab() -> Control:
 	rest_mode_option = OptionButton.new()
 	rest_mode_option.add_item("双休", 0)
 	rest_mode_option.add_item("单休", 1)
-	_add_control_card(box, "休息模式", "选择单休或双休，影响每月工作日和时薪计算。", rest_mode_option)
+	rest_mode_option.add_item("大小周", 2)
+	_add_control_card(box, "休息模式", "", rest_mode_option)
+	rest_mode_option.item_selected.connect(_on_rest_mode_selected)
+	alternating_week_type_option = OptionButton.new()
+	alternating_week_type_option.add_item("本周是大周", 0)
+	alternating_week_type_option.add_item("本周是小周", 1)
+	var alternating_row := _add_control_card(box, "大小周起点", "", alternating_week_type_option)
+	alternating_week_type_row = alternating_row.get_parent()
+	alternating_week_type_row.visible = false
 	rest_mode_single_toggle = CheckButton.new()
 	rest_mode_single_toggle.text = "单休（关闭则为双休）"
 	rest_mode_single_toggle.visible = false
 	box.add_child(rest_mode_single_toggle)
 	_add_section_heading(box, "工作时间")
-	hours_input = _add_spin(box, 0, 24, 0.25)
-	hours_input.editable = false
 	var start_row := _add_time_row(box)
 	start_hour_input = start_row[0]
 	start_min_input = start_row[1]
-	_wrap_last_control_in_card(box, start_row[2], "上班时间", "用于判断工作中状态和今日已赚起点。")
+	_wrap_last_control_in_card(box, start_row[2], "上班时间", "")
+	var lunch_start_row := _add_time_row(box)
+	lunch_start_hour_input = lunch_start_row[0]
+	lunch_start_min_input = lunch_start_row[1]
+	_wrap_last_control_in_card(box, lunch_start_row[2], "午休开始", "")
+	var lunch_end_row := _add_time_row(box)
+	lunch_end_hour_input = lunch_end_row[0]
+	lunch_end_min_input = lunch_end_row[1]
+	_wrap_last_control_in_card(box, lunch_end_row[2], "午休结束", "")
 	var end_row := _add_time_row(box)
 	end_hour_input = end_row[0]
 	end_min_input = end_row[1]
-	_wrap_last_control_in_card(box, end_row[2], "下班时间", "用于判断休息状态和今日收入封顶时间。")
-	_wrap_last_control_in_card(box, hours_input, "每日工作小时数", "根据上下班时间自动计算，只读展示。")
+	_wrap_last_control_in_card(box, end_row[2], "下班时间", "")
+	hours_input = _add_spin(box, 0, 24, 0.01)
+	hours_input.editable = false
+	_wrap_last_control_in_card(box, hours_input, "有效工作小时数", "")
 	_connect_time_inputs()
 	return root
 
@@ -535,8 +558,8 @@ func _add_setting_card(parent: Control, title: String, description: String = "")
 	return _settings_ui_builder.add_setting_card(parent, title, description)
 
 
-func _add_control_card(parent: Control, title: String, _description: String, control: Control) -> void:
-	_settings_ui_builder.add_control_card(parent, title, _description, control)
+func _add_control_card(parent: Control, title: String, _description: String, control: Control) -> HBoxContainer:
+	return _settings_ui_builder.add_control_card(parent, title, _description, control)
 
 
 func _add_switch_proxy(row: HBoxContainer, toggle: BaseButton) -> void:
@@ -936,7 +959,16 @@ func _add_time_row(parent: Control) -> Array:
 
 
 func _connect_time_inputs() -> void:
-	for input in [start_hour_input, start_min_input, end_hour_input, end_min_input]:
+	for input in [
+		start_hour_input,
+		start_min_input,
+		lunch_start_hour_input,
+		lunch_start_min_input,
+		lunch_end_hour_input,
+		lunch_end_min_input,
+		end_hour_input,
+		end_min_input
+	]:
 		input.value_changed.connect(_on_time_input_changed)
 
 
@@ -951,24 +983,76 @@ func _update_hours_preview() -> void:
 
 
 func _calculate_work_hours() -> float:
-	var start_min := int(start_hour_input.value) * 60 + int(start_min_input.value)
-	var end_min := int(end_hour_input.value) * 60 + int(end_min_input.value)
-	if end_min <= start_min:
-		return 0.0
-	return float(end_min - start_min) / 60.0
+	var minutes := SalaryScheduleCalculatorScript.effective_work_minutes(
+		_time_value(start_hour_input, start_min_input),
+		_time_value(end_hour_input, end_min_input),
+		_time_value(lunch_start_hour_input, lunch_start_min_input),
+		_time_value(lunch_end_hour_input, lunch_end_min_input)
+	)
+	return float(minutes) / 60.0
+
+
+func _time_value(hour_input: SpinBox, minute_input: SpinBox) -> String:
+	return "%02d:%02d" % [int(hour_input.value), int(minute_input.value)]
+
+
+func _rest_mode_from_selection() -> String:
+	match rest_mode_option.selected:
+		1:
+			return "single"
+		2:
+			return "alternating"
+		_:
+			return "double"
+
+
+func _rest_mode_selection(rest_mode: String) -> int:
+	match rest_mode:
+		"single":
+			return 1
+		"alternating":
+			return 2
+		_:
+			return 0
+
+
+func _on_rest_mode_selected(_index: int) -> void:
+	_update_alternating_week_visibility()
+
+
+func _update_alternating_week_visibility() -> void:
+	if alternating_week_type_row != null:
+		alternating_week_type_row.visible = rest_mode_option.selected == 2
 
 
 func _load_current_values() -> void:
 	salary_input.value = float(Config.get_value("monthly_salary", 0))
 	var rm := String(Config.get_value("rest_mode", "double"))
-	rest_mode_option.select(1 if rm == "single" else 0)
+	rest_mode_option.select(_rest_mode_selection(rm))
 	rest_mode_single_toggle.button_pressed = rm == "single"
-	var st := String(Config.get_value("work_start_time", "09:00")).split(":")
-	start_hour_input.value = int(st[0]) if st.size() > 0 else 9
+	var anchor_date := String(Config.get_value("alternating_anchor_date", ""))
+	var anchor_week_type := String(Config.get_value("alternating_anchor_week_type", "big"))
+	var current_week_is_big := anchor_week_type != "small"
+	if not anchor_date.is_empty():
+		current_week_is_big = SalaryScheduleCalculatorScript.is_big_week(
+			Time.get_datetime_dict_from_system(),
+			anchor_date,
+			anchor_week_type
+		)
+	alternating_week_type_option.select(0 if current_week_is_big else 1)
+	var st := String(Config.get_value("work_start_time", "08:00")).split(":")
+	start_hour_input.value = int(st[0]) if st.size() > 0 else 8
 	start_min_input.value = int(st[1]) if st.size() > 1 else 0
+	var lst := String(Config.get_value("lunch_start_time", "12:00")).split(":")
+	lunch_start_hour_input.value = int(lst[0]) if lst.size() > 0 else 12
+	lunch_start_min_input.value = int(lst[1]) if lst.size() > 1 else 0
+	var lunch_end_parts := String(Config.get_value("lunch_end_time", "14:00")).split(":")
+	lunch_end_hour_input.value = int(lunch_end_parts[0]) if lunch_end_parts.size() > 0 else 14
+	lunch_end_min_input.value = int(lunch_end_parts[1]) if lunch_end_parts.size() > 1 else 0
 	var et := String(Config.get_value("work_end_time", "18:00")).split(":")
 	end_hour_input.value = int(et[0]) if et.size() > 0 else 18
 	end_min_input.value = int(et[1]) if et.size() > 1 else 0
+	_update_alternating_week_visibility()
 
 	scale_slider.value = float(Config.get_value("scale", 1.0)) * 100.0
 	opacity_slider.value = float(Config.get_value("opacity", 1.0)) * 100.0
@@ -1086,11 +1170,32 @@ func _restore_external_state(state: Dictionary, reason: String) -> bool:
 
 
 func _collect_form_values() -> Dictionary:
+	var rest_mode := _rest_mode_from_selection()
+	var stored_rest_mode := String(Config.get_value("rest_mode", "double"))
+	var alternating_anchor_date := String(Config.get_value("alternating_anchor_date", ""))
+	var alternating_anchor_week_type := String(Config.get_value("alternating_anchor_week_type", "big"))
+	if rest_mode == "alternating":
+		var selected_week_type := "small" if alternating_week_type_option.selected == 1 else "big"
+		var preserve_stored_anchor := stored_rest_mode == "alternating" and not alternating_anchor_date.is_empty()
+		if preserve_stored_anchor:
+			var stored_current_week_is_big := SalaryScheduleCalculatorScript.is_big_week(
+				Time.get_datetime_dict_from_system(),
+				alternating_anchor_date,
+				alternating_anchor_week_type
+			)
+			preserve_stored_anchor = stored_current_week_is_big == (selected_week_type == "big")
+		if not preserve_stored_anchor:
+			alternating_anchor_date = SalaryScheduleCalculatorScript.week_anchor_date(Time.get_datetime_dict_from_system())
+			alternating_anchor_week_type = selected_week_type
 	return {
 		"monthly_salary": float(salary_input.value),
-		"rest_mode": "single" if rest_mode_option.selected == 1 else "double",
-		"work_start_time": "%02d:%02d" % [int(start_hour_input.value), int(start_min_input.value)],
-		"work_end_time": "%02d:%02d" % [int(end_hour_input.value), int(end_min_input.value)],
+		"rest_mode": rest_mode,
+		"alternating_anchor_date": alternating_anchor_date,
+		"alternating_anchor_week_type": alternating_anchor_week_type,
+		"work_start_time": _time_value(start_hour_input, start_min_input),
+		"lunch_start_time": _time_value(lunch_start_hour_input, lunch_start_min_input),
+		"lunch_end_time": _time_value(lunch_end_hour_input, lunch_end_min_input),
+		"work_end_time": _time_value(end_hour_input, end_min_input),
 		"work_hours_per_day": _calculate_work_hours(),
 		"scale": scale_slider.value / 100.0,
 		"opacity": opacity_slider.value / 100.0,
@@ -1116,7 +1221,11 @@ func _current_settings_snapshot() -> Dictionary:
 	return {
 		"monthly_salary": float(Config.get_value("monthly_salary", 0)),
 		"rest_mode": String(Config.get_value("rest_mode", "double")),
-		"work_start_time": String(Config.get_value("work_start_time", "09:00")),
+		"alternating_anchor_date": String(Config.get_value("alternating_anchor_date", "")),
+		"alternating_anchor_week_type": String(Config.get_value("alternating_anchor_week_type", "big")),
+		"work_start_time": String(Config.get_value("work_start_time", "08:00")),
+		"lunch_start_time": String(Config.get_value("lunch_start_time", "12:00")),
+		"lunch_end_time": String(Config.get_value("lunch_end_time", "14:00")),
 		"work_end_time": String(Config.get_value("work_end_time", "18:00")),
 		"work_hours_per_day": float(Config.get_value("work_hours_per_day", 8.0)),
 		"scale": float(Config.get_value("scale", 1.0)),
@@ -1148,6 +1257,9 @@ func _has_form_changes(form_values: Dictionary) -> bool:
 
 
 func _validate_form_values(values: Dictionary) -> bool:
+	if float(values.get("work_hours_per_day", 0.0)) <= 0.0:
+		_set_general_message("工作与午休时间顺序无效，请检查后重试。", true)
+		return false
 	var pet_id := String(values.get("pet_id", ""))
 	var pet_found := pet_id.is_empty()
 	for pet in PetManager.get_available_pets():
@@ -1168,7 +1280,11 @@ func _apply_form_values(values: Dictionary) -> void:
 	for key in [
 		"monthly_salary",
 		"rest_mode",
+		"alternating_anchor_date",
+		"alternating_anchor_week_type",
 		"work_start_time",
+		"lunch_start_time",
+		"lunch_end_time",
 		"work_end_time",
 		"work_hours_per_day",
 		"scale",
