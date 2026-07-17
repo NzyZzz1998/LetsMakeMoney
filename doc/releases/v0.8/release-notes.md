@@ -1,6 +1,6 @@
-# LetsMakeMoney v0.8 Beta 候选说明
+# LetsMakeMoney v0.8 Beta 发布说明
 
-**状态**：候选包待最终验收，尚未发布
+**状态**：最终验收通过，可发布 Windows x86_64 便携 Zip
 
 ## 主要变化
 
@@ -17,6 +17,7 @@
 - 宠物动作大改不属于 v0.8；相关内容只进入下一版本 Review。
 - 未签名安装器不属于本候选包，也不得作为公开 Release 附件。
 - 多显示器、干净 Windows 用户/VM、Authenticode/SmartScreen 和真实登录后的开机自启沿用既有“暂不验证”口径，不得写成通过。
+- Windows 版与 iOS 原型/实现仍有体验差距，已记录为后续优化候选，不阻塞本次 Beta。
 
 ## 升级与回滚
 
