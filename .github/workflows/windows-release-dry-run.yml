@@ -48,21 +48,21 @@ jobs:
         run: ./scripts/run_ci_verification.ps1 -Suite all -GodotExe $env:LMM_GODOT_EXE
       - name: Package portable beta
         shell: pwsh
-        run: ./scripts/package_v07.ps1 -GodotExe $env:LMM_GODOT_EXE
+        run: ./scripts/package_v08.ps1 -GodotExe $env:LMM_GODOT_EXE
       - name: Verify portable beta
         shell: pwsh
-        run: ./scripts/verify_v07_package.ps1
+        run: ./scripts/verify_v08_package.ps1
       - name: Stage checksum
         shell: pwsh
         run: |
-          $zip = Resolve-Path ./releases/v0.7/LetsMakeMoney-v0.7-beta-windows-x86_64.zip
+          $zip = Resolve-Path ./releases/v0.8/LetsMakeMoney-v0.8-beta-windows-x86_64.zip
           $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  $([IO.Path]::GetFileName($zip))" | Set-Content ./releases/v0.7/SHA256SUMS.txt -Encoding UTF8
+          "$hash  $([IO.Path]::GetFileName($zip))" | Set-Content ./releases/v0.8/SHA256SUMS.txt -Encoding UTF8
       - name: Upload dry-run candidate
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: LetsMakeMoney-v0.7-beta-release-dry-run
+          name: LetsMakeMoney-v0.8-beta-release-dry-run
           path: |
-            releases/v0.7/LetsMakeMoney-v0.7-beta-windows-x86_64.zip
-            releases/v0.7/SHA256SUMS.txt
+            releases/v0.8/LetsMakeMoney-v0.8-beta-windows-x86_64.zip
+            releases/v0.8/SHA256SUMS.txt
           if-no-files-found: error
