@@ -48,6 +48,8 @@ v0.8 当前包含两条已经执行的工作线：
 
 薪资与作息实现当前仍处于开发候选状态，不得写成 v0.8 已发布。2026-07-17 已使用开发 EXE 完成 Settings、Wizard、Panel、大小周持久化和午休冻结的真实界面手动验收；当前必须以新生成的 `0.8-beta` Zip 再执行版本级 Acceptance。
 
+当前 v0.8 候选源码提交为 `08f7820bfd95ff56132eb87eb9255078adb9572a`；候选 Zip 为 `releases/v0.8/LetsMakeMoney-v0.8-beta-windows-x86_64.zip`，SHA256 为 `A2065B82F7674E5A19AC4FD467E7DEA3E8D665E3C148634C3721B7BD90AE098E`。该身份只用于最终验收，不代表已经合并或发布。
+
 下一版本计划对宠物动作进行较大范围优化。2026-07-17 已开始审查 LetsMakeMoney 内部宠物运行时与仓库外部的独立 PetManager 素材生产项目。当前只确认两者职责和契约缺口，不在 v0.8 分支直接替换素材、重构状态机或接入 PetManager 交付包。
 
 治理基线：
