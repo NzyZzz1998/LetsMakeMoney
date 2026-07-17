@@ -14,7 +14,7 @@
 
 **当前开发分支**：`feature/v0.8-salary-schedule`
 
-**当前阶段**：v0.7 已发布；v0.8 工程治理 C0-C5 已完成，薪资与作息规则已通过自动验证和真实界面手动验收，可进入合并、候选包与版本级回归；下一版本宠物动作优化仅进入 Review，尚未形成正式需求
+**当前阶段**：v0.7 已发布；v0.8 工程治理 C0-C5 与薪资作息实现已提交到功能分支，项目版本身份已切换为 `0.8-beta`，自动回归、候选包验证和新解压 smoke 已通过，等待候选包真实桌面人工验收；下一版本宠物动作优化仅进入 Review，尚未形成正式需求
 
 本文件是人工或 agent 接手时的唯一内部当前事实入口。README 面向用户和贡献者；`doc/releases/v0.7/` 保存已发布版本证据；v0.1-v0.6 及跨版本大文档只作为历史参考。
 
@@ -46,7 +46,7 @@ v0.8 当前包含两条已经执行的工作线：
 1. 工程治理 C0-C5：当前事实、生成物、历史文档、脚本职责、Main/native 状态和发布边界已完成治理及对应回归。
 2. 薪资与作息规则：按当月实际工作日计算日薪，增加午休扣除和大小周，配置升级至 v4，并保持 v3 配置迁移。
 
-薪资与作息实现当前仍处于开发候选状态，不得写成 v0.8 已发布。2026-07-17 已使用当前 Windows EXE 完成 Settings、Wizard、Panel、大小周持久化和午休冻结的真实界面手动验收；下一步是合并前检查、重新打包及版本级回归。
+薪资与作息实现当前仍处于开发候选状态，不得写成 v0.8 已发布。2026-07-17 已使用开发 EXE 完成 Settings、Wizard、Panel、大小周持久化和午休冻结的真实界面手动验收；当前必须以新生成的 `0.8-beta` Zip 再执行版本级 Acceptance。
 
 下一版本计划对宠物动作进行较大范围优化。2026-07-17 已开始审查 LetsMakeMoney 内部宠物运行时与仓库外部的独立 PetManager 素材生产项目。当前只确认两者职责和契约缺口，不在 v0.8 分支直接替换素材、重构状态机或接入 PetManager 交付包。
 
@@ -55,6 +55,8 @@ v0.8 当前包含两条已经执行的工作线：
 - [v0.8 工程治理 Review](releases/v0.8/engineering-governance-review.md)
 - [v0.8 清理执行方案](releases/v0.8/cleanup-plan.md)
 - [v0.8 薪资与作息验证](releases/v0.8/salary-schedule-verification.md)
+- [v0.8 版本级验证](releases/v0.8/verification.md)
+- [v0.8 人工验证](releases/v0.8/manual-verification.md)
 - [宠物动作与 PetManager 深度 Review](releases/v0.8/pet-animation-next-version-review.md)
 
 ## 4. 推荐阅读顺序

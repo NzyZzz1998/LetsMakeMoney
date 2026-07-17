@@ -37,6 +37,13 @@ foreach ($version in @("04", "05", "06")) {
     Assert-True ($verifyWrapper.Contains("verify_package_common.ps1")) "verify_v${version}_package.ps1 must call verify_package_common.ps1"
 }
 
+foreach ($version in @("07", "08")) {
+    $packageWrapper = Read-Required "scripts/package_v$version.ps1"
+    Assert-True ($packageWrapper.Contains("package_common.ps1")) "package_v$version.ps1 must call package_common.ps1"
+    $verifyWrapper = Read-Required "scripts/verify_v${version}_package.ps1"
+    Assert-True ($verifyWrapper.Contains("verify_package_common.ps1")) "verify_v${version}_package.ps1 must call verify_package_common.ps1"
+}
+
 $docsWorkflow = Read-Required ".github/workflows/windows-docs.yml"
 $mainWorkflow = Read-Required ".github/workflows/windows-verify.yml"
 Assert-True ($docsWorkflow.Contains("permissions:") -and $docsWorkflow.Contains("contents: read")) "Docs workflow must use read-only permissions"

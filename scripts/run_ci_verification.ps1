@@ -15,8 +15,7 @@ try{
  }
  if($Suite -in @('main','all')){
   if($GodotExe){$env:LMM_GODOT_EXE=$GodotExe}
-  Invoke-Step 'v0.8-salary-schedule' {& (Join-Path $PSScriptRoot 'test_v08_salary_schedule.ps1') -GodotExe $GodotExe}
-  Invoke-Step 'v0.7-static' {& (Join-Path $PSScriptRoot 'verify_v07.ps1') -StaticOnly}
+  Invoke-Step 'v0.8' {& (Join-Path $PSScriptRoot 'verify_v08.ps1') -ProjectRoot $root}
   Invoke-Step 'v0.5' {& (Join-Path $PSScriptRoot 'verify_v05.ps1') -GodotExe $GodotExe}
   Invoke-Step 'v0.4' {& (Join-Path $PSScriptRoot 'verify_v04.ps1') -GodotExe $GodotExe}
   Invoke-Step 'M4' {& (Join-Path $PSScriptRoot 'verify_m4.ps1') -GodotExe $GodotExe}

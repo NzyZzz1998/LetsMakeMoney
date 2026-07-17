@@ -36,7 +36,7 @@ foreach ($tier in $requiredTiers) {
 }
 
 $activeFiles = @($manifest.tiers | Where-Object id -eq "active" | ForEach-Object files)
-foreach ($entry in @("run_ci_verification.ps1", "verify_v07.ps1", "package_v07.ps1", "build_native_windows.ps1")) {
+foreach ($entry in @("run_ci_verification.ps1", "verify_v08.ps1", "package_v08.ps1", "build_native_windows.ps1")) {
     if ($entry -notin $activeFiles) { throw "Current entrypoint is not active: $entry" }
 }
 
