@@ -1,6 +1,6 @@
 # LetsMakeMoney v0.8 Beta 发布检查清单
 
-**当前状态**：最终验收通过，可发布 Windows x86_64 便携 Zip
+**当前状态**：最终验收通过，Windows x86_64 便携 Zip 已发布
 
 - [x] `project.godot` 版本为 `0.8-beta`。
 - [x] v0.8 完整回归通过。
@@ -18,7 +18,11 @@
 - [x] 休息日收入与当月工作日数量完成补测。
 - [x] 真实通知区左键及普通/纯桌宠任务栏策略完成补测。
 - [x] 最终 Acceptance 明确为“通过 / 可发布”。
-- [ ] 合并 `main`、Tag 和 GitHub Release 仅在最终批准后执行。
+- [x] PR #3 已通过必需 CI 并 squash 合并至 `main`，发布提交为 `a330d14230add1537b18c35c8ad38c6ae43430a2`。
+- [x] annotated tag `v0.8-beta` 已创建并推送。
+- [x] GitHub Pre-release 已创建，只包含便携 Zip 与 `SHA256SUMS.txt`。
+
+发布地址：<https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.8-beta>
 
 任何候选身份不一致、配置污染、工资计算错误或核心窗口回退都阻塞发布。
 

@@ -1,6 +1,14 @@
 # LetsMakeMoney v0.8 Beta 发布说明
 
-**状态**：最终验收通过，可发布 Windows x86_64 便携 Zip
+**状态**：最终验收通过，Windows x86_64 便携 Zip 已作为 GitHub Pre-release 发布
+
+**Tag**：`v0.8-beta`
+
+**发布提交**：`a330d14230add1537b18c35c8ad38c6ae43430a2`
+
+**发布地址**：<https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.8-beta>
+
+**Zip SHA256**：`A2065B82F7674E5A19AC4FD467E7DEA3E8D665E3C148634C3721B7BD90AE098E`
 
 ## 主要变化
 

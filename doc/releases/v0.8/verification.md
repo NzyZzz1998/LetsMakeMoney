@@ -1,10 +1,16 @@
 # LetsMakeMoney v0.8 Beta 验证记录
 
-**当前结论**：最终验收通过，可发布 Windows x86_64 便携 Zip
+**当前结论**：最终验收通过，Windows x86_64 便携 Zip 已发布
 
 **目标版本**：`0.8-beta`
 
 **开发分支**：`feature/v0.8-salary-schedule`
+
+**发布提交**：`a330d14230add1537b18c35c8ad38c6ae43430a2`
+
+**发布 tag**：`v0.8-beta`
+
+**GitHub Release**：<https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.8-beta>
 
 ## 自动验证
 
