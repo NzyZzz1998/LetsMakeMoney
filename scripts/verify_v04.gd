@@ -779,8 +779,8 @@ func _check_wizard_warm_widget_polish() -> void:
 	_assert(not wizard_script.contains("extends ConfirmationDialog"), "Wizard should not open as a nested ConfirmationDialog")
 	_assert(wizard_scene.contains("type=\"Control\""), "Wizard scene root should be Control")
 	_assert(wizard_script.contains("WizardActionRow"), "Wizard should keep visible custom navigation buttons")
-	_assert(drag_script.contains("const WIZARD_DIALOG_SIZE := Vector2i(620, 460)"), "Wizard modal host should be further compact for v0.4 reconfiguration")
-	_assert(wizard_script.contains("custom_minimum_size = Vector2(620, 460)"), "Wizard content should match the compact modal host size")
+	_assert(drag_script.contains("const WIZARD_DIALOG_SIZE := Vector2i(620, 570)"), "Wizard modal host should fit the v0.8 salary and lunch controls")
+	_assert(wizard_script.contains("custom_minimum_size = Vector2(620, 570)"), "Wizard content should match the salary-aware modal host size")
 	_assert(wizard_script.contains("WizardSalaryRows"), "Wizard salary page should use compact setting rows instead of sparse stacked controls")
 	_assert(wizard_script.contains("WizardConfirmRows"), "Wizard confirm page should use compact summary rows instead of one sparse text block")
 	_assert(wizard_script.contains("func _add_field_row"), "Wizard should have reusable compact row layout for form fields")
@@ -812,7 +812,7 @@ func _check_wizard_warm_widget_polish() -> void:
 		return
 	var wizard: Control = scene.instantiate()
 	wizard.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	wizard.size = Vector2(620, 460)
+	wizard.size = Vector2(620, 570)
 	root.add_child(wizard)
 	await process_frame
 	await process_frame

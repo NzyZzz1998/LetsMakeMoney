@@ -50,6 +50,10 @@ func _verify_settings_dialog() -> bool:
 	dlg.rest_mode_option.select(1)
 	dlg.start_hour_input.value = 10
 	dlg.start_min_input.value = 15
+	dlg.lunch_start_hour_input.value = 12
+	dlg.lunch_start_min_input.value = 0
+	dlg.lunch_end_hour_input.value = 13
+	dlg.lunch_end_min_input.value = 0
 	dlg.end_hour_input.value = 19
 	dlg.end_min_input.value = 30
 	dlg.scale_slider.value = 125
@@ -70,8 +74,10 @@ func _verify_settings_dialog() -> bool:
 	return scale_label_ok and opacity_label_ok and \
 		_expect("settings monthly_salary", _config.call("get_value", "monthly_salary"), 23456.0) and \
 		_expect("settings rest_mode", _config.call("get_value", "rest_mode"), "single") and \
-		_expect("settings work_hours_per_day", _config.call("get_value", "work_hours_per_day"), 9.25) and \
+		_expect("settings work_hours_per_day", _config.call("get_value", "work_hours_per_day"), 8.25) and \
 		_expect("settings work_start_time", _config.call("get_value", "work_start_time"), "10:15") and \
+		_expect("settings lunch_start_time", _config.call("get_value", "lunch_start_time"), "12:00") and \
+		_expect("settings lunch_end_time", _config.call("get_value", "lunch_end_time"), "13:00") and \
 		_expect("settings work_end_time", _config.call("get_value", "work_end_time"), "19:30") and \
 		_expect("settings scale", _config.call("get_value", "scale"), 1.25) and \
 		_expect("settings opacity", _config.call("get_value", "opacity"), 0.8) and \
@@ -146,6 +152,10 @@ func _verify_wizard_dialog() -> bool:
 	dlg.rest_mode_option.select(0)
 	dlg.start_hour_input.value = 8
 	dlg.start_min_input.value = 45
+	dlg.lunch_start_hour_input.value = 12
+	dlg.lunch_start_min_input.value = 0
+	dlg.lunch_end_hour_input.value = 13
+	dlg.lunch_end_min_input.value = 0
 	dlg.end_hour_input.value = 17
 	dlg.end_min_input.value = 15
 	dlg._finish()
@@ -153,8 +163,10 @@ func _verify_wizard_dialog() -> bool:
 
 	return _expect("wizard monthly_salary", _config.call("get_value", "monthly_salary"), 34567.0) and \
 		_expect("wizard rest_mode", _config.call("get_value", "rest_mode"), "double") and \
-		_expect("wizard work_hours_per_day", _config.call("get_value", "work_hours_per_day"), 8.5) and \
+		_expect("wizard work_hours_per_day", _config.call("get_value", "work_hours_per_day"), 7.5) and \
 		_expect("wizard work_start_time", _config.call("get_value", "work_start_time"), "08:45") and \
+		_expect("wizard lunch_start_time", _config.call("get_value", "lunch_start_time"), "12:00") and \
+		_expect("wizard lunch_end_time", _config.call("get_value", "lunch_end_time"), "13:00") and \
 		_expect("wizard work_end_time", _config.call("get_value", "work_end_time"), "17:15") and \
 		bool(_config.call("has_config"))
 

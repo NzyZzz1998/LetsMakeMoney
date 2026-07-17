@@ -1,6 +1,8 @@
 # src/autoload/config.gd
 extends Node
 
+const SalaryScheduleCalculatorScript := preload("res://src/utils/salary_schedule_calculator.gd")
+
 signal config_changed
 
 var data: Dictionary = {}
@@ -70,9 +72,33 @@ func _preserve_invalid_config() -> String:
 
 
 func merge_with_defaults(source: Dictionary) -> Dictionary:
+	var migrated := source.duplicate(true)
+	_migrate_to_v4(migrated)
 	var merged := _defaults().duplicate(true)
-	_merge_dict(merged, source)
+	_merge_dict(merged, migrated)
 	return merged
+
+
+func _migrate_to_v4(source: Dictionary) -> void:
+	if source.is_empty() or int(source.get("config_version", 0)) >= 4:
+		return
+	if not source.has("lunch_start_time") or not source.has("lunch_end_time"):
+		var start_text := String(source.get("work_start_time", "09:00"))
+		var end_text := String(source.get("work_end_time", "18:00"))
+		var start_minutes: int = SalaryScheduleCalculatorScript.time_to_minutes(start_text)
+		var end_minutes: int = SalaryScheduleCalculatorScript.time_to_minutes(end_text)
+		var effective_minutes := roundi(float(source.get("work_hours_per_day", 8.0)) * 60.0)
+		var lunch_minutes := maxi(0, end_minutes - start_minutes - effective_minutes)
+		var lunch_start := clampi(12 * 60, start_minutes, maxi(start_minutes, end_minutes - lunch_minutes))
+		source["lunch_start_time"] = _minutes_to_time_text(lunch_start)
+		source["lunch_end_time"] = _minutes_to_time_text(lunch_start + lunch_minutes)
+	source["alternating_anchor_date"] = String(source.get("alternating_anchor_date", ""))
+	source["alternating_anchor_week_type"] = String(source.get("alternating_anchor_week_type", "big"))
+	source["config_version"] = 4
+
+
+func _minutes_to_time_text(minutes: int) -> String:
+	return "%02d:%02d" % [minutes / 60, minutes % 60]
 
 
 func _merge_dict(target: Dictionary, source: Dictionary) -> void:
@@ -87,11 +113,15 @@ func _defaults() -> Dictionary:
 	if _defaults_cache.is_empty():
 		_defaults_cache = {
 			"monthly_salary": 0,
-			"config_version": 3,
+			"config_version": 4,
 			"rest_mode": "double",
 			"work_hours_per_day": 8.0,
-			"work_start_time": "09:00",
+			"work_start_time": "08:00",
 			"work_end_time": "18:00",
+			"lunch_start_time": "12:00",
+			"lunch_end_time": "14:00",
+			"alternating_anchor_date": "",
+			"alternating_anchor_week_type": "big",
 			"pet_id": "cat_orange_v2",
 			"window_x": -1,
 			"window_y": -1,

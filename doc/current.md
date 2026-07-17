@@ -1,6 +1,6 @@
 # LetsMakeMoney 当前状态入口
 
-**最后更新**：2026-07-13
+**最后更新**：2026-07-17
 
 **项目名**：LetsMakeMoney 赚钱模拟器
 
@@ -10,9 +10,11 @@
 
 **发布提交**：`e79149d91e8e0adb3cbf1e53cd8819f072f7154f`
 
-**当前分支**：`main`
+**当前发布分支**：`main`
 
-**当前阶段**：v0.7 已发布；v0.8 工程治理 C0-C3 已完成，C4 运行时状态治理尚未授权实施
+**当前开发分支**：`feature/v0.8-salary-schedule`
+
+**当前阶段**：v0.7 已发布；v0.8 工程治理 C0-C5 与薪资作息实现已完成，自动回归、候选包验证、新解压 smoke 和最终人工验收均通过，可进入 Windows x86_64 便携 Zip 发布收口；下一版本宠物动作优化仅进入 Review，尚未形成正式需求
 
 本文件是人工或 agent 接手时的唯一内部当前事实入口。README 面向用户和贡献者；`doc/releases/v0.7/` 保存已发布版本证据；v0.1-v0.6 及跨版本大文档只作为历史参考。
 
@@ -35,21 +37,30 @@
 - 真实通知区左键、普通/纯桌宠任务栏策略、100%-200% DPI、配置安全写入、更新失败保护和安装/卸载测试链路已有证据。
 - 多显示器、干净 Windows 用户/VM、Authenticode/SmartScreen、真实登录后的开机自启明确为“暂不验证”，不得写成通过。
 - 未签名安装器不属于 v0.7 Release 附件。
+- 2026-07-15，SignPath Foundation 免费签名申请未获批准，原因为项目当前缺少足够的社区采用、外部讨论和持续公开影响力信号；这不是对代码质量或安全性的否定。当前 EXE 与测试安装器继续保持未签名，后续积累公开社区信号后再申请或评估商业证书。
 - 当前正式支持平台仍为 Windows x86_64；iOS、macOS、Android 仅有规划。
 
 ## 3. 当前工作
 
-v0.8 当前只进入工程治理准备，不代表产品功能 PRD 已确认：
+v0.8 当前包含两条已经执行的工作线：
 
-1. 修复当前事实与文档检查合同。
-2. 清理可再生成的本地验收/解压缓存，同时保留本地启动 build 和 v0.7 发布 Zip。
-3. 历史文档和脚本职责已完成分层；发布目录与素材生成边界留给 C5。
-4. Main/native/托盘/窗口策略只能在补齐行为矩阵后重构。
+1. 工程治理 C0-C5：当前事实、生成物、历史文档、脚本职责、Main/native 状态和发布边界已完成治理及对应回归。
+2. 薪资与作息规则：按当月实际工作日计算日薪，增加午休扣除和大小周，配置升级至 v4，并保持 v3 配置迁移。
+
+薪资与作息实现已完成候选验证，但在实际发布动作完成前不得写成 v0.8 已发布。2026-07-17 已使用新解压候选 Zip 完成 Settings 五页、Wizard 四步、保存/无变化、重启持久化、工资与作息、右键菜单、托盘、纯桌宠和点击穿透的最终桌面验收。
+
+当前 v0.8 候选源码提交为 `08f7820bfd95ff56132eb87eb9255078adb9572a`；候选 Zip 为 `releases/v0.8/LetsMakeMoney-v0.8-beta-windows-x86_64.zip`，SHA256 为 `A2065B82F7674E5A19AC4FD467E7DEA3E8D665E3C148634C3721B7BD90AE098E`。该身份只用于最终验收，不代表已经合并或发布。
+
+下一版本计划对宠物动作进行较大范围优化。2026-07-17 已开始审查 LetsMakeMoney 内部宠物运行时与仓库外部的独立 PetManager 素材生产项目。当前只确认两者职责和契约缺口，不在 v0.8 分支直接替换素材、重构状态机或接入 PetManager 交付包。
 
 治理基线：
 
 - [v0.8 工程治理 Review](releases/v0.8/engineering-governance-review.md)
 - [v0.8 清理执行方案](releases/v0.8/cleanup-plan.md)
+- [v0.8 薪资与作息验证](releases/v0.8/salary-schedule-verification.md)
+- [v0.8 版本级验证](releases/v0.8/verification.md)
+- [v0.8 人工验证](releases/v0.8/manual-verification.md)
+- [宠物动作与 PetManager 深度 Review](releases/v0.8/pet-animation-next-version-review.md)
 
 ## 4. 推荐阅读顺序
 
@@ -59,7 +70,9 @@ v0.8 当前只进入工程治理准备，不代表产品功能 PRD 已确认：
 4. [v0.7 发布说明](releases/v0.7/release-notes.md)
 5. [v0.7 公开准备](releases/v0.7/public-readiness.md)
 6. [v0.7 PRD](releases/v0.7/prd.md)
-7. [v0.8 工程治理 Review](releases/v0.8/engineering-governance-review.md)
+7. [v0.8 薪资与作息验证](releases/v0.8/salary-schedule-verification.md)
+8. [v0.8 工程治理 Review](releases/v0.8/engineering-governance-review.md)
+9. [宠物动作与 PetManager 深度 Review](releases/v0.8/pet-animation-next-version-review.md)
 
 ## 5. 文档可信度
 
@@ -82,4 +95,6 @@ v0.8 当前只进入工程治理准备，不代表产品功能 PRD 已确认：
 
 ## 6. 下一步
 
-下一批为 C4 Main/native 状态治理。该批涉及窗口、托盘、任务栏和点击穿透运行行为，必须先形成正式行为合同并由项目所有者单独授权；不得把 C0-C3 的仓库治理结果视为重构授权。
+当前第一优先级是执行 v0.8 合并前检查、发布提交、tag 和便携 Zip Pre-release。未签名安装器不属于公开发布附件；实际远端发布完成前仍保持“可发布、尚未发布”口径。
+
+宠物动作方向的下一步是进入 `/idea`，先确认下一版本的首要成果究竟是“建立可复用宠物包运行时契约”，还是“替换当前默认橘猫动作”；在范围确认前不并入 v0.8。

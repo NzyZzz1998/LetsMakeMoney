@@ -12,7 +12,7 @@ signal popup_closed
 const MODAL_WINDOW_SIZE := Vector2i(700, 530)
 const MODAL_WINDOW_MARGIN := 24
 const SETTINGS_DIALOG_SIZE := Vector2i(880, 640)
-const WIZARD_DIALOG_SIZE := Vector2i(620, 460)
+const WIZARD_DIALOG_SIZE := Vector2i(620, 570)
 
 var _window: Window = null
 var _overlay_lifecycle: RefCounted = OverlayLifecycleScript.new()

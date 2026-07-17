@@ -11,9 +11,13 @@
 | 文档与公开合规 | `./scripts/run_ci_verification.ps1 -Suite docs` |
 | 当前静态回归 | `./scripts/verify_v07.ps1 -StaticOnly` |
 | 当前完整回归 | `./scripts/run_ci_verification.ps1 -Suite main` |
+| v0.8 完整回归 | `./scripts/verify_v08.ps1` |
+| v0.8 薪资与作息规则 | `./scripts/test_v08_salary_schedule.ps1` |
 | 构建 native | `./scripts/build_native_windows.ps1 -Target template_release` |
 | 打包 v0.7 便携版 | `./scripts/package_v07.ps1` |
 | 验证 v0.7 包 | `./scripts/verify_v07_package.ps1` |
+| 打包 v0.8 候选便携版 | `./scripts/package_v08.ps1` |
+| 验证 v0.8 候选包 | `./scripts/verify_v08_package.ps1` |
 
 ## 四层职责
 
@@ -27,6 +31,7 @@
 ## 重要边界
 
 - `verify_v06.ps1` 是 v0.7 静态合同的直接上游，属于兼容门禁。
+- `test_v08_salary_schedule.ps1` 保护按实际工作日计薪、午休扣除、大小周和 v3 配置迁移。
 - `verify_v04.ps1`、`verify_v05.ps1`、`verify_m4.ps1` 仍被 `run_ci_verification.ps1` 调用。
 - v0.2/v0.3 脚本仍被历史发布说明和 native 文档引用，暂不物理搬动。
 - `.gd.uid` 与对应 Godot 脚本作为一组管理，不可单独删除。
