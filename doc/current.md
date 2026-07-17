@@ -1,6 +1,6 @@
 # LetsMakeMoney 当前状态入口
 
-**最后更新**：2026-07-13
+**最后更新**：2026-07-17
 
 **项目名**：LetsMakeMoney 赚钱模拟器
 
@@ -10,9 +10,11 @@
 
 **发布提交**：`e79149d91e8e0adb3cbf1e53cd8819f072f7154f`
 
-**当前分支**：`main`
+**当前发布分支**：`main`
 
-**当前阶段**：v0.7 已发布；v0.8 工程治理 C0-C3 已完成，C4 运行时状态治理尚未授权实施
+**当前开发分支**：`feature/v0.8-salary-schedule`
+
+**当前阶段**：v0.7 已发布；v0.8 工程治理 C0-C5 已完成，薪资与作息规则已通过自动验证和真实界面手动验收，可进入合并、候选包与版本级回归；下一版本宠物动作优化仅进入 Review，尚未形成正式需求
 
 本文件是人工或 agent 接手时的唯一内部当前事实入口。README 面向用户和贡献者；`doc/releases/v0.7/` 保存已发布版本证据；v0.1-v0.6 及跨版本大文档只作为历史参考。
 
@@ -39,17 +41,21 @@
 
 ## 3. 当前工作
 
-v0.8 当前只进入工程治理准备，不代表产品功能 PRD 已确认：
+v0.8 当前包含两条已经执行的工作线：
 
-1. 修复当前事实与文档检查合同。
-2. 清理可再生成的本地验收/解压缓存，同时保留本地启动 build 和 v0.7 发布 Zip。
-3. 历史文档和脚本职责已完成分层；发布目录与素材生成边界留给 C5。
-4. Main/native/托盘/窗口策略只能在补齐行为矩阵后重构。
+1. 工程治理 C0-C5：当前事实、生成物、历史文档、脚本职责、Main/native 状态和发布边界已完成治理及对应回归。
+2. 薪资与作息规则：按当月实际工作日计算日薪，增加午休扣除和大小周，配置升级至 v4，并保持 v3 配置迁移。
+
+薪资与作息实现当前仍处于开发候选状态，不得写成 v0.8 已发布。2026-07-17 已使用当前 Windows EXE 完成 Settings、Wizard、Panel、大小周持久化和午休冻结的真实界面手动验收；下一步是合并前检查、重新打包及版本级回归。
+
+下一版本计划对宠物动作进行较大范围优化。2026-07-17 已开始审查 LetsMakeMoney 内部宠物运行时与仓库外部的独立 PetManager 素材生产项目。当前只确认两者职责和契约缺口，不在 v0.8 分支直接替换素材、重构状态机或接入 PetManager 交付包。
 
 治理基线：
 
 - [v0.8 工程治理 Review](releases/v0.8/engineering-governance-review.md)
 - [v0.8 清理执行方案](releases/v0.8/cleanup-plan.md)
+- [v0.8 薪资与作息验证](releases/v0.8/salary-schedule-verification.md)
+- [宠物动作与 PetManager 深度 Review](releases/v0.8/pet-animation-next-version-review.md)
 
 ## 4. 推荐阅读顺序
 
@@ -59,7 +65,9 @@ v0.8 当前只进入工程治理准备，不代表产品功能 PRD 已确认：
 4. [v0.7 发布说明](releases/v0.7/release-notes.md)
 5. [v0.7 公开准备](releases/v0.7/public-readiness.md)
 6. [v0.7 PRD](releases/v0.7/prd.md)
-7. [v0.8 工程治理 Review](releases/v0.8/engineering-governance-review.md)
+7. [v0.8 薪资与作息验证](releases/v0.8/salary-schedule-verification.md)
+8. [v0.8 工程治理 Review](releases/v0.8/engineering-governance-review.md)
+9. [宠物动作与 PetManager 深度 Review](releases/v0.8/pet-animation-next-version-review.md)
 
 ## 5. 文档可信度
 
@@ -82,4 +90,6 @@ v0.8 当前只进入工程治理准备，不代表产品功能 PRD 已确认：
 
 ## 6. 下一步
 
-下一批为 C4 Main/native 状态治理。该批涉及窗口、托盘、任务栏和点击穿透运行行为，必须先形成正式行为合同并由项目所有者单独授权；不得把 C0-C3 的仓库治理结果视为重构授权。
+当前第一优先级是整理 v0.8 薪资与作息分支的有意变更，执行合并前检查并生成新的候选包。候选包仍需完成版本级回归和发布门禁，不能仅凭本次功能手动验收直接标记为可发布。
+
+宠物动作方向的下一步是进入 `/idea`，先确认下一版本的首要成果究竟是“建立可复用宠物包运行时契约”，还是“替换当前默认橘猫动作”；在范围确认前不并入 v0.8。
