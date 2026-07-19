@@ -144,20 +144,111 @@ G4 关闭后按顺序执行：
 ## 10. 发给 Mac Codex 的启动提示词
 
 ```text
-继续 LetsMakeMoney iOS v0.1 的 Mac/Xcode 恢复开发。
+目标：接手 LetsMakeMoney Apple 产品线，在新 Mac 上恢复 iOS v0.1 Beta 开发，并完成第一轮 Xcode 无签名基线验证。本轮不是新功能开发，也不是发布或签名阶段。
 
-仓库路径是当前打开的 LetsMakeMoney-ios，目标分支 ios-main。
-先阅读：
+## 项目介绍
+
+LetsMakeMoney 是一个本地优先的工资进度工具。用户配置月薪、休息模式、上下班和午休时间后，应用按照真实工作日、法定节假日、调休和手动覆盖，计算今日已赚、日薪、时薪、工作进度与今日安排。
+
+Apple 产品线不复制 Windows 桌宠形态，而是提供：
+- iPhone/iPad SwiftUI App：今日、日历、设置和首次引导；
+- Widget 与 Live Activity：桌面、锁屏和灵动岛展示；
+- Apple Watch App 与复杂功能：查看收入、进度、剩余时间和今日安排；
+- 本地配置与 App Group 共享快照；
+- 无账号、无后端、无云同步，工资与日志不上传。
+
+当前 GitHub 仓库同时包含 Windows 与 Apple 代码。你只接手 Apple 产品线：
+- 目标分支：ios-main；
+- Apple 工程：apple/；
+- 工资计算内核：apple/Packages/SalaryCore/；
+- iPhone/iPad App：apple/App/；
+- Widget/Live Activity：apple/WidgetExtension/、apple/Shared/LiveActivity/；
+- Watch：apple/WatchApp/、apple/WatchWidgetExtension/、apple/Shared/Watch/；
+- 工程定义：apple/project.yml；
+- 跨平台 schema 与节假日数据：shared/salary-schema/；
+- 构建和验证入口：scripts/apple/。
+
+不要修改 Windows src/、native/、installer/ 或 Windows 发布逻辑。
+
+## 当前进度
+
+- 目标版本：ios-v0.1-beta。
+- M0-M3 与 M3R 已完成。
+- M4 Widget/Activity 为 16/17，只剩真实 iPhone 系统行为验收。
+- M5 Watch 为 13/14，只剩 Apple Watch 真机验收。
+- M6 一致性与质量为 9/13，剩余深浅色、辅助功能和系统状态真机矩阵。
+- M7 候选归档、Acceptance 与 Beta 发布尚未开始。
+- SalaryCore 已有 86/86 自动测试通过记录。
+- GitHub macOS 曾使用 Xcode 16.4 完成 App、Widget/Activity、Watch App 与 Watch Widget 的无签名 Simulator SDK 编译。
+- 新 Mac 计划使用 Xcode 26.6，因此必须先验证 Swift 6.3 和新 SDK 是否产生差异，不能沿用旧 CI 结论冒充本机通过。
+- 部署下限保持 iOS/iPadOS 18、watchOS 11；设备运行 iOS/watchOS 26.x 不代表提高部署下限。
+- 当前没有正式签名与 App Group 真机证据，不具备 Beta 发布条件。
+
+## 开始前必须阅读
+
 - doc/releases/ios-v0.1/mac-codex-handoff.md
 - doc/releases/ios-v0.1/status.md
 - doc/releases/ios-v0.1/progress_ios-v0.1.md
+- doc/releases/ios-v0.1/prd.md
+- doc/releases/ios-v0.1/dev_plan_ios-v0.1.md
+- apple/README.md
+- apple/PROJECT_LAYOUT.md
 - doc/releases/ios-v0.1/m4-device-verification.md
 - doc/releases/ios-v0.1/m5-device-verification.md
 - doc/releases/ios-v0.1/m6-device-verification.md
 
-本轮只执行 mac-codex-handoff.md 的“身份核对”和“第一轮无签名门禁”：
-记录 macOS、Xcode、Swift、Python、分支和 HEAD；运行 SalaryCore 与 Python 合同测试；使用仓库固定 XcodeGen 2.45.4 生成工程；无签名编译正式 iOS App/Widget 与 Watch App/Watch Widget。
+先建立项目和模块地图，再执行任务；不要只读一份 README 就开始修改。
 
-不得修改业务代码、部署下限、schema、工资算法、签名、Team ID 或 App Group。失败时先定位并汇报最小错误与日志证据，不猜测修复。成功后更新 status、progress 和开发日志，并停下等待我确认是否进入 G4 签名与真机阶段。不要提交或推送，除非我另行授权。
+## 本轮任务
+
+严格执行 mac-codex-handoff.md 第 4、5、6 节：
+
+1. 核对 Git 身份：分支、HEAD、remote、工作区状态和最近提交。
+2. 记录 Mac 型号、芯片、macOS、Xcode、Swift、Python 和可用 Simulator runtime。
+3. 初始化 Xcode Command Line Tools。
+4. 运行 SalaryCore 全量 Swift 测试。
+5. 运行 scripts/apple/tests 下的 Python 合同测试。
+6. 使用仓库脚本下载并校验固定 XcodeGen 2.45.4，不使用未锁定的全局版本。
+7. 根据 apple/project.yml 生成正式 Xcode 工程。
+8. 列出正式 schemes，确认 App、Widget、Watch App 和 Watch Widget 都存在。
+9. 使用 CODE_SIGNING_ALLOWED=NO：
+   - 编译 LetsMakeMoneyApp 及内嵌 Widget/Activity；
+   - 编译 LetsMakeMoneyWatchApp 及内嵌 Watch Widget。
+10. 检查产物中对应 .app/.appex 是否真实存在。
+11. 将完整日志保存在 build/apple-mac-handoff/，不得提交构建产物。
+
+## 本轮禁止事项
+
+- 不修改 Swift 业务代码、工资算法、配置 schema 或节假日数据。
+- 不修改部署下限，不因 Xcode 26.6 自动建议就接受工程迁移。
+- 不配置 Team ID、Bundle ID、App Group、证书或 provisioning profile。
+- 不登录或记录 Apple Account 密码。
+- 不安装未知第三方依赖；PowerShell/Homebrew 如确有需要，先解释用途并等待确认。
+- 不把模拟器、Preview 或无签名编译写成真机通过。
+- 不进入 M4/M5/M6 真机验收或 M7。
+- 不提交、不推送、不打 tag，除非项目所有者另行授权。
+
+## 失败处理
+
+失败时先按系统化调试定位：记录第一条真实编译错误、受影响 target、完整日志路径和最小复现命令。区分：
+- 环境/平台组件缺失；
+- XcodeGen 或工程生成问题；
+- Swift 6.3 / Xcode 26.6 工具链差异；
+- Apple SDK API 变化；
+- 既有源码缺陷。
+
+不要为了让构建通过直接改业务代码。若必须修改源码、project.yml、entitlement 或部署下限，先停下给出证据和最小方案，等待确认。
+
+## 完成后输出
+
+1. 项目与 Apple 模块地图。
+2. 分支、HEAD、工作区与 remote。
+3. Mac、macOS、Xcode、Swift、Python、XcodeGen 和 Simulator 版本。
+4. SalaryCore 与 Python 测试准确结果。
+5. App/Widget 和 Watch/Watch Widget 无签名构建结果及日志路径。
+6. 与旧 Xcode 16.4 CI 基线的差异。
+7. 阻塞项、非阻塞警告和未执行项。
+8. 是否满足进入 G4 签名阶段。
+
+若全部通过，只更新 status、progress 和 dev log 的事实；随后停下等待项目所有者确认。不要自行进入签名或真机阶段。
 ```
-
