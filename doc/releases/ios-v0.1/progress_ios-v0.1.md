@@ -2,7 +2,7 @@
 
 ## 追踪信息
 
-- 当前状态：M3 完成 17/17，M3R 完成 14/14；M4 已完成 16/17，M5 已完成 13/14，M6 已完成 9/13。Windows 自动化与 GitHub macOS 无签名编译范围已收口，开发暂停于 Mac、签名身份和 Apple 真机系统行为门禁
+- 当前状态：M3 完成 17/17，M3R 完成 14/14；M4 已完成 16/17，M5 已完成 13/14，M6 已完成 9/13。Mac 已到位，等待 Xcode 26.6 本地无签名基线、签名身份和 Apple 真机系统行为门禁
 - 目标版本：`ios-v0.1-beta`
 - 目标分支：`ios-main`（独立 worktree；M0 基线已推送至远端 `test`）
 - 来源 PRD：`doc/releases/ios-v0.1/prd.md`
@@ -10,9 +10,10 @@
 - 对应开发日志：`doc/logs/dev_log_ios-v0.1.md`
 - 高保真原型：`doc/prototypes/ios-v0.1/index.html`
 - 当前状态入口：`doc/releases/ios-v0.1/status.md`
+- Mac Codex 交接：`doc/releases/ios-v0.1/mac-codex-handoff.md`
 - 下游承接：Mac/Xcode 真机补证、M7 Acceptance、Apple Beta 发布
 - 当前事实源：本文
-- 最后更新：2026-07-16
+- 最后更新：2026-07-19
 
 ## 版本目标
 
@@ -23,7 +24,7 @@
 - PRD 与原型：已确认。
 - 开发承接文档：已确认。
 - 业务实现：M0-M3 与 M3R 已完成；M3 App、Windows 门禁、iPad 真机主路径、Preview 矩阵和 UI 自动化源码入口均已收口。GitHub macOS 已完成导出 App scheme、G3 平台 probe，以及正式 App 与内嵌 Widget Extension 的 Simulator SDK 编译。Widget 现已只读接入 App Group 共享快照；完整 families、签名、XCTest 和真机扩展行为仍按 M4-M7 逐项取得。
-- 当前环境：Windows + iPad；GitHub macOS runner 已提供 Xcode 16.4、Swift 6.1.2 的 G3 SDK 编译证据。本地仍无 macOS/Xcode，签名、App Group 与真实系统扩展行为不能由 probe 替代。
+- 当前环境：Windows、iPad 与新 Mac；GitHub macOS runner 已提供 Xcode 16.4、Swift 6.1.2 的 G3 SDK 编译证据。新 Mac 尚未完成 Xcode 26.6 初始化和本地门禁，签名、App Group 与真实系统扩展行为仍不能由 probe 代替。
 
 ## 总体进度概览
 
@@ -200,7 +201,7 @@
 
 | 阻塞/限制 | 影响面 | 当前结论 |
 | --- | --- | --- |
-| 本地无 macOS/Xcode | M4-M7、完整 Beta | GitHub macOS 已覆盖正式 App 与 Widget Extension 编译；XCTest、签名、App Group 真机读写和系统扩展行为仍须在 M4-M7 关闭 |
+| Mac 已到位但本地 Xcode 门禁未执行 | M4-M7、完整 Beta | 按 `mac-codex-handoff.md` 复现 Xcode 26.6 无签名构建后，再进入签名和真机补证 |
 | Windows SwiftPM 符号链接警告 | 本地开发便利性 | Swift 6.3.3 编译与测试通过；未启用开发人员模式导致 `.build/debug` 便捷链接创建失败，不影响 G1 |
 | Apple Developer Program/Team ID 未确认 | App Group、Activity、Watch 真机与签名 | 不阻塞纯内核；阻塞 G4 和发布 |
 | 2027 官方节假日数据可用性待核实 | 完整离线数据集 | 未有官方数据时标记未覆盖，禁止猜测 |
@@ -220,11 +221,11 @@
 
 ## 下一步
 
-1. 等待可用 Mac，安装兼容 Xcode，并按 `status.md` 的恢复顺序复跑 SalaryCore、项目生成和 Apple SDK 门禁。
+1. 在新 Mac 安装 Xcode 26.6 和 Codex，按 `mac-codex-handoff.md` 复跑 SalaryCore、项目生成和 Apple SDK 门禁。
 2. 确认 Apple Developer Program、Team ID、正式 Bundle ID/App Group 和可用签名方式，关闭 G4；真实值只进入安全的本地配置或 CI Secret，不提交仓库。
 3. 按 `m4-device-verification.md`、`m5-device-verification.md` 和 `m6-device-verification.md` 完成 iPhone、iPad 与 Apple Watch 真机补证。
 4. M6 四项真机矩阵和 G4 未关闭前不进入 M7 候选 archive；Swift Playgrounds 或无签名 Simulator 编译不能替代该门禁。
-5. Mac 到位前，iOS 主线保持当前检查点，开发重心可切回 Windows 产品线。
+5. 第一轮 Mac 门禁通过前不修改业务代码；通过后再确认 G4 签名和真机补证顺序。
 
 ## 记录边界
 

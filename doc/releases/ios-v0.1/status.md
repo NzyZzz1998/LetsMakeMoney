@@ -4,10 +4,10 @@
 
 - 版本：`ios-v0.1-beta`
 - 分支：`ios-main`
-- 检查点 HEAD：`d1d2182dc173fcac179d74036989432ad5c04851`
-- 当前阶段：自动化与无签名编译范围已完成，暂停于 Mac、签名与 Apple 真机系统行为门禁
+- 交接前 HEAD：`aa5e127292cc332ec38c7992a129a505bf8a9a8c`；Mac 端以拉取后的实际 HEAD 为准
+- 当前阶段：Mac 已到位，等待 Xcode 26.6 环境初始化、无签名基线复核、签名与 Apple 真机系统行为门禁
 - 当前结论：实现尚未完成，不具备生成正式 Beta 候选包的条件
-- 最后更新：2026-07-16
+- 最后更新：2026-07-19
 
 ## 里程碑进度
 
@@ -38,7 +38,7 @@
 
 | 阻塞项 | 原因 | 直接影响 | 关闭方式 |
 | --- | --- | --- | --- |
-| 本地没有 Mac/Xcode | Windows 和 Swift Playgrounds 不能生成正式 Xcode archive，也不能管理完整签名能力 | G4、M4-M7 | 在 Mac 安装兼容 Xcode，克隆 `ios-main` 并运行本地门禁 |
+| Mac 已到位但 Xcode 基线尚未建立 | 新 Mac 尚未复现 SalaryCore、XcodeGen 和正式多 Target 无签名编译 | G4、M4-M7 | 按 `mac-codex-handoff.md` 安装 Xcode 26.6 并运行第一轮门禁 |
 | Apple Developer Program/Team ID 未确认 | 完整 App Group、扩展签名、TestFlight 与分发需要有效开发者团队 | G4、App Group、Beta | 确认 Apple Developer Program、Team ID 和 App Store Connect 权限 |
 | 正式 Bundle ID/App Group 未配置 | 仓库只保留无秘密占位配置，不能替代开发者账号中的正式标识符 | App/Widget/Watch 联调 | 在安全的本地配置或 CI Secret 中设置正式值，不提交仓库 |
 | 无签名安装包 | CI 当前只证明 Simulator SDK 编译 | 真机安装与 M7 | 使用 Xcode 自动签名或受控证书生成候选 archive |
@@ -70,8 +70,8 @@
 
 ## Mac 到位后的执行顺序
 
-1. 在 Mac 克隆仓库并切换 `ios-main`，核对本状态文档记录的检查点及其后续提交。
-2. 安装 Xcode，运行 SalaryCore 测试、项目生成和所有无签名编译门禁。
+1. 在 Mac 安装 Codex 与 Xcode 26.6，克隆仓库并切换 `ios-main`。
+2. 按 `mac-codex-handoff.md` 核对身份，运行 SalaryCore、项目生成和所有无签名编译门禁。
 3. 通过本地未跟踪配置或 CI Secret 填入 Team ID、Bundle ID 和 App Group；禁止写入提交。
 4. 在 Xcode 中确认各 Target capability 和自动签名，关闭 G4。
 5. 分别安装到 iPhone、iPad 和 Watch，完成 M4、M5 与 M6 验证文档。
@@ -84,5 +84,4 @@
 
 ## 下一步
 
-在 Mac 到位前，iOS 主线保持此检查点，只接受不依赖 Apple SDK 真机行为的明确缺陷修复。当前可将开发重心切回 Windows；iOS 恢复时从本文件、`progress_ios-v0.1.md` 和三份真机验证文档开始。
-
+Mac 已到位。下一步从 `mac-codex-handoff.md` 开始建立 Xcode 26.6 本地基线；基线通过前不修改业务代码，基线通过后再进入 G4 签名和三份真机验证文档。

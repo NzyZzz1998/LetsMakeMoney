@@ -401,3 +401,10 @@
 - 当前自动证据保持有效：SalaryCore 86/86，M0-M6 自动门禁通过，GitHub macOS 已完成 App、Widget/Activity、Watch App 与 Watch Widget 的无签名 Simulator SDK 编译。
 - 未取得的证据保持未通过/待补证：M4 iPhone 系统行为、M5 Series 10、M6 四组真机矩阵、G4 签名、M7 archive 与 Beta Acceptance。
 - 本次只调整文档事实源，没有修改 Swift、资源、配置 schema 或 Windows 业务代码。
+
+### 2026-07-19 Mac Codex 交接入口
+
+- 项目所有者确认 Mac 已到位，后续 Apple SDK、Xcode、签名和真机调试转由 Mac 环境承接。
+- 新增 `doc/releases/ios-v0.1/mac-codex-handoff.md`，固化 Xcode 26.6 环境、固定 XcodeGen、无签名 App/Watch 编译命令、安全边界、停止条件和可直接发送给 Mac Codex 的启动提示词。
+- 将版本状态从“等待 Mac”调整为“Mac 已到位，等待本地 Xcode 门禁”；M4、M5、M6 与 G4 的未验证事实保持不变。
+- 本次未修改 Swift、Xcode 工程定义、签名配置、schema 或产品逻辑。
