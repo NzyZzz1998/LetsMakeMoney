@@ -158,6 +158,7 @@ Apple 产品线不复制 Windows 桌宠形态，而是提供：
 - 无账号、无后端、无云同步，工资与日志不上传。
 
 当前 GitHub 仓库同时包含 Windows 与 Apple 代码。你只接手 Apple 产品线：
+- 仓库地址：https://github.com/NzyZzz1998/LetsMakeMoney.git；
 - 目标分支：ios-main；
 - Apple 工程：apple/；
 - 工资计算内核：apple/Packages/SalaryCore/；
@@ -184,6 +185,38 @@ Apple 产品线不复制 Windows 桌宠形态，而是提供：
 - 部署下限保持 iOS/iPadOS 18、watchOS 11；设备运行 iOS/watchOS 26.x 不代表提高部署下限。
 - 当前没有正式签名与 App Group 真机证据，不具备 Beta 发布条件。
 
+## 获取仓库
+
+如果 Mac 本地尚未存在项目，先在终端执行：
+
+```bash
+mkdir -p ~/Developer
+cd ~/Developer
+git clone --branch ios-main --single-branch \
+  https://github.com/NzyZzz1998/LetsMakeMoney.git \
+  LetsMakeMoney-ios
+cd LetsMakeMoney-ios
+```
+
+随后核对身份：
+
+```bash
+git status --short --branch
+git branch --show-current
+git rev-parse HEAD
+git remote -v
+```
+
+必须确认当前分支为 `ios-main`，`origin` 指向
+`https://github.com/NzyZzz1998/LetsMakeMoney.git` 或等价 SSH 地址。
+
+如果 `~/Developer/LetsMakeMoney-ios` 已存在：
+
+- 不得直接删除、覆盖、重新克隆或执行 `git reset --hard`；
+- 先检查分支、remote 和工作区状态；
+- 工作区干净时才可执行 `git fetch origin` 和 `git pull --ff-only origin ios-main`；
+- 存在未提交修改或身份不一致时，停止并向项目所有者报告。
+
 ## 开始前必须阅读
 
 - doc/releases/ios-v0.1/mac-codex-handoff.md
@@ -203,19 +236,20 @@ Apple 产品线不复制 Windows 桌宠形态，而是提供：
 
 严格执行 mac-codex-handoff.md 第 4、5、6 节：
 
-1. 核对 Git 身份：分支、HEAD、remote、工作区状态和最近提交。
-2. 记录 Mac 型号、芯片、macOS、Xcode、Swift、Python 和可用 Simulator runtime。
-3. 初始化 Xcode Command Line Tools。
-4. 运行 SalaryCore 全量 Swift 测试。
-5. 运行 scripts/apple/tests 下的 Python 合同测试。
-6. 使用仓库脚本下载并校验固定 XcodeGen 2.45.4，不使用未锁定的全局版本。
-7. 根据 apple/project.yml 生成正式 Xcode 工程。
-8. 列出正式 schemes，确认 App、Widget、Watch App 和 Watch Widget 都存在。
-9. 使用 CODE_SIGNING_ALLOWED=NO：
+1. Mac 尚无项目时，按“获取仓库”一节克隆 `ios-main`；已有项目时先保护并核对现有工作区。
+2. 核对 Git 身份：分支、HEAD、remote、工作区状态和最近提交。
+3. 记录 Mac 型号、芯片、macOS、Xcode、Swift、Python 和可用 Simulator runtime。
+4. 初始化 Xcode Command Line Tools。
+5. 运行 SalaryCore 全量 Swift 测试。
+6. 运行 scripts/apple/tests 下的 Python 合同测试。
+7. 使用仓库脚本下载并校验固定 XcodeGen 2.45.4，不使用未锁定的全局版本。
+8. 根据 apple/project.yml 生成正式 Xcode 工程。
+9. 列出正式 schemes，确认 App、Widget、Watch App 和 Watch Widget 都存在。
+10. 使用 CODE_SIGNING_ALLOWED=NO：
    - 编译 LetsMakeMoneyApp 及内嵌 Widget/Activity；
    - 编译 LetsMakeMoneyWatchApp 及内嵌 Watch Widget。
-10. 检查产物中对应 .app/.appex 是否真实存在。
-11. 将完整日志保存在 build/apple-mac-handoff/，不得提交构建产物。
+11. 检查产物中对应 .app/.appex 是否真实存在。
+12. 将完整日志保存在 build/apple-mac-handoff/，不得提交构建产物。
 
 ## 本轮禁止事项
 
