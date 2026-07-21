@@ -9,21 +9,24 @@
 | 目标 | 命令 |
 |---|---|
 | 文档与公开合规 | `./scripts/run_ci_verification.ps1 -Suite docs` |
-| 当前静态回归 | `./scripts/verify_v07.ps1 -StaticOnly` |
-| 当前完整回归 | `./scripts/run_ci_verification.ps1 -Suite main` |
+| 当前静态回归 | `./scripts/verify_v09.ps1 -StaticOnly` |
+| 当前完整回归 | `./scripts/verify_v09.ps1` |
 | v0.8 完整回归 | `./scripts/verify_v08.ps1` |
+| v0.9 完整回归 | `./scripts/verify_v09.ps1` |
 | v0.8 薪资与作息规则 | `./scripts/test_v08_salary_schedule.ps1` |
 | 构建 native | `./scripts/build_native_windows.ps1 -Target template_release` |
 | 打包 v0.7 便携版 | `./scripts/package_v07.ps1` |
 | 验证 v0.7 包 | `./scripts/verify_v07_package.ps1` |
 | 打包 v0.8 候选便携版 | `./scripts/package_v08.ps1` |
 | 验证 v0.8 候选包 | `./scripts/verify_v08_package.ps1` |
+| 打包 v0.9 候选便携版 | `./scripts/package_v09.ps1` |
+| 验证 v0.9 候选包 | `./scripts/verify_v09_package.ps1` |
 
 ## 四层职责
 
 | 层级 | 说明 | 维护规则 |
 |---|---|---|
-| `active` | 当前 CI、构建、打包、合规和 v0.7 验证 | 修改时必须通过当前 CI contract |
+| `active` | 当前 CI、构建、打包、合规和 v0.9 验证 | 修改时必须通过当前 CI contract |
 | `compat` | v0.4-v0.6 与 M4/M5 回归；当前 CI 仍直接或间接依赖 | 不得仅因版本旧而删除 |
 | `archive` | v0.2-v0.3 历史复现入口，不属于当前 CI | 只修安全/可运行性问题，后续可转由历史 tag 承担 |
 | `maintainer-assets` | 橘猫资源生成和素材验证 | 不属于应用运行时；需保留输入来源与许可边界 |

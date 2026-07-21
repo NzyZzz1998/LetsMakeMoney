@@ -53,7 +53,10 @@ func _load() -> void:
 	file.close()
 	var parsed = JSON.parse_string(json_string)
 	if parsed is Dictionary:
+		var previous_version := int(parsed.get("config_version", 0))
 		data = merge_with_defaults(parsed)
+		if previous_version < 5:
+			Platform.write_info_log("config.migrated: from=v%d to=v5" % previous_version)
 	else:
 		var backup_path := _preserve_invalid_config()
 		data = _defaults().duplicate(true)
@@ -73,7 +76,7 @@ func _preserve_invalid_config() -> String:
 
 func merge_with_defaults(source: Dictionary) -> Dictionary:
 	var migrated := source.duplicate(true)
-	_migrate_to_v4(migrated)
+	_migrate_to_v5(migrated)
 	var merged := _defaults().duplicate(true)
 	_merge_dict(merged, migrated)
 	return merged
@@ -97,6 +100,19 @@ func _migrate_to_v4(source: Dictionary) -> void:
 	source["config_version"] = 4
 
 
+func _migrate_to_v5(source: Dictionary) -> void:
+	_migrate_to_v4(source)
+	if source.is_empty() or int(source.get("config_version", 0)) >= 5:
+		return
+	source["calendar_dataset_version"] = String(source.get("calendar_dataset_version", "cn-2026-gov-20251104"))
+	source["today_window_position"] = source.get("today_window_position", {"x": -1, "y": -1})
+	source["today_window_size"] = source.get("today_window_size", {"width": 480, "height": 600})
+	source["pet_package_id"] = String(source.get("pet_package_id", "legacy-cat-orange-v2"))
+	source["pet_package_version"] = String(source.get("pet_package_version", "legacy"))
+	source["date_overrides"] = source.get("date_overrides", [])
+	source["config_version"] = 5
+
+
 func _minutes_to_time_text(minutes: int) -> String:
 	return "%02d:%02d" % [minutes / 60, minutes % 60]
 
@@ -113,7 +129,13 @@ func _defaults() -> Dictionary:
 	if _defaults_cache.is_empty():
 		_defaults_cache = {
 			"monthly_salary": 0,
-			"config_version": 4,
+			"config_version": 5,
+			"calendar_dataset_version": "cn-2026-gov-20251104",
+			"today_window_position": {"x": -1, "y": -1},
+			"today_window_size": {"width": 480, "height": 600},
+			"pet_package_id": "letsmakemoney-classic-pro",
+			"pet_package_version": "1.0.0",
+			"date_overrides": [],
 			"rest_mode": "double",
 			"work_hours_per_day": 8.0,
 			"work_start_time": "08:00",
@@ -122,7 +144,7 @@ func _defaults() -> Dictionary:
 			"lunch_end_time": "14:00",
 			"alternating_anchor_date": "",
 			"alternating_anchor_week_type": "big",
-			"pet_id": "cat_orange_v2",
+			"pet_id": "letsmakemoney-classic-pro",
 			"window_x": -1,
 			"window_y": -1,
 			"window_mode": "top",

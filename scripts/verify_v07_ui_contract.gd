@@ -40,7 +40,12 @@ func _run() -> void:
 		root.add_child(wizard)
 		await process_frame
 		for page in ["Welcome", "Salary", "PetSelect", "Confirm"]:
-			_assert(wizard.get_node_or_null("WizardSurface/WizardOuterMargin/WizardRoot/WizardContentPages/%s" % page) != null, "Wizard page missing: %s" % page)
+			var legacy_path := "WizardSurface/WizardOuterMargin/WizardRoot/WizardContentPages/%s" % page
+			var current_path := "WizardSurface/WizardOuterMargin/WizardShell/WizardShellRow/WizardContentColumn/WizardContentMargin/WizardContentPages/%s" % page
+			var page_node := wizard.get_node_or_null(current_path)
+			if page_node == null:
+				page_node = wizard.get_node_or_null(legacy_path)
+			_assert(page_node != null, "Wizard page missing: %s" % page)
 		wizard.queue_free()
 	await process_frame
 	if failures.is_empty():

@@ -61,7 +61,11 @@ function Get-CandidateVisualFiles {
         } else {
             $paths = @(Get-ChildItem -LiteralPath $Root -Recurse -File | ForEach-Object { $_.FullName.Substring($Root.Length).TrimStart('\').Replace('\','/') })
         }
-        return @($paths | Where-Object { $_ -match '(?i)\.(png|jpg|jpeg|webp|gif|svg|ico|wav|mp3|ogg)$' })
+        return @($paths | Where-Object {
+            $normalized = $_.Replace('\','/')
+            $isGeneratedOutput = $normalized -match '^(?i)(build|releases|\.tmp[^/]*)/'
+            -not $isGeneratedOutput -and $normalized -match '(?i)\.(png|jpg|jpeg|webp|gif|svg|ico|wav|mp3|ogg)$'
+        })
     } finally { Pop-Location }
 }
 

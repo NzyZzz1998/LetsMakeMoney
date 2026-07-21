@@ -1,0 +1,7 @@
+{
+  "year": 2027,
+  "status": "unavailable",
+  "checkedAt": "2026-07-14",
+  "reason": "截至检查日期，国务院办公厅尚未发布 2027 年节假日安排。不得根据历法或非官方预测补齐。",
+  "fallback": "weeklyRule"
+}

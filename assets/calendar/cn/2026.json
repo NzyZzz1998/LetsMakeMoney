@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "dataset_id": "cn-2026-gov-20251104",
+  "year": 2026,
+  "published_at": "2025-11-04",
+  "authority": "国务院办公厅",
+  "source_title": "国务院办公厅关于2026年部分节假日安排的通知",
+  "source_url": "https://zwfw.gansu.gov.cn/huixian/zczx/tzgg/art/2025/art_715c16a75e4d4c289c295e77772c7274.html",
+  "entries": [
+    {"date": "2026-01-01", "type": "official_holiday", "name": "元旦"},
+    {"date": "2026-01-02", "type": "official_holiday", "name": "元旦"},
+    {"date": "2026-01-03", "type": "official_holiday", "name": "元旦"},
+    {"date": "2026-01-04", "type": "adjusted_workday", "name": "元旦调休"},
+
+    {"date": "2026-02-14", "type": "adjusted_workday", "name": "春节调休"},
+    {"date": "2026-02-15", "type": "official_holiday", "name": "春节"},
+    {"date": "2026-02-16", "type": "official_holiday", "name": "春节"},
+    {"date": "2026-02-17", "type": "official_holiday", "name": "春节"},
+    {"date": "2026-02-18", "type": "official_holiday", "name": "春节"},
+    {"date": "2026-02-19", "type": "official_holiday", "name": "春节"},
+    {"date": "2026-02-20", "type": "official_holiday", "name": "春节"},
+    {"date": "2026-02-21", "type": "official_holiday", "name": "春节"},
+    {"date": "2026-02-22", "type": "official_holiday", "name": "春节"},
+    {"date": "2026-02-23", "type": "official_holiday", "name": "春节"},
+    {"date": "2026-02-28", "type": "adjusted_workday", "name": "春节调休"},
+
+    {"date": "2026-04-04", "type": "official_holiday", "name": "清明节"},
+    {"date": "2026-04-05", "type": "official_holiday", "name": "清明节"},
+    {"date": "2026-04-06", "type": "official_holiday", "name": "清明节"},
+
+    {"date": "2026-05-01", "type": "official_holiday", "name": "劳动节"},
+    {"date": "2026-05-02", "type": "official_holiday", "name": "劳动节"},
+    {"date": "2026-05-03", "type": "official_holiday", "name": "劳动节"},
+    {"date": "2026-05-04", "type": "official_holiday", "name": "劳动节"},
+    {"date": "2026-05-05", "type": "official_holiday", "name": "劳动节"},
+    {"date": "2026-05-09", "type": "adjusted_workday", "name": "劳动节调休"},
+
+    {"date": "2026-06-19", "type": "official_holiday", "name": "端午节"},
+    {"date": "2026-06-20", "type": "official_holiday", "name": "端午节"},
+    {"date": "2026-06-21", "type": "official_holiday", "name": "端午节"},
+
+    {"date": "2026-09-20", "type": "adjusted_workday", "name": "国庆节调休"},
+    {"date": "2026-09-25", "type": "official_holiday", "name": "中秋节"},
+    {"date": "2026-09-26", "type": "official_holiday", "name": "中秋节"},
+    {"date": "2026-09-27", "type": "official_holiday", "name": "中秋节"},
+
+    {"date": "2026-10-01", "type": "official_holiday", "name": "国庆节"},
+    {"date": "2026-10-02", "type": "official_holiday", "name": "国庆节"},
+    {"date": "2026-10-03", "type": "official_holiday", "name": "国庆节"},
+    {"date": "2026-10-04", "type": "official_holiday", "name": "国庆节"},
+    {"date": "2026-10-05", "type": "official_holiday", "name": "国庆节"},
+    {"date": "2026-10-06", "type": "official_holiday", "name": "国庆节"},
+    {"date": "2026-10-07", "type": "official_holiday", "name": "国庆节"},
+    {"date": "2026-10-10", "type": "adjusted_workday", "name": "国庆节调休"}
+  ]
+}

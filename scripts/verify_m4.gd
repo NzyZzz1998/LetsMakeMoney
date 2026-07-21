@@ -118,15 +118,26 @@ func _verify_panel_collapsed_layout() -> bool:
 	await process_frame
 	panel.collapse()
 	await process_frame
-	var coin_label: Label = panel.get_node("Collapsed/CollapsedContent/CoinMark")
-	var label: Label = panel.get_node("Collapsed/CollapsedContent/CollapsedValue/EarningsToday")
-	var status_label: Label = panel.get_node("Collapsed/CollapsedContent/CollapsedValue/ShortStatus")
-	var content: Control = panel.get_node("Collapsed/CollapsedContent")
+	var label: Label
+	var status_label: Label
+	var content: Control
+	var amount_has_currency := false
+	if panel.has_node("Collapsed/CollapsedContent/Header/ShortStatus"):
+		label = panel.get_node("Collapsed/CollapsedContent/EarningsToday")
+		status_label = panel.get_node("Collapsed/CollapsedContent/Header/ShortStatus")
+		content = panel.get_node("Collapsed/CollapsedContent")
+		amount_has_currency = label.text.begins_with("¥")
+	else:
+		var coin_label: Label = panel.get_node("Collapsed/CollapsedContent/CoinMark")
+		label = panel.get_node("Collapsed/CollapsedContent/CollapsedValue/EarningsToday")
+		status_label = panel.get_node("Collapsed/CollapsedContent/CollapsedValue/ShortStatus")
+		content = panel.get_node("Collapsed/CollapsedContent")
+		amount_has_currency = coin_label.text == "¥"
 	var collapsed: Control = panel.get_node("Collapsed")
 	var vertical_center_delta: float = abs((content.position.y + content.size.y * 0.5) - collapsed.size.y * 0.5)
 	var ok := int(label.vertical_alignment) == 1 and \
 		int(status_label.vertical_alignment) == 1 and \
-		coin_label.text == "¥" and \
+		amount_has_currency and \
 		collapsed.position == Vector2.ZERO and \
 		collapsed.size.x >= 210.0 and \
 		collapsed.size.y >= 62.0 and \

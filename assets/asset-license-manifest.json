@@ -11,6 +11,8 @@
     {"id":"AST-005","path":"doc/prototypes","type":"mixed_code_and_restricted_visual_presentation","source":"project_prototype_using_approved_project_visuals","status":"approved_restricted","license":"ASSETS_LICENSE.md"},
     {"id":"AST-006","path":"assets/pets/cat/orange_v2/_review","type":"generation_review_material","source":"derived_generation_workfiles","status":"excluded_private","license":"not_for_public_distribution"},
     {"id":"AST-007","path":"experiments/ai_cat_assets","type":"experimental_generation_material","source":"experimental_ai_generation","status":"excluded_private","license":"not_for_public_distribution"},
-    {"id":"AST-008","path":"temp","type":"temporary_asset_packages","source":"historical_working_files","status":"excluded_private","license":"not_for_public_distribution"}
+    {"id":"AST-008","path":"temp","type":"temporary_asset_packages","source":"historical_working_files","status":"excluded_private","license":"not_for_public_distribution"},
+    {"id":"AST-009","path":"assets/pets/packages/letsmakemoney-classic-pro","type":"runtime_visual_asset_package","source":"owner_directed_ai_generation_and_manual_review","status":"approved_restricted","license":"ASSETS_LICENSE.md"},
+    {"id":"AST-010","path":"assets/pets/packages/duoduo-cat","type":"runtime_visual_asset_package","source":"owner_directed_ai_generation_and_manual_review","status":"approved_restricted","license":"ASSETS_LICENSE.md"}
   ]
 }

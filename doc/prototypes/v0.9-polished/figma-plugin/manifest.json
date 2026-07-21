@@ -1,0 +1,12 @@
+{
+  "name": "LetsMakeMoney v0.9 Design Builder",
+  "id": "1529485011316724739",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["none"]
+  }
+}

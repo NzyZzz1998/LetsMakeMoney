@@ -5,6 +5,7 @@ const AppVersionScript := preload("res://src/utils/app_version.gd")
 const WindowPolicyCoordinatorScript := preload("res://src/utils/window_policy_coordinator.gd")
 const WindowRuntimeStateScript := preload("res://src/utils/window_runtime_state.gd")
 const PetWindowGeometryScript := preload("res://src/utils/pet_window_geometry.gd")
+const PetPanelLayoutScript := preload("res://src/utils/pet_panel_layout.gd")
 
 @onready var pet: Node2D = $Pet
 @onready var panel = $Panel
@@ -34,7 +35,6 @@ const PANEL_HIT_SIZE := Vector2(220, 110)
 const PANEL_HOVER_PADDING := 8.0
 const DRAG_THRESHOLD := 4.0
 const DOUBLE_CLICK_WINDOW := 0.3
-const CLICK_FEEDBACK_RETURN_DELAY := 1.55
 
 var _debug_mode: bool = false
 var _tray_ready: bool = false
@@ -163,6 +163,10 @@ func _connect_signals() -> void:
 		DragResizeSystem.popup_closed.connect(_on_popup_closed)
 	if panel != null and panel.has_signal("layout_changed") and not panel.layout_changed.is_connected(_on_panel_layout_changed):
 		panel.layout_changed.connect(_on_panel_layout_changed)
+	if panel != null and panel.has_signal("details_requested") and not panel.details_requested.is_connected(DragResizeSystem.show_today_detail):
+		panel.details_requested.connect(DragResizeSystem.show_today_detail)
+	if pet != null and pet.has_signal("hit_region_changed") and not pet.hit_region_changed.is_connected(_on_pet_hit_region_changed):
+		pet.hit_region_changed.connect(_on_pet_hit_region_changed)
 	if not debug_input_area.gui_input.is_connected(_on_debug_input_area_gui_input):
 		debug_input_area.gui_input.connect(_on_debug_input_area_gui_input)
 	var window := get_window()
@@ -272,8 +276,11 @@ func _position_panel() -> void:
 		panel.position = DEBUG_PANEL_POSITION
 		return
 	var window := get_window()
-	var screen := Platform.get_screen_size()
-	panel.position = _resolve_panel_position(window.position, screen, _get_panel_target_size())
+	var screen_index := DisplayServer.window_get_current_screen(window.get_window_id())
+	var screen_rect := Rect2i(DisplayServer.screen_get_position(screen_index), DisplayServer.screen_get_usable_rect(screen_index).size)
+	var resolved: Dictionary = PetPanelLayoutScript.resolve(window.position, window.size, screen_rect)
+	pet.position = Vector2(resolved.pet_position)
+	panel.position = Vector2(resolved.panel_position)
 
 
 func _get_panel_target_size() -> Vector2i:
@@ -292,6 +299,10 @@ func _resolve_panel_position(_window_position: Vector2i, _screen_size: Vector2i,
 func _request_mouse_passthrough_refresh(reason: String) -> void:
 	_apply_mouse_passthrough(reason)
 	_sync_hit_debug_layer()
+
+
+func _on_pet_hit_region_changed(reason: String) -> void:
+	_queue_mouse_passthrough_refresh("pet_hit_region:%s" % reason)
 
 
 func _queue_mouse_passthrough_refresh(reason: String) -> void:
@@ -868,30 +879,23 @@ func _on_wizard_done() -> void:
 
 
 func _register_debug_click() -> void:
-	_debug_click_count += 1
-	if _debug_click_count >= 2:
-		_trigger_debug_click(PetManager.PetInteraction.CLICKED_DOUBLE, "double click")
-		return
-
-	if not _debug_click_timer_active:
-		_debug_click_timer_active = true
-		get_tree().create_timer(DOUBLE_CLICK_WINDOW).timeout.connect(_resolve_debug_click)
+	_trigger_debug_click(PetManager.PetInteraction.CLICKED_SINGLE, "single click")
 
 
 func _resolve_debug_click() -> void:
 	_debug_click_timer_active = false
-	if _debug_click_count == 1:
+	if _debug_click_count > 0:
 		_trigger_debug_click(PetManager.PetInteraction.CLICKED_SINGLE, "single click")
-	else:
-		_trigger_debug_click(PetManager.PetInteraction.CLICKED_DOUBLE, "double click")
 
 
 func _trigger_debug_click(interaction: PetManager.PetInteraction, label: String) -> void:
 	_debug_click_count = 0
 	_debug_click_timer_active = false
-	PetManager.request_interaction(interaction)
+	if pet != null and pet.has_method("trigger_interaction_from_debug"):
+		pet.call("trigger_interaction_from_debug", interaction)
+	else:
+		PetManager.request_interaction(interaction)
 	_set_debug_status("Debug: %s" % label)
-	get_tree().create_timer(CLICK_FEEDBACK_RETURN_DELAY).timeout.connect(PetManager.return_to_interaction_base_state)
 
 
 func _on_tray_toggle_requested() -> void:

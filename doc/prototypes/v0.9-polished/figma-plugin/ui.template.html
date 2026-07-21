@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color: #302b26;
+      font-family: Inter, "Microsoft YaHei UI", sans-serif;
+      background: #fffdfa;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #fffdfa;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    p {
+      margin: 0;
+      color: #76695d;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .notice {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border: 1px solid rgba(69, 53, 39, 0.13);
+      border-radius: 8px;
+      background: #fbf5e9;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    button {
+      width: 100%;
+      height: 40px;
+      margin-top: 16px;
+      border: 1px solid #df951e;
+      border-radius: 8px;
+      background: #f2b43a;
+      color: #302b26;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover { background: #f7c45c; }
+    button:disabled { cursor: wait; opacity: 0.58; }
+
+    #status {
+      min-height: 20px;
+      margin-top: 12px;
+      color: #56765b;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>LetsMakeMoney v0.9 设计生成器</h1>
+  <p>在当前 Figma 文件内生成 Warm Desktop 设计系统、六条产品链路和动画合同。</p>
+  <div class="notice">
+    只会清空并重建三个同名 LMM 页面，不会改动其他页面。请确认当前打开的是 LetsMakeMoney 文件，而不是 QR 文件。
+  </div>
+  <button id="build">生成 / 更新设计</button>
+  <div id="status">准备就绪</div>
+
+  <script>
+    const classic = "__CLASSIC_BASE64__";
+    const duoduo = "__DUODUO_BASE64__";
+    const classicWorking = "__CLASSIC_WORKING_BASE64__";
+    const classicSleeping = "__CLASSIC_SLEEPING_BASE64__";
+    const duoduoWorking = "__DUODUO_WORKING_BASE64__";
+    const duoduoSleeping = "__DUODUO_SLEEPING_BASE64__";
+    const button = document.getElementById("build");
+    const status = document.getElementById("status");
+
+    button.addEventListener("click", () => {
+      button.disabled = true;
+      status.textContent = "正在创建设计，请保持 Figma 窗口打开...";
+      parent.postMessage({
+        pluginMessage: {
+          type: "build",
+          assets: {
+            classic,
+            duoduo,
+            classicWorking,
+            classicSleeping,
+            duoduoWorking,
+            duoduoSleeping
+          }
+        }
+      }, "*");
+    });
+
+    onmessage = (event) => {
+      const message = event.data && event.data.pluginMessage;
+      if (!message) return;
+      if (message.type === "status") status.textContent = message.text;
+      if (message.type === "error") {
+        status.textContent = message.text;
+        status.style.color = "#a94f43";
+        button.disabled = false;
+      }
+      if (message.type === "done") {
+        status.textContent = message.text;
+        button.textContent = "已完成";
+      }
+    };
+  </script>
+</body>
+</html>

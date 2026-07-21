@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "monthlySalaryMinor": 0,
+  "currencyCode": "CNY",
+  "restMode": "singleWeekend",
+  "alternatingAnchor": null,
+  "workStart": "00:00",
+  "workEnd": "00:02",
+  "lunchStart": "00:01",
+  "lunchEnd": "00:02",
+  "standardWorkSeconds": 60,
+  "dateOverrides": [
+    { "date": "2028-02-29", "isWorkday": true, "isPaid": true, "effectiveWorkSeconds": 60 }
+  ],
+  "holidayDatasetVersion": "cn-mainland-2025-2026-v1",
+  "notificationPreference": "denied",
+  "watchMetric": "progress"
+}

@@ -2,9 +2,11 @@ class_name SettingsSectionBuilder
 extends RefCounted
 
 const WarmControlThemeScript := preload("res://src/ui/warm_control_theme.gd")
-const TEXT_INK := Color(0.227, 0.153, 0.098, 1.0)
-const TEXT_MUTED := Color(0.550, 0.420, 0.298, 1.0)
-const ACCENT_ORANGE := Color(0.780, 0.420, 0.137, 1.0)
+const TEXT_INK := Color(0.188, 0.169, 0.149, 1.0)
+const TEXT_MUTED := Color(0.463, 0.412, 0.365, 1.0)
+const TEXT_SUBTLE := Color(0.608, 0.561, 0.518, 1.0)
+const ACCENT_SAGE := Color(0.337, 0.463, 0.357, 1.0)
+const BORDER_SUBTLE := Color(0.271, 0.208, 0.153, 0.105)
 const CONTROL_WIDTH := 128
 
 var _theme: RefCounted = WarmControlThemeScript.new()
@@ -27,11 +29,7 @@ func new_tab(tab_name: String) -> ScrollContainer:
 	scroll.follow_focus = true
 	scroll.mouse_filter = Control.MOUSE_FILTER_STOP
 	var vbar := scroll.get_v_scroll_bar()
-	vbar.custom_minimum_size = Vector2(5, 0)
-	vbar.add_theme_stylebox_override("scroll", _theme.stylebox(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0, 3, 0))
-	vbar.add_theme_stylebox_override("grabber", _theme.stylebox(Color(0.416, 0.263, 0.122, 0.18), Color(0, 0, 0, 0), 0, 3, 0))
-	vbar.add_theme_stylebox_override("grabber_highlight", _theme.stylebox(Color(0.416, 0.263, 0.122, 0.30), Color(0, 0, 0, 0), 0, 3, 0))
-	vbar.add_theme_stylebox_override("grabber_pressed", _theme.stylebox(Color(0.416, 0.263, 0.122, 0.38), Color(0, 0, 0, 0), 0, 3, 0))
+	_theme.style_scrollbar(vbar)
 	return scroll
 
 
@@ -45,12 +43,12 @@ func new_vbox(parent: Control) -> VBoxContainer:
 		margin.add_theme_constant_override("margin_left", 0)
 		margin.add_theme_constant_override("margin_top", 0)
 		margin.add_theme_constant_override("margin_right", 8)
-		margin.add_theme_constant_override("margin_bottom", 4)
+		margin.add_theme_constant_override("margin_bottom", 6)
 		parent.add_child(margin)
 		container_parent = margin
 	var box := VBoxContainer.new()
 	box.name = "VBox"
-	box.add_theme_constant_override("separation", 1)
+	box.add_theme_constant_override("separation", 0)
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	container_parent.add_child(box)
 	return box
@@ -59,9 +57,9 @@ func new_vbox(parent: Control) -> VBoxContainer:
 func add_page_heading(parent: Control, title: String, hint: String) -> void:
 	var row := VBoxContainer.new()
 	row.name = "%sPageHeading" % title
-	row.custom_minimum_size = Vector2(0, 34)
+	row.custom_minimum_size = Vector2(0, 50)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 2)
+	row.add_theme_constant_override("separation", 3)
 	parent.add_child(row)
 	var title_label := Label.new()
 	title_label.text = title
@@ -80,23 +78,28 @@ func add_page_heading(parent: Control, title: String, hint: String) -> void:
 
 
 func add_section_heading(parent: Control, title: String) -> void:
-	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0, 3)
-	parent.add_child(spacer)
 	var label := Label.new()
 	label.name = "SettingsSectionHeading"
 	label.text = title
-	label.add_theme_font_size_override("font_size", 12)
-	label.add_theme_color_override("font_color", ACCENT_ORANGE)
+	label.add_theme_font_size_override("font_size", 11)
+	label.add_theme_color_override("font_color", ACCENT_SAGE)
+	label.add_theme_constant_override("outline_size", 0)
+	label.custom_minimum_size.y = 32
+	label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	parent.add_child(label)
+	var divider := ColorRect.new()
+	divider.name = "SettingsListTopDivider"
+	divider.custom_minimum_size = Vector2(0, 1)
+	divider.color = BORDER_SUBTLE
+	parent.add_child(divider)
 
 
 func add_setting_card(parent: Control, title: String, description: String = "") -> VBoxContainer:
 	var card := PanelContainer.new()
 	card.name = "SettingCard"
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card.custom_minimum_size = Vector2(0, 48)
-	card.add_theme_stylebox_override("panel", _theme.stylebox(Color(1.0, 0.998, 0.988, 0.16), Color(0.416, 0.263, 0.122, 0.04), 0, 6, 4))
+	card.custom_minimum_size = Vector2(0, 50)
+	card.add_theme_stylebox_override("panel", _row_stylebox())
 	parent.add_child(card)
 	var box := VBoxContainer.new()
 	box.name = "SettingCardBody"
@@ -128,14 +131,14 @@ func add_control_card(parent: Control, title: String, _description: String, cont
 	var row_panel := PanelContainer.new()
 	row_panel.name = "SettingRow"
 	row_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row_panel.custom_minimum_size = Vector2(0, 38)
-	row_panel.add_theme_stylebox_override("panel", _theme.stylebox(Color(1.0, 0.998, 0.988, 0.0), Color(0, 0, 0, 0), 0, 0, 2))
+	row_panel.custom_minimum_size = Vector2(0, WarmControlThemeScript.ROW_HEIGHT)
+	row_panel.add_theme_stylebox_override("panel", _row_stylebox())
 	parent.add_child(row_panel)
 	var row := HBoxContainer.new()
 	row.name = "SettingControlRow"
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 10)
+	row.add_theme_constant_override("separation", 20)
 	row_panel.add_child(row)
 	var copy := VBoxContainer.new()
 	copy.name = "SettingCopy"
@@ -147,7 +150,7 @@ func add_control_card(parent: Control, title: String, _description: String, cont
 	title_label.name = "SettingCardTitle"
 	title_label.text = title
 	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title_label.add_theme_font_size_override("font_size", 14)
+	title_label.add_theme_font_size_override("font_size", 13)
 	title_label.add_theme_color_override("font_color", TEXT_INK)
 	copy.add_child(title_label)
 	if control is CheckButton or control is CheckBox:
@@ -173,6 +176,7 @@ func add_note_block(parent: Control, title: String, lines: Array[String]) -> voi
 	block.name = "SettingsNoteBlock"
 	block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	block.add_theme_constant_override("separation", 3)
+	block.custom_minimum_size.y = 12
 	parent.add_child(block)
 	add_note_title(block, title)
 	for line in lines:
@@ -185,6 +189,7 @@ func add_note_label(parent: Control, title: String, label: Label) -> void:
 	block.name = "SettingsNoteBlock"
 	block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	block.add_theme_constant_override("separation", 3)
+	block.custom_minimum_size.y = 12
 	parent.add_child(block)
 	add_note_title(block, title)
 	style_note_label(label)
@@ -192,16 +197,13 @@ func add_note_label(parent: Control, title: String, label: Label) -> void:
 
 
 func add_note_title(parent: Control, title: String) -> void:
-	var divider := ColorRect.new()
-	divider.name = "SettingsNoteDivider"
-	divider.custom_minimum_size = Vector2(0, 1)
-	divider.color = Color(0.416, 0.263, 0.122, 0.08)
-	parent.add_child(divider)
+	if title.is_empty():
+		return
 	var label := Label.new()
 	label.name = "SettingsNoteTitle"
 	label.text = title
 	label.add_theme_font_size_override("font_size", 12)
-	label.add_theme_color_override("font_color", Color(0.550, 0.420, 0.298, 0.82))
+	label.add_theme_color_override("font_color", Color(TEXT_SUBTLE.r, TEXT_SUBTLE.g, TEXT_SUBTLE.b, 0.94))
 	parent.add_child(label)
 
 
@@ -233,17 +235,29 @@ func add_checkbox_row(parent: Control, title: String, description: String) -> Ch
 
 func control_minimum_size(control: Control) -> Vector2:
 	if control is HBoxContainer and control.name == "SliderRow":
-		return Vector2(236, 32)
+		return Vector2(220, 35)
 	if control is HBoxContainer and control.name == "TimeRow":
-		return Vector2(148, 32)
+		return Vector2(148, 35)
 	if control is ItemList:
 		return Vector2(CONTROL_WIDTH + 110, 98)
 	if control is Button:
-		return Vector2(104, 32)
+		return Vector2(104, 37)
 	if control is OptionButton:
-		return Vector2(CONTROL_WIDTH, 32)
+		return Vector2(CONTROL_WIDTH, 35)
 	if control is SpinBox:
-		return Vector2(92, 32)
+		return Vector2(92, 35)
 	if control is CheckButton or control is CheckBox:
 		return Vector2(42, 24)
-	return Vector2(CONTROL_WIDTH, 34)
+	return Vector2(CONTROL_WIDTH, 35)
+
+
+func _row_stylebox() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0, 0, 0, 0)
+	style.border_color = BORDER_SUBTLE
+	style.border_width_bottom = 1
+	style.content_margin_left = 2
+	style.content_margin_right = 2
+	style.content_margin_top = 0
+	style.content_margin_bottom = 0
+	return style
