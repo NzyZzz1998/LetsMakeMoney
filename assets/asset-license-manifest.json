@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "last_updated": "2026-07-11",
+  "last_updated": "2026-07-23",
   "owner": "NzyZzz1998",
   "entries": [
     {"id":"AST-001","path":"assets/pets/cat/orange_v2","type":"runtime_visual_asset","source":"owner_directed_ai_generation_and_manual_editing","status":"approved_restricted","license":"ASSETS_LICENSE.md"},
@@ -11,6 +11,7 @@
     {"id":"AST-005","path":"doc/prototypes","type":"mixed_code_and_restricted_visual_presentation","source":"project_prototype_using_approved_project_visuals","status":"approved_restricted","license":"ASSETS_LICENSE.md"},
     {"id":"AST-006","path":"assets/pets/cat/orange_v2/_review","type":"generation_review_material","source":"derived_generation_workfiles","status":"excluded_private","license":"not_for_public_distribution"},
     {"id":"AST-007","path":"experiments/ai_cat_assets","type":"experimental_generation_material","source":"experimental_ai_generation","status":"excluded_private","license":"not_for_public_distribution"},
-    {"id":"AST-008","path":"temp","type":"temporary_asset_packages","source":"historical_working_files","status":"excluded_private","license":"not_for_public_distribution"}
+    {"id":"AST-008","path":"temp","type":"temporary_asset_packages","source":"historical_working_files","status":"excluded_private","license":"not_for_public_distribution"},
+    {"id":"AST-011","path":"assets/readme","type":"readme_product_visual","source":"owner_project_ui_reconstruction","status":"approved_restricted","license":"ASSETS_LICENSE.md"}
   ]
 }

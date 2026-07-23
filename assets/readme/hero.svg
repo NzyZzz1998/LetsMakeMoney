@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="460" viewBox="0 0 1200 460" role="img" aria-labelledby="title desc">
+  <title id="title">LetsMakeMoney - 把工作时间变成看得见的收入进度</title>
+  <desc id="desc">暖色桌面场景中，橘猫陪伴收入进度小组件，展示今日已赚金额和工作进度。</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fffaf0"/>
+      <stop offset="1" stop-color="#f7ead2"/>
+    </linearGradient>
+    <linearGradient id="coin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffc851"/>
+      <stop offset="1" stop-color="#ee9b1d"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-30%" width="140%" height="170%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#5a4028" flood-opacity=".16"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="460" rx="28" fill="#eeeae1"/>
+  <circle cx="1035" cy="52" r="154" fill="#f2b23b" opacity=".12"/>
+  <circle cx="104" cy="416" r="136" fill="#78a47a" opacity=".10"/>
+
+  <g transform="translate(78 65)">
+    <rect width="148" height="30" rx="15" fill="#fff7e6" stroke="#e8b552"/>
+    <text x="74" y="20" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="13" font-weight="600" fill="#825f24">WINDOWS · v0.8 BETA</text>
+    <text x="0" y="102" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="58" font-weight="750" fill="#302b26">LetsMakeMoney</text>
+    <text x="0" y="148" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="25" font-weight="600" fill="#604f40">把工作时间，变成看得见的收入进度。</text>
+    <text x="0" y="188" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="17" fill="#7b6c5f">一只留在桌面的橘猫，一张实时更新的收入小票。</text>
+
+    <g transform="translate(0 238)">
+      <rect width="132" height="38" rx="19" fill="#fff" opacity=".82"/>
+      <circle cx="22" cy="19" r="7" fill="#77a47a"/>
+      <text x="40" y="25" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="14" font-weight="600" fill="#4d493f">本地优先</text>
+      <rect x="144" width="160" height="38" rx="19" fill="#fff" opacity=".82"/>
+      <circle cx="166" cy="19" r="7" fill="#f2b23b"/>
+      <text x="184" y="25" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="14" font-weight="600" fill="#4d493f">Windows 桌宠</text>
+      <rect x="316" width="172" height="38" rx="19" fill="#fff" opacity=".82"/>
+      <circle cx="338" cy="19" r="7" fill="#ed7b32"/>
+      <text x="356" y="25" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="14" font-weight="600" fill="#4d493f">实时收入进度</text>
+    </g>
+  </g>
+
+  <g transform="translate(710 62)" filter="url(#shadow)">
+    <rect x="68" y="18" width="350" height="148" rx="24" fill="#fffdf8" stroke="#e5ddd0"/>
+    <circle cx="112" cy="62" r="23" fill="url(#coin)"/>
+    <text x="112" y="70" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="23" font-weight="700" fill="#3b2c1e">¥</text>
+    <text x="150" y="58" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="13" fill="#86786b">今日已赚</text>
+    <text x="150" y="96" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="32" font-weight="750" fill="#302b26">¥ 186.42</text>
+    <text x="150" y="122" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="13" fill="#7b6c5f">工作中 · 距离午休 38 分钟</text>
+    <rect x="92" y="137" width="300" height="7" rx="3.5" fill="#ece8df"/>
+    <rect x="92" y="137" width="178" height="7" rx="3.5" fill="url(#coin)"/>
+
+    <ellipse cx="244" cy="379" rx="106" ry="16" fill="#5a4028" opacity=".10"/>
+    <image href="../pets/cat/orange_v2/idle/cat_orange_v2_idle_00.png" x="132" y="174" width="224" height="224" preserveAspectRatio="xMidYMid meet"/>
+  </g>
+</svg>
