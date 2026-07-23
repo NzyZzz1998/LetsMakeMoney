@@ -64,6 +64,19 @@ func _run() -> void:
 	_expect_equal(loaded.lunch_duration_minutes, 90, "load lunch duration")
 	_expect_equal(loaded.work_duration_minutes, 480, "load effective work duration")
 	_expect_equal(loaded.work_end_time, "19:30", "load work end")
+	_expect_equal(draft_script.LUNCH_DURATION_INPUT_STEP_HOURS, 0.01, "minute-level lunch values must remain visible in hour inputs")
+
+	var today_script = load("res://src/scenes/today/today_detail_window.gd")
+	var display_values: Dictionary = today_script.schedule_display_values({
+		"work_start_time": "18:00",
+		"lunch_start_time": "19:30",
+		"lunch_end_time": "19:35",
+		"work_end_time": "20:00",
+	})
+	_expect_equal(display_values.work_start, "18:00", "today timeline uses configured work start")
+	_expect_equal(display_values.lunch_start, "19:30", "today timeline uses configured lunch start")
+	_expect_equal(display_values.lunch_range, "19:30-19:35", "today timeline preserves a minute-level lunch range")
+	_expect_equal(display_values.work_end, "20:00", "today timeline uses configured work end")
 
 	loaded.set_salary(0.0)
 	validation = loaded.validate()

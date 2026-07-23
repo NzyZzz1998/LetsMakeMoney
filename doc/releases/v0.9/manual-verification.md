@@ -2,12 +2,38 @@
 
 ## 当前状态
 
-本文件是 v0.9 候选包的独立验收入口。首轮导出阻塞、动画输入合同和业务事件触发层已经修订完成；下方旧候选身份仅保留历史证据，不能用于最终验收。必须等待 S2-S5 新动作载荷接入后重新打包并锁定新身份。
+本文件保留 v0.9 S5.5 修复后候选包的独立验收记录。`V09-BUG-002/003/004/005` 均已关闭；项目所有者已决定停止扩展本版验收并冻结收口，未完成项目统一保留为“暂不验证”。
+
+### 2026-07-22 修复后候选结论
+
+- 当前结论：**部分通过，版本冻结收口；不宣称完整验收通过**。
+- `V09-BUG-002/003/004/005` 均已修复并完成定向复验；Classic 单击令牌释放和今日详情时间轴旧失败只作为历史证据保留。
+- 新增通过：100% DPI 下 Settings 五页、今日详情、Wizard 四步与取消、右键菜单、Popup/Modal 点击穿透暂停与恢复。
+- 自动补证：普通/纯桌宠 native 托盘消息各 10 轮、宠物包损坏拒绝与回退、v0.8 行为基线通过。
+- 短时稳定：独立候选以隔离 APPDATA 运行 60 秒通过；两小时真实 GUI 运行仍未完成。
+- 收口补证：Computer Use 已验证多多 `sleeping → sleep_ack → sleeping`、单击逐帧证据和窗口拖动落盘。
+- 暂不验证：真实 125%/150% DPI、Windows 通知区左键与可见任务栏入口、500ms 长按跑动、两套宠物三状态完整观感、桌面损坏回退和两小时稳定运行。
+- 已接受体验债：当前 Windows 前端质感仍未达到项目所有者预期，后续版本再做整体视觉与动画对齐；本版不再修改业务代码。
+- 续测日志：`.tmp_acceptance/v0.9-continue-20260722/appdata/LetsMakeMoney/debug.log`。
+- 短时稳定证据：`.tmp_acceptance/v0.9-stability-absolute/`。
+- 当前手测入口只使用 Zip SHA256 `65A04A...F685`；其他候选均为历史身份。
+
+### 历史失败记录
+
+- `V09-BUG-004` 历史现象：Classic `clicked_single` 开始后不结束，活动动作令牌未释放；现已修复并复验通过。
+- `V09-BUG-005` 历史现象：今日详情显示固定时间轴，与自定义作息矛盾；现已修复并复验通过。
+- 历史根因证据：`.tmp_acceptance/v0.9-s55-20260722-163359/evidence/probe-runtime-action.log`。
+- 历史缩放失败证据：`.tmp_acceptance/v0.9-s55-20260722-163359/evidence/gui-scale-058-layout-failure.png`；`V09-BUG-003` 已修复。
 
 ## 锁定对象
 
-- Zip：等待新动作合同完成后重新生成。
-- 预期 SHA256：待锁定。
+- 分支：`agent/v0.9-ui-pause`
+- 构建基线 HEAD：`02745126945b58a74e2d84c269cc30af8ff67519`
+- Zip：`releases/v0.9/LetsMakeMoney-v0.9-beta-windows-x86_64.zip`
+- Zip SHA256：`65A04A1BAFF6681FF335DD2966A528E6BD6517A81232BC107EFAF5AF42C9F685`
+- EXE SHA256：`B867D515772B4C1D220C98FD7C75B253C42EF689504CE7BB731E80B529A9532D`
+- Native DLL SHA256：`E3E2030003A7DA725446A3873C3EC2E19D9442B98A67F24A771E76BD0BAD5089`
+- 该候选包含基线 HEAD 之后尚未提交的 S5.5 接入改动，验收身份以产物 SHA256 为准。
 - 验收时必须解压到全新目录，并从该目录启动 `LetsMakeMoney.exe`。
 - 开始前结束旧进程，备份 `%APPDATA%\LetsMakeMoney\config.json` 与 `debug.log`；结束后恢复。
 

@@ -14,6 +14,7 @@ if (-not $resolvedGodotExe -and $env:LMM_GODOT_EXE) {
 }
 
 & (Join-Path $PSScriptRoot "test_v09_verification_contract.ps1") -ProjectRoot $root
+& (Join-Path $PSScriptRoot "test_v09_exported_pet_payload.ps1") -ProjectRoot $root
 & (Join-Path $PSScriptRoot "test_v09_behavior_baseline.ps1") -ProjectRoot $root -GodotExe $resolvedGodotExe -StaticOnly:$StaticOnly
 if (-not $StaticOnly) {
     & (Join-Path $PSScriptRoot "test_v09_schedule.ps1") -ProjectRoot $root -GodotExe $resolvedGodotExe

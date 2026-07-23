@@ -4,6 +4,7 @@ const SelectionPolicyScript := preload("res://src/utils/pet_selection_policy.gd"
 const ImporterScript := preload("res://src/utils/pet_package_importer.gd")
 const HitRegionScript := preload("res://src/utils/pet_hit_region_service.gd")
 const VisualGeometryScript := preload("res://src/utils/pet_visual_geometry.gd")
+const ActionProfileScript := preload("res://src/utils/pet_action_profile.gd")
 
 const CLASSIC_PATH := "res://assets/pets/packages/letsmakemoney-classic-pro"
 const DUODUO_PATH := "res://assets/pets/packages/duoduo-cat"
@@ -18,6 +19,7 @@ func _initialize() -> void:
 func _run() -> void:
 	_test_selection_and_fallback_policy()
 	_test_runtime_candidates()
+	await _test_runtime_interaction_dispatch()
 	_test_geometry_and_action_gate()
 	_test_runtime_visual_normalization()
 	_test_configuration_compatibility_contract()
@@ -59,6 +61,64 @@ func _test_runtime_candidates() -> void:
 	_expect_equal(String(pet_manager.get_current_pet().pet_id), SelectionPolicyScript.LEGACY_V2_PET_ID, "an existing v2 selection remains selectable")
 	_expect_equal(String(config.get_value("pet_id", "")), original_config_id, "non-persistent startup selection must not rewrite the saved pet")
 	pet_manager.switch_pet(original_config_id, false)
+
+
+func _test_runtime_interaction_dispatch() -> void:
+	var pet_manager = root.get_node_or_null("PetManager")
+	_expect(pet_manager != null, "PetManager must be available for the real pet interaction dispatch")
+	if pet_manager == null:
+		return
+	var original_pet_id := String(pet_manager.get_current_pet().pet_id) if pet_manager.get_current_pet() != null else SelectionPolicyScript.CLASSIC_PET_ID
+	var config = root.get_node_or_null("Config")
+	var original_debug_mode := bool(config.get_value("debug_mode", false)) if config != null else false
+	if config != null:
+		config.set_value("debug_mode", false)
+	var packed_scene := load("res://src/scenes/pet/pet.tscn") as PackedScene
+	_expect(packed_scene != null, "the real pet scene must load for interaction dispatch verification")
+	if packed_scene == null:
+		pet_manager.switch_pet(original_pet_id, false)
+		return
+	var cases := [
+		{"pet_id": SelectionPolicyScript.CLASSIC_PET_ID},
+		{"pet_id": SelectionPolicyScript.DUODUO_PET_ID},
+	]
+	for test_case in cases:
+		pet_manager.return_to_auto_state()
+		pet_manager.switch_pet(String(test_case.pet_id), false)
+		var pet = packed_scene.instantiate()
+		root.add_child(pet)
+		await process_frame
+		await process_frame
+		pet_manager.set_base_state(pet_manager.PetBaseState.WORKING)
+		await process_frame
+		var expected_action := ActionProfileScript.first_available(
+			ActionProfileScript.interaction_candidates(pet._animation_controller.base_animation, "clicked_single"),
+			pet.anim.sprite_frames
+		)
+		var requested: Array[String] = []
+		var started: Array[String] = []
+		var finished: Array[String] = []
+		pet._animation_controller.action_requested.connect(func(_token: int, animation_name: String, _priority: int) -> void: requested.append(animation_name))
+		pet._animation_controller.action_started.connect(func(_token: int, animation_name: String) -> void: started.append(animation_name))
+		pet._animation_controller.action_finished.connect(func(_token: int, animation_name: String, _reason: String) -> void: finished.append(animation_name))
+		pet.trigger_interaction_from_debug(2)
+		await process_frame
+		_expect(int(pet._animation_controller.active_token) > 0, "%s single-click reaches the animation controller" % test_case.pet_id)
+		_expect(requested.has(expected_action) and started.has(expected_action), "%s requests and starts %s" % [test_case.pet_id, expected_action])
+		_expect(String(pet.anim.animation) == expected_action, "%s plays %s" % [test_case.pet_id, expected_action])
+		_expect(not pet.anim.sprite_frames.get_animation_loop(expected_action), "%s interaction action is not looping" % test_case.pet_id)
+		_expect(is_equal_approx(pet.anim.sprite_frames.get_animation_speed(expected_action), 1000.0), "%s preserves package frame timing" % test_case.pet_id)
+		await create_timer(2.0).timeout
+		_expect(finished.has(expected_action), "%s interaction action finishes" % test_case.pet_id)
+		_expect(int(pet._animation_controller.active_token) == 0, "%s releases its action token" % test_case.pet_id)
+		var restored_candidates: Array[String] = ActionProfileScript.base_candidates(pet._animation_controller.base_animation)
+		_expect(restored_candidates.has(String(pet.anim.animation)), "%s restores its current schedule base animation" % test_case.pet_id)
+		pet.free()
+		await process_frame
+	pet_manager.return_to_auto_state()
+	pet_manager.switch_pet(original_pet_id, false)
+	if config != null:
+		config.set_value("debug_mode", original_debug_mode)
 
 
 func _test_geometry_and_action_gate() -> void:

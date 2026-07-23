@@ -409,7 +409,7 @@ func _build_schedule_tab() -> Control:
 	start_hour_input = start_row[0]
 	start_min_input = start_row[1]
 	_wrap_last_control_in_card(box, start_row[2], "上班时间", "")
-	lunch_duration_input = _add_spin(box, 0, 8, 0.5)
+	lunch_duration_input = _add_spin(box, 0, 8, ConfigurationDraftScript.LUNCH_DURATION_INPUT_STEP_HOURS)
 	lunch_duration_input.suffix = " 小时"
 	_wrap_last_control_in_card(box, lunch_duration_input, "午休时长", "")
 	var lunch_start_row := _add_time_row(box)

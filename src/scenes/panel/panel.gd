@@ -30,6 +30,9 @@ signal details_requested
 @onready var exp_progress_row: Control = $Expanded/ProgressRow
 @onready var exp_state_row: Control = $Expanded/TodayRow/StateValue
 @onready var exp_schedule_row: Control = $Expanded/ScheduleRow
+@onready var exp_metrics_row: Control = $Expanded/MetricsRow
+@onready var exp_metrics_divider: Control = $Expanded/MetricsRow/MetricsDivider
+@onready var exp_separator: Control = $Expanded/Separator
 @onready var exp_schedule_title: Label = $Expanded/ScheduleRow/ScheduleLabel
 @onready var exp_schedule_value: Label = $Expanded/ScheduleRow/ScheduleValue
 
@@ -170,6 +173,7 @@ func _apply_style() -> void:
 
 func _apply_collapsed_text_style() -> void:
 	collapsed_content.custom_minimum_size = _scaled_size(Vector2(268, 96))
+	collapsed_progress_bar.custom_minimum_size = _scaled_size(Vector2(268, 5))
 	collapsed_content.add_theme_constant_override("separation", _scaled_int(4))
 	collapsed_caption_label.add_theme_font_size_override("font_size", _font_size(12))
 	collapsed_caption_label.add_theme_color_override("font_color", TEXT_MUTED)
@@ -220,10 +224,13 @@ func _get_collapsed_status_text() -> String:
 func _apply_expanded_text_style() -> void:
 	expanded_container.add_theme_constant_override("separation", _scaled_int(10))
 	exp_today_row.custom_minimum_size = _scaled_size(Vector2(312, 50))
+	exp_metrics_row.custom_minimum_size = _scaled_size(Vector2(312, 42))
+	exp_metrics_divider.custom_minimum_size = _scaled_size(Vector2(1, 34))
 	exp_month_row.custom_minimum_size = Vector2.ZERO
 	exp_rate_row.custom_minimum_size = Vector2.ZERO
 	exp_progress_row.custom_minimum_size = _scaled_size(Vector2(312, 36))
 	exp_progress_row.add_theme_constant_override("separation", _scaled_int(5))
+	exp_separator.custom_minimum_size = _scaled_size(Vector2(312, 1))
 	exp_schedule_row.custom_minimum_size = _scaled_size(Vector2(312, 28))
 	exp_schedule_row.add_theme_constant_override("separation", _scaled_int(10))
 	exp_schedule_title.add_theme_font_size_override("font_size", _font_size(12))

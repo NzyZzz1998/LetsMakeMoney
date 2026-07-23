@@ -105,6 +105,10 @@ func _apply_runtime_geometry(pet_res: PetResource) -> void:
 func _apply_animation_speeds(pet_res: PetResource) -> void:
 	if pet_res.sprite_frames == null:
 		return
+	# Runtime packages encode exact frame durations at import time. The legacy
+	# speed table is only valid for built-in SpriteFrames resources.
+	if pet_res.runtime_profile != null:
+		return
 	for anim_name in pet_res.animation_speeds:
 		if pet_res.sprite_frames.has_animation(anim_name):
 			var fps := float(pet_res.animation_speeds[anim_name])
@@ -404,7 +408,7 @@ func _end_run() -> void:
 	Platform.write_info_log("pet.input.run_settle: direction=%s window=%s" % [_run_direction, str(get_window().position)])
 	var candidates: Array[String] = ActionProfileScript.run_candidates("settle", _run_direction, _animation_controller.base_animation)
 	var resolved := ActionProfileScript.first_available(candidates, anim.sprite_frames)
-	if resolved == "run_settle":
+	if resolved in ["run_stop", "run_settle"]:
 		var token: int = _animation_controller.request_action(
 			resolved,
 			maxi(_animation_duration_ms(resolved), 100),
@@ -434,10 +438,10 @@ func _play_run_phase(phase: String) -> void:
 func _process(_delta: float) -> void:
 	var now_ms := Time.get_ticks_msec()
 	_poll_business_events(now_ms)
+	_animation_controller.tick(now_ms)
 	if DragResizeSystem.is_overlay_active():
 		return
 	_handle_arbiter_events(_input_arbiter.advance(now_ms))
-	_animation_controller.tick(now_ms)
 	_update_pointer_follow(now_ms)
 	_maybe_trigger_environment_action(now_ms)
 

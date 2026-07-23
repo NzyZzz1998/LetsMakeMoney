@@ -18,6 +18,18 @@ foreach ($requiredFilter in @(
     }
 }
 
+$petPackageRoot = Join-Path $root "assets/pets/packages"
+foreach ($webp in Get-ChildItem -LiteralPath $petPackageRoot -Filter "*.webp" -File -Recurse) {
+    $importPath = "$($webp.FullName).import"
+    if (-not (Test-Path -LiteralPath $importPath)) {
+        throw "Pet package WebP is missing its raw export sidecar: $($webp.FullName.Substring($root.Length + 1))"
+    }
+    $importText = Get-Content -LiteralPath $importPath -Raw
+    if ($importText -notmatch 'importer="keep"') {
+        throw "Pet package WebP would be converted instead of exported as original bytes: $($webp.FullName.Substring($root.Length + 1))"
+    }
+}
+
 $wrapperPath = Join-Path $root "scripts/verify_v09_package.ps1"
 $wrapper = Get-Content -LiteralPath $wrapperPath -Raw
 foreach ($requiredMarker in @(

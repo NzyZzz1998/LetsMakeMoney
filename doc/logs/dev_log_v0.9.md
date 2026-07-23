@@ -355,3 +355,49 @@ Main/native、窗口策略、动画恢复和输入仲裁均属于高回归区域
 2. 锁定 PetManager 新载荷的 manifest、图集和 SHA256。
 3. 完成 `V09-CORR-006` 至 `V09-CORR-009`，重跑 `verify_v09.ps1 -SkipExport`。
 4. 重新打包、锁定新身份并从头进入独立验收，不复用旧候选证据。
+
+## 2026-07-22 - 多多 S5.5 通用 motion 接入
+
+### 输入身份
+
+- PetManager 基线：`59d52801e3360a6daf20a4033f42db3623303e51`。
+- 使用已提交的 `motion-s5.5-gif-edge-preview/runtime` 三份运行时文件，不复制 QA 页面、生成中间产物或本机工作区。
+- 锁定 `duoduo.s5` Profile、两张 atlas、motion manifest、人工 review 与 QA evidence SHA256。
+
+### 实现决策
+
+- 在现有 v1 宠物包上增加可选 `motion` 扩展，旧宠物包无需迁移即可继续加载。
+- motion manifest 由通用 validator/importer 消费；禁止按 `pet_id` 分支导入或播放。
+- 新动作覆盖同名动作，但旧 `spritesheet.webp` 与 `extra-actions.webp` 保留为兼容和损坏回退来源。
+- LMM 的枚举与 PetManager motion schema 对齐，支持 `variation`、`hold`、`hold_loop` 等后续通用合同；当前产品仍只触发已冻结的 v0.9 输入语义。
+- 人工 review 与 QA 文件不进入运行时包，只在包清单中记录其 SHA256 身份；`approved / ready:true` 是导入硬门禁。
+
+### 验证与边界
+
+- 多多 8 个动作、逐帧时长、动作元数据、图集范围和三份运行时文件同源校验通过。
+- 增加未批准载荷、Profile 不一致和 atlas 清单哈希不一致的负向测试。
+- 本轮不生成候选包：Classic 同合同最终载荷尚未交付，`V09-CORR-006/008/009` 只能部分完成。
+
+## 2026-07-22 - Classic 动画范围收敛
+
+- 项目所有者确认 Classic 暂不进行大规模动画重制，保留当前稳定包、默认候选、旧用户选择保护和 v0.8 回滚链。
+- 多多 S5.5 作为 v0.9 首个完整 motion payload；通用 validator/importer 和状态机不增加宠物专用分支。
+- Classic 缺少 S5.5 专属动作时继续走既有动作和通用回退，不再作为素材交付阻塞。
+- `V09-CORR-006/008` 据此关闭；`V09-CORR-009` 进入候选包生成和独立验收。
+
+## 2026-07-22 - V09-CORR-009 首次候选导出修复
+
+- 首次重打包后，包内运行日志显示多多因缺少 `atlas-00.webp`、`atlas-01.webp` 被拒绝；候选包不予采用。
+- 根因是新增 WebP 被 Godot 普通纹理 importer 转为 `.ctex`，运行时宠物包需要原始 WebP 字节验证 SHA256。
+- 两张 motion atlas 改为沿用现有宠物包 `importer="keep"` 合同。
+- `test_v09_exported_pet_payload.ps1` 现在扫描所有运行时宠物包 WebP，缺少 sidecar 或不是 `keep` 时在导出前失败；该检查进入 `verify_v09.ps1` 常规门禁。
+
+## 2026-07-22 - V09-CORR-009 新候选锁定
+
+- 完整执行 `verify_v09.ps1`，v0.9 配置、窗口、宠物包、动画与集成测试，以及 v0.6-v0.8、M4、安装器、更新、原生窗口和公开治理回归全部通过。
+- 重新导出并生成 `releases/v0.9/LetsMakeMoney-v0.9-beta-windows-x86_64.zip`。
+- Zip：51,705,927 字节，SHA256 `36CEE0D4C73CDBBA876F59BA84C259C04F3E2F95D959EF147135009985A84465`。
+- EXE：122,158,328 字节，SHA256 `B30E5E4409B8411738ABDE84AD0EC52E92DF3F975A9D69EFA1DB6CE6E5DD2FA1`。
+- Native DLL：1,606,144 字节，SHA256 `E3E2030003A7DA725446A3873C3EC2E19D9442B98A67F24A771E76BD0BAD5089`。
+- `verify_v09_package.ps1 -SmokeSeconds 8` 从独立解压目录启动通过；隔离日志同时包含 Classic 与多多的 `PetManager.package shadow_loaded`，不存在运行时宠物包拒绝。
+- 该结果关闭打包和包内加载门禁，不替代 DPI、动画观感、输入仲裁、动态命中区、托盘和两小时稳定运行的独立验收。

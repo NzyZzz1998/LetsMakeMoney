@@ -47,6 +47,23 @@ func _test_contract_and_sanitized_boundary() -> void:
 	var corrupt_hash: Dictionary = ValidatorScript.validate_manifest(classic_manifest, CLASSIC_PATH, true)
 	_expect(not bool(corrupt_hash.get("ok", true)), "atlas hash mismatch must be rejected")
 
+	var duoduo_manifest := _read_manifest(DUODUO_PATH)
+	duoduo_manifest["motion"]["review"]["ready"] = false
+	var unapproved_motion: Dictionary = ValidatorScript.validate_manifest(duoduo_manifest, DUODUO_PATH, false)
+	_expect(not bool(unapproved_motion.get("ok", true)), "motion payload without an approved ready review must be rejected")
+
+	duoduo_manifest = _read_manifest(DUODUO_PATH)
+	duoduo_manifest["motion"]["profile_id"] = "unexpected.profile"
+	var mismatched_profile: Dictionary = ValidatorScript.validate_manifest(duoduo_manifest, DUODUO_PATH, false)
+	_expect(not bool(mismatched_profile.get("ok", true)), "motion profile identity mismatch must be rejected")
+
+	duoduo_manifest = _read_manifest(DUODUO_PATH)
+	for file_entry in Array(duoduo_manifest.get("files", [])):
+		if String(file_entry.get("path", "")) == "atlas-00.webp":
+			file_entry["sha256"] = "0".repeat(64)
+	var mismatched_atlas: Dictionary = ValidatorScript.validate_manifest(duoduo_manifest, DUODUO_PATH, false)
+	_expect(not bool(mismatched_atlas.get("ok", true)), "motion atlas identity must match the distributable file manifest")
+
 
 func _test_generic_import_and_cache() -> void:
 	var importer = ImporterScript.new()
@@ -62,6 +79,30 @@ func _test_generic_import_and_cache() -> void:
 		_expect(pet.sprite_frames.has_animation("clicked_double"), "celebrating must map to double click")
 		var duration_ms := importer.animation_duration_ms(pet.sprite_frames, "working")
 		_expect(absf(duration_ms - 1240.0) <= 1.0, "working must preserve manifest frame durations")
+	if bool(duoduo.get("ok", false)):
+		var duoduo_pet = duoduo.get("pet")
+		var motion_actions := [
+			"working_loop",
+			"working_ack",
+			"rest_ack",
+			"sleep_ack",
+			"run_prepare",
+			"run_stop",
+			"lunch_relief",
+			"lunch_return",
+		]
+		for action_name in motion_actions:
+			_expect(
+				duoduo_pet.sprite_frames.has_animation(action_name),
+				"Duoduo S5.5 motion payload must expose %s" % action_name
+			)
+		_expect(
+			absf(importer.animation_duration_ms(duoduo_pet.sprite_frames, "working_loop") - 1520.0) <= 1.0,
+			"Duoduo working_loop must preserve the approved S5.5 frame durations"
+		)
+		var motion_metadata: Dictionary = duoduo_pet.runtime_profile.animation_metadata.get("working_loop", {})
+		_expect(String(motion_metadata.get("semantic_role", "")) == "base", "motion semantic role must survive import")
+		_expect(String(motion_metadata.get("source_profile", "")) == "duoduo.s5", "motion profile identity must survive import")
 	var first_key := importer.cache_key_for_path(CLASSIC_PATH)
 	var second_key := importer.cache_key_for_path(CLASSIC_PATH)
 	_expect(not first_key.is_empty() and first_key == second_key, "unchanged package must have a stable cache key")

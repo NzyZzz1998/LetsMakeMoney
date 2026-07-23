@@ -3,6 +3,7 @@ extends RefCounted
 
 const DEFAULT_WORK_MINUTES := 8 * 60
 const DEFAULT_LUNCH_MINUTES := 2 * 60
+const LUNCH_DURATION_INPUT_STEP_HOURS := 0.01
 
 var monthly_salary: float = 0.0
 var rest_mode: String = "double"

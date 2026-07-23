@@ -29,7 +29,7 @@ if ($project -notmatch 'config/version="0\.9-beta"') {
 }
 
 $package = Get-Content -LiteralPath (Join-Path $root "scripts\package_v09.ps1") -Raw
-foreach ($requiredToken in @("0.9-beta", "releases/v0.9", "release-notes.md", "IncludeLicenses")) {
+foreach ($requiredToken in @("0.9-beta", "releases/v0.9", "release-notes.md", "IncludeLicenses", "SHA256SUMS.txt")) {
     if ($package -notmatch [regex]::Escape($requiredToken)) {
         throw "package_v09.ps1 is missing: $requiredToken"
     }

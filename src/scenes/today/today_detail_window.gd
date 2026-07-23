@@ -50,6 +50,9 @@ var _progress_ring: ProgressRing
 var _schedule_start_value: Label
 var _schedule_lunch_value: Label
 var _schedule_end_value: Label
+var _schedule_start_time: Label
+var _schedule_lunch_time: Label
+var _schedule_end_time: Label
 var _refresh_elapsed := 0.0
 var _header_dragging := false
 var _header_drag_start_mouse := Vector2i.ZERO
@@ -236,9 +239,15 @@ func _build_schedule() -> Control:
 	heading_row.add_child(adjust)
 	schedule.add_child(heading_row)
 
-	_schedule_start_value = _schedule_row(schedule, "08:00", ACCENT_MINT, "开始工作", "今天从这里开始")
-	_schedule_lunch_value = _schedule_row(schedule, "12:00", ACCENT_COIN, "午休", "12:00-14:00")
-	_schedule_end_value = _schedule_row(schedule, "18:00", Color(TEXT_SUBTLE.r, TEXT_SUBTLE.g, TEXT_SUBTLE.b, 0.55), "结束工作", "完成今日工作")
+	var start_row := _schedule_row(schedule, "08:00", ACCENT_MINT, "开始工作", "今天从这里开始")
+	_schedule_start_time = start_row.time
+	_schedule_start_value = start_row.detail
+	var lunch_row := _schedule_row(schedule, "12:00", ACCENT_COIN, "午休", "12:00-14:00")
+	_schedule_lunch_time = lunch_row.time
+	_schedule_lunch_value = lunch_row.detail
+	var end_row := _schedule_row(schedule, "18:00", Color(TEXT_SUBTLE.r, TEXT_SUBTLE.g, TEXT_SUBTLE.b, 0.55), "结束工作", "完成今日工作")
+	_schedule_end_time = end_row.time
+	_schedule_end_value = end_row.detail
 	return schedule
 
 
@@ -247,7 +256,7 @@ func _open_schedule_settings() -> void:
 	DragResizeSystem.open_settings()
 
 
-func _schedule_row(parent: VBoxContainer, time_text: String, dot_color: Color, title_text: String, detail_text: String) -> Label:
+func _schedule_row(parent: VBoxContainer, time_text: String, dot_color: Color, title_text: String, detail_text: String) -> Dictionary:
 	var row := HBoxContainer.new()
 	row.custom_minimum_size = Vector2(0, 46)
 	row.add_theme_constant_override("separation", 10)
@@ -275,7 +284,7 @@ func _schedule_row(parent: VBoxContainer, time_text: String, dot_color: Color, t
 	copy.add_child(_label(title_text, 15, TEXT_INK))
 	var detail := _label(detail_text, 12, TEXT_MUTED)
 	copy.add_child(detail)
-	return detail
+	return {"time": time_label, "detail": detail}
 
 
 func _build_month_summary() -> Control:
@@ -385,12 +394,33 @@ func _refresh() -> void:
 	_progress_ring.set_ratio(percentage / 100.0)
 	_ring_value.text = "%.0f%%" % percentage
 	_progress_value.text = "%.0f%% · 有效工时 %.1f 小时" % [percentage, SalaryEngine.get_work_hours_per_day()]
-	var work_start := String(Config.get_value("work_start_time", "08:00"))
-	var lunch_range := SalaryEngine.get_lunch_time_range_text()
-	var work_end := String(Config.get_value("work_end_time", "18:00"))
+	var schedule_values := schedule_display_values({
+		"work_start_time": Config.get_value("work_start_time", "08:00"),
+		"lunch_start_time": Config.get_value("lunch_start_time", "12:00"),
+		"lunch_end_time": Config.get_value("lunch_end_time", "14:00"),
+		"work_end_time": Config.get_value("work_end_time", "18:00"),
+	})
+	var work_start := String(schedule_values.work_start)
+	var lunch_start := String(schedule_values.lunch_start)
+	var lunch_range := String(schedule_values.lunch_range)
+	var work_end := String(schedule_values.work_end)
+	_schedule_start_time.text = work_start
+	_schedule_lunch_time.text = lunch_start
+	_schedule_end_time.text = work_end
 	_schedule_start_value.text = "%s 开始" % work_start
 	_schedule_lunch_value.text = lunch_range
 	_schedule_end_value.text = "%s 完成今日工作" % work_end
+
+
+static func schedule_display_values(source: Dictionary) -> Dictionary:
+	var lunch_start := String(source.get("lunch_start_time", "12:00"))
+	var lunch_end := String(source.get("lunch_end_time", lunch_start))
+	return {
+		"work_start": String(source.get("work_start_time", "08:00")),
+		"lunch_start": lunch_start,
+		"lunch_range": "%s-%s" % [lunch_start, lunch_end],
+		"work_end": String(source.get("work_end_time", "18:00")),
+	}
 
 
 func _restore_geometry() -> void:

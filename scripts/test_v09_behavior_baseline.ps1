@@ -25,6 +25,7 @@ $staticContracts = @(
     @{ Label = "run prepare dispatch"; Text = $pet; Pattern = '"run_prepare":\s+_start_run' },
     @{ Label = "run movement dispatch"; Text = $pet; Pattern = '"run_move":\s+_update_run' },
     @{ Label = "run settle dispatch"; Text = $pet; Pattern = '"run_settle":\s+_end_run' },
+	@{ Label = "approved run stop playback"; Text = $pet; Pattern = 'resolved in \["run_stop", "run_settle"\]' },
     @{ Label = "run entry after hold threshold"; Text = $arbiter; Pattern = 'now_ms - _press_time_ms >= _hold_threshold_ms' },
     @{ Label = "run movement event"; Text = $arbiter; Pattern = '"type": "run_move"' }
 )

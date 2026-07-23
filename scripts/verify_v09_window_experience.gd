@@ -8,9 +8,14 @@ var _failures: Array[String] = []
 
 
 func _init() -> void:
+	call_deferred("_run")
+
+
+func _run() -> void:
 	_test_overlay_reference_count()
 	_test_today_window_placement()
 	_test_pet_panel_layout()
+	await _test_panel_scale_contract()
 	_test_r2_surface_contract()
 	if _failures.is_empty():
 		print("V09 window experience verification passed")
@@ -19,6 +24,35 @@ func _init() -> void:
 	for failure in _failures:
 		push_error(failure)
 	quit(1)
+
+
+func _test_panel_scale_contract() -> void:
+	var packed_scene := load("res://src/scenes/panel/panel.tscn") as PackedScene
+	_expect(packed_scene != null, "Panel scene must load for scale verification")
+	if packed_scene == null:
+		return
+	var panel = packed_scene.instantiate()
+	root.add_child(panel)
+	await process_frame
+	for display_scale in [0.5, 0.58, 1.0, 1.5]:
+		panel.collapse()
+		panel.set_display_scale(display_scale)
+		await process_frame
+		await process_frame
+		var collapsed_content: Control = panel.get_node("Collapsed/CollapsedContent")
+		var collapsed_progress: Control = panel.get_node("Collapsed/CollapsedContent/CollapsedProgress")
+		var expected_collapsed_width := roundf(268.0 * display_scale)
+		_expect(is_equal_approx(collapsed_progress.custom_minimum_size.x, expected_collapsed_width), "collapsed progress width must scale at %.0f%%" % (display_scale * 100.0))
+		_expect(collapsed_progress.size.x <= collapsed_content.size.x + 1.0, "collapsed progress must stay inside the shell at %.0f%%" % (display_scale * 100.0))
+		panel.expand()
+		await process_frame
+		await process_frame
+		var expanded: Control = panel.get_node("Expanded")
+		for node_path in ["Expanded/TodayRow", "Expanded/MetricsRow", "Expanded/ProgressRow", "Expanded/Separator", "Expanded/ScheduleRow"]:
+			var row: Control = panel.get_node(node_path)
+			_expect(row.custom_minimum_size.x <= expanded.size.x + 1.0, "%s must stay inside the expanded shell at %.0f%%" % [node_path, display_scale * 100.0])
+	panel.queue_free()
+	await process_frame
 
 
 func _test_overlay_reference_count() -> void:

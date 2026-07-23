@@ -3,7 +3,7 @@
   "pet_id": "duoduo-cat",
   "display_name": "多多",
   "description": "蓝眼睛、灰蓝重点色与奶油白长毛的正式可选宠物；v0.9 使用通用动作映射。",
-  "package_version": "1.0.0",
+  "package_version": "1.1.0",
   "minimum_lmm_version": "0.9.0-beta",
   "geometry": {
     "cell_width": 192,
@@ -48,9 +48,26 @@
     "look_315": {"atlas":"spritesheet.webp","row":10,"start_column":6,"frame_count":1,"durations_ms":[500],"loop":false},
     "look_337.5": {"atlas":"spritesheet.webp","row":10,"start_column":7,"frame_count":1,"durations_ms":[500],"loop":false}
   },
+  "motion": {
+    "manifest": "motion-manifest.json",
+    "manifest_sha256": "AAFE57B1E912E9306F7E01E14001160543DEE1A1FC9D1A51F5EFC7780C69ABB1",
+    "profile_id": "duoduo.s5",
+    "profile_version": "0.2.0",
+    "source_commit": "59d5280",
+    "review": {
+      "status": "approved",
+      "ready": true,
+      "published": false,
+      "review_sha256": "8EF7CF921DB4FA3113EECADDD63B9412BB4DD5FF1FF256C3DCD5B325876E12CC",
+      "qa_evidence_sha256": "EC540B9E9E79C487010904DBB3B02E9E75D7A6D478C6D1F62DC148C1B800FB01"
+    }
+  },
   "files": [
     {"path":"spritesheet.webp","sha256":"7CA4677A3B45DC68B41AAA642FA8B0CEF63174477C0D55D7FCB35885D46E5F71"},
     {"path":"extra-actions.webp","sha256":"1B05AE16520FF0A39B2421622D0EDC154BFCE6B39B8CADE009681061580E49B3"},
+    {"path":"atlas-00.webp","sha256":"9B57CAD73DEF1372D5ACE7190434A2F0B7B1772BF356011839D1380F22CD7B62"},
+    {"path":"atlas-01.webp","sha256":"CBF2F0FE0C03ADC8C920695F6FA69E0131483B36F9EECB18748E404DB1D66283"},
+    {"path":"motion-manifest.json","sha256":"AAFE57B1E912E9306F7E01E14001160543DEE1A1FC9D1A51F5EFC7780C69ABB1"},
     {"path":"LICENSE.md","sha256":"B55FE367FE3DBFBF59E1D418A171650D01582B331A888652F5745F7352ADD4DF"},
     {"path":"SOURCE.md","sha256":"0EECEBC0B81425124DD2241EB4077AAE509FE70836347C5BFBC3233F2A1FF291"}
   ],

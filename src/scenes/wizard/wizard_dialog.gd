@@ -473,7 +473,7 @@ func _build_pet_page() -> Control:
 
 	_lunch_section = _new_task_block(page, "午休安排")
 	_add_field_row(_lunch_section, "午休开始", _lunch_start_controls)
-	lunch_duration_input = _new_spin(0, 8, 0.5, 112)
+	lunch_duration_input = _new_spin(0, 8, ConfigurationDraftScript.LUNCH_DURATION_INPUT_STEP_HOURS, 112)
 	lunch_duration_input.suffix = " 小时"
 	_add_field_row(_lunch_section, "午休时长", lunch_duration_input)
 	lunch_duration_input.value_changed.connect(_on_lunch_duration_changed)

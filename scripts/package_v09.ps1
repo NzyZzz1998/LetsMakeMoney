@@ -12,4 +12,9 @@ if(-not $SkipExport){
 }
 $version=Get-LetsMakeMoneyVersion -ProjectRoot $ProjectRoot
 if($version -ne '0.9-beta'){throw "Unexpected project version: $version"}
-New-LmmPackage -ProjectRoot $ProjectRoot -Version $version -ReleaseDirectory 'releases/v0.9' -ReleaseNotes 'doc/releases/v0.9/release-notes.md' -IncludeLicenses
+$zipPath = New-LmmPackage -ProjectRoot $ProjectRoot -Version $version -ReleaseDirectory 'releases/v0.9' -ReleaseNotes 'doc/releases/v0.9/release-notes.md' -IncludeLicenses
+$releaseDir = Join-Path $ProjectRoot 'releases/v0.9'
+$zipName = Split-Path $zipPath -Leaf
+$zipHash = (Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash.ToUpperInvariant()
+"$zipHash  $zipName" | Set-Content -LiteralPath (Join-Path $releaseDir 'SHA256SUMS.txt') -Encoding UTF8
+Write-Host "SHA256SUMS updated: $zipHash  $zipName"

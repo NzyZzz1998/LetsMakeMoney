@@ -23,7 +23,7 @@ const ACTION_COOLDOWN_MS := {
 static func base_candidates(state_name: String) -> Array[String]:
 	match state_name:
 		"working":
-			return ["working", "making-money", "idle"]
+			return ["working_loop", "working", "making-money", "idle"]
 		"awake_rest":
 			return ["awake_rest", "resting", "idle"]
 		"sleeping":
@@ -35,9 +35,19 @@ static func base_candidates(state_name: String) -> Array[String]:
 static func interaction_candidates(base_state: String, interaction: String) -> Array[String]:
 	match interaction:
 		"hover":
-			return ["hover"] + base_candidates(base_state)
+			return _with_base_candidates(["hover"], base_state)
 		"clicked_single":
-			return ["%s_clicked_single" % base_state, "clicked_single", "waving"] + base_candidates(base_state)
+			var acknowledgement: String = String({
+				"working": "working_ack",
+				"awake_rest": "rest_ack",
+				"sleeping": "sleep_ack",
+			}.get(base_state, ""))
+			var candidates: Array[String] = []
+			if not acknowledgement.is_empty():
+				candidates.append(acknowledgement)
+			candidates.append_array(["%s_clicked_single" % base_state, "clicked_single", "waving"])
+			candidates.append_array(base_candidates(base_state))
+			return candidates
 		_:
 			return base_candidates(base_state)
 
@@ -45,12 +55,12 @@ static func interaction_candidates(base_state: String, interaction: String) -> A
 static func run_candidates(phase: String, direction: String, base_state: String) -> Array[String]:
 	match phase:
 		"prepare":
-			return ["run_prepare"] + base_candidates(base_state)
+			return _with_base_candidates(["run_prepare"], base_state)
 		"move":
 			var horizontal := "left" if direction == "left" else "right"
-			return ["running_%s" % horizontal, "running"] + base_candidates(base_state)
+			return _with_base_candidates(["running_%s" % horizontal, "running"], base_state)
 		"settle":
-			return ["run_settle"] + base_candidates(base_state)
+			return _with_base_candidates(["run_stop", "run_settle"], base_state)
 		_:
 			return base_candidates(base_state)
 
@@ -58,9 +68,9 @@ static func run_candidates(phase: String, direction: String, base_state: String)
 static func environment_candidates(context: String, base_state: String) -> Array[String]:
 	match context:
 		"lunch":
-			return ["eating"] + base_candidates(base_state)
+			return _with_base_candidates(["eating"], base_state)
 		"holiday":
-			return ["celebrating"] + base_candidates(base_state)
+			return _with_base_candidates(["celebrating"], base_state)
 		"after_work":
 			return ["awake_rest", "resting", "idle"]
 		"night":
@@ -72,15 +82,23 @@ static func environment_candidates(context: String, base_state: String) -> Array
 static func business_event_candidates(event_type: String, base_state: String) -> Array[String]:
 	match event_type:
 		"lunch_started":
-			return ["lunch_relief", "celebrating_light", "celebrating"] + base_candidates(base_state)
+			return _with_base_candidates(["lunch_relief", "celebrating_light", "celebrating"], base_state)
 		"work_resumed":
-			return ["work_resumed"] + base_candidates(base_state)
+			return _with_base_candidates(["lunch_return", "work_resumed"], base_state)
 		"work_finished":
-			return ["work_end_celebrate", "celebrating"] + base_candidates(base_state)
+			return _with_base_candidates(["work_end_celebrate", "celebrating"], base_state)
 		"income_milestone":
-			return ["income_milestone", "making-money", "celebrating"] + base_candidates(base_state)
+			return _with_base_candidates(["income_milestone", "making-money", "celebrating"], base_state)
 		_:
 			return base_candidates(base_state)
+
+
+static func _with_base_candidates(primary: Array, base_state: String) -> Array[String]:
+	var candidates: Array[String] = []
+	for candidate in primary:
+		candidates.append(String(candidate))
+	candidates.append_array(base_candidates(base_state))
+	return candidates
 
 
 static func priority_for(action_name: String) -> int:

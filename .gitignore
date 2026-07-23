@@ -78,6 +78,9 @@ test_*.gd.uid
 experiments/**/*.import
 temp/**/*.import
 
+# Figma plugin PNGs are documentation assets, not Godot runtime textures
+doc/prototypes/v0.9-polished/figma-plugin/generated-assets/*.png.import
+
 # OS
 .DS_Store
 Thumbs.db

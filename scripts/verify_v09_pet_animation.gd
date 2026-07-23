@@ -108,19 +108,22 @@ func _test_input_arbiter() -> void:
 
 
 func _test_action_profile() -> void:
-	_expect(ActionProfileScript.base_candidates("working")[0] == "working", "working must resolve directly before legacy fallbacks")
+	_expect(ActionProfileScript.base_candidates("working")[0] == "working_loop", "working must prefer the approved motion loop")
 	_expect(ActionProfileScript.base_candidates("awake_rest").has("resting"), "awake rest must preserve the legacy resting fallback")
 	_expect(ActionProfileScript.base_candidates("sleeping").has("resting"), "sleeping must fall back to resting on old pets")
-	_expect(ActionProfileScript.interaction_candidates("working", "clicked_single")[0] == "working_clicked_single", "state-aware interaction names must take priority")
-	_expect(ActionProfileScript.interaction_candidates("working", "clicked_double")[0] == "working", "double click must not expose an independent product action")
+	_expect(ActionProfileScript.interaction_candidates("working", "clicked_single")[0] == "working_ack", "working click must prefer the state-aware acknowledgement")
+	_expect(ActionProfileScript.interaction_candidates("awake_rest", "clicked_single")[0] == "rest_ack", "awake rest click must prefer the gentle acknowledgement")
+	_expect(ActionProfileScript.interaction_candidates("sleeping", "clicked_single")[0] == "sleep_ack", "sleep click must prefer the sleep acknowledgement")
+	_expect(ActionProfileScript.interaction_candidates("working", "clicked_double")[0] == "working_loop", "double click must not expose an independent product action")
 	_expect(ActionProfileScript.run_candidates("prepare", "right", "awake_rest")[0] == "run_prepare", "run prepare must prefer its dedicated animation")
 	_expect(ActionProfileScript.run_candidates("move", "left", "awake_rest")[0] == "running_left", "run movement must prefer its horizontal direction")
-	_expect(ActionProfileScript.run_candidates("settle", "right", "working")[0] == "run_settle", "run release must prefer its settle animation")
+	_expect(ActionProfileScript.run_candidates("settle", "right", "working")[0] == "run_stop", "run release must prefer the approved stop animation")
 	_expect(ActionProfileScript.environment_candidates("lunch", "awake_rest").has("eating"), "lunch must expose the eating environment action")
 	_expect(ActionProfileScript.business_event_candidates("lunch_started", "awake_rest")[0] == "lunch_relief", "lunch start must prefer its dedicated light event action")
+	_expect(ActionProfileScript.business_event_candidates("work_resumed", "working")[0] == "lunch_return", "work resume must prefer the approved lunch return action")
 	_expect(ActionProfileScript.business_event_candidates("work_finished", "awake_rest")[0] == "work_end_celebrate", "work finish must prefer its dedicated celebration")
 	_expect(ActionProfileScript.business_event_candidates("income_milestone", "working")[0] == "income_milestone", "income milestones must prefer their dedicated coin feedback")
-	_expect(ActionProfileScript.business_event_candidates("unknown", "working")[0] == "working", "unknown business events must safely fall back to the current base")
+	_expect(ActionProfileScript.business_event_candidates("unknown", "working")[0] == "working_loop", "unknown business events must safely fall back to the current base")
 
 
 func _test_business_event_tracker() -> void:

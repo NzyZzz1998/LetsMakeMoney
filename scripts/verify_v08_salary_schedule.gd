@@ -209,6 +209,7 @@ func _test_settings_and_wizard_controls() -> void:
 	_expect_equal(wizard.rest_mode_option.item_count, 3, "Wizard rest mode must include alternating weekends")
 	_expect_true(wizard.get("lunch_start_hour_input") != null, "Wizard must expose lunch start controls")
 	_expect_true(wizard.get("lunch_end_hour_input") != null, "Wizard must expose lunch end controls")
+	wizard.set("_updating_draft_ui", true)
 	wizard.start_hour_input.value = 8
 	wizard.start_min_input.value = 0
 	wizard.end_hour_input.value = 17
@@ -217,6 +218,7 @@ func _test_settings_and_wizard_controls() -> void:
 	wizard.get("lunch_start_min_input").value = 0
 	wizard.get("lunch_end_hour_input").value = 14
 	wizard.get("lunch_end_min_input").value = 0
+	wizard.set("_updating_draft_ui", false)
 	wizard.call("_update_hours_preview")
 	_expect_close(float(wizard.hours_input.value), 7.17, 0.001, "Wizard hours preview must use the same minute precision as Settings")
 	wizard.queue_free()

@@ -4,11 +4,83 @@
 
 | 项目 | 当前口径 |
 |---|---|
-| 阶段 | 动画合同修订实施中；输入与业务事件层已完成，带电脑候选被“无电脑、玩耍优先”方向替代 |
-| 当前门禁 | `V09-CORR-006/008/009`：完成四个玩耍优先动作、运行时接入、重打包与独立验收 |
+| 阶段 | v0.9 Beta 独立验收已停止扩展，候选进入版本冻结收口 |
+| 当前门禁 | 无已确认代码阻塞；未执行项目保留为暂不验证，不计为通过 |
 | 稳定回退 | Windows v0.8 Beta |
-| 发布判断 | 不可发布；`V09-BUG-001` 已关闭，但旧候选不代表最终动画合同，必须重新打包并重新执行独立验收 |
-| 独立验收 | 2026-07-18 结论为“未通过”，见本文件与 `manual-verification.md` |
+| 发布判断 | 本候选可作为 v0.9 Beta 冻结归档；未达到“完整验收通过 / 可公开发布”口径 |
+| 独立验收 | **部分通过**；项目所有者接受当前前端体验债并决定本版收口 |
+
+## 2026-07-22 修复后候选深度 Computer Use 验收
+
+### 验收对象
+
+- Zip SHA256：`65A04A1BAFF6681FF335DD2966A528E6BD6517A81232BC107EFAF5AF42C9F685`
+- EXE SHA256：`B867D515772B4C1D220C98FD7C75B253C42EF689504CE7BB731E80B529A9532D`
+- Native DLL SHA256：`E3E2030003A7DA725446A3873C3EC2E19D9442B98A67F24A771E76BD0BAD5089`
+- 独立解压目录：`.tmp_acceptance/v0.9-bugfix-20260722-205525/extracted/`
+
+### 结果
+
+| 项目 | 结论 | 证据 |
+|---|---|---|
+| 独立启动与普通模式任务栏策略 | 通过 | `debug-gui.log` 记录 native、tray、taskbar 和 passthrough 初始化成功 |
+| Settings 五页 | 通过 | Computer Use 逐页打开；无裁切、重叠或粗糙默认 popup |
+| Wizard 四步、上一步与取消 | 通过 | Computer Use 全链路；日志记录步骤切换、状态恢复、取消和穿透恢复 |
+| 多多 `awake_rest` 单击 | 通过 | 可见抬爪动作；日志记录 `rest_ack` 请求、开始、结束并恢复 |
+| Classic `awake_rest` 单击 | 通过 | Computer Use 实际点击；日志记录请求、开始及 `animation_finished`，约 1 秒后释放动作 |
+| 今日详情 | 通过 | Computer Use 显示 `18:00 / 19:30 / 20:00` 与 `19:30-19:35`，与测试配置一致 |
+| 长按拖动 | 待人工补证 | Computer Use 的固定拖动动作无法稳定满足产品 500ms 长按阈值，不冒充通过 |
+| DPI、托盘真实鼠标、回退、两小时稳定运行 | 待验证 | 发现发布阻塞后停止扩展验收 |
+
+验收结束后已停止候选进程，并恢复原 `config.json` 与 `debug.log`。恢复后的配置 SHA256 为 `775022CDCF91E84BF99B4BC3218111D3625661B59CF285475CEA6D5E81968051`，与备份完全一致。
+
+### 2026-07-22 独立验收续测
+
+本轮继续使用同一 Zip、EXE 和 Native DLL 身份，从独立解压目录启动候选包。Windows 系统 DPI 实测为 `96`，因此本轮 GUI 证据只代表真实 `100% DPI`，不能替代 `125%/150% DPI`。
+
+| 项目 | 结论 | 证据与边界 |
+|---|---|---|
+| 候选身份复核 | 通过 | Zip、EXE、Native DLL SHA256 再次核对，与锁定值一致 |
+| Settings 五页 | 通过 | Computer Use 逐页打开工资、作息、桌宠、显示、通用；当前 100% DPI 下无裁切、重叠和默认控件回退 |
+| 今日详情 | 通过 | 独立窗口实际打开，金额、进度和 `08:00 / 12:00-13:00 / 18:00` 今日安排与本轮隔离配置一致 |
+| Wizard 四步与取消 | 通过 | 实际完成 1→2→3→4 步并取消；日志形成 `wizard_step_changed`、`wizard_state_restored`、`wizard_cancelled`、`wizard_closed` 闭环 |
+| 右键菜单 | 通过 | 实际打开并确认隐藏到托盘、今日详情、设置、重新运行向导、窗口模式、选择宠物、关于、退出入口 |
+| Popup/Modal 点击穿透保护 | 通过 | 日志记录成对的 `passthrough_suspended` 与 `passthrough_resumed`，Wizard 关闭后重新应用窗口策略 |
+| 窗口拖动 | 部分通过 | Computer Use 已实际移动窗口并记录 `drag saved`；工具无法稳定控制 500ms 按住阈值，长按进入跑步及释放收势仍待人工补证 |
+| 托盘与任务栏策略 | 部分通过 | `verify_v06_tray.ps1` 普通/纯桌宠各 10 轮通过；Windows 通知区真实鼠标左键和可见任务栏入口仍待人工补证 |
+| 宠物包损坏与回退 | 部分通过 | `test_v09_pet_package.ps1` 与 `test_v09_pet_integration.ps1` 覆盖损坏哈希拒绝、选择和回退；真实候选包受控损坏后的桌面观感仍待补证 |
+| v0.8 行为基线 | 通过 | `test_v09_behavior_baseline.ps1` 通过；窗口、托盘和配置基线未发现新回归 |
+| 短时稳定运行 | 通过 | 候选包独立解压后以绝对隔离 APPDATA 连续运行 60 秒，`verify_v04_stability.ps1` 通过并正常退出 |
+| 两小时稳定运行 | 待验证 | 60 秒冒烟只证明进程健康，不能替代 PRD 要求的两小时真实 GUI 观察 |
+
+本轮日志位于 `.tmp_acceptance/v0.9-continue-20260722/appdata/LetsMakeMoney/debug.log`；短时稳定证据位于 `.tmp_acceptance/v0.9-stability-absolute/`。交互截图目录中的单击逐帧 PNG 仅用于动作证据，不包含 Settings/Wizard 窗口截图。
+
+补充发现：旧脚本 `test_v08_pet_fallback.ps1` 仍硬编码 v0.8 默认宠物和旧回退顺序，因 v0.9 已批准的 Classic 默认候选而失败。当前 v0.9 包合同与集成测试均通过，因此该项记录为验证脚本债，不作为产品运行时缺陷；后续应更新或归档该旧脚本。Debug 模式还会每 0.5 秒记录指针观察日志，正式模式未见同等刷屏，本版作为非阻塞观察项保留。
+
+本轮总判定仍为 **部分通过**：没有发现新的已确认代码阻塞，但真实 `125%/150% DPI`、通知区鼠标、500ms 长按跑动、两套宠物完整观感、桌面损坏回退和两小时运行证据尚未闭合，暂不可进入发布收口。
+
+### 2026-07-22 Computer Use 收口补证与所有者决策
+
+| 项目 | 结论 | 证据与边界 |
+|---|---|---|
+| 多多 sleeping 状态感知单击 | 通过 | Computer Use 实际单击；日志完整记录 `pet.input.classified type=single`、`sleep_ack` 请求/开始/完成，并恢复 `sleeping` |
+| 单击逐帧证据 | 通过 | `.tmp_acceptance/v0.9-cu-closeout-20260722/appdata/LetsMakeMoney/interaction-screenshots/` 保存 50ms、450ms、900ms 三张运行时截图 |
+| 窗口拖动 | 通过 | Computer Use 实际拖动桌宠窗口，界面显示并记录 `Debug: drag saved` |
+| 500ms 长按跑动 | 暂不验证 | Computer Use API 只能执行固定拖动，不能可靠控制按住时长；本轮不冒充通过 |
+| Windows 通知区真实左键 | 暂不验证 | 通知区/Explorer 不在 Computer Use 可定位窗口列表中；native 消息普通/纯桌宠各 10 轮自动验证已通过 |
+| 真实 125%/150% DPI | 暂不验证 | 当前系统真实 DPI 为 100%；确定性缩放渲染已通过，但不替代真实系统缩放 |
+| 受控损坏包桌面观感 | 暂不验证 | 包合同与集成回退自动验证通过，未继续破坏真实候选资源取桌面证据 |
+| 两小时 GUI 稳定运行 | 暂不验证 | 60 秒隔离 APPDATA 冒烟通过；本轮不将其写成两小时通过 |
+
+项目所有者明确表示当前前端体验仍不满意，但决定停止继续修改并收口 v0.9。本次验收因此维持 **部分通过**，候选冻结归档；未验证项和视觉质感问题作为后续版本输入，不再阻塞 v0.9 的开发结束。该决定不等同于“完整验收通过”，也不授权将候选描述为正式稳定版。
+
+### 2026-07-22 BUG-004/005 定向复验
+
+- 全量自动回归：`verify_v09.ps1 -SkipExport` 通过，包含 v0.6/v0.7/v0.8 与 M4 门禁。
+- 包验证：`verify_v09_package.ps1` 通过。
+- Classic 日志：`pet.animation.requested`、`started` 后于下一秒记录 `finished reason=animation_finished`，未出现 timeout。
+- Settings 作息页：5 分钟午休显示 `0.08 小时`，不再量化为 `0.0`。
+- 证据：`.tmp_acceptance/v0.9-bugfix-20260722-205525/evidence/`。
 
 ### 2026-07-21 动画视觉方向修订
 
@@ -234,3 +306,186 @@ PetManager._ready: current_pet=cat_orange_v2
 | 全量回归 | 通过 | `verify_v09.ps1 -SkipExport` 覆盖 v0.9 全模块及 v0.6-v0.8、M4/native 历史门禁 |
 
 语义日志入口为 `pet.business_event.observed`、`pet.business_event.requested` 和 `pet.business_event.skipped`。该结果证明事件触发和安全降级，不证明 S2-S5 最终动画的观感、锚点与流畅度。
+
+## 2026-07-22 多多 S5.5 接入定向验证
+
+### 载荷身份
+
+- PetManager 提交：`59d52801e3360a6daf20a4033f42db3623303e51`
+- Profile：`duoduo.s5` / `0.2.0`
+- Motion manifest：`AAFE57B1E912E9306F7E01E14001160543DEE1A1FC9D1A51F5EFC7780C69ABB1`
+- `atlas-00.webp`：`9B57CAD73DEF1372D5ACE7190434A2F0B7B1772BF356011839D1380F22CD7B62`
+- `atlas-01.webp`：`CBF2F0FE0C03ADC8C920695F6FA69E0131483B36F9EECB18748E404DB1D66283`
+- 人工审查：`approved / ready:true / published:false`
+- Review SHA256：`8EF7CF921DB4FA3113EECADDD63B9412BB4DD5FF1FF256C3DCD5B325876E12CC`
+- QA evidence SHA256：`EC540B9E9E79C487010904DBB3B02E9E75D7A6D478C6D1F62DC148C1B800FB01`
+
+### 自动结果
+
+| 项目 | 结论 | 证据 |
+|---|---|---|
+| 运行时文件同源 | 通过 | LMM 三份 motion 文件与 PetManager 受控文件逐一核对，SHA256 全部一致 |
+| 通用包校验 | 通过 | 校验 profile、review、manifest、atlas、动作、逐帧时长、锚点、脚底线和图集范围 |
+| 负向门禁 | 通过 | `ready:false`、profile 身份不一致、motion atlas 与发布清单哈希不一致均被拒绝 |
+| 通用导入 | 通过 | 同一导入器加载 8 个动作；`working_loop` 总时长为 1520ms，语义与来源 Profile 保留 |
+| 运行时映射 | 通过 | working、三种状态感知单击、run prepare/stop、lunch relief/return 优先解析新动作并保留旧资源回退 |
+| 定向回归 | 通过 | `test_v09_pet_package.ps1`、`test_v09_pet_animation.ps1`、`test_v09_behavior_baseline.ps1` |
+
+### 边界
+
+该结果关闭“多多 S5.5 可被通用运行时安全消费”的自动门禁。项目所有者于 2026-07-22 确认 Classic 暂不大改，继续使用当前稳定包和通用回退，因此不再等待 Classic motion payload。真实桌面动画观感、DPI、输入仲裁、动态命中区和长时间稳定性仍必须通过新候选独立验收。
+
+## 2026-07-22 S5.5 新候选身份与包内烟测
+
+### 验收对象
+
+- 分支：`agent/v0.9-ui-pause`
+- 构建基线 HEAD：`02745126945b58a74e2d84c269cc30af8ff67519`
+- 说明：候选包含该 HEAD 之后尚未提交的 v0.9 S5.5 接入、导出门禁和范围收敛改动；独立验收以以下产物 SHA256 为唯一运行身份，不以旧候选或 `build/` 目录代替。
+- Zip：`releases/v0.9/LetsMakeMoney-v0.9-beta-windows-x86_64.zip`
+- Zip 大小：51,705,927 字节
+- Zip SHA256：`36CEE0D4C73CDBBA876F59BA84C259C04F3E2F95D959EF147135009985A84465`
+- EXE 大小：122,158,328 字节
+- EXE SHA256：`B30E5E4409B8411738ABDE84AD0EC52E92DF3F975A9D69EFA1DB6CE6E5DD2FA1`
+- Native DLL 大小：1,606,144 字节
+- Native DLL SHA256：`E3E2030003A7DA725446A3873C3EC2E19D9442B98A67F24A771E76BD0BAD5089`
+
+### 自动与包内结果
+
+| 项目 | 结论 | 证据 |
+|---|---|---|
+| 完整自动回归 | 通过 | `verify_v09.ps1` 覆盖 v0.9、v0.6-v0.8、M4、安装器、更新、原生窗口和公开治理门禁 |
+| 导出与打包 | 通过 | Godot 4.7 导出、M5 启动烟测、许可暂存和 Zip 生成均成功 |
+| 独立解压包验证 | 通过 | `verify_v09_package.ps1 -SmokeSeconds 8` 返回 `Package verification passed: 0.9-beta` |
+| Classic 运行时加载 | 通过 | 隔离日志包含 `PetManager.package shadow_loaded id=letsmakemoney-classic-pro version=1.0.0` |
+| 多多 S5.5 运行时加载 | 通过 | 隔离日志包含 `PetManager.package shadow_loaded id=duoduo-cat version=1.1.0` |
+| 宠物包拒绝 | 通过 | 隔离日志未出现 `PetManager.package rejected root=res://assets/pets/packages/` |
+
+### 正常模式真实启动补证
+
+| 项目 | 结论 | 证据 |
+|---|---|---|
+| 独立解压 EXE 启动 | 通过 | 从 `.tmp_acceptance/v0.9-s55-20260722-163359/extracted/LetsMakeMoney.exe` 启动，进程响应正常并取得有效窗口句柄 |
+| 透明桌宠与 Panel | 通过 | `.tmp_acceptance/v0.9-s55-20260722-163359/evidence/desktop-normal-mode.png`；正常模式未出现蓝底或黑色窗口底板 |
+| Windows 原生窗口策略 | 通过 | `debug.log` 记录 `setup_pet_window ok=true`、托盘初始化成功、任务栏策略应用成功 |
+| Classic 与多多加载 | 通过 | 同次运行日志记录 Classic `1.0.0` 与多多 `1.1.0` 均为 `shadow_loaded` |
+
+首次截图中的黑色主区域与蓝色命中区域来自用户配置中的 `debug_mode=true`，关闭调试模式后同一候选 EXE 的透明窗口显示正常，因此不判定为候选包透明度缺陷。测试前配置已备份，结束后已恢复；临时证据目录不进入发布包和提交范围。
+
+该候选可以进入独立 `/acceptance`，但尚未完成真实 Windows DPI、动画观感、输入仲裁、动态命中、托盘/任务栏策略和两小时稳定运行，不得写为可发布。
+
+## 2026-07-22 S5.5 真实 GUI 定向验收
+
+### 结论
+
+**未通过。** 锁定候选可以从独立解压目录正常启动，Classic 与多多均被运行时加载，基础 Windows 交互和模态点击穿透保护取得真实证据；但状态感知单击动作没有进入动画控制器。真实 Pet 场景探针确认存在运行时数组类型合同错误，记录为发布阻塞 `V09-BUG-002`。
+
+### 分项结果
+
+| 项目 | 结论 | 证据与说明 |
+|---|---|---|
+| 候选身份与独立启动 | 通过 | Zip SHA256 `36CEE0D4C73CDBBA876F59BA84C259C04F3E2F95D959EF147135009985A84465`；从 `.tmp_acceptance/v0.9-s55-20260722-163359/extracted/LetsMakeMoney.exe` 启动 |
+| Classic 与多多加载 | 通过 | 同次运行日志包含两套包的 `shadow_loaded`，未出现目标包 `rejected` |
+| 单击输入分类 | 通过 | 连续五次真实单击均产生 `pet.input.pressed` 和 `pet.input.interaction: type=clicked_single base=working` |
+| 双击产品语义取消 | 通过 | 五组快速双击形成十次单击，没有产生 `clicked_double` |
+| 长按拖动分类 | 通过 | 日志包含 `pet.input.run_prepare`、方向变化和 `pet.input.run_settle`；受控拖动结束后未补发单击 |
+| 右键、Settings 与模态保护 | 通过 | 右键菜单和 Settings 可打开；Popup/Modal 点击穿透暂停与恢复事件成对出现 |
+| 状态感知动作播放 | 未通过 | 输入状态进入 `clicked_single`，但没有 `pet.animation.requested/started/finished`；画面保持 `working_loop` |
+| DPI、托盘、资源损坏回退、两小时稳定运行 | 待验证 | 发现发布阻塞后停止扩展验收，避免把失真的动画候选继续签核 |
+
+### 根因证据
+
+真实 Pet 场景集成探针执行状态感知单击后记录：
+
+```text
+SCRIPT ERROR: Trying to assign an array of type "Array" to a variable of type "Array[String]".
+at: _request_interaction_action (res://src/scenes/pet/pet.gd:146)
+PROBE after_interaction=2
+PROBE after_animation=working_loop
+PROBE active_token=0
+PROBE final_interaction=2
+PROBE final_animation=working_loop
+PROBE final_token=0
+```
+
+`src/scenes/pet/pet.gd:146` 把 `ActionProfileScript.interaction_candidates(...)` 返回的未类型化 `Array` 赋给 `Array[String]`。错误发生在 `_animation_controller.request_action(...)` 之前，因此没有动作令牌，交互状态停留在单击状态，基础动画继续播放。
+
+现有宠物包和动画自动测试分别证明动作资源存在、元数据正确及控制器可独立工作，但没有实例化真实 Pet 场景并覆盖 `PetManager.state_changed -> pet.gd -> action profile -> animation controller` 完整链路，因此没有发现该运行时错误。
+
+### 证据位置
+
+- `.tmp_acceptance/v0.9-s55-20260722-163359/evidence/gui-before-input.png`
+- `.tmp_acceptance/v0.9-s55-20260722-163359/evidence/gui-after-single-clicks.png`
+- `.tmp_acceptance/v0.9-s55-20260722-163359/evidence/gui-settings-closed.png`
+- `.tmp_acceptance/v0.9-s55-20260722-163359/evidence/gui-modal-closed.png`
+- `.tmp_acceptance/v0.9-s55-20260722-163359/evidence/gui-after-run-left.png`
+- `.tmp_acceptance/v0.9-s55-20260722-163359/evidence/probe-runtime-action.log`
+
+### 发布判断
+
+当前候选不可发布。下一步进入 `V09-BUG-002` 与 `V09-BUG-003` 定向修复，补齐真实 Pet 场景集成测试和 Panel 多比例布局测试，重新导出、打包并记录新候选身份；旧候选不得继续用于发布签核。
+
+## 2026-07-22 Panel 低比例缩放补充验收
+
+### 结论
+
+**未通过。** 将显示缩放调至 58% 后，Panel 白色外壳按比例收缩，但折叠态状态文字、进度条和下一节点仍向右延伸，脱离 Panel 并进入桌宠区域。该问题记录为发布阻塞 `V09-BUG-003`。
+
+### 代码证据
+
+- `src/scenes/panel/panel.gd` 会按 `_display_scale` 缩放 Panel 外壳、内容最小尺寸、字体和大部分行高。
+- `src/scenes/panel/panel.tscn` 为 `$Collapsed/CollapsedContent/CollapsedProgress` 固定了 `custom_minimum_size = Vector2(268, 5)`。
+- `_apply_collapsed_text_style()` 没有按 `_display_scale` 更新该进度条宽度；固定 `268px` 子节点会反向撑开已缩小的内容容器。
+- 同一场景还存在需要在修复阶段核对的其他固定宽度节点；本轮只把真实截图已经证明的折叠态问题标为已确认。
+
+### 证据
+
+- `.tmp_acceptance/v0.9-s55-20260722-163359/evidence/gui-scale-058-layout-failure.png`
+
+### 复验门禁
+
+1. Panel 外壳、内容容器、进度条、Header/Footer 和命中区必须使用同一缩放合同。
+2. 至少覆盖 50%、58%、100%、150% 的折叠态和展开态布局。
+3. 状态、金额、工作进度和下一节点在最长中文文案下不得溢出或进入桌宠区域。
+4. 修复后重新生成候选身份，并与 `V09-BUG-002` 一并定向复验。
+
+## 2026-07-22 BUG-002/003 修复后定向复验
+
+### 新候选身份
+
+- 分支：`agent/v0.9-ui-pause`
+- 构建基线 HEAD：`02745126945b58a74e2d84c269cc30af8ff67519`
+- Zip：`releases/v0.9/LetsMakeMoney-v0.9-beta-windows-x86_64.zip`
+- Zip 大小：51,706,374 字节
+- Zip SHA256：`A7238EDA4F712FB177D9C9820F5201CC25CFCAABA12A00B2423115BEB161125C`
+- EXE 大小：122,158,824 字节
+- EXE SHA256：`39A52FCFEC320604BD8C4A686C25429BDA4FA6B4A5A394EA3F78738E899830C0`
+- Native DLL 大小：1,606,144 字节
+- Native DLL SHA256：`E3E2030003A7DA725446A3873C3EC2E19D9442B98A67F24A771E76BD0BAD5089`
+- 旧候选 `36CEE0...` / `B30E5E...` 只保留为失败历史，不得继续用于验收或发布。
+
+### 结果
+
+| 项目 | 结论 | 证据 |
+|---|---|---|
+| 真实 Pet 场景集成测试 | 通过 | `scripts/verify_v09_pet_integration.gd` 实例化 `pet.tscn`，验证多多单击产生请求、开始、完成和基础状态恢复 |
+| 真实桌面多多单击 | 通过 | `.tmp_acceptance/v0.9-bugfix-20260722/evidence/working-ack-after-fix.png`；隔离 `debug.log` 含完整 `working_ack` 事件链 |
+| Panel 50%/58%/100%/150% 布局 | 通过 | `scripts/verify_v09_window_experience.gd` 实例化真实 Panel 并核对固定子节点不超出外壳 |
+| 真实桌面 58% Panel | 通过 | `.tmp_acceptance/v0.9-bugfix-20260722/evidence/panel-scale-058-after-fix.png` |
+| v0.9 全量无导出回归 | 通过 | `verify_v09.ps1 -SkipExport` 覆盖 v0.9、v0.6-v0.8 与 M4 |
+| 导出、打包与包验证 | 通过 | `package_v09.ps1`、M5 启动烟测、`verify_v09_package.ps1` 均通过 |
+
+### 真实日志语义
+
+```text
+pet.input.interaction: type=clicked_single base=working
+pet.animation.requested: token=1 animation=working_ack priority=50 base=working
+pet.animation.play: animation=working_ack reason=action_requested frames=8 duration_ms=870
+pet.animation.started: token=1 animation=working_ack
+pet.animation.finished: token=1 animation=working_ack reason=animation_finished
+pet.animation.play: animation=working_loop reason=base_resolved:base_changed frames=16 duration_ms=1520
+```
+
+### 当前判断
+
+`V09-BUG-002` 与 `V09-BUG-003` 已关闭。新候选满足重新进入独立 `/acceptance` 的条件，但 DPI 全量截图、通知区真实鼠标、普通/纯桌宠任务栏策略、损坏资源回退、完整动画观感和两小时稳定运行尚未签核，因此本节不将版本写为可发布。

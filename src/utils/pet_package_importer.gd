@@ -42,6 +42,7 @@ func _build_pet(manifest: Dictionary, package_root: String, package_hash: String
 	var frames := SpriteFrames.new()
 	frames.remove_animation("default")
 	var textures: Dictionary = {}
+	var animation_metadata: Dictionary = manifest.animations.duplicate(true)
 	for animation_name in manifest.animations:
 		var definition: Dictionary = manifest.animations[animation_name]
 		var atlas_path := String(definition.atlas)
@@ -62,6 +63,11 @@ func _build_pet(manifest: Dictionary, package_root: String, package_hash: String
 			region.atlas = atlas_texture
 			region.region = Rect2((start_column + frame_index) * cell_width, row * cell_height, cell_width, cell_height)
 			frames.add_frame(name, region, float(durations[frame_index]))
+	if manifest.has("motion"):
+		var motion_path := package_root.path_join(String(manifest.motion.get("manifest", "")))
+		var motion_manifest := _read_json_object(motion_path)
+		if motion_manifest.is_empty() or not _append_motion_actions(frames, animation_metadata, package_root, motion_manifest):
+			return null
 
 	var profile = ProfileScript.new()
 	profile.package_id = String(manifest.pet_id)
@@ -72,7 +78,7 @@ func _build_pet(manifest: Dictionary, package_root: String, package_hash: String
 	profile.pivot = Vector2(float(manifest.geometry.pivot_x), float(manifest.geometry.pivot_y))
 	profile.foot_baseline = float(manifest.geometry.foot_baseline)
 	profile.hit_strategy = String(manifest.geometry.hit_strategy)
-	profile.animation_metadata = manifest.animations.duplicate(true)
+	profile.animation_metadata = animation_metadata
 	for fallback in Array(manifest.get("fallback_ids", [])): profile.fallback_ids.append(String(fallback))
 
 	var pet := PetResource.new()
@@ -89,3 +95,54 @@ func _load_texture(path: String) -> Texture2D:
 	var image := Image.new()
 	var error := image.load(ProjectSettings.globalize_path(path))
 	return ImageTexture.create_from_image(image) if error == OK and not image.is_empty() else null
+
+
+func _append_motion_actions(frames: SpriteFrames, metadata: Dictionary, package_root: String, motion_manifest: Dictionary) -> bool:
+	var atlas_textures: Dictionary = {}
+	for atlas_value in Array(motion_manifest.get("atlases", [])):
+		var atlas: Dictionary = atlas_value
+		var atlas_id := String(atlas.get("id", ""))
+		atlas_textures[atlas_id] = _load_texture(package_root.path_join(String(atlas.get("path", ""))))
+		if atlas_textures[atlas_id] == null:
+			return false
+	var geometry: Dictionary = motion_manifest.get("geometry", {})
+	var cell_width := int(geometry.get("cellWidth", 0))
+	var cell_height := int(geometry.get("cellHeight", 0))
+	var source_profile := String(motion_manifest.get("profileId", ""))
+	for action_value in Array(motion_manifest.get("actions", [])):
+		var action: Dictionary = action_value
+		var action_id := String(action.get("id", ""))
+		if frames.has_animation(action_id):
+			frames.remove_animation(action_id)
+		frames.add_animation(action_id)
+		frames.set_animation_loop(action_id, String(action.get("playbackKind", "")) in ["loop", "hold_loop"])
+		frames.set_animation_speed(action_id, 1000.0)
+		for frame_value in Array(action.get("frames", [])):
+			var frame: Dictionary = frame_value
+			var atlas_id := String(frame.get("atlas", ""))
+			var region := AtlasTexture.new()
+			region.atlas = atlas_textures[atlas_id]
+			region.region = Rect2(
+				int(frame.get("column", 0)) * cell_width,
+				int(frame.get("row", 0)) * cell_height,
+				cell_width,
+				cell_height
+			)
+			frames.add_frame(action_id, region, float(frame.get("durationMs", 0.0)))
+		metadata[action_id] = {
+			"semantic_role": String(action.get("semanticRole", "")),
+			"source_profile": source_profile,
+			"applicable_states": Array(action.get("applicableStates", [])).duplicate(),
+			"fallback": String(action.get("fallback", "")),
+			"interrupt_policy": String(action.get("interruptPolicy", "")),
+			"mirror_policy": String(action.get("mirrorPolicy", "")),
+		}
+	return true
+
+
+func _read_json_object(path: String) -> Dictionary:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return {}
+	var parsed = JSON.parse_string(file.get_as_text())
+	return parsed if parsed is Dictionary else {}
