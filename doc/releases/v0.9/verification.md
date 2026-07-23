@@ -4,14 +4,27 @@
 
 | 项目 | 当前口径 |
 |---|---|
-| 阶段 | v0.9 Beta 最终候选验收完成 |
+| 阶段 | v0.9 Beta 最终验收与发布收口完成 |
 | 当前门禁 | `V09-BUG-006/007/008` 已关闭；本轮未发现新的发布阻塞 |
 | 稳定回退 | Windows v0.8 Beta |
-| 发布判断 | **可进入发布收口**；本轮不执行提交、推送、tag 或 Release |
+| 发布判断 | **已发布**；PR #6、`main`、`v0.9-beta` 和 GitHub Pre-release 已完成 |
 | 独立验收 | **通过**；待人工补证和暂不验证项按边界保留，不冒充通过 |
 | 最终发布附件 | Zip SHA256 `B10FDE2027D4ABC71C41F0F7AC7BDCE3D93AEB8AFAF4058BA1A592B6A75CC1EC`；最终文档快照重打包，二进制身份未变化 |
 
 本地证据与可再生解压副本的保留边界见 [evidence-retention.md](evidence-retention.md)。2026-07-23 仅清理了可由锁定 Zip 重建的运行副本，截图、日志、配置快照和验收结论均保留。
+
+## 2026-07-23 远端发布收口
+
+- 发布提交：`94f46229cd72a6648fa6d027130efd07354215e2`
+- 发布 tag：`v0.9-beta`，annotated tag 已推送并指向上述提交
+- Pull Request：[#6](https://github.com/NzyZzz1998/LetsMakeMoney/pull/6)
+- GitHub Pre-release：<https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta>
+- 必需检查：`Windows docs and compliance` 通过；`Windows native and Godot verification` 通过
+- Release 附件：便携 Zip 与 `SHA256SUMS.txt`
+- 未上传：未签名安装器
+- GitHub 记录的 Zip digest：`sha256:b10fde2027d4abc71c41f0f7ac7bdce3d93aeb8afaf4058ba1a592b6a75cc1ec`
+
+发布动作没有改变锁定二进制或验收边界。待人工补证和暂不验证项继续保留，不因发布完成而改写为通过。
 
 ## 2026-07-23 最终文档快照重打包与定向复验
 

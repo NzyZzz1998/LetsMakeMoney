@@ -1,6 +1,6 @@
-# LetsMakeMoney Windows v0.9 Beta 候选检查清单
+# LetsMakeMoney Windows v0.9 Beta 发布检查清单
 
-**当前状态**：`V09-BUG-002` 至 `V09-BUG-008` 均已关闭。锁定候选已完成最终 V09-ACC，结论为“通过 / 可进入发布收口”；本轮尚未执行提交、推送、tag 或 Release。
+**当前状态**：`V09-BUG-002` 至 `V09-BUG-008` 均已关闭。锁定候选已完成最终 V09-ACC 和发布收口，v0.9 Beta 已通过 GitHub Pre-release 发布。
 
 ## 候选身份
 
@@ -49,8 +49,11 @@
 ## 发布执行
 
 - [x] 项目所有者选择重新打包最终文档快照；新 Zip 哈希、包体验证和新解压冒烟均已完成，EXE 与 Native DLL 身份未变化。
-- [ ] 提交锁定候选对应的修复与发布收口文档。
-- [ ] 推送目标分支。
-- [ ] 创建并推送 annotated tag `v0.9-beta`。
-- [ ] 创建 GitHub Pre-release，仅上传锁定便携 Zip 和 `SHA256SUMS.txt`。
-- [ ] 发布后核对远端提交、tag、附件和 SHA256。
+- [x] 提交锁定候选对应的修复与发布收口文档。
+- [x] PR #6 通过 `Windows docs and compliance` 与 `Windows native and Godot verification` 后 squash 合并到 `main`。
+- [x] 推送 `test` 并将发布提交同步到 `main`。
+- [x] 创建并推送 annotated tag `v0.9-beta`，指向 `94f46229cd72a6648fa6d027130efd07354215e2`。
+- [x] 创建 GitHub Pre-release，仅上传锁定便携 Zip 和 `SHA256SUMS.txt`。
+- [x] 发布后核对远端提交、tag、附件大小和 SHA256。
+
+发布地址：<https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta>
