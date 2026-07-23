@@ -3,16 +3,17 @@ extends Node
 const AppVersionScript := preload("res://src/utils/app_version.gd")
 const OverlayLifecycleScript := preload("res://src/utils/overlay_lifecycle.gd")
 const ContextMenuBuilderScript := preload("res://src/utils/context_menu_builder.gd")
+const TODAY_DETAIL_SCENE := preload("res://src/scenes/today/today_detail_window.tscn")
 
 signal modal_opened
 signal modal_closed
 signal popup_opened
 signal popup_closed
 
-const MODAL_WINDOW_SIZE := Vector2i(700, 530)
+const MODAL_WINDOW_SIZE := Vector2i(700, 520)
 const MODAL_WINDOW_MARGIN := 24
-const SETTINGS_DIALOG_SIZE := Vector2i(880, 640)
-const WIZARD_DIALOG_SIZE := Vector2i(620, 570)
+const SETTINGS_DIALOG_SIZE := Vector2i(700, 520)
+const WIZARD_DIALOG_SIZE := Vector2i(720, 520)
 
 var _window: Window = null
 var _overlay_lifecycle: RefCounted = OverlayLifecycleScript.new()
@@ -20,6 +21,7 @@ var _config_connected: bool = false
 var _window_visible: bool = true
 var _about_dialog: AcceptDialog = null
 var _context_menu_builder: RefCounted = ContextMenuBuilderScript.new()
+var _today_detail_window: Window = null
 
 
 func _ready() -> void:
@@ -44,6 +46,10 @@ func get_registered_window() -> Window:
 
 func is_window_visible() -> bool:
 	return _window_visible
+
+
+func is_overlay_active() -> bool:
+	return _overlay_lifecycle.has_modal() or _overlay_lifecycle.has_popups()
 
 
 func move_window_to(pos: Vector2i) -> void:
@@ -139,6 +145,8 @@ func _cleanup_popup(popup: PopupMenu) -> void:
 
 func _on_menu_id(id: int) -> void:
 	match id:
+		102:
+			show_today_detail()
 		100:
 			open_settings()
 		101:
@@ -161,6 +169,28 @@ func _on_menu_id(id: int) -> void:
 			if id >= 200 and id < 300:
 				_switch_pet_by_menu_id(id)
 	_close_all_popups()
+
+
+func show_today_detail() -> void:
+	if _today_detail_window != null and is_instance_valid(_today_detail_window):
+		_today_detail_window.popup(Rect2i(_today_detail_window.position, _today_detail_window.size))
+		_today_detail_window.grab_focus()
+		return
+	var root_window := get_tree().root
+	var embed_subwindows := root_window.gui_embed_subwindows
+	root_window.gui_embed_subwindows = false
+	_today_detail_window = TODAY_DETAIL_SCENE.instantiate()
+	root_window.add_child(_today_detail_window)
+	root_window.gui_embed_subwindows = embed_subwindows
+	_today_detail_window.tree_exited.connect(func() -> void: _today_detail_window = null)
+	_today_detail_window.popup(Rect2i(_today_detail_window.position, _today_detail_window.size))
+	_today_detail_window.grab_focus()
+	Platform.write_info_log("today_detail_window_ready: embedded=%s window_id=%d position=%s size=%s" % [
+		str(_today_detail_window.is_embedded()),
+		_today_detail_window.get_window_id(),
+		str(_today_detail_window.position),
+		str(_today_detail_window.size),
+	])
 
 
 func _switch_pet_by_menu_id(id: int) -> void:
@@ -308,6 +338,7 @@ func show_about() -> void:
 	var icon := TextureRect.new()
 	icon.texture = load("res://icons/app_icon.png")
 	icon.custom_minimum_size = Vector2(96, 96)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	layout.add_child(icon)
 

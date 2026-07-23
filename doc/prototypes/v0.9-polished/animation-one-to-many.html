@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LetsMakeMoney v0.9 动画 1→N 方案</title>
+  <link rel="stylesheet" href="animation-one-to-many.css">
+</head>
+<body>
+  <header class="review-header">
+    <div class="header-copy">
+      <p class="eyebrow">v0.9 动画专项 · 方案审核</p>
+      <h1>从“一个状态一段动画”到“一个状态一组有语义的动作”</h1>
+      <p>这一页只冻结状态、动作池、触发条件和回退合同。绿色标记已有素材，黄色标记可明确复用，灰色标记仍需生成。</p>
+    </div>
+    <div class="header-actions">
+      <span class="status-chip">方案稿 · 未接入运行时</span>
+      <a class="button secondary" href="index.html">返回 UI 原型</a>
+    </div>
+  </header>
+
+  <nav class="section-nav" aria-label="方案章节">
+    <a href="#overview">差距</a>
+    <a href="#studio">动作路由</a>
+    <a href="#matrix">语义矩阵</a>
+    <a href="#evidence">素材证据</a>
+    <a href="#runtime">运行合同</a>
+    <a href="#gates">验收门禁</a>
+  </nav>
+
+  <main>
+    <section class="overview-band" id="overview">
+      <div class="section-title">
+        <p class="eyebrow">Current → Target</p>
+        <h2>当前不是动画没播放，而是语义被压缩得太狠</h2>
+        <p>Classic Pro 与多多现有 4 个 Pro 动作都能播放，但基础状态、点击回应和拖动反馈大量复用同一段素材，动作虽然触发了，语义和方向却不够清楚。</p>
+      </div>
+
+      <div class="metric-strip" aria-label="动画方案指标">
+        <div><span>现有物理动作</span><strong>4</strong><small>sleeping / eating / celebrating / making-money</small></div>
+        <div><span>当前互动入口</span><strong>3</strong><small>点击、长按、拖动彼此割裂</small></div>
+        <div><span>目标动作结构</span><strong>4 层</strong><small>基础、环境、互动、业务事件各司其职</small></div>
+        <div><span>第一落地对象</span><strong>Classic</strong><small>通过后再为多多补齐专属动作</small></div>
+      </div>
+
+      <div class="compare-grid">
+        <article class="compare-column current-column">
+          <div class="compare-heading"><span>当前</span><h3>固定映射 + 重复借用</h3></div>
+          <div class="route-list current-routes">
+            <div><b>working</b><span>making-money</span></div>
+            <div><b>awake_rest</b><span>eating</span></div>
+            <div><b>sleeping</b><span>sleeping</span></div>
+            <div class="route-warning"><b>所有点击</b><span>celebrating</span></div>
+            <div class="route-warning"><b>长按 / 拖动</b><span>缺少连续跑动语义</span></div>
+          </div>
+          <p class="column-note">结果：工作、清醒休息和睡眠中的点击反馈几乎一样；拖动时宠物被窗口带走，却没有朝目标方向跑起来。</p>
+        </article>
+
+        <article class="compare-column target-column">
+          <div class="compare-heading"><span>目标 1→N</span><h3>状态解析 + 语义动作池</h3></div>
+          <div class="route-diagram" aria-label="目标动画路由">
+            <div class="route-node source">基础状态</div><i>→</i>
+            <div class="route-node selector">上下文选择器<small>时间 · 指针 · 输入 · 冷却</small></div><i>→</i>
+            <div class="route-pool">
+              <span>基础循环</span><span>环境动作</span><span>状态感知互动</span><span>业务事件</span>
+            </div>
+          </div>
+          <p class="column-note">目标：一个业务状态可以拥有多个低频动作和专属互动，但每次只按明确规则选择一个；完成后重新解析最新状态。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="studio-band" id="studio">
+      <div class="section-title split-title">
+        <div>
+          <p class="eyebrow">Interactive route studio</p>
+          <h2>点击语义槽，查看当前素材能承担到哪一步</h2>
+        </div>
+        <div class="segmented" id="petSelector" aria-label="选择宠物">
+          <button class="active" data-pet="classic">Classic Pro</button>
+          <button data-pet="duoduo">多多</button>
+        </div>
+      </div>
+
+      <div class="studio-layout">
+        <div class="preview-stage">
+          <div class="preview-toolbar">
+            <div><span class="live-dot"></span><b id="previewPetLabel">Classic Pro</b></div>
+            <span id="previewStatus">现有素材</span>
+          </div>
+          <div class="preview-visual">
+            <img id="actionPreview" src="assets/animation-plan/classic/making-money.gif" alt="Classic Pro making-money 动画">
+            <span class="baseline"></span>
+            <div class="proxy-note" id="proxyNote" hidden>待生成语义，当前借用现有动作展示节奏</div>
+          </div>
+          <div class="preview-caption">
+            <div><small>产品语义</small><strong id="semanticLabel">working_loop</strong></div>
+            <div><small>当前播放</small><strong id="physicalLabel">making-money</strong></div>
+            <div><small>完成后</small><strong>重新解析基础状态</strong></div>
+          </div>
+        </div>
+
+        <div class="route-control">
+          <div class="control-row">
+            <div class="segmented compact" id="modeSelector" aria-label="查看范围">
+              <button class="active" data-mode="current">当前映射</button>
+              <button data-mode="target">目标 1→N</button>
+            </div>
+            <div class="state-tabs" id="stateSelector" aria-label="选择基础状态">
+              <button class="active" data-state="working">工作</button>
+              <button data-state="awake_rest">清醒休息</button>
+              <button data-state="sleeping">睡眠</button>
+            </div>
+          </div>
+          <div class="state-context" id="stateContext"></div>
+          <div class="action-list" id="actionList"></div>
+          <div class="legend-inline">
+            <span><i class="existing"></i>已有素材</span>
+            <span><i class="reusable"></i>明确复用</span>
+            <span><i class="planned"></i>待生成</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="matrix-band" id="matrix">
+      <div class="section-title">
+        <p class="eyebrow">Semantic matrix</p>
+        <h2>目标语义矩阵</h2>
+        <p>“1→N”不是随机播放全部动作，而是一个基础状态拥有基础循环、低频环境动作、状态感知互动和业务事件四层选择空间。</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>基础状态</th><th>基础循环</th><th>环境动作池</th><th>状态感知单击</th><th>长按拖拽跑动</th><th>业务事件</th></tr></thead>
+          <tbody>
+            <tr>
+              <th>working</th>
+              <td><span class="tag planned">keyboard-work</span></td>
+              <td><span class="tag existing">making-money</span><span class="tag planned">desk-stretch</span><span class="tag planned">brief-glance</span></td>
+              <td><span class="tag planned">work-ack</span></td>
+              <td><span class="tag planned">run-prepare</span><span class="tag planned">run-left/right</span><span class="tag planned">run-settle</span></td>
+              <td><span class="tag reusable">lunch-relief</span><span class="tag reusable">work-end-celebrate</span><span class="tag reusable">income-milestone</span></td>
+            </tr>
+            <tr>
+              <th>awake_rest</th>
+              <td><span class="tag planned">rest-breathe</span></td>
+              <td><span class="tag existing">eating</span><span class="tag planned">look-around</span><span class="tag planned">grooming</span><span class="tag planned">yawn</span></td>
+              <td><span class="tag planned">rest-ack</span></td>
+              <td><span class="tag planned">run-prepare</span><span class="tag planned">run-left/right</span><span class="tag planned">run-settle</span></td>
+              <td><span class="tag planned">first-show-wave</span><span class="tag reusable">lunch-relief</span></td>
+            </tr>
+            <tr>
+              <th>sleeping</th>
+              <td><span class="tag existing">sleeping</span></td>
+              <td><span class="tag planned">sleep-turn</span><span class="tag planned">dream-bubble</span><span class="tag planned">curl-up</span></td>
+              <td><span class="tag planned">ear-twitch</span></td>
+              <td><span class="tag planned">唤醒 → run-prepare</span><span class="tag planned">run-left/right</span><span class="tag planned">run-settle</span></td>
+              <td><span class="tag reusable">睡眠期间不强制触发</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="matrix-note">多多首轮允许通过合同复用 Classic 的语义槽结构，但不复用 Classic 图片。Classic 动作稳定后，再按同一动作名称为多多生成对应素材。</p>
+    </section>
+
+    <section class="evidence-band" id="evidence">
+      <div class="section-title split-title">
+        <div><p class="eyebrow">Real asset evidence</p><h2>现有素材接触表</h2></div>
+        <span class="evidence-note">图片来自 PetManager 最终交付包 QA，不是重新绘制的示意图</span>
+      </div>
+      <div class="contact-grid">
+        <figure>
+          <figcaption><strong>Classic Pro</strong><span>当前默认候选 · 4 个 Pro 动作 × 8 帧</span></figcaption>
+          <img src="assets/animation-plan/classic/contact-sheet.png" alt="Classic Pro 四组动画接触表">
+        </figure>
+        <figure>
+          <figcaption><strong>多多</strong><span>正式可选宠物 · 同一图集合同</span></figcaption>
+          <img src="assets/animation-plan/duoduo/contact-sheet.png" alt="多多四组动画接触表">
+        </figure>
+      </div>
+    </section>
+
+    <section class="runtime-band" id="runtime">
+      <div class="section-title">
+        <p class="eyebrow">Runtime contract</p>
+        <h2>运行时不再按固定 1.55 秒强制返回</h2>
+      </div>
+      <div class="runtime-flow">
+        <div><span>01</span><b>解析基础状态</b><small>working / awake_rest / sleeping</small></div>
+        <i>→</i>
+        <div><span>02</span><b>选择语义动作</b><small>输入优先级、冷却、环境与事件</small></div>
+        <i>→</i>
+        <div><span>03</span><b>按 manifest 播放</b><small>逐帧时长、锚点、命中轮廓</small></div>
+        <i>→</i>
+        <div><span>04</span><b>完成或超时</b><small>忽略旧 token 的晚到事件</small></div>
+        <i>→</i>
+        <div><span>05</span><b>重新解析</b><small>恢复最新状态，不恢复过期缓存</small></div>
+      </div>
+      <div class="contract-grid">
+        <article><h3>中断优先级</h3><p>Modal / 窗口关闭 ＞ 长按拖拽跑动 ＞ 状态感知单击 ＞ 业务事件 ＞ 环境动作 ＞ 基础循环。双击不再拥有独立产品动作。</p></article>
+        <article><h3>动作缺失回退</h3><p>状态专属动作 → 通用同语义动作 → 当前基础循环。不得按 pet_id 写一次性特判。</p></article>
+        <article><h3>超时保护</h3><p>总时长 + max(500ms, 25%)。超时只恢复状态并记录异常，不截断正常长动作。</p></article>
+      </div>
+    </section>
+
+    <section class="gates-band" id="gates">
+      <div class="section-title">
+        <p class="eyebrow">Decision gates</p>
+        <h2>建议审核结论与实施顺序</h2>
+      </div>
+      <ol class="gate-list">
+        <li><span>P0</span><div><b>先完成 Classic 的分层动作合同审计</b><p>已有动作明确复用；真正缺失的工作、单击和方向跑动动作进入生成队列。</p></div></li>
+        <li><span>P0</span><div><b>先接运行时合同，再替换默认宠物</b><p>逐帧时长、锚点、动作完成、超时和回退全部通过后，Classic 才能成为默认。</p></div></li>
+        <li><span>P1</span><div><b>Classic 验收通过后再补多多</b><p>复用动作名称、触发与测试，不复用图片，也不降低多多身份一致性。</p></div></li>
+        <li><span>P1</span><div><b>最后联调动态命中与点击穿透</b><p>大幅动作必须更新透明轮廓，Panel、菜单和拖拽仲裁不得回退。</p></div></li>
+      </ol>
+      <div class="recommendation">
+        <div><span>推荐方案</span><h3>状态合同先行，Classic 精做，多多复用合同后补图</h3></div>
+        <p>这样可以先解决“动作不流畅且看不出区别”的核心问题，同时避免一次生成两套仍然需要返工的素材。</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="animation-one-to-many.js"></script>
+</body>
+</html>

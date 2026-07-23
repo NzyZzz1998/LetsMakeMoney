@@ -1,0 +1,689 @@
+{
+  "actions": [
+    {
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "applicableStates": [
+        "working"
+      ],
+      "direction": "none",
+      "fallback": "eating",
+      "footBaselineY": 198,
+      "frames": [
+        {
+          "atlas": "atlas-00",
+          "column": 0,
+          "durationMs": 90,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 1,
+          "durationMs": 90,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 2,
+          "durationMs": 90,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 3,
+          "durationMs": 90,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 4,
+          "durationMs": 90,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 5,
+          "durationMs": 90,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 6,
+          "durationMs": 90,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 7,
+          "durationMs": 120,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 0,
+          "durationMs": 90,
+          "row": 1
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 1,
+          "durationMs": 90,
+          "row": 1
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 2,
+          "durationMs": 90,
+          "row": 1
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 3,
+          "durationMs": 90,
+          "row": 1
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 4,
+          "durationMs": 90,
+          "row": 1
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 5,
+          "durationMs": 90,
+          "row": 1
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 6,
+          "durationMs": 90,
+          "row": 1
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 7,
+          "durationMs": 140,
+          "row": 1
+        }
+      ],
+      "id": "working_loop",
+      "interruptPolicy": "interaction_or_event",
+      "logicalSize": {
+        "height": 208,
+        "width": 192
+      },
+      "mirrorPolicy": "forbidden",
+      "playbackKind": "loop",
+      "semanticRole": "base",
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "applicableStates": [
+        "working"
+      ],
+      "direction": "none",
+      "fallback": "working_loop",
+      "footBaselineY": 198,
+      "frames": [
+        {
+          "atlas": "atlas-00",
+          "column": 0,
+          "durationMs": 90,
+          "row": 2
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 1,
+          "durationMs": 90,
+          "row": 2
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 2,
+          "durationMs": 90,
+          "row": 2
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 3,
+          "durationMs": 120,
+          "row": 2
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 4,
+          "durationMs": 120,
+          "row": 2
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 5,
+          "durationMs": 100,
+          "row": 2
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 6,
+          "durationMs": 100,
+          "row": 2
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 7,
+          "durationMs": 160,
+          "row": 2
+        }
+      ],
+      "id": "working_ack",
+      "interruptPolicy": "uninterruptible",
+      "logicalSize": {
+        "height": 208,
+        "width": 192
+      },
+      "mirrorPolicy": "forbidden",
+      "playbackKind": "oneshot",
+      "semanticRole": "interaction",
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "applicableStates": [
+        "awake_rest"
+      ],
+      "direction": "none",
+      "fallback": "eating",
+      "footBaselineY": 198,
+      "frames": [
+        {
+          "atlas": "atlas-00",
+          "column": 0,
+          "durationMs": 100,
+          "row": 3
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 1,
+          "durationMs": 100,
+          "row": 3
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 2,
+          "durationMs": 120,
+          "row": 3
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 3,
+          "durationMs": 140,
+          "row": 3
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 4,
+          "durationMs": 120,
+          "row": 3
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 5,
+          "durationMs": 100,
+          "row": 3
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 6,
+          "durationMs": 100,
+          "row": 3
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 7,
+          "durationMs": 180,
+          "row": 3
+        }
+      ],
+      "id": "rest_ack",
+      "interruptPolicy": "uninterruptible",
+      "logicalSize": {
+        "height": 208,
+        "width": 192
+      },
+      "mirrorPolicy": "forbidden",
+      "playbackKind": "oneshot",
+      "semanticRole": "interaction",
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "applicableStates": [
+        "sleeping"
+      ],
+      "direction": "none",
+      "fallback": "sleeping",
+      "footBaselineY": 198,
+      "frames": [
+        {
+          "atlas": "atlas-00",
+          "column": 0,
+          "durationMs": 140,
+          "row": 4
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 1,
+          "durationMs": 140,
+          "row": 4
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 2,
+          "durationMs": 160,
+          "row": 4
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 3,
+          "durationMs": 180,
+          "row": 4
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 4,
+          "durationMs": 180,
+          "row": 4
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 5,
+          "durationMs": 160,
+          "row": 4
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 6,
+          "durationMs": 140,
+          "row": 4
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 7,
+          "durationMs": 220,
+          "row": 4
+        }
+      ],
+      "id": "sleep_ack",
+      "interruptPolicy": "uninterruptible",
+      "logicalSize": {
+        "height": 208,
+        "width": 192
+      },
+      "mirrorPolicy": "forbidden",
+      "playbackKind": "oneshot",
+      "semanticRole": "interaction",
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "applicableStates": [
+        "awake_rest",
+        "working"
+      ],
+      "direction": "none",
+      "fallback": "working_loop",
+      "footBaselineY": 198,
+      "frames": [
+        {
+          "atlas": "atlas-00",
+          "column": 0,
+          "durationMs": 90,
+          "row": 5
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 1,
+          "durationMs": 90,
+          "row": 5
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 2,
+          "durationMs": 80,
+          "row": 5
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 3,
+          "durationMs": 80,
+          "row": 5
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 4,
+          "durationMs": 80,
+          "row": 5
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 5,
+          "durationMs": 90,
+          "row": 5
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 6,
+          "durationMs": 110,
+          "row": 5
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 7,
+          "durationMs": 140,
+          "row": 5
+        }
+      ],
+      "id": "run_prepare",
+      "interruptPolicy": "uninterruptible",
+      "logicalSize": {
+        "height": 208,
+        "width": 192
+      },
+      "mirrorPolicy": "forbidden",
+      "playbackKind": "oneshot",
+      "semanticRole": "transition",
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "applicableStates": [
+        "running"
+      ],
+      "direction": "none",
+      "fallback": "working_loop",
+      "footBaselineY": 198,
+      "frames": [
+        {
+          "atlas": "atlas-00",
+          "column": 0,
+          "durationMs": 80,
+          "row": 6
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 1,
+          "durationMs": 80,
+          "row": 6
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 2,
+          "durationMs": 90,
+          "row": 6
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 3,
+          "durationMs": 100,
+          "row": 6
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 4,
+          "durationMs": 110,
+          "row": 6
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 5,
+          "durationMs": 120,
+          "row": 6
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 6,
+          "durationMs": 140,
+          "row": 6
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 7,
+          "durationMs": 180,
+          "row": 6
+        }
+      ],
+      "id": "run_stop",
+      "interruptPolicy": "uninterruptible",
+      "logicalSize": {
+        "height": 208,
+        "width": 192
+      },
+      "mirrorPolicy": "forbidden",
+      "playbackKind": "oneshot",
+      "semanticRole": "transition",
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "applicableStates": [
+        "working"
+      ],
+      "direction": "none",
+      "fallback": "eating",
+      "footBaselineY": 198,
+      "frames": [
+        {
+          "atlas": "atlas-00",
+          "column": 0,
+          "durationMs": 100,
+          "row": 7
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 1,
+          "durationMs": 100,
+          "row": 7
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 2,
+          "durationMs": 120,
+          "row": 7
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 3,
+          "durationMs": 140,
+          "row": 7
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 4,
+          "durationMs": 160,
+          "row": 7
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 5,
+          "durationMs": 160,
+          "row": 7
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 6,
+          "durationMs": 180,
+          "row": 7
+        },
+        {
+          "atlas": "atlas-00",
+          "column": 7,
+          "durationMs": 220,
+          "row": 7
+        }
+      ],
+      "id": "lunch_relief",
+      "interruptPolicy": "uninterruptible",
+      "logicalSize": {
+        "height": 208,
+        "width": 192
+      },
+      "mirrorPolicy": "forbidden",
+      "playbackKind": "oneshot",
+      "semanticRole": "event",
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "applicableStates": [
+        "awake_rest"
+      ],
+      "direction": "none",
+      "fallback": "working_loop",
+      "footBaselineY": 198,
+      "frames": [
+        {
+          "atlas": "atlas-01",
+          "column": 0,
+          "durationMs": 120,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-01",
+          "column": 1,
+          "durationMs": 110,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-01",
+          "column": 2,
+          "durationMs": 100,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-01",
+          "column": 3,
+          "durationMs": 90,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-01",
+          "column": 4,
+          "durationMs": 90,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-01",
+          "column": 5,
+          "durationMs": 100,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-01",
+          "column": 6,
+          "durationMs": 120,
+          "row": 0
+        },
+        {
+          "atlas": "atlas-01",
+          "column": 7,
+          "durationMs": 160,
+          "row": 0
+        }
+      ],
+      "id": "lunch_return",
+      "interruptPolicy": "uninterruptible",
+      "logicalSize": {
+        "height": 208,
+        "width": 192
+      },
+      "mirrorPolicy": "forbidden",
+      "playbackKind": "oneshot",
+      "semanticRole": "transition",
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  ],
+  "atlases": [
+    {
+      "columns": 8,
+      "id": "atlas-00",
+      "path": "atlas-00.webp",
+      "rows": 8,
+      "sha256": "9B57CAD73DEF1372D5ACE7190434A2F0B7B1772BF356011839D1380F22CD7B62"
+    },
+    {
+      "columns": 8,
+      "id": "atlas-01",
+      "path": "atlas-01.webp",
+      "rows": 1,
+      "sha256": "CBF2F0FE0C03ADC8C920695F6FA69E0131483B36F9EECB18748E404DB1D66283"
+    }
+  ],
+  "geometry": {
+    "anchorX": 0.5,
+    "anchorY": 0.95,
+    "cellHeight": 208,
+    "cellWidth": 192,
+    "footBaselineY": 198,
+    "logicalHeight": 208,
+    "logicalWidth": 192
+  },
+  "packageVersion": "0.2.0",
+  "petId": "duoduo-cat",
+  "profileId": "duoduo.s5",
+  "profileVersion": "0.2.0",
+  "schemaVersion": 1,
+  "sourceHashes": {
+    "actionsJsonSha256": "10F9946D5AFD8DC63862D548D6AA29404C1B154CECE0460B7E7A5AC5635B396E",
+    "extraActionsSha256": "1B05AE16520FF0A39B2421622D0EDC154BFCE6B39B8CADE009681061580E49B3",
+    "petJsonSha256": "BC5B0BAA8A12C34B4B7A2015103D8BEB80A5F18BDCDB5DCF72082A8E13A85C41",
+    "spritesheetSha256": "7CA4677A3B45DC68B41AAA642FA8B0CEF63174477C0D55D7FCB35885D46E5F71"
+  }
+}

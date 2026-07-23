@@ -1339,6 +1339,158 @@
       .transparent-window { left: 24px; width: calc(100% - 48px); }
       .salary-panel { left: 210px; }
     }
+    .v09-shell {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255, 253, 246, 0.96);
+      overflow: hidden;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .v09-head {
+      padding: 20px 22px 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 247, 228, 0.72);
+    }
+
+    .v09-head h2, .v09-head p { margin: 0; }
+    .v09-head p { margin-top: 6px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+    .v09-tabs {
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .v09-tabs button {
+      min-height: 36px;
+      padding: 7px 13px;
+      border-radius: 10px;
+      color: var(--muted);
+      background: transparent;
+      white-space: nowrap;
+    }
+
+    .v09-tabs button.active {
+      color: var(--ink);
+      font-weight: 700;
+      background: rgba(245, 183, 65, 0.18);
+      box-shadow: inset 0 0 0 1px rgba(245, 183, 65, 0.48);
+    }
+
+    .v09-pane { display: none; padding: 18px; }
+    .v09-pane.active { display: block; }
+
+    .v09-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(280px, .95fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .v09-surface {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
+      padding: 16px;
+    }
+
+    .v09-surface h3 { margin: 0 0 12px; font-size: 16px; }
+    .v09-surface > p { margin: -4px 0 14px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+
+    .v09-panel-preview {
+      width: 100%;
+      max-width: 304px;
+      margin: 14px auto;
+      border: 1px solid rgba(101, 62, 24, 0.18);
+      border-radius: 14px;
+      background: #fff7e4;
+      padding: 14px;
+      box-shadow: 0 12px 24px rgba(93, 50, 15, 0.10);
+    }
+
+    .v09-panel-preview.compact { max-width: 236px; padding: 11px 13px; }
+    .v09-panel-preview.compact .v09-panel-details { display: none; }
+    .v09-panel-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .v09-amount { font-size: 29px; line-height: 1; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .v09-state { color: var(--orange); font-size: 12px; font-weight: 700; }
+    .v09-panel-details { margin-top: 14px; display: grid; gap: 9px; }
+    .v09-metric { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
+
+    .v09-progress { height: 6px; border-radius: 99px; overflow: hidden; background: #eee7d8; }
+    .v09-progress span { display: block; width: 58%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--mint), var(--coin)); }
+
+    .v09-timeline { display: grid; gap: 0; }
+    .v09-time-row { min-height: 44px; display: grid; grid-template-columns: 74px 1fr auto; align-items: center; gap: 10px; border-bottom: 1px solid var(--line); font-size: 13px; }
+    .v09-time-row:last-child { border-bottom: 0; }
+    .v09-time-row strong { color: var(--ink); }
+    .v09-time-row span { color: var(--muted); }
+
+    .v09-step-list { display: grid; gap: 10px; }
+    .v09-step {
+      min-height: 54px;
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 11px;
+      border-radius: 12px;
+      background: rgba(255, 247, 228, 0.7);
+      border: 1px solid transparent;
+    }
+
+    .v09-step.active { border-color: rgba(245, 183, 65, .6); background: rgba(245, 183, 65, .13); }
+    .v09-step-index { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: var(--paper); border: 1px solid var(--line); font-weight: 700; }
+    .v09-step small { color: var(--muted); display: block; margin-top: 3px; }
+
+    .v09-config-card { min-height: 270px; display: flex; flex-direction: column; }
+    .v09-config-body { flex: 1; }
+    .v09-config-row { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); font-size: 14px; }
+    .v09-config-row:last-child { border-bottom: 0; }
+    .v09-inline-choice { display: flex; gap: 6px; }
+    .v09-inline-choice button { min-height: 32px; padding: 5px 10px; border-radius: 9px; background: #fffaf0; color: var(--muted); box-shadow: inset 0 0 0 1px var(--line); }
+    .v09-inline-choice button.active { color: var(--ink); font-weight: 700; background: rgba(245, 183, 65, .2); box-shadow: inset 0 0 0 1px rgba(245, 183, 65, .62); }
+
+    .v09-pet-stage { min-height: 300px; display: grid; place-items: center; position: relative; overflow: hidden; background: rgba(255, 247, 228, .58); }
+    .v09-pet-stage img { width: 168px; height: 168px; object-fit: contain; image-rendering: auto; transition: transform .2s ease; }
+    .v09-pet-stage img.act { transform: translateY(-7px) scale(1.03); }
+    .v09-hit-outline { position: absolute; width: 176px; height: 164px; border: 2px dashed rgba(120, 168, 111, .72); border-radius: 46% 46% 35% 35%; pointer-events: none; transition: width .2s ease, height .2s ease; }
+    .v09-pet-stage.wide-hit .v09-hit-outline { width: 226px; height: 182px; }
+
+    .v09-pet-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .v09-pet-choice button { min-height: 52px; border-radius: 12px; background: var(--paper); color: var(--muted); box-shadow: inset 0 0 0 1px var(--line); }
+    .v09-pet-choice button.active { color: var(--ink); font-weight: 700; background: rgba(245, 183, 65, .15); box-shadow: inset 0 0 0 1px rgba(245, 183, 65, .58); }
+
+    .v09-action-bar { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .v09-action-bar button { min-height: 34px; padding: 6px 10px; border-radius: 9px; background: #fffaf0; color: var(--muted); box-shadow: inset 0 0 0 1px var(--line); }
+    .v09-action-bar button.active { color: var(--ink); background: var(--paper-3); font-weight: 700; }
+
+    .v09-contract { display: grid; gap: 8px; }
+    .v09-contract-row { display: grid; grid-template-columns: 110px 1fr auto; align-items: center; gap: 10px; min-height: 44px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+    .v09-contract-row:last-child { border-bottom: 0; }
+    .v09-contract-row small { color: var(--muted); line-height: 1.4; }
+
+    .v09-state-flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+    .v09-state-card { min-height: 104px; padding: 12px; border-radius: 12px; background: #fffaf0; border: 1px solid var(--line); }
+    .v09-state-card.active { background: rgba(120, 168, 111, .12); border-color: rgba(120, 168, 111, .48); }
+    .v09-state-card strong { display: block; font-size: 14px; }
+    .v09-state-card span { display: block; color: var(--muted); font-size: 12px; line-height: 1.5; margin-top: 6px; }
+
+    .v09-alert { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: rgba(120, 168, 111, .12); color: #4d7248; font-size: 12px; line-height: 1.55; }
+    .v09-alert.error { background: rgba(184, 92, 82, .12); color: #8b3e36; }
+
+    @media (max-width: 980px) {
+      .v09-grid { grid-template-columns: 1fr; }
+      .v09-head { flex-direction: column; }
+      .v09-state-flow { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -1361,6 +1513,8 @@
       <button data-screen="v05"><span class="dot"></span>共享控件基线</button>
       <button data-screen="v06"><span class="dot"></span>v0.6 诊断与验证</button>
       <button data-screen="v07"><span class="dot"></span>v0.7 公开与分发</button>
+      <button data-screen="v09"><span class="dot"></span>v0.9 体验与动画</button>
+      <button onclick="location.href='v0.9-polished/index.html'"><span class="dot"></span>v0.9 全链路精修 ↗</button>
       <button data-screen="debug"><span class="dot"></span>Debug 与验证</button>
       <button data-screen="release"><span class="dot"></span>发布包</button>
       <div class="nav-group-label">快捷交互</div>
@@ -1373,9 +1527,9 @@
       <header class="hero">
         <div>
           <h1 id="screenTitle">当前产品总览</h1>
-          <p id="screenLead">原型按当前应用能力组织，并增加 v0.6 的诊断、菜单分层和验证基线。每个页面都展示真实功能、状态和验收路径。</p>
+          <p id="screenLead">原型保留已发布 Windows 能力，并加入 v0.9 的计算、界面和宠物动画重塑方案。</p>
         </div>
-        <div class="status-chip" id="statusChip">main · v0.7 完整 PRD 待确认</div>
+        <div class="status-chip" id="statusChip">main · v0.8 Beta 基线 / v0.9 PRD</div>
       </header>
 
       <div class="content">
@@ -2014,6 +2168,170 @@
           </div>
         </section>
 
+        <section class="screen" id="v09">
+          <div class="v09-shell">
+            <div class="v09-head">
+              <div>
+                <h2>Windows v0.9 · 时间价值与桌宠体验重塑</h2>
+                <p>统一计算与配置语义，保留透明桌宠、Panel、托盘和点击穿透，并以事件驱动动画替代固定时长返回。</p>
+              </div>
+              <span class="toast">完整 PRD 对照原型</span>
+            </div>
+            <div class="v09-tabs">
+              <button class="active" data-v09-tab="today">Panel 与今日详情</button>
+              <button data-v09-tab="setup">Wizard 与 Settings</button>
+              <button data-v09-tab="pet">宠物与动作</button>
+              <button data-v09-tab="runtime">状态机与门禁</button>
+            </div>
+
+            <div class="v09-pane active" id="v09-today">
+              <div class="v09-grid">
+                <div class="v09-surface">
+                  <h3>桌面 Panel</h3>
+                  <p>折叠态只保留今日金额与状态；展开态增加进度和下一时间节点，完整解释进入独立窗口。</p>
+                  <div class="toolbar" style="margin:0 0 8px">
+                    <button class="btn primary" data-v09-panel="expanded">展开</button>
+                    <button class="btn" data-v09-panel="compact">折叠</button>
+                    <button class="btn" data-v09-day-state="working">工作</button>
+                    <button class="btn" data-v09-day-state="lunch">午休</button>
+                    <button class="btn" data-v09-day-state="sleeping">夜间</button>
+                  </div>
+                  <div class="v09-panel-preview" id="v09PanelPreview">
+                    <div class="v09-panel-main">
+                      <div><div style="font-size:12px;color:var(--muted)">今日已赚</div><div class="v09-amount" id="v09PanelAmount">¥186.42</div></div>
+                      <span class="v09-state" id="v09PanelState">工作中</span>
+                    </div>
+                    <div class="v09-panel-details">
+                      <div class="v09-metric"><span>本月累计</span><strong>¥3,842.00</strong></div>
+                      <div class="v09-metric"><span>时薪</span><strong>¥62.50</strong></div>
+                      <div class="v09-progress"><span id="v09PanelProgress"></span></div>
+                      <div class="v09-metric"><span>下一节点</span><strong id="v09PanelNext">12:00 午休</strong></div>
+                      <button class="btn primary" id="v09OpenToday" style="width:100%;margin-top:3px">查看今日详情</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="v09-surface" id="v09TodayDetail">
+                  <h3>今日详情</h3>
+                  <p>独立轻量窗口，不改变透明桌宠窗口的点击穿透边界。</p>
+                  <div class="v09-metric"><span>2026 年 7 月 18 日</span><span class="pill">调休工作日</span></div>
+                  <div style="margin:15px 0 10px"><div class="v09-amount">¥186.42</div><div style="color:var(--muted);font-size:12px;margin-top:5px">今日进度 58% · 有效工作 8 小时</div></div>
+                  <div class="v09-progress"><span></span></div>
+                  <div class="v09-timeline" style="margin-top:14px">
+                    <div class="v09-time-row"><strong>上班</strong><span>开始累计</span><b>08:00</b></div>
+                    <div class="v09-time-row"><strong>午休</strong><span>收益与进度冻结</span><b>12:00-14:00</b></div>
+                    <div class="v09-time-row"><strong>下班</strong><span>今日收入封顶</span><b>18:00</b></div>
+                  </div>
+                  <div class="v09-alert">调休工作日优先于周末规则；节假日数据缺失时会明确提示并按休息制度降级。</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="v09-pane" id="v09-setup">
+              <div class="v09-grid">
+                <div class="v09-surface">
+                  <h3>渐进式首次配置</h3>
+                  <p>只询问用户能直接回答的问题，系统负责推算下班、午休区间和有效工时。</p>
+                  <div class="v09-step-list" id="v09WizardSteps">
+                    <div class="v09-step active" data-v09-step="0"><span class="v09-step-index">1</span><div><strong>收入与休息</strong><small>月薪、单休 / 双休 / 大小周</small></div><span>当前</span></div>
+                    <div class="v09-step" data-v09-step="1"><span class="v09-step-index">2</span><div><strong>上班时间</strong><small>先选择几点开始工作</small></div><span>待填写</span></div>
+                    <div class="v09-step" data-v09-step="2"><span class="v09-step-index">3</span><div><strong>午休与推算</strong><small>选择午休时长，自动推算下班</small></div><span>待填写</span></div>
+                    <div class="v09-step" data-v09-step="3"><span class="v09-step-index">4</span><div><strong>宠物与确认</strong><small>选择 Classic 或多多并检查结果</small></div><span>待确认</span></div>
+                  </div>
+                </div>
+
+                <div class="v09-surface v09-config-card">
+                  <h3 id="v09SetupTitle">收入与休息</h3>
+                  <p id="v09SetupLead">先告诉我们月薪和每周休息方式。</p>
+                  <div class="v09-config-body" id="v09SetupBody">
+                    <div class="v09-config-row"><span>月薪</span><input class="field focus" value="12000" style="width:112px"></div>
+                    <div class="v09-config-row"><span>休息制度</span><div class="v09-inline-choice"><button>单休</button><button class="active">双休</button><button>大小周</button></div></div>
+                  </div>
+                  <div class="action-bar" style="margin:12px -16px -16px">
+                    <button class="btn" id="v09SetupBack" disabled>上一步</button>
+                    <button class="btn primary" id="v09SetupNext">下一步</button>
+                  </div>
+                </div>
+              </div>
+              <div class="v09-alert" id="v09SetupFeedback">Settings 使用同一字段、推算、校验与配置事务；取消或关闭不会写入半成品配置。</div>
+            </div>
+
+            <div class="v09-pane" id="v09-pet">
+              <div class="v09-grid">
+                <div class="v09-surface">
+                  <h3>正式宠物选择</h3>
+                  <p>Classic 先影子接入，通过门禁后才允许成为新安装默认；多多使用同一包合同。</p>
+                  <div class="v09-pet-choice">
+                    <button class="active" data-v09-pet="classic">Classic Pro<br><small>默认候选</small></button>
+                    <button data-v09-pet="duoduo">多多 Pro<br><small>正式可选</small></button>
+                  </div>
+                  <div class="v09-pet-stage" id="v09PetStage">
+                    <div class="v09-hit-outline"></div>
+                    <img id="v09PetImage" src="../../assets/pets/cat/orange_v2/working/cat_orange_v2_working_01.png" alt="Classic Pro 运行时预览占位">
+                    <div id="v09DuoduoPlaceholder" hidden style="width:150px;height:150px;border-radius:48% 48% 38% 38%;display:none;place-items:center;background:#f5d8b7;color:#7b4c2c;font-size:28px;font-weight:800;border:2px solid rgba(101,62,24,.2)">多多</div>
+                  </div>
+                  <div class="v09-action-bar">
+                    <button class="active" data-v09-action="working">工作</button>
+                    <button data-v09-action="awake_rest">清醒休息</button>
+                    <button data-v09-action="sleeping">睡眠</button>
+                    <button data-v09-action="single">单击</button>
+                    <button data-v09-action="double">双击</button>
+                    <button data-v09-action="hold">长按</button>
+                    <button data-v09-action="waving">挥手</button>
+                    <button data-v09-action="celebrating">庆祝</button>
+                  </div>
+                </div>
+
+                <div class="v09-surface">
+                  <h3>运行时包合同</h3>
+                  <p>生产源文件、QA 页面和本机路径不进入 LMM；这里只消费净化后的版本化运行时包。</p>
+                  <div class="v09-contract">
+                    <div class="v09-contract-row"><strong>身份与版本</strong><small>schema、pet_id、package_version、minimum_lmm_version</small><span class="pill">必需</span></div>
+                    <div class="v09-contract-row"><strong>画面几何</strong><small>逻辑尺寸、pivot、脚底基线、动作偏移</small><span class="pill">必需</span></div>
+                    <div class="v09-contract-row"><strong>播放合同</strong><small>逐帧毫秒、循环、动作语义与合法回退</small><span class="pill">必需</span></div>
+                    <div class="v09-contract-row"><strong>完整性</strong><small>atlas SHA256、许可、生成来源与受限素材说明</small><span class="pill">P0</span></div>
+                    <div class="v09-contract-row"><strong>回退链</strong><small>当前包 → Classic → v0.8 v2 → v1 → 占位猫</small><span class="pill">可恢复</span></div>
+                  </div>
+                  <div class="v09-alert" id="v09PetFeedback">Classic 预览：working → making-money；动作由逐帧时长驱动。</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="v09-pane" id="v09-runtime">
+              <div class="v09-grid">
+                <div class="v09-surface">
+                  <h3>基础状态与优先级</h3>
+                  <p>交互动作只覆盖基础状态，完成后重新解析当前时间和日历，不恢复旧缓存。</p>
+                  <div class="v09-state-flow">
+                    <div class="v09-state-card active" data-v09-base="working"><strong>working</strong><span>工作日有效工作区间。夜班覆盖睡眠时段时仍优先工作。</span></div>
+                    <div class="v09-state-card" data-v09-base="awake_rest"><strong>awake_rest</strong><span>午休、日间休息、节假日和下班后的陪伴动作池。</span></div>
+                    <div class="v09-state-card" data-v09-base="sleeping"><strong>sleeping</strong><span>23:00-07:30 且未被用户工作时段覆盖。</span></div>
+                  </div>
+                  <div class="v09-alert" id="v09RuntimeFeedback">当前：working → making-money。显式交互结束后回到重新解析的基础状态。</div>
+                </div>
+
+                <div class="v09-surface">
+                  <h3>输入、命中与回滚门禁</h3>
+                  <div class="v09-contract">
+                    <div class="v09-contract-row"><strong>输入仲裁</strong><small>拖拽 8px · 长按 500ms · 双击采用系统时间</small><span class="pill">自动化</span></div>
+                    <div class="v09-contract-row"><strong>事件完成</strong><small>animation_finished + 总时长超时保护，移除固定 1.55 秒</small><span class="pill">P0</span></div>
+                    <div class="v09-contract-row"><strong>动态轮廓</strong><small>帧变化后 2 个渲染帧内刷新；失败降级动作 union</small><span class="pill">Spike</span></div>
+                    <div class="v09-contract-row"><strong>指针跟随</strong><small>清醒态、420px 内、最多 12.5Hz、16 方向滞回</small><span class="pill">Spike</span></div>
+                    <div class="v09-contract-row"><strong>Classic 默认</strong><small>影子接入 → 对照 → 候选 → 默认；任一门禁失败回滚 v0.8</small><span class="pill">可回滚</span></div>
+                    <div class="v09-contract-row"><strong>v0.8 保护</strong><small>托盘、纯桌宠、任务栏、右键、Panel、拖拽和穿透</small><span class="pill">阻塞发布</span></div>
+                  </div>
+                  <div class="toolbar" style="margin:14px 0 0">
+                    <button class="btn primary" data-v09-gate="pass">门禁通过</button>
+                    <button class="btn" data-v09-gate="degrade">Spike 降级</button>
+                    <button class="btn" data-v09-gate="rollback">回滚 Classic</button>
+                  </div>
+                  <div class="v09-alert" id="v09GateFeedback">所有 P0 与 v0.8 回归通过后，才允许进入 v0.9 发布候选。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section class="screen" id="debug">
           <div class="debug-window">
             <div class="debug-title">LetsMakeMoney DEBUG · 900x500 调试窗口</div>
@@ -2056,7 +2374,7 @@
               </div>
               <div class="paper-card" style="margin-top:14px">
                 <h3>当前发布状态</h3>
-                <p>当前发布基线为 GitHub `main` 上的 `v0.6-beta`。v0.7 处于完整 PRD 与高保真原型待确认阶段，尚未进入开发和打包。</p>
+                <p>当前稳定基线为 GitHub `main` 上的 Windows v0.8 Beta。v0.9 处于完整 PRD 与高保真原型待确认阶段，尚未进入开发和打包。</p>
               </div>
             </div>
           </div>
@@ -2066,7 +2384,7 @@
 
     <aside class="notes">
       <h2 id="noteTitle">总览说明</h2>
-      <p id="noteText">这是当前产品原型。左侧保留已发布能力，并为 v0.7 增加安装、更新、许可和公开门禁；右侧说明能力、配置与验收重点。</p>
+      <p id="noteText">这是当前产品原型。左侧保留已发布能力，并增加 v0.9 的计算、配置、视觉和宠物运行时方案。</p>
       <div class="note-block">
         <h2>当前配置字段</h2>
         <ul id="configList">
@@ -2094,12 +2412,13 @@
       v05: ["共享控件与恢复基线", "保留 v0.5 已验证的共享控件、托盘恢复、点击穿透保护和保存反馈基线。"],
       v06: ["v0.6 诊断与验证", "展示轻量诊断、菜单职责、可信验证链路和有证据边界的体验精修。"],
       v07: ["v0.7 公开与可信分发", "展示签名安装器、用户确认更新、许可边界和仓库公开门禁。"],
+      v09: ["v0.9 体验与动画重塑", "统一工资与作息、重塑 Windows 信息架构，并以通用宠物包和事件驱动状态机升级桌宠体验。"],
       debug: ["Debug 与验证", "Debug 模式用于观察输入分类、日志、窗口命中区和验证脚本结果。"],
-      release: ["发布包", "当前发布基线为 v0.6 Beta；v0.7 仍处于完整 PRD 与原型确认阶段。"]
+      release: ["发布包", "当前稳定基线为 Windows v0.8 Beta；v0.9 仍处于完整 PRD 与原型确认阶段。"]
     };
 
     const notes = {
-      overview: "总览展示当前 v0.5 Beta 基线体验：橘猫 v2 + 暖色 Panel + 二级右键菜单 + 紧凑设置 + 托盘找回。",
+      overview: "总览展示当前 Windows v0.8 Beta 基线体验：橘猫 v2、暖色 Panel、二级右键菜单、紧凑设置和托盘找回。",
       desktop: "主界面验收重点：小猫显示完整，单击/双击/长按/拖拽/右键均可用；Panel 不遮挡小猫；空白区域尽量穿透。",
       panel: "Panel 验收重点：折叠态金额清晰，展开态信息完整，靠近屏幕边缘时自动调整展开方向。",
       menu: "菜单验收重点：窗口模式和选择宠物使用二级入口；托盘左键显示/隐藏，右键菜单可设置、关于、退出。",
@@ -2108,14 +2427,16 @@
       v05: "基线验收重点：Settings 与 Wizard 的控件状态同源；托盘恢复后重应用纯桌宠和穿透策略；保存反馈完整。",
       v06: "v0.6 原型验收重点：诊断摘要默认脱敏；两类菜单职责清楚；阻塞错误不能报告通过；UI 只修有证据差异。",
       v07: "v0.7 原型验收重点：安装与更新必须由用户确认，代码和素材许可清晰分层，签名与完整性失败不得继续安装，A-E 未全部通过前仓库保持私有。",
+      v09: "v0.9 原型验收重点：Panel 与详情分层、Wizard 渐进提问、Settings 共用配置事务、Classic/多多同一包合同、动作按实际时长完成并保持 Windows 桌宠能力。",
       debug: "Debug 验收重点：可通过 config.json 开启，事件日志能区分 clicked_single、clicked_double、clicked_hold、drag、right_click_menu。",
-      release: "发布验收重点：v0.6 Beta 是当前已发布基线；v0.7 通过 acceptance 前不生成发布结论或公开仓库。"
+      release: "发布验收重点：Windows v0.8 Beta 是当前稳定基线；v0.9 通过 acceptance 前不生成发布结论。"
     };
 
     const screenStatus = {
       v06: "main · v0.6 Beta 已发布",
-      v07: "main · v0.7 完整 PRD 待确认",
-      release: "main · 当前发布基线 v0.6-beta"
+      v07: "main · v0.7 Beta 历史公开基线",
+      v09: "main · v0.8 Beta 基线 / v0.9 PRD 待确认",
+      release: "main · 当前稳定基线 v0.8-beta"
     };
 
     function setScreen(id) {
@@ -2125,7 +2446,7 @@
       document.getElementById("screenLead").textContent = screens[id][1];
       document.getElementById("noteTitle").textContent = screens[id][0] + "说明";
       document.getElementById("noteText").textContent = notes[id];
-      document.getElementById("statusChip").textContent = screenStatus[id] || "main · v0.6-beta 当前基线";
+      document.getElementById("statusChip").textContent = screenStatus[id] || "main · v0.8-beta 当前基线";
     }
 
     document.querySelectorAll(".nav button[data-screen]").forEach(btn => {
@@ -2315,6 +2636,116 @@
     document.getElementById("diagOpen").addEventListener("click", () => setDiagnosticFeedback("open"));
     document.getElementById("diagCopy").addEventListener("click", () => setDiagnosticFeedback("success"));
     document.querySelectorAll("[data-diag-state]").forEach(btn => btn.addEventListener("click", () => setDiagnosticFeedback(btn.dataset.diagState)));
+
+    document.querySelectorAll("[data-v09-tab]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-v09-tab]").forEach(item => item.classList.toggle("active", item === btn));
+        document.querySelectorAll(".v09-pane").forEach(pane => pane.classList.toggle("active", pane.id === "v09-" + btn.dataset.v09Tab));
+      });
+    });
+
+    const v09PanelPreview = document.getElementById("v09PanelPreview");
+    document.querySelectorAll("[data-v09-panel]").forEach(btn => btn.addEventListener("click", () => {
+      v09PanelPreview.classList.toggle("compact", btn.dataset.v09Panel === "compact");
+      document.querySelectorAll("[data-v09-panel]").forEach(item => item.classList.toggle("primary", item === btn));
+    }));
+
+    const v09DayStates = {
+      working: ["¥186.42", "工作中", "12:00 午休", "58%"],
+      lunch: ["¥250.00", "午休中 · 收益暂停", "14:00 复工", "50%"],
+      sleeping: ["¥500.00", "睡眠中", "07:30 清醒", "100%"]
+    };
+    document.querySelectorAll("[data-v09-day-state]").forEach(btn => btn.addEventListener("click", () => {
+      const [amount, state, next, progress] = v09DayStates[btn.dataset.v09DayState];
+      document.getElementById("v09PanelAmount").textContent = amount;
+      document.getElementById("v09PanelState").textContent = state;
+      document.getElementById("v09PanelNext").textContent = next;
+      document.getElementById("v09PanelProgress").style.width = progress;
+      document.querySelectorAll("[data-v09-day-state]").forEach(item => item.classList.toggle("primary", item === btn));
+    }));
+    document.getElementById("v09OpenToday").addEventListener("click", () => {
+      const detail = document.getElementById("v09TodayDetail");
+      detail.animate([{ transform: "translateY(3px)", opacity: .72 }, { transform: "translateY(0)", opacity: 1 }], { duration: 220 });
+      detail.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    const v09SetupPages = [
+      ["收入与休息", "先告诉我们月薪和每周休息方式。", '<div class="v09-config-row"><span>月薪</span><input class="field focus" value="12000" style="width:112px"></div><div class="v09-config-row"><span>休息制度</span><div class="v09-inline-choice"><button>单休</button><button class="active">双休</button><button>大小周</button></div></div>'],
+      ["几点开始工作？", "先只选择上班时间，后续内容会逐步出现。", '<div class="v09-config-row"><span>上班时间</span><input class="field focus" type="time" value="08:00" style="width:126px"></div><div class="v09-alert">默认按 8 小时有效工作时长推算。</div>'],
+      ["午休多长时间？", "午休从 12:00 开始；修改开始或结束时间时保持总时长不变。", '<div class="v09-config-row"><span>午休时长</span><select class="select" style="width:126px"><option>2 小时</option><option>1.5 小时</option><option>1 小时</option></select></div><div class="v09-config-row"><span>推算结果</span><strong>08:00 · 12:00-14:00 · 18:00</strong></div><div class="v09-config-row"><span>有效工作</span><strong>8 小时</strong></div>'],
+      ["宠物与确认", "检查中文配置摘要，再选择 Classic 或多多。", '<div class="v09-config-row"><span>月薪 / 休息</span><strong>12000 元 · 双休</strong></div><div class="v09-config-row"><span>工作安排</span><strong>08:00 · 午休 2h · 18:00</strong></div><div class="v09-config-row"><span>桌宠</span><div class="v09-inline-choice"><button class="active">Classic</button><button>多多</button></div></div>']
+    ];
+    let v09SetupStep = 0;
+    function renderV09Setup() {
+      const page = v09SetupPages[v09SetupStep];
+      document.getElementById("v09SetupTitle").textContent = page[0];
+      document.getElementById("v09SetupLead").textContent = page[1];
+      document.getElementById("v09SetupBody").innerHTML = page[2];
+      document.getElementById("v09SetupBack").disabled = v09SetupStep === 0;
+      document.getElementById("v09SetupNext").textContent = v09SetupStep === 3 ? "确认并保存" : "下一步";
+      document.querySelectorAll("[data-v09-step]").forEach((item, index) => item.classList.toggle("active", index === v09SetupStep));
+      document.getElementById("v09SetupFeedback").textContent = v09SetupStep === 3
+        ? "确认后才提交配置事务；保存失败时保留当前输入和旧配置。"
+        : "当前只展示本步骤需要回答的内容，后续字段由系统推算。";
+    }
+    document.getElementById("v09SetupNext").addEventListener("click", () => {
+      if (v09SetupStep < 3) {
+        v09SetupStep += 1;
+        renderV09Setup();
+      } else {
+        document.getElementById("v09SetupFeedback").textContent = "配置已保存。Settings 将显示相同的字段、结果和验证状态。";
+      }
+    });
+    document.getElementById("v09SetupBack").addEventListener("click", () => { v09SetupStep = Math.max(0, v09SetupStep - 1); renderV09Setup(); });
+    document.querySelectorAll("[data-v09-step]").forEach(item => item.addEventListener("click", () => { v09SetupStep = Number(item.dataset.v09Step); renderV09Setup(); }));
+
+    let v09Pet = "classic";
+    document.querySelectorAll("[data-v09-pet]").forEach(btn => btn.addEventListener("click", () => {
+      v09Pet = btn.dataset.v09Pet;
+      document.querySelectorAll("[data-v09-pet]").forEach(item => item.classList.toggle("active", item === btn));
+      const image = document.getElementById("v09PetImage");
+      const duoduo = document.getElementById("v09DuoduoPlaceholder");
+      image.style.display = v09Pet === "classic" ? "block" : "none";
+      duoduo.hidden = v09Pet !== "duoduo";
+      duoduo.style.display = v09Pet === "duoduo" ? "grid" : "none";
+      document.getElementById("v09PetFeedback").textContent = v09Pet === "classic"
+        ? "Classic：影子接入与桌面对照通过后，才允许成为新安装默认。"
+        : "多多：正式可选；先使用通用动作映射，满足明确条件后再补专属动作。";
+    }));
+
+    document.querySelectorAll("[data-v09-action]").forEach(btn => btn.addEventListener("click", () => {
+      document.querySelectorAll("[data-v09-action]").forEach(item => item.classList.toggle("active", item === btn));
+      const action = btn.dataset.v09Action;
+      const stage = document.getElementById("v09PetStage");
+      const image = document.getElementById("v09PetImage");
+      stage.classList.toggle("wide-hit", ["double", "waving", "celebrating"].includes(action));
+      image.classList.remove("act");
+      requestAnimationFrame(() => image.classList.add("act"));
+      window.setTimeout(() => image.classList.remove("act"), 420);
+      const actionLabels = { working: "making-money", awake_rest: "陪伴/放松动作池", sleeping: "sleeping", single: "状态感知单击", double: "状态感知双击", hold: "状态感知长按", waving: "waving", celebrating: "celebrating" };
+      document.getElementById("v09PetFeedback").textContent = `${v09Pet === "classic" ? "Classic" : "多多"} 请求：${actionLabels[action]}。完成后重新解析基础状态，命中轮廓随可见范围更新。`;
+    }));
+
+    document.querySelectorAll("[data-v09-base]").forEach(card => card.addEventListener("click", () => {
+      document.querySelectorAll("[data-v09-base]").forEach(item => item.classList.toggle("active", item === card));
+      const descriptions = {
+        working: "working → making-money。工作优先于 23:00-07:30 睡眠窗口。",
+        awake_rest: "awake_rest → 陪伴/放松动作池。午休期间金额与进度冻结。",
+        sleeping: "sleeping → sleeping。夜间不启用指针跟随。"
+      };
+      document.getElementById("v09RuntimeFeedback").textContent = descriptions[card.dataset.v09Base];
+    }));
+
+    document.querySelectorAll("[data-v09-gate]").forEach(btn => btn.addEventListener("click", () => {
+      const feedback = document.getElementById("v09GateFeedback");
+      const state = btn.dataset.v09Gate;
+      feedback.className = "v09-alert" + (state === "rollback" ? " error" : "");
+      feedback.textContent = state === "pass"
+        ? "P0、真实桌面和 v0.8 回归均通过，可进入 v0.9 发布候选。"
+        : state === "degrade"
+          ? "指针跟随或逐帧轮廓未过门禁：关闭该能力或降级动作 union，其余体验继续验收。"
+          : "Classic 默认门禁失败：保留影子接入，默认立即回到 v0.8 橘猫 v2。";
+    }));
   </script>
 </body>
 </html>

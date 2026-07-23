@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/scenes/today/today_detail_window.gd" id="1_today"]
+
+[node name="TodayDetailWindow" type="Window"]
+visible = false
+title = "今日详情"
+size = Vector2i(480, 600)
+min_size = Vector2i(460, 580)
+borderless = true
+transparent_bg = true
+unresizable = true
+force_native = true
+script = ExtResource("1_today")

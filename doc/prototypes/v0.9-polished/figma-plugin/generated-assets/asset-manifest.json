@@ -1,0 +1,67 @@
+{
+    "schema":  "lmm-figma-static-assets/v1",
+    "generated_by":  "figma-plugin/build.ps1",
+    "screenshot_assets":  0,
+    "assets":  {
+                   "classicWorking":  {
+                                          "source":  "assets/animation-plan/classic/making-money.gif",
+                                          "output":  "generated-assets/classicWorking.png",
+                                          "width":  192,
+                                          "height":  208,
+                                          "bytes":  13071,
+                                          "sha256":  "dabb4caa61c32467551e0dc9d8e0c38f936c6958bd0651609c2bf6aa2ea4e4a0",
+                                          "role":  "product-pet-keyframe",
+                                          "runtime_screenshot":  false
+                                      },
+                   "classicAwake":  {
+                                        "source":  "assets/animation-plan/classic/eating.gif",
+                                        "output":  "generated-assets/classicAwake.png",
+                                        "width":  192,
+                                        "height":  208,
+                                        "bytes":  12966,
+                                        "sha256":  "beb23f8e75d01e04a958bd05540dc99267a25c6dfc38e236e4e066367ce5641f",
+                                        "role":  "product-pet-keyframe",
+                                        "runtime_screenshot":  false
+                                    },
+                   "classicSleeping":  {
+                                           "source":  "assets/animation-plan/classic/sleeping.gif",
+                                           "output":  "generated-assets/classicSleeping.png",
+                                           "width":  192,
+                                           "height":  208,
+                                           "bytes":  9419,
+                                           "sha256":  "fddf7a71c269c6e17bbaecc238a4bf93e2dccd88ac530c1dc7ddd8d137a4812c",
+                                           "role":  "product-pet-keyframe",
+                                           "runtime_screenshot":  false
+                                       },
+                   "duoduoWorking":  {
+                                         "source":  "assets/animation-plan/duoduo/making-money.gif",
+                                         "output":  "generated-assets/duoduoWorking.png",
+                                         "width":  192,
+                                         "height":  208,
+                                         "bytes":  15680,
+                                         "sha256":  "45003930208ef95aa165406f0a872b977166b582cfeb768b1c329ec3a3c6fde8",
+                                         "role":  "product-pet-keyframe",
+                                         "runtime_screenshot":  false
+                                     },
+                   "duoduoAwake":  {
+                                       "source":  "assets/animation-plan/duoduo/eating.gif",
+                                       "output":  "generated-assets/duoduoAwake.png",
+                                       "width":  192,
+                                       "height":  208,
+                                       "bytes":  15440,
+                                       "sha256":  "af8e6aed858ec7e04fbe41f9c380432cb6633c24d2c9327d903e91ba1cd92328",
+                                       "role":  "product-pet-keyframe",
+                                       "runtime_screenshot":  false
+                                   },
+                   "duoduoSleeping":  {
+                                          "source":  "assets/animation-plan/duoduo/sleeping.gif",
+                                          "output":  "generated-assets/duoduoSleeping.png",
+                                          "width":  192,
+                                          "height":  208,
+                                          "bytes":  12169,
+                                          "sha256":  "a221d12e72f2cd131680d02bbfe622b246ae3e226e6ec75be4aa161b83d0ca33",
+                                          "role":  "product-pet-keyframe",
+                                          "runtime_screenshot":  false
+                                      }
+               }
+}

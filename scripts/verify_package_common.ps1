@@ -9,7 +9,9 @@ function Test-LmmPackage {
         [Parameter(Mandatory=$true)][string]$SmokeAppDataRoot,
         [int]$SmokeSeconds = 5,
         [switch]$RequireLicenses,
-        [switch]$SkipSmoke
+        [switch]$SkipSmoke,
+        [string[]]$RequiredRuntimeLogPatterns = @(),
+        [string[]]$ForbiddenRuntimeLogPatterns = @()
     )
     if (-not (Test-Path -LiteralPath $PackagePath)) { throw "Missing package: $PackagePath" }
     foreach ($path in @($ExtractRoot,$SmokeAppDataRoot)) { if(Test-Path -LiteralPath $path){Remove-Item -LiteralPath $path -Recurse -Force} }
@@ -37,6 +39,23 @@ function Test-LmmPackage {
         $configDir=Join-Path $env:APPDATA 'LetsMakeMoney';New-Item -ItemType Directory -Force -Path $configDir|Out-Null
         @{monthly_salary=12000;minimize_to_tray=$false;pure_pet_mode=$false;debug_mode=$false}|ConvertTo-Json|Set-Content -LiteralPath (Join-Path $configDir 'config.json') -Encoding UTF8
         try{$process=Start-Process -FilePath (Join-Path $ExtractRoot 'LetsMakeMoney.exe') -WorkingDirectory $ExtractRoot -WindowStyle Hidden -PassThru;Start-Sleep -Seconds $SmokeSeconds;if($process.HasExited){throw "Packaged exe exited with code $($process.ExitCode)"}}finally{if($process -and -not $process.HasExited){Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue;$process.WaitForExit(5000)|Out-Null}}
+      }
+      if ($RequiredRuntimeLogPatterns.Count -gt 0 -or $ForbiddenRuntimeLogPatterns.Count -gt 0) {
+        $runtimeLog = Join-Path $SmokeAppDataRoot 'LetsMakeMoney\debug.log'
+        if (-not (Test-Path -LiteralPath $runtimeLog)) {
+          throw "Packaged runtime did not create debug.log: $runtimeLog"
+        }
+        $runtimeLogText = Get-Content -LiteralPath $runtimeLog -Raw -Encoding UTF8
+        foreach ($pattern in $RequiredRuntimeLogPatterns) {
+          if ($runtimeLogText -notmatch [regex]::Escape($pattern)) {
+            throw "Packaged runtime log is missing required evidence: $pattern"
+          }
+        }
+        foreach ($pattern in $ForbiddenRuntimeLogPatterns) {
+          if ($runtimeLogText -match [regex]::Escape($pattern)) {
+            throw "Packaged runtime log contains forbidden evidence: $pattern"
+          }
+        }
       }
     }
     Write-Host "Package verification passed: $ExpectedVersion" -ForegroundColor Green

@@ -43,20 +43,41 @@ function Resolve-LmmGodotExecutable {
     param([string]$ExplicitPath = "")
 
     if ($ExplicitPath -and (Test-Path -LiteralPath $ExplicitPath)) {
-        return (Resolve-Path -LiteralPath $ExplicitPath).Path
+        return Resolve-LmmGodotConsoleExecutable -Path $ExplicitPath
     }
     $candidates = @("$env:LMM_GODOT_EXE")
     foreach ($candidate in $candidates) {
         if ([string]::IsNullOrWhiteSpace($candidate)) { continue }
         if (Test-Path -LiteralPath $candidate) {
-            return (Resolve-Path -LiteralPath $candidate).Path
+            return Resolve-LmmGodotConsoleExecutable -Path $candidate
         }
     }
     foreach ($command in @("godot", "godot4")) {
         $resolved = Get-Command $command -ErrorAction SilentlyContinue
-        if ($resolved) { return $resolved.Source }
+        if ($resolved) { return Resolve-LmmGodotConsoleExecutable -Path $resolved.Source }
     }
     throw "Godot executable not found. Pass -GodotExe explicitly."
+}
+
+function Resolve-LmmGodotConsoleExecutable {
+    param([Parameter(Mandatory=$true)][string]$Path)
+
+    $resolvedPath = (Resolve-Path -LiteralPath $Path).Path
+    $isWindowsPlatform = [Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT
+    if (-not $isWindowsPlatform -or $resolvedPath.EndsWith("_console.exe", [StringComparison]::OrdinalIgnoreCase)) {
+        return $resolvedPath
+    }
+
+    if ($resolvedPath.EndsWith(".exe", [StringComparison]::OrdinalIgnoreCase)) {
+        $directory = Split-Path -Parent $resolvedPath
+        $stem = [IO.Path]::GetFileNameWithoutExtension($resolvedPath)
+        $consolePath = Join-Path $directory "${stem}_console.exe"
+        if (Test-Path -LiteralPath $consolePath -PathType Leaf) {
+            return (Resolve-Path -LiteralPath $consolePath).Path
+        }
+    }
+
+    return $resolvedPath
 }
 
 function Initialize-LmmGodotClassCache {

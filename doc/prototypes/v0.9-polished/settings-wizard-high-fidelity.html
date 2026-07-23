@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LetsMakeMoney · Settings / Wizard 高保真原型</title>
+  <link rel="stylesheet" href="settings-wizard-high-fidelity.css?v=20260721-2340">
+</head>
+<body>
+  <svg class="svg-library" width="0" height="0" aria-hidden="true" focusable="false">
+    <symbol id="hf-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="hf-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="hf-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="hf-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="hf-alert" viewBox="0 0 24 24"><path d="M12 4 3.5 19h17L12 4Z"/><path d="M12 9v4M12 16.5v.1"/></symbol>
+    <symbol id="hf-folder" viewBox="0 0 24 24"><path d="M3 7.5h7l2-2h9v13H3z"/></symbol>
+    <symbol id="hf-rotate" viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 2.3 5.7M4 11V5m0 6h6"/></symbol>
+  </svg>
+
+  <header class="prototype-bar">
+    <a class="prototype-brand" href="window-quality-review.html" aria-label="返回窗口质感审查稿">
+      <img src="../../../icons/app_icon_64.png" alt="">
+      <span>LetsMakeMoney</span>
+      <small>高保真原型</small>
+    </a>
+    <nav class="view-switch" aria-label="原型页面">
+      <button type="button" data-view="desktop">Panel</button>
+      <button class="active" type="button" data-view="settings">Settings</button>
+      <button type="button" data-view="wizard">Wizard</button>
+    </nav>
+    <label class="scenario-control">
+      <span>保存场景</span>
+      <select id="saveScenario">
+        <option value="success">正常</option>
+        <option value="failure">模拟失败</option>
+      </select>
+    </label>
+  </header>
+
+  <main class="desktop-canvas" aria-live="polite">
+    <div class="desktop-copy" aria-hidden="true">
+      <strong>Warm Desktop</strong>
+      <span>单层窗口 · 稳定密度 · 明确反馈</span>
+    </div>
+
+    <section class="desktop-view" data-view-panel="desktop" aria-label="桌面陪伴">
+      <div class="pet-stage">
+        <img src="../../../assets/pets/cat/orange_v2/idle/cat_orange_v2_idle_00.png" alt="橘猫桌宠">
+      </div>
+      <button class="income-panel compact" id="openSettingsFromPanel" type="button" aria-label="打开偏好设置">
+        <span class="panel-label">今日已赚</span>
+        <strong class="panel-amount">¥ 377.50</strong>
+        <span class="state-chip">工作中</span>
+        <span class="panel-progress" aria-hidden="true"><i></i></span>
+      </button>
+    </section>
+
+    <section class="window-stage active" data-view-panel="settings" aria-label="偏好设置高保真原型">
+      <div class="scale-frame settings-frame">
+        <section class="product-window settings-window">
+          <div class="settings-tabs" role="tablist" aria-label="偏好设置分类">
+            <button class="active" type="button" role="tab" aria-selected="true" data-settings-tab="salary">工资</button>
+            <button type="button" role="tab" aria-selected="false" data-settings-tab="schedule">作息</button>
+            <button type="button" role="tab" aria-selected="false" data-settings-tab="pet">桌宠</button>
+            <button type="button" role="tab" aria-selected="false" data-settings-tab="display">显示</button>
+            <button type="button" role="tab" aria-selected="false" data-settings-tab="general">通用</button>
+            <button class="icon-button window-close" type="button" aria-label="关闭设置"><svg class="icon"><use href="#hf-x"/></svg></button>
+          </div>
+
+          <div class="settings-content">
+            <div class="settings-heading">
+              <div>
+                <h1 id="settingsTitle">工资设置</h1>
+                <p id="settingsSubtitle">设置收入计算的基础。</p>
+              </div>
+              <span class="sync-state" id="syncState"><svg class="icon"><use href="#hf-check"/></svg>已同步</span>
+            </div>
+
+            <section class="settings-page active" data-settings-page="salary">
+              <p class="section-label">收入</p>
+              <div class="setting-list">
+                <label class="setting-row">
+                  <span class="setting-copy"><strong>月薪</strong></span>
+                  <span class="setting-control input-with-unit"><input class="field dirty-control" id="salaryInput" value="10,000" inputmode="decimal"><em>元</em></span>
+                </label>
+                <div class="setting-row">
+                  <span class="setting-copy"><strong>休息模式</strong></span>
+                  <span class="setting-control">
+                    <span class="select-wrap">
+                      <button class="select-button" type="button" data-select-trigger="restMode" aria-expanded="false"><span>双休</span><svg class="icon"><use href="#hf-chevron-down"/></svg></button>
+                      <span class="select-popover" data-select-menu="restMode">
+                        <button type="button">单休</button><button class="selected" type="button">双休</button><button type="button">大小周</button>
+                      </span>
+                    </span>
+                  </span>
+                </div>
+                <div class="setting-row read-only-row">
+                  <span class="setting-copy"><strong>每日有效工时</strong><small>根据作息自动计算</small></span>
+                  <span class="setting-control value-text">8 小时</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="settings-page" data-settings-page="schedule">
+              <p class="section-label">工作日</p>
+              <div class="setting-list">
+                <div class="setting-row">
+                  <span class="setting-copy"><strong>上班时间</strong></span>
+                  <span class="setting-control"><button class="time-button dirty-control" type="button"><span>08:00</span><svg class="icon"><use href="#hf-clock"/></svg></button></span>
+                </div>
+                <div class="setting-row">
+                  <span class="setting-copy"><strong>午休时长</strong></span>
+                  <span class="setting-control">
+                    <span class="select-wrap">
+                      <button class="select-button" type="button" data-select-trigger="lunchDuration" aria-expanded="false"><span>2 小时</span><svg class="icon"><use href="#hf-chevron-down"/></svg></button>
+                      <span class="select-popover" data-select-menu="lunchDuration"><button type="button">1 小时</button><button type="button">1.5 小时</button><button class="selected" type="button">2 小时</button></span>
+                    </span>
+                  </span>
+                </div>
+                <div class="setting-row">
+                  <span class="setting-copy"><strong>午休开始</strong><small>结束时间会自动推算</small></span>
+                  <span class="setting-control"><button class="time-button dirty-control" type="button"><span>12:00</span><svg class="icon"><use href="#hf-clock"/></svg></button></span>
+                </div>
+                <div class="setting-row read-only-row">
+                  <span class="setting-copy"><strong>下班时间</strong><small>按 8 小时有效工时计算</small></span>
+                  <span class="setting-control value-text">18:00</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="settings-page" data-settings-page="pet">
+              <p class="section-label">伙伴</p>
+              <div class="setting-list">
+                <div class="setting-row">
+                  <span class="setting-copy"><strong>当前宠物</strong></span>
+                  <span class="setting-control">
+                    <span class="select-wrap">
+                      <button class="select-button wide" type="button" data-select-trigger="petChoice" aria-expanded="false"><span>Classic Pro</span><svg class="icon"><use href="#hf-chevron-down"/></svg></button>
+                      <span class="select-popover wide" data-select-menu="petChoice"><button class="selected" type="button">Classic Pro</button><button type="button">多多</button><button type="button">v0.8 橘猫</button></span>
+                    </span>
+                  </span>
+                </div>
+                <div class="setting-row">
+                  <span class="setting-copy"><strong>状态感知动作</strong><small>根据工作与休息状态切换动作</small></span>
+                  <span class="setting-control"><button class="toggle on dirty-control" type="button" aria-pressed="true"><i></i></button></span>
+                </div>
+                <div class="setting-row">
+                  <span class="setting-copy"><strong>回滚默认宠物</strong><small>恢复 v0.8 橘猫资源</small></span>
+                  <span class="setting-control"><button class="button secondary compact-button" id="rollbackPet" type="button"><svg class="icon"><use href="#hf-rotate"/></svg>恢复</button></span>
+                </div>
+              </div>
+              <div class="inline-note">宠物资源损坏时会自动回退，不影响收入计算与窗口找回。</div>
+            </section>
+
+            <section class="settings-page" data-settings-page="display">
+              <p class="section-label">视觉</p>
+              <div class="setting-list">
+                <label class="setting-row">
+                  <span class="setting-copy"><strong>透明度</strong></span>
+                  <span class="setting-control slider-wrap"><input class="dirty-control" type="range" min="50" max="100" value="100" data-output="opacityValue"><b id="opacityValue">100%</b></span>
+                </label>
+                <label class="setting-row">
+                  <span class="setting-copy"><strong>缩放</strong></span>
+                  <span class="setting-control slider-wrap"><input class="dirty-control" type="range" min="70" max="150" value="100" data-output="scaleValue"><b id="scaleValue">100%</b></span>
+                </label>
+              </div>
+              <p class="section-label section-gap">窗口</p>
+              <div class="setting-list">
+                <div class="setting-row">
+                  <span class="setting-copy"><strong>窗口模式</strong></span>
+                  <span class="setting-control">
+                    <span class="select-wrap">
+                      <button class="select-button wide" type="button" data-select-trigger="windowMode" aria-expanded="false"><span>置顶悬浮</span><svg class="icon"><use href="#hf-chevron-down"/></svg></button>
+                      <span class="select-popover wide" data-select-menu="windowMode"><button class="selected" type="button">置顶悬浮</button><button type="button">普通窗口</button><button type="button">跟随桌宠</button></span>
+                    </span>
+                  </span>
+                </div>
+                <div class="setting-row">
+                  <span class="setting-copy"><strong>纯桌宠模式</strong><small>隐藏任务栏入口，仅保留桌宠</small></span>
+                  <span class="setting-control"><button class="toggle dirty-control" type="button" aria-pressed="false"><i></i></button></span>
+                </div>
+              </div>
+              <div class="inline-note">点击穿透由透明区域自动计算；打开菜单、设置或向导时会临时暂停。</div>
+            </section>
+
+            <section class="settings-page" data-settings-page="general">
+              <p class="section-label">启动</p>
+              <div class="setting-list">
+                <div class="setting-row"><span class="setting-copy"><strong>开机自启</strong></span><span class="setting-control"><button class="toggle dirty-control" type="button" aria-pressed="false"><i></i></button></span></div>
+                <div class="setting-row"><span class="setting-copy"><strong>关闭时隐藏到托盘</strong></span><span class="setting-control"><button class="toggle on dirty-control" type="button" aria-pressed="true"><i></i></button></span></div>
+              </div>
+              <p class="section-label section-gap">维护</p>
+              <div class="setting-list">
+                <div class="setting-row"><span class="setting-copy"><strong>重置窗口位置</strong></span><span class="setting-control"><button class="button secondary compact-button" type="button">重置</button></span></div>
+                <div class="setting-row"><span class="setting-copy"><strong>数据目录</strong><small>配置、日志和备份</small></span><span class="setting-control"><button class="button secondary compact-button" type="button"><svg class="icon"><use href="#hf-folder"/></svg>打开</button></span></div>
+              </div>
+            </section>
+          </div>
+
+          <div class="actionbar">
+            <span class="feedback" id="settingsFeedback">没有未保存的更改</span>
+            <div><button class="button secondary" id="resetSettings" type="button">恢复默认</button><button class="button primary" id="saveSettings" type="button">保存</button></div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="window-stage" data-view-panel="wizard" aria-label="首次配置高保真原型">
+      <div class="scale-frame wizard-frame">
+        <section class="product-window wizard-window">
+          <aside class="wizard-rail">
+            <h1>开始配置</h1>
+            <p>四步完成收入进度</p>
+            <ol class="wizard-steps" id="wizardSteps">
+              <li class="active"><span>1</span><b>收入与休息</b></li>
+              <li><span>2</span><b>上班时间</b></li>
+              <li><span>3</span><b>午休时长</b></li>
+              <li><span>4</span><b>确认配置</b></li>
+            </ol>
+            <div class="wizard-local-note"><svg class="icon"><use href="#hf-check"/></svg><span>配置仅保存在本机</span></div>
+          </aside>
+          <div class="wizard-main">
+            <div class="wizard-top"><span id="wizardCounter">第 1 步，共 4 步</span><button class="icon-button window-close" type="button" aria-label="关闭向导"><svg class="icon"><use href="#hf-x"/></svg></button></div>
+            <div class="wizard-content" id="wizardContent"></div>
+            <div class="wizard-actions">
+              <button class="button secondary" id="wizardCancel" type="button">取消</button>
+              <div><button class="button secondary" id="wizardBack" type="button" disabled>上一步</button><button class="button primary" id="wizardNext" type="button">下一步</button></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <div class="taskbar" aria-hidden="true"><span class="taskbar-app"><img src="../../../icons/app_icon_64.png" alt="">LetsMakeMoney</span><time>14:28</time></div>
+  </main>
+
+  <div class="toast" id="toast" role="status"><svg class="icon"><use href="#hf-check"/></svg><span>已更新</span></div>
+  <div class="modal-backdrop" id="confirmBackdrop" hidden>
+    <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <span class="confirm-icon"><svg class="icon"><use href="#hf-rotate"/></svg></span>
+      <h2 id="confirmTitle">恢复默认设置？</h2>
+      <p>当前修改将被默认值替换，保存后才会生效。</p>
+      <div><button class="button secondary" id="cancelReset" type="button">取消</button><button class="button primary" id="confirmReset" type="button">恢复默认</button></div>
+    </section>
+  </div>
+  <script src="settings-wizard-high-fidelity.js?v=20260721-2340"></script>
+</body>
+</html>

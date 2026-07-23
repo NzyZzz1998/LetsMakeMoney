@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LMM Windows v0.9 Design Builder</title>
+  <style>
+    :root { color-scheme: light dark; font-family: Inter, "Microsoft YaHei UI", sans-serif; }
+    body { margin: 0; padding: 20px; background: var(--figma-color-bg); color: var(--figma-color-text); }
+    h1 { margin: 0 0 8px; font-size: 18px; }
+    p { margin: 0 0 16px; color: var(--figma-color-text-secondary); font-size: 12px; line-height: 1.6; }
+    .pages { margin: 0 0 12px; padding: 12px; border: 1px solid var(--figma-color-border); border-radius: 6px; font-size: 12px; line-height: 1.8; }
+    .warning { margin: 0 0 16px; color: var(--figma-color-text-secondary); font-size: 11px; line-height: 1.55; }
+    button { width: 100%; height: 36px; border: 0; border-radius: 6px; background: var(--figma-color-bg-brand); color: var(--figma-color-text-onbrand); font-weight: 600; cursor: pointer; }
+    button:disabled { opacity: .55; cursor: default; }
+    #status { min-height: 40px; margin-top: 14px; padding: 10px; border-radius: 6px; background: var(--figma-color-bg-secondary); font-size: 12px; line-height: 1.5; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>LMM Windows v0.9 Design Builder</h1>
+  <p>生成 LetsMakeMoney 单页全产品可编辑设计：桌宠、Panel、今日详情、Wizard、Settings、菜单、托盘、诊断、更新、反馈和就近控件契约集中在 LMM 01 大画布。</p>
+  <div class="pages">
+    LMM 01 Full Product Flow<br>
+    <small>旧 LMM 页面仅在 Shared Plugin Data 所有权验证通过后移除；其他页面保持不变。</small>
+  </div>
+  <div class="warning">插件不会创建新的 Figma 文件，不调用 Figma MCP，也不嵌入 Godot 运行截图。</div>
+  <button id="build">生成 / 更新 LMM 设计</button>
+  <div id="status">准备就绪</div>
+  <script>
+    const assets = __ASSET_PAYLOAD_JSON__;
+    const button = document.getElementById("build");
+    const status = document.getElementById("status");
+    button.onclick = () => {
+      button.disabled = true;
+      status.textContent = "正在验证页面所有权、素材哈希并重建 LMM 设计...";
+      parent.postMessage({ pluginMessage: { type: "build", assets } }, "*");
+    };
+    onmessage = (event) => {
+      const message = event.data && event.data.pluginMessage;
+      if (!message) return;
+      status.textContent = message.message || message.text || "";
+      if (message.type === "done") button.textContent = "再次运行：幂等更新";
+      if (message.type === "done" || message.type === "error") button.disabled = false;
+    };
+  </script>
+</body>
+</html>

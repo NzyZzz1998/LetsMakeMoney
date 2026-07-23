@@ -4,8 +4,10 @@ extends Resource
 
 @export var pet_id: String = ""
 @export var display_name: String = ""
+@export var description: String = ""
 @export var sprite_frames: SpriteFrames
 @export var thumbnail: Texture2D
+@export var runtime_profile: Resource = null
 
 # 动画名与 SpriteFrames 中的动画名严格一致。
 # 基础动画: idle / working / resting

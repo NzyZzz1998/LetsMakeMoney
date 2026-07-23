@@ -13,6 +13,7 @@ export_credentials.cfg
 /releases/v0.6/
 /releases/v0.7/
 /releases/v0.8/
+/releases/v0.9/
 /deliverables/
 .godot_user_v05/
 assets/pets/cat/orange_v2/_incoming/
@@ -40,6 +41,9 @@ native/windows/**/*.obj
 /.tmp_public_audit/
 /.tmp_installer/
 /.tmp_update/
+/.tmp_ui_review*/
+/.superpowers/
+/.tmp_*.log
 
 # Local runtime data and diagnostics
 config.json
@@ -73,6 +77,9 @@ test_*.gd.uid
 # Archived experiments should not add Godot import metadata noise
 experiments/**/*.import
 temp/**/*.import
+
+# Figma plugin PNGs are documentation assets, not Godot runtime textures
+doc/prototypes/v0.9-polished/figma-plugin/generated-assets/*.png.import
 
 # OS
 .DS_Store

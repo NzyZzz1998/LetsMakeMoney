@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LetsMakeMoney v0.9 全链路精修原型</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="flow-rail" aria-label="原型流程导航">
+      <a class="brand" href="../index.html" title="返回原型总览">
+        <img src="../../../icons/app_icon_64.png" alt="">
+        <span><strong>LetsMakeMoney</strong><small>v0.9 全链路精修</small></span>
+      </a>
+
+      <p class="eyebrow">用户链路</p>
+      <nav id="flowNav">
+        <button class="flow-link active" data-screen="desktop"><span>01</span>桌面陪伴</button>
+        <button class="flow-link" data-screen="today"><span>02</span>今日详情</button>
+        <button class="flow-link" data-screen="wizard"><span>03</span>首次配置</button>
+        <button class="flow-link" data-screen="settings"><span>04</span>偏好设置</button>
+        <button class="flow-link" data-screen="pet"><span>05</span>宠物外观</button>
+        <button class="flow-link" data-screen="menu"><span>06</span>菜单与找回</button>
+      </nav>
+
+      <div class="rail-note">
+        <span class="status-dot"></span>
+        <div><strong>界面审核稿</strong><small>动画语义后续单独对齐</small></div>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">v0.9 体验重塑</p>
+          <h1 id="screenTitle">桌面陪伴</h1>
+          <p id="screenLead">让收入、安排和桌宠在桌面上形成一个安静、清晰的整体。</p>
+        </div>
+        <div class="top-actions">
+          <button class="icon-button" id="motionToggle" aria-pressed="false" title="切换动效">◌</button>
+          <a class="review-link" href="animation-one-to-many.html">动画 1→N</a>
+          <a class="review-link" href="window-quality-review.html">窗口质感 R1</a>
+          <span class="build-chip">UI 审核稿 R3</span>
+        </div>
+      </header>
+
+      <section class="screen active" data-view="desktop">
+        <div class="desktop-stage">
+          <div class="ambient-copy">
+            <span class="day-chip">周五 · 工作日</span>
+            <h2>时间在流动，<br>收入也在发生。</h2>
+            <p>Panel 只保留桌面上需要扫一眼的信息。完整安排和调整入口放进今日详情。</p>
+            <div class="segmented" aria-label="状态演示">
+              <button class="active" data-desktop-state="working">工作中</button>
+              <button data-desktop-state="resting">休息中</button>
+            </div>
+          </div>
+
+          <div class="desktop-demo">
+            <div class="pet-wrap" id="desktopPet">
+              <canvas id="desktopPetCanvas" class="pet-canvas desktop-pet-canvas" width="384" height="416" aria-label="PetManager Classic Pro 动画预览"></canvas>
+              <div class="pet-bubble" id="petBubble">今天也在认真积累</div>
+              <button class="pet-hit" id="petWave" aria-label="和橘猫互动"></button>
+            </div>
+
+            <button class="earnings-panel" id="openToday">
+              <span class="coin-mark">¥</span>
+              <span class="panel-copy">
+                <small>今日已赚</small>
+                <strong id="panelAmount">¥ 186.42</strong>
+                <span id="panelStatus">工作中 · 距午休 38 分钟</span>
+                <i><b id="panelProgress"></b></i>
+              </span>
+              <span class="panel-more">›</span>
+            </button>
+          </div>
+
+          <div class="desktop-dock">
+            <span><i class="online"></i>点击桌宠触发状态感知动作</span>
+            <span>点击收入便签查看详情</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-view="today">
+        <div class="window-frame today-window">
+          <div class="window-titlebar">
+            <div><span class="coin-mark small">¥</span><strong>今日详情</strong></div>
+            <button class="icon-button close-demo" title="关闭">×</button>
+          </div>
+          <div class="today-grid">
+            <article class="hero-receipt">
+              <div class="receipt-head">
+                <span class="day-chip">工作中</span>
+                <small>工作日 · 08:00-18:00</small>
+              </div>
+              <div class="earning-overview">
+                <div class="earning-copy">
+                  <p>今日已赚</p>
+                  <strong>¥ 186.42</strong>
+                  <span class="salary-basis">日薪 ¥ 500.00 · 时薪 ¥ 62.50</span>
+                </div>
+                <div class="progress-dial" role="img" aria-label="工作进度 56%">
+                  <div><strong>56%</strong><span>工作进度</span></div>
+                </div>
+              </div>
+              <div class="next-milestone">
+                <span>下一节点</span>
+                <b>午休 · 12:00</b>
+                <small>还有 38 分钟</small>
+              </div>
+            </article>
+            <article class="schedule-sheet">
+              <div class="section-heading"><div><small>今天</small><h3>今日安排</h3></div><button class="text-action">调整今天</button></div>
+              <ol class="timeline">
+                <li class="done"><span>08:00</span><div><b>开始工作</b><small>已完成 3 小时 22 分钟</small></div></li>
+                <li class="current"><span>12:00</span><div><b>午休</b><small>12:00-14:00</small></div></li>
+                <li><span>18:00</span><div><b>结束工作</b><small>预计今日收入 ¥ 500.00</small></div></li>
+              </ol>
+            </article>
+            <article class="month-summary">
+              <div><small>本月累计</small><strong>¥ 3,842.00</strong></div>
+              <div><small>本月工作日</small><strong>23 天</strong></div>
+              <div><small>距离下班</small><strong>4:38:20</strong></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-view="wizard">
+        <div class="wizard-layout">
+          <div class="wizard-side">
+            <span class="coin-mark">¥</span>
+            <p class="eyebrow">3 分钟完成</p>
+            <h2>先告诉我你的工作节奏。</h2>
+            <p>只问当前步骤需要的内容，后续时间由系统推算，你随时可以调整。</p>
+            <ol id="wizardSteps">
+              <li class="active"><span>1</span>收入与休息</li>
+              <li><span>2</span>上班时间</li>
+              <li><span>3</span>午休时长</li>
+              <li><span>4</span>确认安排</li>
+            </ol>
+          </div>
+          <div class="wizard-card">
+            <div class="wizard-progress"><i id="wizardProgress"></i></div>
+            <div id="wizardContent"></div>
+            <div class="wizard-actions">
+              <button class="button secondary" id="wizardBack">上一步</button>
+              <button class="button primary" id="wizardNext">下一步</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-view="settings">
+        <div class="window-frame settings-window">
+          <div class="settings-tabs" id="settingsTabs">
+            <button class="active" data-tab="salary">工资</button>
+            <button data-tab="schedule">作息</button>
+            <button data-tab="pet">桌宠</button>
+            <button data-tab="display">显示</button>
+            <button data-tab="general">通用</button>
+            <button class="icon-button close-demo" title="关闭">×</button>
+          </div>
+          <div class="settings-body">
+            <div class="settings-heading"><div><p class="eyebrow">偏好设置</p><h2 id="settingsTitle">工资设置</h2><p id="settingsLead">收入小票的计算来源。</p></div><span class="saved-state" id="saveState">已同步</span></div>
+            <div id="settingsContent"></div>
+          </div>
+          <div class="actionbar">
+            <span id="inlineFeedback"></span>
+            <div><button class="button secondary" id="resetSettings">恢复默认</button><button class="button primary" id="saveSettings">保存</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-view="pet">
+        <div class="pet-studio">
+          <div class="pet-sidebar">
+            <p class="eyebrow">宠物伙伴</p>
+            <h2>动作有语义，<br>不只是换一张图。</h2>
+            <div class="pet-choice" id="petChoice">
+              <button class="active" data-pet="classic"><span class="pet-avatar classic">橘</span><div><b>Classic Pro</b><small>默认候选 · 平滑动画</small></div></button>
+              <button data-pet="duoduo"><span class="pet-avatar duoduo">多</span><div><b>多多</b><small>正式可选 · 通用合同</small></div></button>
+            </div>
+            <div class="contract-note"><b>同一运行时合同</b><span>逐帧时长 · 锚点 · 脚底线 · 动态命中区</span></div>
+          </div>
+          <div class="pet-preview-card">
+            <div class="preview-toolbar"><span id="petStageLabel">Classic Pro · making-money · 8 帧</span><span class="runtime-ok">PetManager atlas</span></div>
+            <div class="pet-stage">
+              <div class="focus-ring"></div>
+              <canvas id="petPreviewCanvas" class="pet-canvas pet-preview-canvas" width="384" height="416" aria-label="宠物动作逐帧预览"></canvas>
+              <span id="petPreview" hidden></span>
+              <span class="baseline"></span>
+            </div>
+            <div class="action-palette" id="actionPalette">
+              <button class="active" data-action="working">工作</button>
+              <button data-action="rest">清醒休息</button>
+              <button data-action="sleep">睡眠</button>
+              <button data-action="single">状态单击</button>
+              <button data-action="run">长按拖拽跑动</button>
+              <button data-action="event">午休 / 下班事件</button>
+            </div>
+            <p class="runtime-note" id="runtimeNote">当前预览已嵌入 PetManager 的真实 extra-actions.webp atlas，按 actions.json 的逐帧时长播放。</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-view="menu">
+        <div class="menu-stage">
+          <div class="menu-explainer">
+            <p class="eyebrow">入口分层</p>
+            <h2>桌宠菜单做当下操作，<br>托盘菜单负责找回与维护。</h2>
+            <p>高频动作靠近桌宠，系统级动作留在通知区。两边不再复制一整套命令。</p>
+            <div class="menu-switcher" id="menuSwitcher"><button class="active" data-menu="pet">桌宠右键</button><button data-menu="tray">托盘菜单</button></div>
+          </div>
+          <div class="context-area">
+            <canvas id="menuPetCanvas" class="pet-canvas menu-pet-canvas" width="384" height="416" aria-label="菜单场景宠物动画"></canvas>
+            <div class="context-menu" id="contextMenu"></div>
+          </div>
+          <div class="recovery-path">
+            <span><i>1</i>隐藏到托盘</span><b>→</b><span><i>2</i>左键托盘图标</span><b>→</b><span><i>3</i>恢复桌宠与窗口策略</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>

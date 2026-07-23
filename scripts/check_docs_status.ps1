@@ -17,6 +17,8 @@ $current = Read-Utf8 (Join-Path $Root "doc/current.md")
 $v08Verification = Read-Utf8 (Join-Path $Root "doc/releases/v0.8/verification.md")
 $v08ReleaseNotes = Read-Utf8 (Join-Path $Root "doc/releases/v0.8/release-notes.md")
 $v08Checklist = Read-Utf8 (Join-Path $Root "doc/releases/v0.8/release-checklist.md")
+$v09Progress = Read-Utf8 (Join-Path $Root "doc/releases/v0.9/progress_v0.9.md")
+$v09Verification = Read-Utf8 (Join-Path $Root "doc/releases/v0.9/verification.md")
 $v07Status = Read-Utf8 (Join-Path $Root "doc/releases/v0.7/status.md")
 $v07Progress = Read-Utf8 (Join-Path $Root "doc/releases/v0.7/progress_v0.7.md")
 $v07Readiness = Read-Utf8 (Join-Path $Root "doc/releases/v0.7/public-readiness.md")
@@ -34,7 +36,9 @@ if (-not $v08ReleaseNotes.Contains("v0.8-beta") -or -not $v08ReleaseNotes.Contai
 if (-not $v08Checklist.Contains("https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.8-beta") -or -not $v08Checklist.Contains("a330d14230add1537b18c35c8ad38c6ae43430a2")) { $issues.Add("v0.8 release checklist is missing the final commit or Release URL.") }
 if (-not $v07Current.Contains("GitHub Pre-release") -or -not $v07Current.Contains("16F47A844EFD78D387E9D08FBCD3DE76C8C8BDD518731C1B0BA022E7F598121F")) { $issues.Add("v0.7 current snapshot is missing the published release state or Zip hash.") }
 if (-not $readme.Contains("scripts\verify_v08.ps1") -or -not $readme.Contains("scripts\package_v08.ps1")) { $issues.Add("README does not expose the current v0.8 verification and packaging entry points.") }
-if (-not ($project -match 'config/version="0\.8-beta"')) { $issues.Add("project.godot must identify the published v0.8 Beta line.") }
+if (-not ($project -match 'config/version="0\.9-beta"')) { $issues.Add("project.godot must identify the active v0.9 Beta candidate line.") }
+if ($v09Progress -notmatch "Windows v0\.9 Beta" -or $v09Progress -notmatch "V09-M7") { $issues.Add("v0.9 progress does not identify the active candidate line or M7.") }
+if (-not ($v09Verification.Contains("Windows v0.9 Beta") -and $v09Verification.Contains("V09-ACC"))) { $issues.Add("v0.9 verification is missing the candidate identity or independent acceptance boundary.") }
 if ($v07Status -notmatch "V07-A0" -or $v07Status -notmatch "v0\.7") { $issues.Add("v0.7 status does not record A0.") }
 if ($v07Progress -notmatch "V07-A0-001" -or $v07Progress -notmatch "V07-A0-008") { $issues.Add("v0.7 progress is missing A0 tasks.") }
 if ($v07Readiness -notmatch "A0/A1/A2/A3" -or $v07Readiness -notmatch "v0\.7") { $issues.Add("public-readiness does not preserve repository and v0.7 release gates.") }
@@ -47,4 +51,4 @@ if ($issues.Count -gt 0) {
     exit 1
 }
 
-Write-Host "Docs status check passed: v0.8 release and v0.7/v0.6 baseline facts are consistent." -ForegroundColor Green
+Write-Host "Docs status check passed: v0.9 candidate and v0.8/v0.7/v0.6 release facts are consistent." -ForegroundColor Green

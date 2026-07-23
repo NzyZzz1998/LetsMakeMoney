@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NzyZzz1998/LetsMakeMoney/shared/salary-schema/v1/schema.json",
+  "title": "LetsMakeMoney salary-schema v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "monthlySalaryMinor", "currencyCode", "restMode",
+    "workStart", "workEnd", "lunchStart", "lunchEnd", "standardWorkSeconds",
+    "dateOverrides", "holidayDatasetVersion", "notificationPreference", "watchMetric"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "monthlySalaryMinor": { "type": "integer", "minimum": 0, "maximum": 9000000000000 },
+    "currencyCode": { "type": "string", "pattern": "^[A-Z]{3}$" },
+    "restMode": { "enum": ["doubleWeekend", "singleWeekend", "alternatingWeekend"] },
+    "alternatingAnchor": { "type": ["string", "null"], "format": "date" },
+    "workStart": { "$ref": "#/$defs/localTime" },
+    "workEnd": { "$ref": "#/$defs/localTime" },
+    "lunchStart": { "$ref": "#/$defs/localTime" },
+    "lunchEnd": { "$ref": "#/$defs/localTime" },
+    "standardWorkSeconds": { "type": "integer", "minimum": 1, "maximum": 86400 },
+    "dateOverrides": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/dateOverride" }
+    },
+    "holidayDatasetVersion": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "notificationPreference": { "enum": ["notRequested", "allowed", "denied"] },
+    "watchMetric": { "enum": ["remainingTime", "todayIncome", "progress"] }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "restMode": { "const": "alternatingWeekend" } },
+        "required": ["restMode"]
+      },
+      "then": {
+        "required": ["alternatingAnchor"],
+        "properties": { "alternatingAnchor": { "type": "string", "format": "date" } }
+      }
+    }
+  ],
+  "$defs": {
+    "localTime": {
+      "type": "string",
+      "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$"
+    },
+    "dateOverride": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "isWorkday", "isPaid"],
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "isWorkday": { "type": "boolean" },
+        "isPaid": { "type": "boolean" },
+        "effectiveWorkSeconds": { "type": ["integer", "null"], "minimum": 1, "maximum": 86400 }
+      }
+    }
+  }
+}

@@ -27,6 +27,11 @@ try {
     $cleanPassed = $?
     if (-not $cleanPassed) { throw 'Clean asset fixture must pass.' }
 
+    Write-Text (Join-Path $clean 'releases/v0.9/candidate/app_icon.ico') 'generated copy'
+    & $checker -Root $clean
+    $generatedOutputPassed = $?
+    if (-not $generatedOutputPassed) { throw 'Generated release copies must not be treated as new source assets.' }
+
     Write-Text (Join-Path $clean 'assets/unknown/unknown.png') 'fixture'
     & $checker -Root $clean
     $riskPassed = $?

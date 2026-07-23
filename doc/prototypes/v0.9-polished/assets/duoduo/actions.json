@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "petId": "duoduo-cat",
+  "atlasPath": "extra-actions.webp",
+  "geometry": {
+    "width": 1536,
+    "height": 832,
+    "cellWidth": 192,
+    "cellHeight": 208
+  },
+  "actions": [
+    {
+      "id": "sleeping",
+      "purpose": "rest and sleep loop",
+      "row": 0,
+      "frameCount": 8,
+      "durationsMs": [
+        240,
+        240,
+        240,
+        240,
+        240,
+        240,
+        240,
+        420
+      ],
+      "loop": true
+    },
+    {
+      "id": "eating",
+      "purpose": "consume a held food prop",
+      "row": 1,
+      "frameCount": 8,
+      "durationsMs": [
+        140,
+        140,
+        140,
+        140,
+        140,
+        140,
+        140,
+        260
+      ],
+      "loop": true
+    },
+    {
+      "id": "celebrating",
+      "purpose": "joyful success reaction",
+      "row": 2,
+      "frameCount": 8,
+      "durationsMs": [
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        240
+      ],
+      "loop": true
+    },
+    {
+      "id": "making-money",
+      "purpose": "produce or present earned money",
+      "row": 3,
+      "frameCount": 8,
+      "durationsMs": [
+        140,
+        140,
+        140,
+        140,
+        140,
+        140,
+        140,
+        260
+      ],
+      "loop": true
+    }
+  ]
+}

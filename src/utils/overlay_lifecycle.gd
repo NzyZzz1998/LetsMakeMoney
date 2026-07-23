@@ -6,35 +6,48 @@ signal modal_closed
 signal popup_opened
 signal popup_closed
 
-var _active_modal: Node = null
+var _active_modals: Array[Node] = []
 var _active_popups: Array[PopupMenu] = []
 
 
 func register_modal(modal: Node) -> void:
+	_cleanup_invalid_modals()
 	var was_open := has_modal()
-	_active_modal = modal
+	if not _active_modals.has(modal):
+		_active_modals.append(modal)
 	if not was_open:
 		modal_opened.emit()
 
 
 func unregister_modal(modal: Node = null) -> void:
-	if modal != null and _active_modal != modal:
-		return
-	var was_registered := _active_modal != null
-	_active_modal = null
-	if was_registered:
+	var had_modals := has_modal()
+	if modal == null:
+		_active_modals.clear()
+	else:
+		_active_modals.erase(modal)
+	_cleanup_invalid_modals()
+	if had_modals and _active_modals.is_empty():
 		modal_closed.emit()
 
 
 func close_active_modal() -> void:
 	if has_modal():
-		_active_modal.queue_free()
+		var modal: Node = _active_modals.back()
+		if modal != null and is_instance_valid(modal):
+			modal.queue_free()
 	else:
 		unregister_modal()
 
 
 func has_modal() -> bool:
-	return _active_modal != null and is_instance_valid(_active_modal)
+	_cleanup_invalid_modals()
+	return not _active_modals.is_empty()
+
+
+func _cleanup_invalid_modals() -> void:
+	for modal in _active_modals.duplicate():
+		if modal == null or not is_instance_valid(modal):
+			_active_modals.erase(modal)
 
 
 func register_popup(popup: PopupMenu) -> void:

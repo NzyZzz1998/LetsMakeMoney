@@ -9,8 +9,8 @@
 | 目标 | 命令 |
 |---|---|
 | 文档与公开合规 | `./scripts/run_ci_verification.ps1 -Suite docs` |
-| 当前静态回归 | `./scripts/verify_v07.ps1 -StaticOnly` |
-| 当前完整回归 | `./scripts/run_ci_verification.ps1 -Suite main` |
+| 当前静态回归 | `./scripts/verify_v09.ps1 -StaticOnly` |
+| 当前完整回归 | `./scripts/verify_v09.ps1` |
 | v0.8 完整回归 | `./scripts/verify_v08.ps1` |
 | v0.8 薪资与作息规则 | `./scripts/test_v08_salary_schedule.ps1` |
 | 构建 native | `./scripts/build_native_windows.ps1 -Target template_release` |
@@ -18,21 +18,31 @@
 | 验证 v0.7 包 | `./scripts/verify_v07_package.ps1` |
 | 打包 v0.8 候选便携版 | `./scripts/package_v08.ps1` |
 | 验证 v0.8 候选包 | `./scripts/verify_v08_package.ps1` |
+| 打包 v0.9 候选便携版 | `./scripts/package_v09.ps1` |
+| 验证 v0.9 候选包 | `./scripts/verify_v09_package.ps1` |
+| CI 主聚合入口 | `./scripts/run_ci_verification.ps1 -Suite main`（调用 v0.9 聚合回归） |
+| 预览本地可再生文件 | `./scripts/cleanup_local_generated.ps1` |
+| 清理本地可再生文件 | `./scripts/cleanup_local_generated.ps1 -Apply` |
+| 预览验收解压副本 | `./scripts/cleanup_local_generated.ps1 -AcceptanceRuntimeCopies` |
+| 清理验收解压副本 | `./scripts/cleanup_local_generated.ps1 -AcceptanceRuntimeCopies -Apply` |
 
 ## 四层职责
 
 | 层级 | 说明 | 维护规则 |
 |---|---|---|
-| `active` | 当前 CI、构建、打包、合规和 v0.7 验证 | 修改时必须通过当前 CI contract |
+| `active` | 当前 CI、构建、打包、合规和 v0.9 验证 | 修改时必须通过当前 CI contract |
 | `compat` | v0.4-v0.6 与 M4/M5 回归；当前 CI 仍直接或间接依赖 | 不得仅因版本旧而删除 |
 | `archive` | v0.2-v0.3 历史复现入口，不属于当前 CI | 只修安全/可运行性问题，后续可转由历史 tag 承担 |
 | `maintainer-assets` | 橘猫资源生成和素材验证 | 不属于应用运行时；需保留输入来源与许可边界 |
+
+本地清理脚本默认只预览。即使使用 `-Apply`，也不会删除 `.tmp_acceptance/`、`.cache/`、`.godot/`、`build/`、`deliverables/`、`releases/` 或 `native/`。
+只有显式增加 `-AcceptanceRuntimeCopies` 时，脚本才会删除 `.tmp_acceptance/` 各验收批次中的 `extract/`、`extracted/`、`unpacked/` 或 `package/`；`evidence/`、日志、配置快照和交互截图保持不变。
 
 ## 重要边界
 
 - `verify_v06.ps1` 是 v0.7 静态合同的直接上游，属于兼容门禁。
 - `test_v08_salary_schedule.ps1` 保护按实际工作日计薪、午休扣除、大小周和 v3 配置迁移。
-- `verify_v04.ps1`、`verify_v05.ps1`、`verify_m4.ps1` 仍被 `run_ci_verification.ps1` 调用。
+- `verify_v04.ps1`、`verify_v05.ps1` 由 v0.6 静态合同检查继续保护；`verify_m4.ps1`、`verify_m5.ps1` 由当前 v0.9 聚合入口实际执行。
 - v0.2/v0.3 脚本仍被历史发布说明和 native 文档引用，暂不物理搬动。
 - `.gd.uid` 与对应 Godot 脚本作为一组管理，不可单独删除。
 - 素材生成脚本不是正式用户功能，也不进入发布包。

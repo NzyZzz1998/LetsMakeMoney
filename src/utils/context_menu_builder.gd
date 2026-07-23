@@ -1,14 +1,15 @@
 class_name ContextMenuBuilder
 extends RefCounted
 
-const MENU_FONT_NAMES := ["Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI"]
-const SURFACE_PAPER := Color(1.0, 0.965, 0.878, 0.99)
-const TEXT_INK := Color(0.227, 0.153, 0.098, 1.0)
-const TEXT_MUTED := Color(0.550, 0.420, 0.298, 1.0)
-const ACCENT_COIN := Color(0.965, 0.714, 0.243, 1.0)
-const ACCENT_ORANGE := Color(0.780, 0.420, 0.137, 1.0)
-const BORDER_WARM := Color(0.416, 0.263, 0.122, 0.16)
-const SHADOW_WARM := Color(0.360, 0.184, 0.047, 0.18)
+const MENU_FONT_NAMES := ["Segoe UI Variable", "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI"]
+const SURFACE_PAPER := Color(1.000, 0.992, 0.980, 0.995)
+const TEXT_INK := Color(0.188, 0.169, 0.149, 1.0)
+const TEXT_MUTED := Color(0.463, 0.412, 0.365, 1.0)
+const ACCENT_COIN := Color(0.949, 0.706, 0.227, 1.0)
+const ACCENT_ORANGE := Color(0.914, 0.471, 0.196, 1.0)
+const ACCENT_MINT := Color(0.439, 0.608, 0.455, 1.0)
+const BORDER_WARM := Color(0.271, 0.208, 0.153, 0.13)
+const SHADOW_WARM := Color(0.188, 0.169, 0.149, 0.12)
 
 var _popup_menu_theme: Theme = null
 
@@ -31,6 +32,7 @@ func build_tray_menu(pets: Array, current_pet_id: String, window_mode: String, h
 
 func _build_main_menu(menu: PopupMenu, pets: Array, current_pet_id: String, window_mode: String, handler: Callable) -> void:
 	_apply_menu_readability(menu)
+	menu.add_item("今日详情", 102)
 	menu.add_item("设置", 100)
 	menu.add_item("重新运行向导", 101)
 	menu.add_separator()
@@ -81,11 +83,11 @@ func _apply_menu_readability(menu: PopupMenu) -> void:
 	menu.theme = _get_popup_menu_theme()
 	menu.transparent_bg = true
 	menu.borderless = true
-	menu.min_size = Vector2i(202, 0)
-	menu.add_theme_font_size_override("font_size", 15)
+	menu.min_size = Vector2i(232, 0)
+	menu.add_theme_font_size_override("font_size", 14)
 	menu.add_theme_constant_override("item_min_height", 34)
-	menu.add_theme_constant_override("item_start_padding", 12)
-	menu.add_theme_constant_override("item_end_padding", 12)
+	menu.add_theme_constant_override("item_start_padding", 14)
+	menu.add_theme_constant_override("item_end_padding", 14)
 	menu.add_theme_constant_override("h_separation", 8)
 	menu.add_theme_constant_override("v_separation", 2)
 
@@ -106,18 +108,20 @@ func _get_popup_menu_theme() -> Theme:
 	panel_style.border_width_top = 1
 	panel_style.border_width_right = 1
 	panel_style.border_width_bottom = 1
-	panel_style.set_corner_radius_all(14)
+	panel_style.set_corner_radius_all(10)
 	panel_style.content_margin_left = 8
 	panel_style.content_margin_top = 8
 	panel_style.content_margin_right = 8
 	panel_style.content_margin_bottom = 8
 	panel_style.shadow_color = SHADOW_WARM
-	panel_style.shadow_size = 10
-	panel_style.shadow_offset = Vector2(0, 4)
+	panel_style.shadow_size = 7
+	panel_style.shadow_offset = Vector2(0, 3)
 
 	var hover_style := StyleBoxFlat.new()
-	hover_style.bg_color = Color(ACCENT_COIN.r, ACCENT_COIN.g, ACCENT_COIN.b, 0.20)
-	hover_style.set_corner_radius_all(10)
+	hover_style.bg_color = Color(0.945, 0.957, 0.937, 1.0)
+	hover_style.border_color = Color(ACCENT_MINT.r, ACCENT_MINT.g, ACCENT_MINT.b, 0.16)
+	hover_style.set_border_width_all(1)
+	hover_style.set_corner_radius_all(8)
 	hover_style.content_margin_left = 7
 	hover_style.content_margin_top = 2
 	hover_style.content_margin_right = 7
@@ -130,9 +134,9 @@ func _get_popup_menu_theme() -> Theme:
 
 	var theme := Theme.new()
 	theme.default_font = font
-	theme.default_font_size = 15
+	theme.default_font_size = 14
 	theme.set_font("font", "PopupMenu", font)
-	theme.set_font_size("font_size", "PopupMenu", 15)
+	theme.set_font_size("font_size", "PopupMenu", 14)
 	theme.set_stylebox("panel", "PopupMenu", panel_style)
 	theme.set_stylebox("hover", "PopupMenu", hover_style)
 	theme.set_stylebox("separator", "PopupMenu", separator_style)
@@ -145,8 +149,8 @@ func _get_popup_menu_theme() -> Theme:
 	theme.set_color("font_hover_pressed_color", "PopupMenu", TEXT_INK)
 	theme.set_color("font_checked_color", "PopupMenu", ACCENT_ORANGE)
 	theme.set_constant("item_min_height", "PopupMenu", 34)
-	theme.set_constant("item_start_padding", "PopupMenu", 12)
-	theme.set_constant("item_end_padding", "PopupMenu", 12)
+	theme.set_constant("item_start_padding", "PopupMenu", 14)
+	theme.set_constant("item_end_padding", "PopupMenu", 14)
 	theme.set_constant("h_separation", "PopupMenu", 8)
 	theme.set_constant("v_separation", "PopupMenu", 2)
 	theme.set_constant("indent", "PopupMenu", 8)

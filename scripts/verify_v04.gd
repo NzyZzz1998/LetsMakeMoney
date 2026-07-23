@@ -514,15 +514,18 @@ func _check_panel_collapsed_layout() -> void:
 	panel.expand()
 	await process_frame
 	var expanded: VBoxContainer = panel.get_node("Expanded")
-	var expected_order := ["TodayRow", "StateRow", "MonthRow", "RateRow", "ProgressRow"]
+	var expected_order := ["TodayRow", "MetricsRow", "ProgressRow", "ScheduleRow"]
 	for i in range(expected_order.size()):
 		_assert(expanded.get_child(i).name == expected_order[i], "Expanded panel row %d should be %s, got %s" % [i, expected_order[i], expanded.get_child(i).name])
-	var today_value: Label = panel.get_node("Expanded/TodayRow/TodayValue")
-	var month_value: Label = panel.get_node("Expanded/MonthRow/MonthValue")
+	var today_value: Label = panel.get_node("Expanded/TodayRow/TodayCopy/TodayValue")
+	var month_value: Label = panel.get_node("Expanded/MetricsRow/MonthRow/MonthValue")
 	var today_font_size: int = today_value.get_theme_font_size("font_size")
 	var month_font_size: int = month_value.get_theme_font_size("font_size")
-	_assert(today_font_size >= 34, "Expanded panel primary amount should be the warm receipt hero value")
+	_assert(today_font_size >= 24, "Expanded panel primary amount should remain the compact widget hero value")
 	_assert(today_font_size > month_font_size, "Expanded panel should visually prioritize today's earnings")
+	_assert(panel.get_node("Collapsed/CollapsedContent/CollapsedValue/Caption").visible, "Collapsed panel should label today's earnings without a product header")
+	_assert(panel.get_node("Collapsed/CollapsedContent/CollapsedValue/CollapsedProgress").visible, "Collapsed panel should keep a quiet progress cue")
+	_assert(not FileAccess.get_file_as_string("res://src/scenes/panel/panel.tscn").contains('text = "LMM"'), "Panel should not show an LMM product header")
 	var panel_script := FileAccess.get_file_as_string("res://src/scenes/panel/panel.gd")
 	for required_text in [
 		"SURFACE_PAPER",
@@ -597,7 +600,7 @@ func _check_context_menu_ui_polish() -> void:
 	_assert(menu_script.contains("BORDER_WARM"), "Context menu should use warm paper border")
 	_assert(menu_script.contains("SHADOW_WARM"), "Context menu should use warm brown shadow instead of pure black glass shadow")
 	_assert(menu_script.contains("theme.set_constant(\"item_min_height\", \"PopupMenu\", 34)"), "Context menu should keep comfortable warm-widget item height")
-	_assert(menu_script.contains("panel_style.set_corner_radius_all(14)"), "Context menu should use rounded paper-widget corners")
+	_assert(menu_script.contains("panel_style.set_corner_radius_all(10)"), "Context menu should use compact paper-widget corners")
 
 
 func _check_icon_polish_assets() -> void:
@@ -623,7 +626,7 @@ func _check_icon_polish_assets() -> void:
 	_assert(drag_script.contains("AcceptDialog.new()"), "About window should use an in-app dialog instead of a system alert")
 	_assert(drag_script.contains("res://icons/app_icon.png"), "About window should show the high resolution app icon")
 	_assert(drag_script.contains("AppVersionScript.get_display_version"), "About window should use the shared current version label")
-	_assert(drag_script.contains("MODAL_WINDOW_SIZE := Vector2i(700, 530)"), "Settings/modal host should use the compact preferences baseline")
+	_assert(drag_script.contains("MODAL_WINDOW_SIZE := Vector2i(700, 520)"), "Settings/modal host should use the compact preferences baseline")
 	_assert(drag_script.contains("_window.borderless = true"), "Settings/modal host should not show the native Windows title bar")
 	_assert(drag_script.contains("_window.transparent_bg = true"), "Settings/modal host should keep transparent corners instead of a black rectangular background")
 	_assert(drag_script.contains("WINDOW_FLAG_TRANSPARENT"), "Settings/modal host should enable the transparent window flag for rounded corners")
@@ -699,7 +702,7 @@ func _check_settings_information_architecture() -> void:
 	]:
 		_assert(settings_script.contains(required_token), "Settings should share warm-widget design token: %s" % required_token)
 	_assert(settings_script.contains("_on_header_gui_input"), "Borderless settings should keep a draggable custom header")
-	_assert(settings_script.contains("custom_minimum_size = Vector2(700, 530)"), "Settings should use the compact v0.4 preferences size")
+	_assert(settings_script.contains("custom_minimum_size = Vector2(700, 520)"), "Settings should use the R1 single-shell preferences size")
 	_assert(settings_script.contains("CloseButton"), "Settings header should expose a top-right close button")
 	_assert(settings_script.contains("ActionRow"), "Settings should keep save/cancel in a dedicated bottom action row")
 	_assert(section_builder_script.contains("ScrollContainer.new()"), "Settings pages should scroll independently so Display can contain long content")
@@ -718,7 +721,7 @@ func _check_settings_information_architecture() -> void:
 	_assert(settings_script.contains("func _style_button"), "Settings should style buttons instead of relying on default Godot controls")
 	_assert(settings_script.contains("func _style_window_button"), "Settings should give the shell close button a refined custom style")
 	_assert(settings_script.contains("_style_window_button(close_button, true)"), "Settings close button should use a quiet destructive hover style")
-	_assert(settings_script.contains("close_button.custom_minimum_size = Vector2(28, 28)"), "Settings close button should stay compact instead of being oversized")
+	_assert(settings_script.contains("close_button.custom_minimum_size = Vector2(30, 30)"), "Settings close button should stay compact instead of being oversized")
 	_assert(settings_script.contains("TextServer.FONT_ANTIALIASING_LCD"), "Settings should use sharper LCD font antialiasing")
 	_assert(settings_script.contains("func _style_nav_button"), "Settings should style warm segmented navigation")
 	_assert(settings_script.contains("func _style_form_control"), "Settings should style form controls for better readability")
@@ -779,8 +782,8 @@ func _check_wizard_warm_widget_polish() -> void:
 	_assert(not wizard_script.contains("extends ConfirmationDialog"), "Wizard should not open as a nested ConfirmationDialog")
 	_assert(wizard_scene.contains("type=\"Control\""), "Wizard scene root should be Control")
 	_assert(wizard_script.contains("WizardActionRow"), "Wizard should keep visible custom navigation buttons")
-	_assert(drag_script.contains("const WIZARD_DIALOG_SIZE := Vector2i(620, 570)"), "Wizard modal host should fit the v0.8 salary and lunch controls")
-	_assert(wizard_script.contains("custom_minimum_size = Vector2(620, 570)"), "Wizard content should match the salary-aware modal host size")
+	_assert(drag_script.contains("const WIZARD_DIALOG_SIZE := Vector2i(720, 520)"), "Wizard modal host should fit the R1 guided configuration shell")
+	_assert(wizard_script.contains("const WIZARD_SIZE := Vector2(720, 520)"), "Wizard content should match the guided configuration modal host size")
 	_assert(wizard_script.contains("WizardSalaryRows"), "Wizard salary page should use compact setting rows instead of sparse stacked controls")
 	_assert(wizard_script.contains("WizardConfirmRows"), "Wizard confirm page should use compact summary rows instead of one sparse text block")
 	_assert(wizard_script.contains("func _add_field_row"), "Wizard should have reusable compact row layout for form fields")
@@ -812,7 +815,7 @@ func _check_wizard_warm_widget_polish() -> void:
 		return
 	var wizard: Control = scene.instantiate()
 	wizard.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	wizard.size = Vector2(620, 570)
+	wizard.size = Vector2(760, 560)
 	root.add_child(wizard)
 	await process_frame
 	await process_frame
