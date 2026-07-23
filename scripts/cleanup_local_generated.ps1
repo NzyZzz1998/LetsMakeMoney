@@ -1,6 +1,7 @@
 param(
     [string]$ProjectRoot = (Split-Path -Parent $PSScriptRoot),
-    [switch]$Apply
+    [switch]$Apply,
+    [switch]$AcceptanceRuntimeCopies
 )
 
 $ErrorActionPreference = "Stop"
@@ -69,6 +70,27 @@ foreach ($pattern in $filePatterns) {
         })
     }
 }
+if ($AcceptanceRuntimeCopies) {
+    $acceptanceRoot = Join-Path $root ".tmp_acceptance"
+    if (Test-Path -LiteralPath $acceptanceRoot -PathType Container) {
+        foreach ($caseDirectory in @(Get-ChildItem -LiteralPath $acceptanceRoot -Directory -Force)) {
+            foreach ($runtimeName in @("extract", "extracted", "unpacked", "package")) {
+                $runtimePath = Join-Path $caseDirectory.FullName $runtimeName
+                if (-not (Test-Path -LiteralPath $runtimePath -PathType Container)) { continue }
+                $item = Resolve-SafeCandidate -Path $runtimePath
+                $files = @(Get-ChildItem -LiteralPath $item.FullName -Recurse -Force -File -ErrorAction Stop)
+                $relativePath = $item.FullName.Substring($rootPrefix.Length)
+                $candidates.Add([pscustomobject]@{
+                    relative_path = $relativePath
+                    full_path = $item.FullName
+                    type = "acceptance-runtime-copy"
+                    file_count = $files.Count
+                    bytes = [int64](($files | Measure-Object Length -Sum).Sum)
+                })
+            }
+        }
+    }
+}
 
 $candidatePaths = @($candidates | ForEach-Object { $_.relative_path })
 foreach ($protectedPath in $protectedPaths) {
@@ -91,7 +113,7 @@ if (-not $Apply) {
 }
 
 foreach ($candidate in $candidates) {
-    if ($candidate.type -eq "directory") {
+    if ($candidate.type -in @("directory", "acceptance-runtime-copy")) {
         Remove-Item -LiteralPath $candidate.full_path -Recurse -Force
     } else {
         Remove-Item -LiteralPath $candidate.full_path -Force
