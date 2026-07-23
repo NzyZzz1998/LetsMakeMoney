@@ -5,9 +5,9 @@
 <p align="center">
   <a href="README.md">简体中文</a>
   ·
-  <a href="doc/releases/v0.9/README.md">v0.9 Candidate Record</a>
+  <a href="doc/releases/v0.9/README.md">v0.9 Release Record</a>
   ·
-  <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.8-beta">Download stable v0.8 Beta</a>
+  <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta">Download v0.9 Beta</a>
   ·
   <a href="CONTRIBUTING.md">Contribute</a>
 </p>
@@ -22,16 +22,16 @@ Configuration and logs stay local. No account is required, and updates are never
 |---|---|---|---|
 | Estimates earnings from real workdays, breaks, and schedule | Classic and Duoduo react to the workday rhythm | Tray, transparency, click-through, and pure-pet mode | You control configuration, diagnostics, and updates |
 
-## v0.9 Beta candidate
+## v0.9 Beta
 
-This branch records the frozen **Windows v0.9 Beta candidate**. It substantially rebuilt salary logic, configuration flows, window UI, and the pet runtime, but independent acceptance concluded **partially passed**. There is no v0.9 GitHub Release, and this candidate is not the current stable distribution.
+Windows v0.9 Beta substantially rebuilt salary logic, configuration flows, window UI, and the pet runtime. The locked candidate passed final acceptance. Refer to the [GitHub Release `v0.9-beta`](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta) for the actual publication status, downloads, and checksums.
 
 | Fact | Current record |
 |---|---|
-| Development line | `test` / Windows v0.9 Beta |
-| Status | Partially passed, frozen and archived |
-| Public download | No v0.9 Release |
-| Current stable release | [v0.8 Beta](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.8-beta) |
+| Release line | `main` / Windows v0.9 Beta |
+| Status | Final acceptance passed |
+| Official download | [v0.9 Beta GitHub Release](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta) |
+| Previous stable Beta | [v0.8 Beta](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.8-beta) |
 | Stable fallback | v0.8 Beta |
 
 See the [v0.9 version entry](doc/releases/v0.9/README.md), [verification record](doc/releases/v0.9/verification.md), and [manual acceptance boundaries](doc/releases/v0.9/manual-verification.md) for the authoritative facts.
@@ -58,20 +58,20 @@ The following items are **not recorded as passed**:
 - Real-desktop fallback behavior for a deliberately corrupted pet package.
 - A continuous two-hour GUI stability run.
 
-v0.9 is therefore a traceable development and product baseline, not a stable end-user download.
+These boundaries are not recorded as passed, but they do not block portable Beta distribution under the approved acceptance policy.
 
 ## How to try it
 
-### Stable use
+### Download and run
 
-1. Download the **Windows x86_64** portable Zip from the [v0.8 Beta GitHub Release](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.8-beta).
+1. Download the **Windows x86_64** portable Zip from the [v0.9 Beta GitHub Release](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta).
 2. Extract it into its own directory.
 3. Run `LetsMakeMoney.exe` and complete the salary and schedule Wizard.
 4. Right-click the pet to open Today Details, Settings, or reconfiguration. Use the system tray to recover hidden windows.
 
-### Review v0.9
+### Release integrity
 
-v0.9 has no public binary Release. Developers can check out the `test` branch and run from source. Treat the [v0.9 verification record](doc/releases/v0.9/verification.md) as authoritative; do not substitute a local `build/` directory or an old Zip for the locked candidate.
+v0.9 passed final acceptance. Verify the download against the `SHA256SUMS.txt` attached to the GitHub Release; do not substitute a local `build/` directory, an older Zip, or a Git HEAD alone for an official release asset.
 
 > Windows may show an unknown-publisher warning. Public executables are not Authenticode-signed. Download stable packages only from this repository's GitHub Releases and compare the supplied SHA-256.
 
@@ -132,8 +132,8 @@ See [scripts/README.md](scripts/README.md) for script tiers and maintenance boun
 
 - **v0.6 Beta:** shared controls, diagnostics, and Windows edge-path stabilization.
 - **v0.7 Beta:** open-source governance, reproducible builds, and portable distribution.
-- **v0.8 Beta:** the current public stable release for salary calendars, lunch breaks, and work schedules.
-- **v0.9 Beta:** a frozen candidate for UI, configuration, and pet-runtime reconstruction.
+- **v0.8 Beta:** the salary-calendar, lunch-break, and work-schedule baseline.
+- **v0.9 Beta:** UI, configuration, and pet-runtime reconstruction; final acceptance passed and public Beta distribution enabled.
 
 ## Contributing
 

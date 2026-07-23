@@ -102,6 +102,7 @@ func _test_r2_surface_contract() -> void:
 	var wizard_script := FileAccess.get_file_as_string("res://src/scenes/wizard/wizard_dialog.gd")
 	var today_scene := FileAccess.get_file_as_string("res://src/scenes/today/today_detail_window.tscn")
 	var menu_script := FileAccess.get_file_as_string("res://src/utils/context_menu_builder.gd")
+	var drag_resize_script := FileAccess.get_file_as_string("res://src/autoload/drag_resize_system.gd")
 	_expect(panel_script.contains("COLLAPSED_BASE_SIZE := Vector2(300, 124)"), "collapsed Panel should use the readable R2 footprint")
 	_expect(panel_script.contains("EXPANDED_BASE_SIZE := Vector2(344, 232)"), "expanded Panel should use the readable R2 footprint")
 	_expect(not panel_scene.contains('text = "LMM"'), "Panel should start with today's earnings instead of a product header")
@@ -113,6 +114,7 @@ func _test_r2_surface_contract() -> void:
 	_expect(today_scene.contains("size = Vector2i(480, 600)"), "Today detail should use the 480x600 R1 baseline")
 	_expect(menu_script.contains("menu.min_size = Vector2i(232, 0)"), "context menus should use the compact R1 width")
 	_expect(menu_script.contains("panel_style.set_corner_radius_all(10)"), "context menus should use the R1 corner radius")
+	_expect(drag_resize_script.contains("icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE"), "About icon must honor its 96x96 layout box instead of expanding to the source texture size")
 
 
 func _expect(condition: bool, message: String) -> void:

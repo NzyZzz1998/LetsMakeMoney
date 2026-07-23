@@ -83,7 +83,26 @@ func _run() -> void:
 	_expect_true(not bool(validation.get("valid", true)), "zero salary is invalid")
 	_expect_equal(validation.get("field"), "monthly_salary", "salary validation points to the field")
 
+	await _test_settings_failure_feedback_persistence()
 	_finish()
+
+
+func _test_settings_failure_feedback_persistence() -> void:
+	var settings_scene := load("res://src/scenes/settings/settings_dialog.tscn") as PackedScene
+	_expect_true(settings_scene != null, "Settings scene loads for failure feedback verification")
+	if settings_scene == null:
+		return
+	var settings := settings_scene.instantiate()
+	root.add_child(settings)
+	await process_frame
+	settings.call("_set_save_status", "保存失败：测试反馈必须保持可见。")
+	await create_timer(3.0).timeout
+	var feedback := settings.find_child("SaveFeedbackPanel", true, false) as Control
+	var label := settings.find_child("SaveStatusLabel", true, false) as Label
+	_expect_true(feedback != null and feedback.visible, "save failure feedback remains visible after the normal auto-hide interval")
+	_expect_true(label != null and label.text.contains("保存失败"), "save failure feedback is not replaced by a no-change message")
+	settings.queue_free()
+	await process_frame
 
 
 func _expect_true(value: bool, message: String) -> void:

@@ -1490,11 +1490,12 @@ func _get_selected_pet_id() -> String:
 func _set_save_status(message: String) -> void:
 	_feedback_token += 1
 	var token := _feedback_token
+	var is_failure := message.find("失败") >= 0 or message.find("不可用") >= 0
 	if save_status_label != null:
 		save_status_label.text = message
 		save_feedback_panel.visible = not message.is_empty()
 		var text_color := ACCENT_MINT
-		if message.find("失败") >= 0 or message.find("不可用") >= 0:
+		if is_failure:
 			text_color = SETTINGS_ERROR
 		elif message.find("重显") >= 0 or message.find("重启") >= 0 or message.find("没有") >= 0:
 			text_color = SETTINGS_WARN
@@ -1502,7 +1503,7 @@ func _set_save_status(message: String) -> void:
 		save_status_label.add_theme_color_override("font_color", text_color)
 	if general_message_label != null:
 		general_message_label.visible = false
-	if not message.is_empty():
+	if not message.is_empty() and not is_failure:
 		_hide_feedback_later(token, true)
 
 

@@ -7,14 +7,17 @@
 
 v0.9 的正式结论以以下文档和锁定产物身份为准：
 
-- `verification.md`：自动验证、Computer Use、缺陷关闭和最终“部分通过”结论。
+- `verification.md`：自动验证、Computer Use、缺陷关闭和最终“通过 / 可进入发布收口”结论。
 - `manual-verification.md`：人工操作边界和暂不验证项。
 - `release-checklist.md`：冻结收口门禁。
 - `doc/logs/v0.9-bugfix-log.md`：缺陷证据与关闭事实。
 - 候选 Zip：`releases/v0.9/LetsMakeMoney-v0.9-beta-windows-x86_64.zip`。
-- 候选 Zip SHA256：`65A04A1BAFF6681FF335DD2966A528E6BD6517A81232BC107EFAF5AF42C9F685`。
+- 最终发布附件 Zip SHA256：`B10FDE2027D4ABC71C41F0F7AC7BDCE3D93AEB8AFAF4058BA1A592B6A75CC1EC`。
+- 最终真实 GUI 验收 Zip SHA256：`DFADCFF7F1DB1F461D4241EFC9F86E286E7C533211785BA7E5C74072FE5144DF`；重打包后 EXE 与 Native DLL 身份未变化。
 
 `.tmp_acceptance/` 是被 `.gitignore` 排除的本地证据目录，不属于源码仓库、公开 Release 或长期事实源。
+
+最终文档快照重打包证据位于 `.tmp_acceptance/v0.9-doc-repack-20260723-205908/evidence/`；旧候选包备份位于 `.tmp_acceptance/v0.9-pre-repack-20260723-205612/`。
 
 ## 2. 保留内容
 
@@ -36,7 +39,7 @@ v0.9 的正式结论以以下文档和锁定产物身份为准：
 - `unpacked/`
 - `package/`
 
-2026-07-23 审计发现 9 份此类运行副本，约 1.04 GiB。它们不包含唯一验收结论，删除后不改变候选 Zip、EXE、Native DLL 的既有 SHA256，也不改变 v0.9 的“部分通过、冻结归档”结论。
+2026-07-23 审计发现 9 份此类运行副本，约 1.04 GiB。它们不包含唯一验收结论，删除后不改变候选 Zip、EXE、Native DLL 的既有 SHA256，也不改变 v0.9 的“通过 / 可进入发布收口”结论。
 
 ## 4. 清理入口
 

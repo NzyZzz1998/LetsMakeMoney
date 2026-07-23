@@ -338,6 +338,7 @@ func show_about() -> void:
 	var icon := TextureRect.new()
 	icon.texture = load("res://icons/app_icon.png")
 	icon.custom_minimum_size = Vector2(96, 96)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	layout.add_child(icon)
 
