@@ -46,8 +46,8 @@ Windows 通知区菜单、任务栏策略、Shell 打开、剪贴板和安装确
 ## 构建与验证
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File "E:\codex\LetsMakeMoney\doc\prototypes\v0.9-polished\figma-plugin\build.ps1"
-powershell -ExecutionPolicy Bypass -File "E:\codex\LetsMakeMoney\doc\prototypes\v0.9-polished\figma-plugin\test-plugin.ps1"
+powershell -ExecutionPolicy Bypass -File ".\doc\prototypes\v0.9-polished\figma-plugin\build.ps1"
+powershell -ExecutionPolicy Bypass -File ".\doc\prototypes\v0.9-polished\figma-plugin\test-plugin.ps1"
 ```
 
 构建会生成确定性的 6 张宠物 PNG，并以 Base64 嵌入 `ui.html`。验证覆盖页面数量、旧页面所有权、非 LMM 页面保护、重复运行幂等性、JavaScript 语法、77 项契约、PNG 格式与哈希、截图零嵌入、关键窗口尺寸、三段式文档结构、UTF-8/乱码和 `git diff --check`。
@@ -57,7 +57,7 @@ powershell -ExecutionPolicy Bypass -File "E:\codex\LetsMakeMoney\doc\prototypes\
 1. 运行上面的构建和验证命令。
 2. 使用 Figma Desktop 打开目标 Design 文件。
 3. 选择 `Plugins > Development > Import plugin from manifest...`。
-4. 选择 `E:\codex\LetsMakeMoney\doc\prototypes\v0.9-polished\figma-plugin\manifest.json`。
+4. 选择当前仓库中的 `doc\prototypes\v0.9-polished\figma-plugin\manifest.json`。
 5. 运行 `Plugins > Development > LetsMakeMoney Full Product Flow Builder`。
 6. 点击“生成 / 更新 LMM 设计”。
 

@@ -12,7 +12,6 @@
 | 当前静态回归 | `./scripts/verify_v09.ps1 -StaticOnly` |
 | 当前完整回归 | `./scripts/verify_v09.ps1` |
 | v0.8 完整回归 | `./scripts/verify_v08.ps1` |
-| v0.9 完整回归 | `./scripts/verify_v09.ps1` |
 | v0.8 薪资与作息规则 | `./scripts/test_v08_salary_schedule.ps1` |
 | 构建 native | `./scripts/build_native_windows.ps1 -Target template_release` |
 | 打包 v0.7 便携版 | `./scripts/package_v07.ps1` |
@@ -21,6 +20,7 @@
 | 验证 v0.8 候选包 | `./scripts/verify_v08_package.ps1` |
 | 打包 v0.9 候选便携版 | `./scripts/package_v09.ps1` |
 | 验证 v0.9 候选包 | `./scripts/verify_v09_package.ps1` |
+| CI 主聚合入口 | `./scripts/run_ci_verification.ps1 -Suite main`（调用 v0.9 聚合回归） |
 
 ## 四层职责
 

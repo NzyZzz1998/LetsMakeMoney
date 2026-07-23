@@ -15,10 +15,7 @@ try{
  }
  if($Suite -in @('main','all')){
   if($GodotExe){$env:LMM_GODOT_EXE=$GodotExe}
-  Invoke-Step 'v0.8' {& (Join-Path $PSScriptRoot 'verify_v08.ps1') -ProjectRoot $root}
-  Invoke-Step 'v0.5' {& (Join-Path $PSScriptRoot 'verify_v05.ps1') -GodotExe $GodotExe}
-  Invoke-Step 'v0.4' {& (Join-Path $PSScriptRoot 'verify_v04.ps1') -GodotExe $GodotExe}
-  Invoke-Step 'M4' {& (Join-Path $PSScriptRoot 'verify_m4.ps1') -GodotExe $GodotExe}
+  Invoke-Step 'v0.9' {& (Join-Path $PSScriptRoot 'verify_v09.ps1') -ProjectRoot $root -GodotExe $GodotExe -SkipExport}
  }
 } finally {
  $summary=[ordered]@{schema_version=1;suite=$Suite;runner=if($env:GITHUB_ACTIONS){'github-actions'}else{'local'};commit=(git -C $root rev-parse HEAD).Trim();generated_at=(Get-Date).ToUniversalTime().ToString('o');result=if($results.status -contains 'failed'){'failed'}else{'passed'};steps=@($results)}

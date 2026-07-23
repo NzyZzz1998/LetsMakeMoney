@@ -4,11 +4,13 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-if ([string]::IsNullOrWhiteSpace($GodotExe) -or -not (Test-Path -LiteralPath $GodotExe)) {
-    throw "Godot executable not found. Set LMM_GODOT_EXE or pass -GodotExe."
-}
+. (Join-Path $PSScriptRoot "verification_common.ps1")
 
-& $GodotExe --headless --path $ProjectRoot --script res://scripts/verify_v09_window_experience.gd
-if ($LASTEXITCODE -ne 0) {
-    throw "v0.9 window experience verification failed with exit code $LASTEXITCODE"
-}
+$godot = Resolve-LmmGodotExecutable -ExplicitPath $GodotExe
+$output = Invoke-LmmGodotVerification `
+    -GodotExe $godot `
+    -ProjectRoot $ProjectRoot `
+    -ScriptPath "res://scripts/verify_v09_window_experience.gd" `
+    -Label "v0.9 window experience verification" `
+    -SuccessMarker "V09 window experience verification passed"
+Write-Output $output

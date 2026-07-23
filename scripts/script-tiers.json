@@ -45,6 +45,7 @@
         "test_v08_settings_governance.ps1",
         "test_v09_behavior_baseline.ps1",
         "test_v09_configuration_experience.ps1",
+        "test_v09_exported_pet_payload.ps1",
         "test_v09_pet_animation.ps1",
         "test_v09_pet_integration.ps1",
         "test_v09_pet_package.ps1",

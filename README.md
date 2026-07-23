@@ -79,10 +79,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build_native_windows.ps1 -Tar
 
 固定依赖、离线缓存、Release 构建和故障处理见 [Windows native 构建说明](native/windows/README.md)。
 
-运行 v0.8 自动验证：
+运行当前开发线 v0.9 自动验证：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v08.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v09.ps1
 ```
 
 运行公开文档/合规与主验证套件：
@@ -129,9 +129,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v08_package.ps1
 ## 文档入口
 
 - 当前入口: `doc\current.md`
-- v0.7 当前状态: `doc\releases\v0.7\current.md`
-- v0.7 PRD 与进度: `doc\releases\v0.7\prd.md` / `doc\releases\v0.7\progress_v0.7.md`
+- 当前公开版本 v0.8: `doc\releases\v0.8\README.md`
+- 冻结开发候选 v0.9: `doc\releases\v0.9\progress_v0.9.md` / `doc\releases\v0.9\verification.md`
 - 当前脚本入口与兼容分层: `scripts\README.md`
+- v0.7 历史状态: `doc\releases\v0.7\current.md`
+- v0.7 PRD 与进度: `doc\releases\v0.7\prd.md` / `doc\releases\v0.7\progress_v0.7.md`
 - v0.6 文档索引: `doc\releases\v0.6\README.md`
 - v0.6 PRD: `doc\releases\v0.6\prd.md`
 - v0.6 实施计划: `doc\releases\v0.6\dev_plan_v0.6.md`
