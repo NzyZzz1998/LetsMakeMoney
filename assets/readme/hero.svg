@@ -21,7 +21,9 @@
 
   <g transform="translate(78 65)">
     <rect width="148" height="30" rx="15" fill="#fff7e6" stroke="#e8b552"/>
-    <text x="74" y="20" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="13" font-weight="600" fill="#825f24">WINDOWS · v0.8 BETA</text>
+    <text x="74" y="20" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="13" font-weight="600" fill="#825f24">WINDOWS · v0.9 BETA</text>
+    <rect x="160" width="92" height="30" rx="15" fill="#e6f0e5" stroke="#9fbe9f"/>
+    <text x="206" y="20" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="13" font-weight="600" fill="#4f7556">冻结候选</text>
     <text x="0" y="102" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="58" font-weight="750" fill="#302b26">LetsMakeMoney</text>
     <text x="0" y="148" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="25" font-weight="600" fill="#604f40">把工作时间，变成看得见的收入进度。</text>
     <text x="0" y="188" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="17" fill="#7b6c5f">一只留在桌面的橘猫，一张实时更新的收入小票。</text>
