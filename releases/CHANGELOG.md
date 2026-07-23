@@ -1,12 +1,13 @@
 # 更新日志
 
-## v0.9 Beta - Windows 体验与宠物运行时重塑版（待发布）
+## v0.9 Beta - Windows 体验与宠物运行时重塑版（2026-07-23）
 
 ### 状态
 
-- 锁定候选最终验收通过，无发布阻塞，可进入发布收口。
+- 锁定候选最终验收通过，无发布阻塞，已通过 GitHub Pre-release 发布。
 - 发布便携 Zip SHA256：`B10FDE2027D4ABC71C41F0F7AC7BDCE3D93AEB8AFAF4058BA1A592B6A75CC1EC`。
-- 尚未执行提交、推送、`v0.9-beta` tag 或 GitHub Pre-release；当前公开稳定版本仍为 v0.8 Beta。
+- 发布提交：`94f46229cd72a6648fa6d027130efd07354215e2`；annotated tag：`v0.9-beta`。
+- Release 仅包含便携 Zip 与 `SHA256SUMS.txt`，未上传未签名安装器。
 
 ### 新增与变更
 
