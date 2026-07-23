@@ -21,6 +21,8 @@
 | 打包 v0.9 候选便携版 | `./scripts/package_v09.ps1` |
 | 验证 v0.9 候选包 | `./scripts/verify_v09_package.ps1` |
 | CI 主聚合入口 | `./scripts/run_ci_verification.ps1 -Suite main`（调用 v0.9 聚合回归） |
+| 预览本地可再生文件 | `./scripts/cleanup_local_generated.ps1` |
+| 清理本地可再生文件 | `./scripts/cleanup_local_generated.ps1 -Apply` |
 
 ## 四层职责
 
@@ -30,6 +32,8 @@
 | `compat` | v0.4-v0.6 与 M4/M5 回归；当前 CI 仍直接或间接依赖 | 不得仅因版本旧而删除 |
 | `archive` | v0.2-v0.3 历史复现入口，不属于当前 CI | 只修安全/可运行性问题，后续可转由历史 tag 承担 |
 | `maintainer-assets` | 橘猫资源生成和素材验证 | 不属于应用运行时；需保留输入来源与许可边界 |
+
+本地清理脚本默认只预览。即使使用 `-Apply`，也不会删除 `.tmp_acceptance/`、`.cache/`、`.godot/`、`build/`、`deliverables/`、`releases/` 或 `native/`。
 
 ## 重要边界
 
