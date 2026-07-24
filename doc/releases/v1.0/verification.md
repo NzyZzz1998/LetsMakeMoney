@@ -13,7 +13,7 @@
 | M5 结论 | 通过（通知区左键与 Explorer 重启后重新注册均已通过） |
 | M6 结论 | 通过（9/9） |
 | GUI 验收 | 独立解压候选核心黄金路径通过 |
-| 发布判断 | 可进入 Stable 发布收口；多显示器待补证但不阻塞，仍需干净提交重打包 |
+| 发布判断 | 可进入 Stable 发布收口；多显示器待补证但不阻塞，干净提交候选已生成 |
 
 ## M0 自动门禁
 
@@ -136,11 +136,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 | 对象 | 结果 |
 |---|---|
 | 分支 | `agent/v1.0-review` |
-| 源码基线 | `aa7c0b93780d7511a6551624f2eea88595cee51f` |
-| 工作树 | 含尚未提交的 v1.0 实现；仅作为 Acceptance 候选 |
+| 源码基线 | `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9` |
+| 工作树 | 打包时干净；`BUILD-INFO.json` 记录 `source_tree_dirty=false` |
 | Zip | `releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64.zip` |
-| Zip SHA256 | `8EB5060994A4265B90F57A50E304F7F698754AD055CAD53E9AEE08F19F4B334B` |
-| EXE SHA256 | `286F99D3B6C03B4D22362E968502C5644562CE2CCA7B8B892184547BC32B5334` |
+| Zip SHA256 | `DA19785290F9163C82F19F4EF320A3C55B28B8E737BD75C74F39EF0B9DA73336` |
+| EXE SHA256 | `49CD4A04442C971F7594178F905C399568536B4E024DE3576612B23D51534F3F` |
 | WebView2Loader SHA256 | `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C` |
 | 新候选 GUI 复验路径 | `releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64/LetsMakeMoney.exe` |
 | 上一候选完整黄金路径证据 | `.tmp_acceptance/v1.0-final-20260724-172154/evidence/` |
@@ -183,6 +183,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 
 | 路径 | 结论 | 证据 |
 |---|---|---|
+| 干净提交候选启动冒烟 | 通过 | 实际运行提交 `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9` 生成的 EXE；迷你收入视图与今日工作台可见且内容完整 |
 | 新 EXE 启动 | 通过 | 实际进程路径为新候选解包目录，窗口标题为 `LetsMakeMoney` |
 | 迷你收入视图 | 通过 | 已下班、今日已赚、100% 进度与剩余有效工时显示正常 |
 | 今日工作台 | 通过 | 收益、日薪、时薪、时间线、月度摘要和 Settings 入口完整 |
@@ -202,4 +203,4 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 - 当前结论：**通过**。
 - 无新的业务逻辑发布阻塞。
 - 多显示器安全回落因当前设备只有一台显示器而待补证；项目所有者确认该项不阻塞本次 Stable，且不得追溯改写为通过。
-- 当前包由脏工作树生成，不得直接作为 Stable Release；人工门禁关闭后必须基于干净提交重新打包并复核哈希。
+- 当前包已从干净实现提交重新生成；正式发布前仍需核对最终文档提交、远端、tag 和附件身份。

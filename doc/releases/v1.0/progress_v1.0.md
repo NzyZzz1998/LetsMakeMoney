@@ -9,7 +9,7 @@
 | 技术主线 | Rust + Tauri + TypeScript/React |
 | 产品主线 | 无宠物迷你收入视图 + 今日/日历工作台 |
 | 回退基线 | Windows v0.9 Beta |
-| 当前阻塞 | 无验收阻塞；仍需干净提交重打包 |
+| 当前阻塞 | 无验收阻塞；等待最终发布批准 |
 | PRD | `doc/releases/v1.0/prd.md` |
 | 开发计划 | `doc/releases/v1.0/dev_plan_v1.0.md` |
 | 开发日志 | `doc/logs/dev_log_v1.0.md` |
@@ -151,7 +151,7 @@
 ## 当前阻塞
 
 - 无业务开发阻塞。
-- 当前候选由脏工作树生成，只能作为 Acceptance 候选；发布前必须形成干净提交并重打包。
+- 干净实现提交与 Stable 候选包已经生成；等待最终发布批准。
 
 ## 最近验证
 
@@ -163,8 +163,8 @@
 - 文档与静态检查：文档状态、UTF-8、链接和 `git diff --check` 通过。
 - 待补证但不阻塞：多显示器安全回落。
 - M7 聚合验证、打包和包体验证通过。
-- 新候选 Zip SHA256：`8EB5060994A4265B90F57A50E304F7F698754AD055CAD53E9AEE08F19F4B334B`。
-- 新候选 EXE SHA256：`286F99D3B6C03B4D22362E968502C5644562CE2CCA7B8B892184547BC32B5334`。
+- Stable 候选 Zip SHA256：`DA19785290F9163C82F19F4EF320A3C55B28B8E737BD75C74F39EF0B9DA73336`。
+- Stable 候选 EXE SHA256：`49CD4A04442C971F7594178F905C399568536B4E024DE3576612B23D51534F3F`。
 - 新候选迷你收入视图、Today、Calendar、Settings 四任务组与无变化保存完成真实 GUI 定向复验；配置哈希未变化。
 - 真实通知区左键完成“恢复 → 隐藏 → 再恢复”；迷你窗口恢复日志重新应用 `skip_taskbar=true`，Settings 关闭后任务栏入口正常消失。
 - Explorer 重启后托盘自动重新注册，真实左键隐藏/恢复继续有效；证据为 `explorer-restart-tray-restore.jpg` 与 `explorer-restart-tray.log`。
@@ -178,7 +178,7 @@
 
 ## 下一步
 
-- 形成干净提交，重新生成并复核 Stable 候选包。
+- 审核最终候选身份并等待项目所有者批准发布动作。
 - 多显示器不以静态测试冒充通过；三档真实 DPI 已完成 GUI 补证。
 
 ## 记录边界

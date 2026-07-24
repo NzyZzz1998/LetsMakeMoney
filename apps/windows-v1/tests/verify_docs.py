@@ -9,8 +9,8 @@ APP = Path(__file__).resolve().parents[1]
 ROOT = APP.parents[1]
 FAILURES: list[str] = []
 
-ZIP_SHA256 = "8EB5060994A4265B90F57A50E304F7F698754AD055CAD53E9AEE08F19F4B334B"
-EXE_SHA256 = "286F99D3B6C03B4D22362E968502C5644562CE2CCA7B8B892184547BC32B5334"
+ZIP_SHA256 = "DA19785290F9163C82F19F4EF320A3C55B28B8E737BD75C74F39EF0B9DA73336"
+EXE_SHA256 = "49CD4A04442C971F7594178F905C399568536B4E024DE3576612B23D51534F3F"
 LOADER_SHA256 = "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
 
 DOCUMENTS = [
@@ -96,7 +96,7 @@ def main() -> int:
         fail("doc/current.md 未声明当前开发版本为 v1.0 Stable 候选")
     if "v0.9-beta" not in current:
         fail("doc/current.md 缺少 v0.9 回退基线")
-    if "验收通过，可进入 Stable 发布收口" not in current:
+    if "验收通过" not in current or "干净提交候选已生成" not in current:
         fail("doc/current.md 未声明当前验收通过状态")
     if "多显示器安全回落因当前设备仅有一台显示器，标记为待补证" not in current:
         fail("doc/current.md 未保留多显示器待补证边界")

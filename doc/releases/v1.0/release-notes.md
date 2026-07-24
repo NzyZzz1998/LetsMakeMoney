@@ -16,11 +16,12 @@ v1.0 已完成业务实现、自动门禁、便携 Zip 打包和独立解压核�
 ## 当前候选
 
 - Zip：`LetsMakeMoney-v1.0-windows-x86_64.zip`
-- Zip SHA256：`8EB5060994A4265B90F57A50E304F7F698754AD055CAD53E9AEE08F19F4B334B`
-- EXE SHA256：`286F99D3B6C03B4D22362E968502C5644562CE2CCA7B8B892184547BC32B5334`
+- 源码提交：`88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9`
+- Zip SHA256：`DA19785290F9163C82F19F4EF320A3C55B28B8E737BD75C74F39EF0B9DA73336`
+- EXE SHA256：`49CD4A04442C971F7594178F905C399568536B4E024DE3576612B23D51534F3F`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 
-该候选由包含尚未提交实现的工作树生成，只用于 Acceptance。正式发布前必须基于干净提交重新生成并复核哈希。
+该候选由干净实现提交生成；包内 `BUILD-INFO.json` 记录 `source_tree_dirty=false`。
 
 新候选已使用实际 EXE 定向复验迷你收入视图、Today、Calendar、Settings 四任务组、无变化保存反馈、真实通知区左键双向切换和 Explorer 重启后的托盘重注册；配置哈希在复验前后保持一致。迷你窗口恢复后重新应用 `skip_taskbar=true`，Settings 关闭后任务栏入口正常消失。首次配置全链路仍引用上一候选的独立验收证据。
 
