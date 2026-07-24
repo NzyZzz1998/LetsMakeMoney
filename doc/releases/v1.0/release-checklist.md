@@ -35,5 +35,6 @@
 
 - [x] `FR-001` 至 `FR-012` 核心黄金路径通过；多显示器待补证已按项目所有者决定列为非阻塞项。
 - [x] `progress`、`verification`、release notes、changelog 与 current 状态一致。
+- [ ] 将 `Protect_main` 必需检查从旧版 `Windows docs and compliance`、`Windows native and Godot verification` 更新为 `Windows v1 verification`；保留 PR、squash、禁止删除和禁止强推规则。
 - [ ] 项目所有者批准 Stable 发布。
 - [ ] 提交、推送、tag 和 GitHub Release 仅在明确授权后执行。
