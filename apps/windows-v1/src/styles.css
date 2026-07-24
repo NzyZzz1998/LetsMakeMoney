@@ -63,8 +63,23 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .icon-button:hover { border-color: var(--line); background: var(--subtle); }
 .icon-button:active { transform: scale(.96); background: #ecece7; }
 
-.mini-window { position: relative; padding: 14px 46px 14px 16px; }
-.mini-window__drag { position: absolute; z-index: 3; top: 0; left: 52px; right: 52px; height: 8px; cursor: grab; }
+.mini-window { position: relative; padding: 20px 16px 12px; }
+.mini-window__drag {
+  position: absolute;
+  z-index: 4;
+  top: 3px;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 20px;
+  border-radius: 8px;
+  cursor: grab;
+  transform: translateX(-50%);
+  touch-action: none;
+}
+.mini-window__drag:hover { background: rgb(38 37 34 / 5%); }
+.mini-window__drag span { width: 34px; height: 3px; border-radius: 999px; background: var(--line-strong); pointer-events: none; }
 .mini-window__drag:active { cursor: grabbing; }
 .mini-window--state { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px; color: var(--muted); }
 .mini-window--state button { border: 1px solid var(--line); border-radius: 7px; background: var(--window); padding: 7px 12px; cursor: pointer; }
@@ -74,8 +89,6 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .mini-window__label { grid-area: label; align-self: end; color: var(--muted); font-size: 12px; }
 .mini-window__amount { grid-area: amount; align-self: center; font-size: 28px; font-variant-numeric: tabular-nums; line-height: 1; }
 .mini-window__meta { grid-area: meta; color: var(--muted); font-size: 11px; }
-.mini-window__more { position: absolute; top: 10px; right: 8px; }
-
 .progress { display: grid; gap: 7px; margin-top: 16px; }
 .progress--compact { grid-area: progress; gap: 0; margin: 6px 0 2px; }
 .progress__track { display: block; height: 6px; overflow: hidden; border-radius: 999px; background: #e8e7e1; }

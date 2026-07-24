@@ -1,74 +1,113 @@
-# LetsMakeMoney
+<div align="center">
+  <img src="assets/readme/hero.svg" width="100%" alt="LetsMakeMoney：把工作时间变成看得见的收入进度">
+</div>
 
-[English](README.en.md) | [当前状态](doc/current.md) | [v1.0 文档](doc/releases/v1.0/README.md)
+<div align="center">
+  <a href="README.en.md">English</a> ·
+  <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">下载</a> ·
+  <a href="doc/current.md">当前状态</a> ·
+  <a href="doc/releases/v1.0/README.md">v1.0 文档</a>
+</div>
 
-LetsMakeMoney 是一款 Windows 本地收入进度工具。填写月薪与工作安排后，它会在桌面迷你窗口中持续显示今日已赚、工作进度和距离下班时间，并提供今日详情、日历、设置与首次配置向导。
+## 一眼知道今天赚了多少
 
-v1.0 使用 Rust、Tauri 与 React 重建，重点是清晰、克制、稳定的 Windows 桌面体验。配置与日志只保存在本机；应用不需要账号，也不会静默安装更新。
+LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪、休息模式和工作时间后，它会把抽象的月薪换算成今日已赚、工作进度、距离下班时间和月度累计。
 
-## v1.0 当前范围
+迷你收入视图适合常驻桌面；需要更多信息时，再打开今日与日历工作台。无需账号，配置和日志都保存在本机。
 
-- 无宠物的迷你收入视图，默认不占用任务栏。
-- 今日与日历工作台，展示收入、进度、安排和工作日口径。
-- 三步首次配置向导与四组任务化设置。
-- 保存成功、无变化、失败保留输入、恢复默认和配置损坏恢复。
-- 原生托盘隐藏、找回、设置和退出。
-- 本地诊断摘要、数据目录和用户确认式更新检查。
-- Windows x86_64 便携 Zip。
+<div align="center">
+  <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney v1.0 今日收入工作台">
+</div>
 
-v1.0 不包含宠物、透明宠物窗口、点击穿透、纯桌宠模式、账号、云同步、主题系统或安装器。需要旧桌宠体验的用户可继续使用 [v0.9 Beta](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta)。
+## 主要能力
+
+| 日常查看 | 配置与可靠性 | Windows 体验 |
+| --- | --- | --- |
+| 今日已赚、工作进度、距离下班 | 三步首次配置与任务化设置 | 可拖动的迷你收入视图 |
+| 今日安排、日薪、时薪、月度累计 | 保存成功、无变化与失败保留输入 | 原生托盘隐藏、找回与退出 |
+| 单休、双休、大小周与午休计算 | 配置损坏恢复与本地诊断摘要 | 100%、125%、150% DPI 验证 |
+| 工作日、周末、节假日与手动调整 | 用户确认式更新检查 | 不静默更新，不强占任务栏 |
+
+## 当前版本
+
+**v1.0 Stable 候选**使用 Rust、Tauri 与 React 重建 Windows 客户端，采用无宠物产品结构，目标是更清晰、更稳定的桌面工具体验。
+
+- 当前公开版本仍为 [v0.9 Beta](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta)。
+- v1.0 候选已经完成自动门禁与真实 Windows 验收，发布动作尚待项目所有者批准。
+- v1.0 暂不包含宠物、透明宠物窗口、点击穿透、纯桌宠模式、云同步、主题系统或安装器。
+- 需要桌宠体验时，可以继续使用 v0.9 Beta；它也是 v1.0 的明确回退基线。
+
+最新事实与候选哈希以 [当前状态入口](doc/current.md) 为准。
 
 ## 从源码运行
 
-要求：
+### 环境
 
 - Windows 10/11 x86_64
 - Node.js 22+
-- Rust stable MSVC toolchain
+- Rust stable MSVC 工具链
 - Microsoft Edge WebView2 Runtime
 
+### 启动
+
 ```powershell
-cd apps\windows-v1
+git clone https://github.com/NzyZzz1998/LetsMakeMoney.git
+cd LetsMakeMoney\apps\windows-v1
 npm install
 npm run tauri dev
 ```
 
-构建：
+### 构建便携程序
 
 ```powershell
-cd apps\windows-v1
-npm run build:web
-npm run tauri build -- --no-bundle
+# 在仓库根目录执行
+powershell -ExecutionPolicy Bypass -File .\scripts\package_v10.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_package.ps1
 ```
 
-## 验证
+产物位于 `releases\v1.0\`。构建和验证不应依赖未声明的本机路径或私有文件。
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m0.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m2.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m3.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m4.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m5.ps1 -SkipBuild
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m6.ps1
-```
+## 数据、隐私与回退
 
-真实托盘、任务栏、DPI 和系统重启后的恢复行为仍需要 Windows 桌面验收，自动测试不能替代这些证据。
-
-## 数据与回退
-
-v1.0 数据目录：
+v1.0 的配置与日志目录：
 
 ```text
 %APPDATA%\io.letsmakemoney.windows\
 ```
 
-从 v0.9 首次迁移时会保留兼容备份。回退前请退出 v1.0，再按 [v0.9 回退指南](doc/releases/v1.0/v0.9-rollback.md) 恢复旧配置。
+- 不需要账号，不上传工资或作息配置。
+- 诊断摘要会对本机路径等信息进行脱敏。
+- 从 v0.9 首次迁移时保留兼容备份。
+- 回退前请退出 v1.0，并按 [v0.9 回退指南](doc/releases/v1.0/v0.9-rollback.md) 恢复旧配置。
+
+## 验证
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10.ps1 -SkipExport
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_package.ps1
+```
+
+自动测试覆盖工资计算、配置事务、窗口合同、托盘桥接、文档和包完整性。真实通知区、任务栏、DPI 与重启恢复仍以 Windows 桌面验收为准。
+
+## 项目结构
+
+```text
+apps/windows-v1/       v1.0 Tauri + React 正式客户端
+shared/                节假日与共享数据
+scripts/               验证、打包和合规检查
+doc/current.md         当前唯一内部事实入口
+doc/releases/v1.0/     v1.0 PRD、进度、验收与发布文档
+```
 
 ## 参与项目
 
-欢迎代码、文档、测试和 Windows 体验贡献。提交前请阅读 [贡献指南](CONTRIBUTING.md)、[行为准则](CODE_OF_CONDUCT.md) 与 [安全策略](SECURITY.md)。
+欢迎代码、文档、测试与 Windows 体验贡献。开始前请阅读：
+
+- [贡献指南](CONTRIBUTING.md)
+- [行为准则](CODE_OF_CONDUCT.md)
+- [安全策略](SECURITY.md)
 
 ## 许可
 
-项目原创代码与文档采用 [MIT License](LICENSE)。v1.0 当前发布包不包含宠物或其他受限视觉素材；v0.9 历史视觉资产仍按对应版本中的受限素材许可处理。第三方组件见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+项目原创代码与文档采用 [MIT License](LICENSE)。v1.0 当前发布包不包含宠物或其他受限视觉素材；v0.9 历史视觉资产仍适用对应版本的受限素材许可。第三方组件与再分发信息见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

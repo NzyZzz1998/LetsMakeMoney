@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   Button,
   Field,
@@ -53,6 +54,14 @@ async function hideCurrentWindow() {
   }
 }
 
+async function startCurrentWindowDrag() {
+  try {
+    await getCurrentWindow().startDragging();
+  } catch {
+    // Browser preview intentionally has no native window to drag.
+  }
+}
+
 function WindowFrame({
   kind,
   title,
@@ -90,7 +99,16 @@ function MiniWindow() {
   }
   return (
     <main className="mini-window" data-window="mini">
-      <div className="mini-window__drag" data-tauri-drag-region aria-label="拖动迷你收入视图" />
+      <div
+        className="mini-window__drag"
+        data-tauri-drag-region
+        aria-label="拖动迷你收入视图"
+        onMouseDown={(event) => {
+          if (event.button === 0) void startCurrentWindowDrag();
+        }}
+      >
+        <span aria-hidden="true" />
+      </div>
       <button
         className="mini-window__primary"
         type="button"
@@ -106,12 +124,6 @@ function MiniWindow() {
         <ProgressBar value={snapshot.progress} label="工作进度" compact />
         <span className="mini-window__meta">剩余有效工时 {formatDuration(snapshot.remainingSeconds)}</span>
       </button>
-      <IconButton
-        label="更多操作"
-        icon="•••"
-        onClick={() => showWindow("settings")}
-        className="mini-window__more"
-      />
     </main>
   );
 }

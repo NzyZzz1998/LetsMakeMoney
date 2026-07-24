@@ -45,3 +45,12 @@ M7 独立候选包核心黄金路径、三档真实 DPI 与长期运行已通过
 - 未执行项只能写“待验证”或经批准写“暂不验证”。
 - 任一配置污染、窗口不可找回、迁移失败或三档 DPI 裁切均阻塞 Stable 发布。
 - 多显示器不写为通过；本次仅按项目所有者批准记录为非阻塞待补证项。
+
+## 迷你收入视图拖动复验
+
+- 结论：通过。
+- 从独立解压目录 `.tmp_acceptance/v1.0-drag-capability-20260724-234710/` 启动候选 EXE。
+- 使用真实 Windows 鼠标在顶部拖动柄按住并移动，窗口坐标由 `(1108, 636)` 变为 `(988, 706)`。
+- `%APPDATA%\io.letsmakemoney.windows\config.json` 同步保存新坐标，`debug.log` 记录 `window.position_saved detail=label=mini x=988 y=706`。
+- 停止并重新启动相同候选后，窗口恢复到保存位置；点击收入主体仍可打开“LetsMakeMoney 今日工作台”。
+- Computer Use 的快速合成拖动无法维持按住时长，因此最终使用带停顿的真实 Windows 鼠标输入补证；窗口截图和配置、日志共同作为结果证据。

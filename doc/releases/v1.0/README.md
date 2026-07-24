@@ -18,8 +18,9 @@ v1.0 是首个 Stable 候选版本，使用 Rust、Tauri 与 React 重建 Window
 4. [进度看板](progress_v1.0.md)
 5. [验证记录](verification.md)
 6. [人工验证](manual-verification.md)
-7. [发布清单](release-checklist.md)
-8. [候选说明](release-notes.md)
+7. [视觉手动验收](visual-acceptance.md)
+8. [发布清单](release-checklist.md)
+9. [候选说明](release-notes.md)
 
 ## 版本边界
 

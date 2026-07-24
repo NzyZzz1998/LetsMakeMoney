@@ -1,6 +1,11 @@
 use serde::{Deserialize, Serialize};
 use std::process::Command;
-use std::sync::{atomic::{AtomicBool, Ordering}, Mutex};
+use std::sync::{
+    atomic::{AtomicBool, AtomicU64, Ordering},
+    Mutex,
+};
+use std::thread;
+use std::time::Duration;
 use tauri::{
     menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
@@ -77,6 +82,7 @@ struct WindowSnapshot {
 struct RuntimeConfig(Mutex<config::AppConfig>);
 struct ConfigurationState(AtomicBool);
 struct ExitState(AtomicBool);
+struct PositionSaveRevision(AtomicU64);
 struct PlatformRuntime(Mutex<PlatformCapabilities>);
 
 #[derive(Clone, Serialize)]
@@ -310,15 +316,23 @@ fn apply_window_policy(app: &AppHandle, window: &WebviewWindow, label: &str) -> 
         .set_skip_taskbar(spec.skip_taskbar)
         .map_err(|error| error.to_string())?;
     if label == "mini" {
-        let always_on_top = app
+        let config = app
             .state::<RuntimeConfig>()
             .0
             .lock()
-            .map(|config| config.mini_window_always_on_top)
-            .unwrap_or(true);
+            .map(|config| config.clone())
+            .unwrap_or_default();
         window
-            .set_always_on_top(always_on_top)
+            .set_always_on_top(config.mini_window_always_on_top)
             .map_err(|error| error.to_string())?;
+        if let Some(position) = config.mini_window_position {
+            window
+                .set_position(Position::Physical(PhysicalPosition::new(
+                    position.x.round() as i32,
+                    position.y.round() as i32,
+                )))
+                .map_err(|error| error.to_string())?;
+        }
     }
     safe_window_position(window)?;
     append_log(
@@ -533,6 +547,65 @@ fn move_app_window(app: AppHandle, label: String, x: i32, y: i32) -> Result<(), 
     safe_window_position(&window)
 }
 
+fn persist_runtime_mini_position(app: &AppHandle) -> Result<(), String> {
+    let draft = app
+        .state::<RuntimeConfig>()
+        .0
+        .lock()
+        .map_err(|_| "config_lock_failed")?
+        .clone();
+    let data_dir = app.path().app_data_dir().map_err(|error| error.to_string())?;
+    let config_path = data_dir.join("config.json");
+    let persisted = config::load_or_migrate(&config_path).unwrap_or_default();
+    let result =
+        config::save_transactional(&config_path, &persisted, &draft, config::SaveFault::None);
+    match result.status {
+        config::SaveStatus::Saved | config::SaveStatus::Unchanged => {
+            if let Some(position) = draft.mini_window_position {
+                append_log(
+                    app,
+                    "window.position_saved",
+                    &format!("label=mini x={} y={}", position.x, position.y),
+                );
+            }
+            Ok(())
+        }
+        config::SaveStatus::Failed => Err(result.message),
+    }
+}
+
+fn schedule_mini_position_save(app: &AppHandle, position: PhysicalPosition<i32>) {
+    if let Ok(mut config) = app.state::<RuntimeConfig>().0.lock() {
+        config.mini_window_position = Some(config::WindowPosition {
+            x: position.x as f64,
+            y: position.y as f64,
+        });
+    }
+    let revision = app
+        .state::<PositionSaveRevision>()
+        .0
+        .fetch_add(1, Ordering::SeqCst)
+        + 1;
+    let app = app.clone();
+    thread::spawn(move || {
+        thread::sleep(Duration::from_millis(300));
+        if app
+            .state::<PositionSaveRevision>()
+            .0
+            .load(Ordering::SeqCst)
+            == revision
+        {
+            if let Err(error) = persist_runtime_mini_position(&app) {
+                append_log(
+                    &app,
+                    "window.position_save_failed",
+                    &format!("label=mini reason={error}"),
+                );
+            }
+        }
+    });
+}
+
 #[tauri::command]
 fn toggle_mini(app: AppHandle) -> Result<(), String> {
     toggle_mini_window(&app)
@@ -668,6 +741,7 @@ pub fn run() {
             app.manage(RuntimeConfig(Mutex::new(config)));
             app.manage(ConfigurationState(AtomicBool::new(configuration_initialized)));
             app.manage(ExitState(AtomicBool::new(false)));
+            app.manage(PositionSaveRevision(AtomicU64::new(0)));
             app.manage(PlatformRuntime(Mutex::new(PlatformCapabilities {
                 webview2_available: platform::webview2_runtime_available(),
                 tray_available: false,
@@ -678,6 +752,11 @@ pub fn run() {
                 tray_recovery: "TaskbarCreated",
             })));
             app.manage(instance_guard);
+            if configuration_initialized {
+                if let Some(mini) = app.get_webview_window("mini") {
+                    apply_window_policy(app.handle(), &mini, "mini")?;
+                }
+            }
             match build_tray(app.handle()) {
                 Ok(()) => {
                     if let Ok(mut status) = app.state::<PlatformRuntime>().0.lock() {
@@ -706,21 +785,27 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(|window, event| {
-            if let WindowEvent::CloseRequested { api, .. } = event {
-                let exiting = window
-                    .app_handle()
-                    .state::<ExitState>()
-                    .0
-                    .load(Ordering::SeqCst);
-                if !exiting {
-                    api.prevent_close();
-                    let _ = window.hide();
-                    append_log(
-                        window.app_handle(),
-                        "window.close_hidden",
-                        &format!("label={}", window.label()),
-                    );
+            match event {
+                WindowEvent::Moved(position) if window.label() == "mini" => {
+                    schedule_mini_position_save(window.app_handle(), *position);
                 }
+                WindowEvent::CloseRequested { api, .. } => {
+                    let exiting = window
+                        .app_handle()
+                        .state::<ExitState>()
+                        .0
+                        .load(Ordering::SeqCst);
+                    if !exiting {
+                        api.prevent_close();
+                        let _ = window.hide();
+                        append_log(
+                            window.app_handle(),
+                            "window.close_hidden",
+                            &format!("label={}", window.label()),
+                        );
+                    }
+                }
+                _ => {}
             }
         })
         .invoke_handler(tauri::generate_handler![

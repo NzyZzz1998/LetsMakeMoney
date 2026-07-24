@@ -163,8 +163,9 @@
 - 文档与静态检查：文档状态、UTF-8、链接和 `git diff --check` 通过。
 - 待补证但不阻塞：多显示器安全回落。
 - M7 聚合验证、打包和包体验证通过。
-- Stable 候选 Zip SHA256：`DA19785290F9163C82F19F4EF320A3C55B28B8E737BD75C74F39EF0B9DA73336`。
-- Stable 候选 EXE SHA256：`49CD4A04442C971F7594178F905C399568536B4E024DE3576612B23D51534F3F`。
+- Stable 候选 Zip SHA256：`3652A31D416B1B9CDDA2876EA2743586B8EC698C63DCC57078A116F8AFEA92D4`。
+- Stable 候选 EXE SHA256：`73C41A3295C137F467A5B669A72EAD6A9BA37EC83F30545051680CDF9D1FD4F2`。
+- 迷你收入视图拖动、位置持久化与重启恢复通过真实 Windows 鼠标复验；`V10-BUG-004` 已关闭。
 - 新候选迷你收入视图、Today、Calendar、Settings 四任务组与无变化保存完成真实 GUI 定向复验；配置哈希未变化。
 - 真实通知区左键完成“恢复 → 隐藏 → 再恢复”；迷你窗口恢复日志重新应用 `skip_taskbar=true`，Settings 关闭后任务栏入口正常消失。
 - Explorer 重启后托盘自动重新注册，真实左键隐藏/恢复继续有效；证据为 `explorer-restart-tray-restore.jpg` 与 `explorer-restart-tray.log`。

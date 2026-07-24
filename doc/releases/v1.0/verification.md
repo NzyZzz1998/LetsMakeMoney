@@ -139,8 +139,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 | 源码基线 | `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9` |
 | 工作树 | 打包时干净；`BUILD-INFO.json` 记录 `source_tree_dirty=false` |
 | Zip | `releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64.zip` |
-| Zip SHA256 | `DA19785290F9163C82F19F4EF320A3C55B28B8E737BD75C74F39EF0B9DA73336` |
-| EXE SHA256 | `49CD4A04442C971F7594178F905C399568536B4E024DE3576612B23D51534F3F` |
+| Zip SHA256 | `3652A31D416B1B9CDDA2876EA2743586B8EC698C63DCC57078A116F8AFEA92D4` |
+| EXE SHA256 | `73C41A3295C137F467A5B669A72EAD6A9BA37EC83F30545051680CDF9D1FD4F2` |
 | WebView2Loader SHA256 | `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C` |
 | 新候选 GUI 复验路径 | `releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64/LetsMakeMoney.exe` |
 | 上一候选完整黄金路径证据 | `.tmp_acceptance/v1.0-final-20260724-172154/evidence/` |
@@ -204,3 +204,20 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 - 无新的业务逻辑发布阻塞。
 - 多显示器安全回落因当前设备只有一台显示器而待补证；项目所有者确认该项不阻塞本次 Stable，且不得追溯改写为通过。
 - 当前包已从干净实现提交重新生成；正式发布前仍需核对最终文档提交、远端、tag 和附件身份。
+
+## V10-BUG-004 迷你收入视图拖动复验
+
+| 项目 | 结论 | 证据 |
+|---|---|---|
+| 顶部拖动柄可发现性 | 通过 | 拖动区域为 `76×20`，包含可见握柄和“拖动迷你收入视图”辅助标签 |
+| 真实窗口移动 | 通过 | Windows 鼠标拖动后窗口从 `(1108, 636)` 移至 `(988, 706)` |
+| 位置持久化 | 通过 | `config.json` 写入 `mini_window_position={x:988,y:706}`；日志记录 `window.position_saved` |
+| 重启恢复 | 通过 | 重启同一独立候选后窗口恢复到保存位置 |
+| 主内容点击 | 通过 | 点击非拖动区域仍打开“LetsMakeMoney 今日工作台” |
+| 自动门禁 | 通过 | `verify_v10_m3.ps1`、`verify_v10.ps1 -SkipExport`、打包与包体验证通过 |
+
+最终候选身份：
+
+- Zip SHA256：`3652A31D416B1B9CDDA2876EA2743586B8EC698C63DCC57078A116F8AFEA92D4`
+- EXE SHA256：`73C41A3295C137F467A5B669A72EAD6A9BA37EC83F30545051680CDF9D1FD4F2`
+- WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`

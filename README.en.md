@@ -1,64 +1,113 @@
-# LetsMakeMoney
+<div align="center">
+  <img src="assets/readme/hero.svg" width="100%" alt="LetsMakeMoney turns work time into visible earnings progress">
+</div>
 
-[简体中文](README.md) | [Current status](doc/current.md) | [v1.0 docs](doc/releases/v1.0/README.md)
+<div align="center">
+  <a href="README.md">简体中文</a> ·
+  <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">Download</a> ·
+  <a href="doc/current.md">Current status</a> ·
+  <a href="doc/releases/v1.0/README.md">v1.0 docs</a>
+</div>
 
-LetsMakeMoney is a local Windows earnings-progress utility. After you enter your monthly salary and work schedule, a compact desktop window keeps today's estimated earnings, work progress, and time until the end of the workday visible. A separate workbench provides Today, Calendar, Settings, and onboarding flows.
+## Know what today is worth
 
-v1.0 is rebuilt with Rust, Tauri, and React for a clear, restrained, and reliable Windows desktop experience. Configuration and logs stay on the local device. No account is required, and updates are never installed silently.
+LetsMakeMoney is a local-first Windows earnings-progress utility. After you configure your monthly salary, rest pattern, and work schedule, it turns an abstract monthly number into today's estimated earnings, work progress, time until the end of the workday, and monthly totals.
 
-## v1.0 scope
+The compact earnings window is designed to stay on the desktop. Open the Today and Calendar workbench only when you need more detail. No account is required, and configuration and logs remain on the local device.
 
-- A pet-free compact earnings window that stays out of the taskbar.
-- A Today and Calendar workbench for earnings, progress, schedule, and workday rules.
-- A three-step onboarding wizard and four task-oriented Settings sections.
-- Saved, unchanged, failed-with-input-preserved, reset, and damaged-config recovery states.
-- Native tray actions for hide, restore, Settings, and exit.
-- A local diagnostic summary, data-folder access, and user-confirmed update checks.
-- A Windows x86_64 portable Zip.
+<div align="center">
+  <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney v1.0 Today earnings workbench">
+</div>
 
-v1.0 does not include pets, transparent pet windows, click-through, pure-pet mode, accounts, cloud sync, themes, or an installer. Users who need the previous desktop-pet experience can keep using [v0.9 Beta](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta).
+## What it covers
+
+| Daily visibility | Configuration and reliability | Windows experience |
+| --- | --- | --- |
+| Today's earnings, progress, and time remaining | Three-step onboarding and task-oriented Settings | Draggable compact earnings window |
+| Daily schedule, daily rate, hourly rate, monthly total | Saved, unchanged, and failed-with-input-preserved states | Native tray hide, restore, and exit |
+| Single weekend, double weekend, alternating weeks, and lunch breaks | Damaged-config recovery and local diagnostics | Verified at 100%, 125%, and 150% DPI |
+| Workdays, weekends, holidays, and manual overrides | User-confirmed update checks | No silent updates or unnecessary taskbar entry |
+
+## Current release status
+
+The **v1.0 Stable candidate** rebuilds the Windows client with Rust, Tauri, and React around a pet-free product structure for a clearer and more reliable desktop-tool experience.
+
+- The current public release is still [v0.9 Beta](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta).
+- The v1.0 candidate has passed automated gates and real Windows acceptance; publishing still requires owner approval.
+- v1.0 does not include pets, transparent pet windows, click-through, pure-pet mode, cloud sync, themes, or an installer.
+- Users who need the desktop-pet experience can remain on v0.9 Beta, which is also the explicit rollback baseline.
+
+See the [current status source](doc/current.md) for the latest candidate identity and checksums.
 
 ## Run from source
 
-Requirements:
+### Requirements
 
 - Windows 10/11 x86_64
 - Node.js 22+
 - Rust stable with the MSVC toolchain
 - Microsoft Edge WebView2 Runtime
 
+### Start the app
+
 ```powershell
-cd apps\windows-v1
+git clone https://github.com/NzyZzz1998/LetsMakeMoney.git
+cd LetsMakeMoney\apps\windows-v1
 npm install
 npm run tauri dev
 ```
 
-Build:
+### Build the portable package
 
 ```powershell
-cd apps\windows-v1
-npm run build:web
-npm run tauri build -- --no-bundle
+# Run from the repository root
+powershell -ExecutionPolicy Bypass -File .\scripts\package_v10.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_package.ps1
 ```
 
-## Verification
+Outputs are written to `releases\v1.0\`. The build and verification flow must not depend on undeclared local paths or private files.
 
-Run `scripts/verify_v10_m0.ps1` through `scripts/verify_v10_m6.ps1`. Real tray, taskbar, DPI, and restart-recovery behavior still requires Windows desktop acceptance; automated checks do not replace that evidence.
+## Data, privacy, and rollback
 
-## Data and rollback
-
-v1.0 stores local data under:
+v1.0 stores configuration and logs under:
 
 ```text
 %APPDATA%\io.letsmakemoney.windows\
 ```
 
-The first migration from v0.9 keeps a compatibility backup. Exit v1.0 before restoring the old configuration by following the [v0.9 rollback guide](doc/releases/v1.0/v0.9-rollback.md).
+- No account is required, and salary or schedule data is not uploaded.
+- Diagnostic summaries redact local paths and similar machine-specific details.
+- The first migration from v0.9 keeps a compatibility backup.
+- Exit v1.0 before restoring the old configuration with the [v0.9 rollback guide](doc/releases/v1.0/v0.9-rollback.md).
+
+## Verification
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10.ps1 -SkipExport
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_package.ps1
+```
+
+Automated checks cover earnings calculations, configuration transactions, window contracts, the tray bridge, documentation, and package integrity. Real notification-area, taskbar, DPI, and restart-recovery behavior remains part of Windows desktop acceptance.
+
+## Repository map
+
+```text
+apps/windows-v1/       Production v1.0 Tauri + React client
+shared/                Holiday and shared data
+scripts/               Verification, packaging, and compliance checks
+doc/current.md         Single internal source of current project truth
+doc/releases/v1.0/     v1.0 PRD, progress, acceptance, and release docs
+```
 
 ## Contributing
 
-Code, documentation, tests, and Windows-experience contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), and [SECURITY.md](SECURITY.md) first.
+Code, documentation, testing, and Windows-experience contributions are welcome. Start with:
+
+- [Contributing guide](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security policy](SECURITY.md)
 
 ## License
 
-Project-authored code and documentation use the [MIT License](LICENSE). The current v1.0 package contains no pet or other restricted visual assets. Historical v0.9 artwork remains governed by the restricted asset terms in that version. Third-party components are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Project-authored code and documentation use the [MIT License](LICENSE). The current v1.0 package contains no pet or other restricted visual assets. Historical v0.9 artwork remains governed by the restricted asset terms in that release. Third-party components and redistribution terms are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
