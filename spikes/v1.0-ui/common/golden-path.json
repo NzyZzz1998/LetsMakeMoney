@@ -1,0 +1,58 @@
+{
+  "contract_version": 1,
+  "steps": [
+    {
+      "id": "GP-01",
+      "action": "launch",
+      "expected": "mini_visible"
+    },
+    {
+      "id": "GP-02",
+      "action": "open_workbench",
+      "expected": "workbench_today_visible"
+    },
+    {
+      "id": "GP-03",
+      "action": "open_settings",
+      "expected": "settings_schedule_visible"
+    },
+    {
+      "id": "GP-04A",
+      "action": "save_changed",
+      "expected": "saved_feedback_and_persisted_test_value"
+    },
+    {
+      "id": "GP-04B",
+      "action": "save_unchanged",
+      "expected": "unchanged_feedback"
+    },
+    {
+      "id": "GP-04C",
+      "action": "save_failure",
+      "expected": "readable_error_input_preserved_saved_value_unchanged"
+    },
+    {
+      "id": "GP-05",
+      "action": "tray_hide",
+      "expected": "all_product_windows_hidden_process_alive"
+    },
+    {
+      "id": "GP-06",
+      "action": "tray_restore",
+      "expected": "previous_primary_window_restored"
+    }
+  ],
+  "required_component_states": [
+    "normal",
+    "hover",
+    "focus",
+    "pressed",
+    "disabled",
+    "loading",
+    "success",
+    "error"
+  ],
+  "required_dpi_percent": [100, 125, 150],
+  "storage_rule": "isolated_test_directory_only"
+}
+

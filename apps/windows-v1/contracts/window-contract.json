@@ -1,0 +1,79 @@
+{
+  "contract_version": 1,
+  "windows": [
+    {
+      "id": "mini",
+      "default_size": [344, 120],
+      "minimum_size": [344, 120],
+      "resizable": false,
+      "taskbar": false,
+      "close": "hide_to_tray",
+      "singleton": true
+    },
+    {
+      "id": "workbench",
+      "default_size": [920, 640],
+      "minimum_size": [820, 560],
+      "resizable": true,
+      "taskbar": true,
+      "close": "close_window_keep_process",
+      "singleton": true
+    },
+    {
+      "id": "settings",
+      "default_size": [760, 560],
+      "minimum_size": [720, 520],
+      "resizable": false,
+      "taskbar": "follow_workbench",
+      "close": "discard_or_confirm_dirty_draft",
+      "singleton": true
+    },
+    {
+      "id": "wizard",
+      "default_size": [780, 580],
+      "minimum_size": [740, 540],
+      "resizable": false,
+      "taskbar": "follow_workbench",
+      "close": "first_run_exit_confirm_or_reconfigure_discard",
+      "singleton": true
+    }
+  ],
+  "tray": {
+    "menu_width": [220, 260],
+    "left_click": "toggle_mini_visibility",
+    "commands": [
+      "toggle_mini",
+      "open_workbench",
+      "open_settings",
+      "open_wizard",
+      "open_data_directory",
+      "exit"
+    ],
+    "explorer_restart": "re_register"
+  },
+  "states": [
+    "starting",
+    "running_visible",
+    "running_hidden",
+    "terminating",
+    "stopped"
+  ],
+  "transitions": [
+    ["starting", "app_ready", "running_visible"],
+    ["running_visible", "hide_mini", "running_hidden"],
+    ["running_hidden", "tray_left_click", "running_visible"],
+    ["running_hidden", "show_mini", "running_visible"],
+    ["running_visible", "exit", "terminating"],
+    ["running_hidden", "exit", "terminating"],
+    ["terminating", "shutdown_complete", "stopped"]
+  ],
+  "single_instance": {
+    "second_launch": "activate_existing_primary_window",
+    "duplicate_windows": false
+  },
+  "removed_v1_capabilities": [
+    "pure_pet_taskbar_policy",
+    "dynamic_click_through",
+    "transparent_pet_window"
+  ]
+}

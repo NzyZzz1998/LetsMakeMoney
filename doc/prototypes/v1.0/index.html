@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LetsMakeMoney v1.0 高保真产品原型</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="lab-bar" aria-label="技术 Spike 验证控制条">
+    <div class="lab-brand">
+      <span class="lab-mark" aria-hidden="true">¥</span>
+      <div>
+        <strong>v1.0 视觉事实源</strong>
+        <span>Tauri 主线 · 无宠物稳定版</span>
+      </div>
+    </div>
+
+    <div class="lab-controls">
+      <div class="segmented" role="group" aria-label="窗口">
+        <button class="segment is-active" data-window="mini">迷你视图</button>
+        <button class="segment" data-window="workbench">今日工作台</button>
+        <button class="segment" data-window="wizard">首次配置</button>
+        <button class="segment" data-window="settings">设置</button>
+      </div>
+      <label class="lab-select">
+        <span>业务状态</span>
+        <select id="business-state">
+          <option value="working">工作中</option>
+          <option value="lunch">午休</option>
+          <option value="offday">非工作日</option>
+        </select>
+      </label>
+      <label class="toggle-line">
+        <input id="long-content" type="checkbox">
+        <span class="switch" aria-hidden="true"></span>
+        <span>长内容</span>
+      </label>
+      <label class="toggle-line">
+        <input id="failure-mode" type="checkbox">
+        <span class="switch" aria-hidden="true"></span>
+        <span>模拟写入失败</span>
+      </label>
+    </div>
+  </header>
+
+  <main class="desktop">
+    <div class="desktop-label">
+      <span>WINDOWS DESKTOP</span>
+      <span>100% · 125% · 150% DPI 对照基线</span>
+    </div>
+
+    <section id="mini-window" class="app-window mini-window is-visible" aria-label="迷你收入视图">
+      <div class="mini-main">
+        <button class="status-orb" id="open-workbench" title="打开今日工作台" aria-label="打开今日工作台">
+          <span>¥</span>
+        </button>
+        <div class="mini-copy">
+          <div class="eyebrow-row">
+            <span>今日已赚</span>
+            <span class="status-text" data-status>工作中</span>
+          </div>
+          <strong class="amount" data-amount>¥ 186.42</strong>
+          <div class="progress-track" aria-label="工作进度 56%">
+            <span style="width: 56%"></span>
+          </div>
+          <div class="mini-meta">
+            <span data-progress>工作进度 56%</span>
+            <span data-mini-remaining>距离下班 4:38:20</span>
+          </div>
+        </div>
+        <button class="icon-button" id="mini-more" aria-label="更多操作" title="更多操作">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
+        </button>
+      </div>
+      <div class="popover" id="mini-menu" hidden>
+        <button id="menu-open-workbench">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>
+          打开今日工作台
+        </button>
+        <button id="menu-open-settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+          设置
+        </button>
+        <div class="menu-separator"></div>
+        <button id="menu-hide">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4z"/><path d="M8 10h8"/></svg>
+          隐藏到托盘
+        </button>
+      </div>
+    </section>
+
+    <section id="workbench-window" class="app-window workbench-window" aria-label="今日工作台">
+      <header class="titlebar">
+        <div class="titlebar-title">
+          <span class="app-mark">¥</span>
+          <strong>LetsMakeMoney</strong>
+        </div>
+        <div class="window-actions">
+          <button class="icon-button" id="workbench-settings" aria-label="打开设置" title="打开设置">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+          </button>
+          <button class="window-button" id="workbench-close" aria-label="关闭工作台" title="关闭">×</button>
+        </div>
+      </header>
+
+      <div class="workbench-shell">
+        <nav class="workbench-nav" aria-label="工作台导航">
+          <button class="nav-item is-active" data-view="today">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
+            今日
+          </button>
+          <button class="nav-item" data-view="calendar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+            日历
+          </button>
+          <div class="nav-spacer"></div>
+          <button class="nav-item" id="workbench-hide">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4z"/><path d="M8 10h8"/></svg>
+            隐藏到托盘
+          </button>
+        </nav>
+
+        <div class="workbench-content">
+          <section class="view-panel is-active" data-panel="today">
+            <header class="content-heading">
+              <div>
+                <h1>今天，继续把时间变成看得见的进度</h1>
+                <p>2026 年 7 月 23 日 · 周四</p>
+              </div>
+              <span class="status-badge" data-status>工作中</span>
+            </header>
+
+            <div class="today-grid">
+              <section class="income-summary">
+                <span class="section-label">今日已赚</span>
+                <strong class="hero-amount" data-amount>¥ 186.42</strong>
+                <div class="income-caption">日薪 ¥ 500.00 · 时薪 ¥ 62.50</div>
+                <div class="progress-block">
+                  <div class="progress-label">
+                    <span>收入进度</span>
+                    <strong>56%</strong>
+                  </div>
+                  <div class="progress-track large"><span style="width: 56%"></span></div>
+                </div>
+                <dl class="metric-list">
+                  <div>
+                    <dt>本月累计</dt>
+                    <dd>¥ 3,842.00</dd>
+                  </div>
+                  <div>
+                    <dt>本月工作日</dt>
+                    <dd>8 / 20 天</dd>
+                  </div>
+                  <div>
+                    <dt>距离下班</dt>
+                    <dd data-remaining>4:38:20</dd>
+                  </div>
+                </dl>
+              </section>
+
+              <section class="schedule">
+                <div class="section-heading-row">
+                  <div>
+                    <span class="section-label">今日安排</span>
+                    <h2>08:00—18:00</h2>
+                  </div>
+                  <button class="text-button">调整今天</button>
+                </div>
+                <ol class="timeline">
+                  <li class="is-done">
+                    <time>08:00</time>
+                    <span class="timeline-dot"></span>
+                    <div><strong>开始工作</strong><span>已完成 3 小时 22 分钟</span></div>
+                  </li>
+                  <li class="is-current">
+                    <time>12:00</time>
+                    <span class="timeline-dot"></span>
+                    <div><strong>午休</strong><span>12:00—14:00</span></div>
+                  </li>
+                  <li>
+                    <time>18:00</time>
+                    <span class="timeline-dot"></span>
+                    <div><strong>结束工作</strong><span>预计今日收入 ¥ 500.00</span></div>
+                  </li>
+                </ol>
+              </section>
+            </div>
+          </section>
+
+          <section class="view-panel" data-panel="calendar">
+            <header class="content-heading">
+              <div>
+                <h1>收入日历</h1>
+                <p>只记录工作日、调休、节假日与收入结果</p>
+              </div>
+              <button class="secondary-button">调整工作日</button>
+            </header>
+            <div class="calendar-header">
+              <button class="icon-button" aria-label="上个月">‹</button>
+              <strong>2026 年 7 月</strong>
+              <button class="icon-button" aria-label="下个月">›</button>
+            </div>
+            <div class="calendar-grid" aria-label="2026 年 7 月收入日历"></div>
+            <div class="calendar-legend">
+              <span><i class="legend-dot workday"></i>工作日</span>
+              <span><i class="legend-dot restday"></i>休息日</span>
+              <span><i class="legend-dot adjusted"></i>调休工作</span>
+              <span><i class="legend-dot selected"></i>今天</span>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section id="wizard-window" class="app-window wizard-window" aria-label="首次配置">
+      <header class="titlebar">
+        <div class="titlebar-title">
+          <span class="app-mark">¥</span>
+          <strong>开始配置</strong>
+        </div>
+        <button class="window-button" id="wizard-close" aria-label="关闭首次配置" title="关闭">×</button>
+      </header>
+      <div class="wizard-shell">
+        <aside class="wizard-steps" aria-label="配置步骤">
+          <div>
+            <span class="section-label">首次配置</span>
+            <h1>四分钟完成</h1>
+            <p>只询问计算收入真正需要的信息。</p>
+          </div>
+          <ol>
+            <li class="is-current" data-step-marker="1"><span>1</span>收入与休息</li>
+            <li data-step-marker="2"><span>2</span>工作与午休</li>
+            <li data-step-marker="3"><span>3</span>确认配置</li>
+          </ol>
+          <div class="local-note">✓ 配置只保存在本机</div>
+        </aside>
+        <form class="wizard-content" id="wizard-form">
+          <div class="wizard-panel is-active" data-wizard-step="1">
+            <span class="step-caption">第 1 步，共 3 步</span>
+            <h2>先告诉我你的月薪</h2>
+            <p>用于计算日薪、时薪和今天实时赚到的金额。</p>
+            <div class="wizard-fields">
+              <label class="stacked-field">
+                <span>月薪</span>
+                <div class="input-with-unit"><input id="wizard-salary" type="text" inputmode="decimal" value="10,000"><span>元</span></div>
+              </label>
+              <fieldset class="choice-field">
+                <legend>休息模式</legend>
+                <div class="choice-grid">
+                  <label><input type="radio" name="wizard-rest" value="double" checked><span>双休<small>周六、周日休息</small></span></label>
+                  <label><input type="radio" name="wizard-rest" value="single"><span>单休<small>每周休息一天</small></span></label>
+                  <label><input type="radio" name="wizard-rest" value="alternate"><span>大小周<small>需确认本周类型</small></span></label>
+                </div>
+              </fieldset>
+              <fieldset class="choice-field alternating-week-field" id="wizard-week-type" hidden>
+                <legend>本周是大周还是小周？</legend>
+                <p class="field-hint">用于建立轮换锚点，不会替你预设。</p>
+                <div class="choice-grid two-columns">
+                  <label><input type="radio" name="wizard-week-type" value="big"><span>大周<small>本周工作 6 天</small></span></label>
+                  <label><input type="radio" name="wizard-week-type" value="small"><span>小周<small>本周工作 5 天</small></span></label>
+                </div>
+                <div class="inline-error" id="wizard-week-error" hidden>请选择本周是大周还是小周。</div>
+              </fieldset>
+            </div>
+            <div class="prediction-row"><span>预计本月工作日</span><strong id="wizard-workday-estimate">23 天</strong></div>
+          </div>
+          <div class="wizard-panel" data-wizard-step="2">
+            <span class="step-caption">第 2 步，共 3 步</span>
+            <h2>一天通常怎样安排？</h2>
+            <p>默认按 8 小时有效工时推算，你仍可调整午休开始和时长。</p>
+            <div class="wizard-fields">
+              <label class="setting-row">
+                <span><strong>上班时间</strong><small>先确定一天从几点开始</small></span>
+                <input id="wizard-work-start" type="time" value="08:00">
+              </label>
+              <label class="setting-row">
+                <span><strong>午休开始</strong><small>默认从 12:00 开始</small></span>
+                <input id="wizard-lunch-start" type="time" value="12:00">
+              </label>
+              <label class="setting-row">
+                <span><strong>午休时长</strong><small>午休不计入有效工时</small></span>
+                <select id="wizard-lunch-duration"><option>2 小时</option><option>1.5 小时</option><option>1 小时</option><option>不午休</option></select>
+              </label>
+            </div>
+            <div class="prediction-row"><span>自动推算</span><strong>午休 12:00—14:00 · 下班 18:00 · 有效工时 8 小时</strong></div>
+          </div>
+          <div class="wizard-panel" data-wizard-step="3">
+            <span class="step-caption">第 3 步，共 3 步</span>
+            <h2>确认后就可以开始了</h2>
+            <p>以后可以在设置中修改，已有收入记录不会被重算。</p>
+            <dl class="confirmation-list">
+              <div><dt>月薪</dt><dd>¥ 10,000</dd></div>
+              <div><dt>休息模式</dt><dd id="wizard-confirm-rest">双休</dd></div>
+              <div><dt>工作时间</dt><dd>08:00—18:00</dd></div>
+              <div><dt>午休</dt><dd>12:00—14:00</dd></div>
+              <div><dt>有效工时</dt><dd>8 小时</dd></div>
+            </dl>
+            <div class="success-note">配置将以事务方式写入，失败时不会覆盖旧配置。</div>
+          </div>
+          <footer class="wizard-footer">
+            <button type="button" class="secondary-button" id="wizard-cancel">取消</button>
+            <div>
+              <button type="button" class="secondary-button" id="wizard-back" disabled>上一步</button>
+              <button type="button" class="primary-button" id="wizard-next">下一步</button>
+            </div>
+          </footer>
+        </form>
+      </div>
+    </section>
+
+    <section id="settings-window" class="app-window settings-window" aria-label="设置">
+      <header class="titlebar">
+        <div class="titlebar-title">
+          <span class="app-mark">¥</span>
+          <strong>设置</strong>
+        </div>
+        <button class="window-button" id="settings-close" aria-label="关闭设置" title="关闭">×</button>
+      </header>
+
+      <div class="settings-shell">
+        <nav class="settings-nav" aria-label="设置分类">
+          <div class="settings-intro">
+            <strong>偏好设置</strong>
+            <span>更改只保存在本机</span>
+          </div>
+          <button type="button" class="settings-nav-item is-active" data-settings-panel="income">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 9h8M8 13h8M12 5v14"/></svg>
+            收入与作息
+          </button>
+          <button type="button" class="settings-nav-item" data-settings-panel="calendar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+            日历
+          </button>
+          <button type="button" class="settings-nav-item" data-settings-panel="window">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h6"/></svg>
+            窗口与启动
+          </button>
+          <button type="button" class="settings-nav-item" data-settings-panel="support">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+            数据与支持
+          </button>
+        </nav>
+
+        <form class="settings-content" id="settings-form">
+          <div class="settings-heading">
+            <div>
+              <h1 id="settings-title">收入与作息</h1>
+              <p id="settings-description">用于计算日薪、时薪、今日收益和工作进度。</p>
+            </div>
+            <span class="sync-badge">本机配置</span>
+          </div>
+
+          <div class="settings-scroll">
+            <section class="settings-panel is-active" data-settings-content="income">
+            <fieldset class="setting-group">
+              <legend>收入</legend>
+              <label class="setting-row" for="salary-input">
+                <span>
+                  <strong>月薪</strong>
+                  <small>税前月薪，按当月工作日折算</small>
+                </span>
+                <span class="input-with-unit">
+                  <input id="salary-input" type="text" inputmode="decimal" value="10,000" aria-describedby="salary-error">
+                  <span>元</span>
+                </span>
+              </label>
+              <div class="inline-error" id="salary-error" hidden>请输入大于 0 的金额。</div>
+              <label class="setting-row" for="rest-mode">
+                <span>
+                  <strong>休息模式</strong>
+                  <small>影响每月工作日和日薪计算</small>
+                </span>
+                <select id="rest-mode">
+                  <option>双休</option>
+                  <option>单休</option>
+                  <option>大小周</option>
+                </select>
+              </label>
+              <label class="setting-row" for="settings-week-type" id="settings-week-type-row" hidden>
+                <span>
+                  <strong>本周类型</strong>
+                  <small>明确本周是大周还是小周，不使用默认值</small>
+                </span>
+                <select id="settings-week-type">
+                  <option value="">请选择</option>
+                  <option value="big">大周</option>
+                  <option value="small">小周</option>
+                </select>
+              </label>
+            </fieldset>
+
+            <fieldset class="setting-group">
+              <legend>工作时间</legend>
+              <label class="setting-row" for="work-start">
+                <span>
+                  <strong>上班时间</strong>
+                  <small>默认按 8 小时有效工时推算下班</small>
+                </span>
+                <input id="work-start" type="time" value="08:00">
+              </label>
+              <label class="setting-row" for="lunch-duration">
+                <span>
+                  <strong>午休时长</strong>
+                  <small>午休不计入有效工时</small>
+                </span>
+                <select id="lunch-duration">
+                  <option>2 小时</option>
+                  <option>1.5 小时</option>
+                  <option>1 小时</option>
+                  <option>不午休</option>
+                </select>
+              </label>
+              <label class="setting-row" for="lunch-start">
+                <span>
+                  <strong>午休开始</strong>
+                  <small>修改后自动推算午休结束与下班时间</small>
+                </span>
+                <input id="lunch-start" type="time" value="12:00">
+              </label>
+            </fieldset>
+
+            <div class="prediction-row">
+              <span>自动推算</span>
+              <strong>午休 12:00—14:00 · 下班 18:00 · 有效工时 8 小时</strong>
+            </div>
+            </section>
+
+            <section class="settings-panel" data-settings-content="calendar">
+              <fieldset class="setting-group">
+                <legend>日历口径</legend>
+                <label class="setting-row">
+                  <span><strong>节假日数据</strong><small>工作日、法定节假日与调休工作日</small></span>
+                  <span class="value-chip">中国大陆 · 2026</span>
+                </label>
+                <label class="setting-row">
+                  <span><strong>大小周锚点</strong><small>由用户确认的本周类型和日期共同建立</small></span>
+                  <input type="date" value="2026-07-20">
+                </label>
+              </fieldset>
+              <div class="success-note">单日手动调整优先于节假日数据和休息模式。</div>
+            </section>
+
+            <section class="settings-panel" data-settings-content="window">
+              <fieldset class="setting-group">
+                <legend>窗口</legend>
+                <label class="setting-row">
+                  <span><strong>启动后显示</strong><small>默认打开迷你收入视图</small></span>
+                  <select><option>迷你收入视图</option><option>今日工作台</option></select>
+                </label>
+                <label class="setting-row">
+                  <span><strong>关闭按钮</strong><small>关闭窗口后应用继续在托盘运行</small></span>
+                  <select><option>隐藏到托盘</option><option>退出应用</option></select>
+                </label>
+                <label class="setting-row">
+                  <span><strong>开机启动</strong><small>仅注册当前用户，不请求管理员权限</small></span>
+                  <span class="inline-toggle"><input type="checkbox" aria-label="开机启动"><i></i></span>
+                </label>
+              </fieldset>
+            </section>
+
+            <section class="settings-panel" data-settings-content="support">
+              <fieldset class="setting-group">
+                <legend>数据与支持</legend>
+                <button type="button" class="setting-row row-button" id="open-data-directory">
+                  <span><strong>打开数据目录</strong><small>配置、日志与兼容备份</small></span><span>打开 ›</span>
+                </button>
+                <button type="button" class="setting-row row-button" id="copy-diagnostics">
+                  <span><strong>复制诊断摘要</strong><small>内容已脱敏，不包含用户名和完整路径</small></span><span>复制 ›</span>
+                </button>
+                <button type="button" class="setting-row row-button" id="check-update">
+                  <span><strong>检查更新</strong><small>当前版本 v1.0.0</small></span><span>检查 ›</span>
+                </button>
+                <button type="button" class="setting-row row-button" id="run-wizard">
+                  <span><strong>重新运行配置向导</strong><small>不会在完成前写入半成品配置</small></span><span>开始 ›</span>
+                </button>
+              </fieldset>
+            </section>
+          </div>
+
+          <footer class="settings-footer">
+            <div class="save-feedback" id="save-feedback" role="status" aria-live="polite">
+              没有未保存的更改
+            </div>
+            <div class="footer-actions">
+              <button type="button" class="secondary-button" id="reset-button">恢复默认</button>
+              <button type="submit" class="primary-button" id="save-button">保存</button>
+            </div>
+          </footer>
+        </form>
+      </div>
+    </section>
+
+    <section class="tray-simulation" id="tray-simulation" hidden aria-label="托盘模拟">
+      <span class="tray-icon">¥</span>
+      <div>
+        <strong>LetsMakeMoney 正在后台运行</strong>
+        <span>窗口已隐藏，进程与计时保持运行</span>
+      </div>
+      <button class="primary-button" id="tray-restore">恢复窗口</button>
+    </section>
+
+    <dialog class="product-dialog" id="product-dialog">
+      <div class="dialog-icon" id="dialog-icon">✓</div>
+      <h2 id="dialog-title">操作完成</h2>
+      <p id="dialog-message">状态说明</p>
+      <div class="dialog-actions">
+        <button class="secondary-button" id="dialog-cancel">取消</button>
+        <button class="primary-button" id="dialog-confirm">确定</button>
+      </div>
+    </dialog>
+
+    <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

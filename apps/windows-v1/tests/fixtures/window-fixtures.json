@@ -1,0 +1,45 @@
+{
+  "fixture_version": 1,
+  "cases": [
+    {
+      "id": "launch-shows-mini",
+      "initial": "starting",
+      "event": "app_ready",
+      "expected": "running_visible"
+    },
+    {
+      "id": "close-mini-hides",
+      "initial": "running_visible",
+      "event": "hide_mini",
+      "expected": "running_hidden",
+      "process_alive": true
+    },
+    {
+      "id": "tray-left-click-restores",
+      "initial": "running_hidden",
+      "event": "tray_left_click",
+      "expected": "running_visible",
+      "mini_taskbar_entry": false
+    },
+    {
+      "id": "second-launch-reuses-window",
+      "initial": "running_hidden",
+      "event": "second_instance",
+      "expected": "running_visible",
+      "duplicate_window_count": 0
+    },
+    {
+      "id": "workbench-close-keeps-mini",
+      "initial": "running_visible",
+      "event": "close_workbench",
+      "expected": "running_visible",
+      "process_alive": true
+    },
+    {
+      "id": "explicit-exit-stops",
+      "initial": "running_hidden",
+      "event": "exit",
+      "expected": "terminating"
+    }
+  ]
+}

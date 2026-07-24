@@ -1,0 +1,99 @@
+{
+  "contract_version": 1,
+  "source": "v0.9 config_version 5",
+  "target": "v1.0 config_version 6",
+  "backup_pattern": "config.v0.9-compatible-backup.<timestamp>.json",
+  "previous_file": "config.json.previous",
+  "steps": [
+    "read_source",
+    "write_once_compatible_backup",
+    "map_salary_schedule_and_platform_fields",
+    "drop_pet_fields",
+    "validate_v6",
+    "write_temp",
+    "flush_and_read_back",
+    "atomic_replace",
+    "publish_runtime_snapshot"
+  ],
+  "field_policy": {
+    "preserve": [
+      "monthly_salary",
+      "rest_mode",
+      "work_hours_per_day",
+      "work_start_time",
+      "work_end_time",
+      "lunch_start_time",
+      "lunch_end_time",
+      "date_overrides",
+      "mini_window_position",
+      "mini_window_visible",
+      "mini_window_always_on_top",
+      "minimize_to_tray",
+      "auto_start",
+      "check_updates_on_start",
+      "update_channel",
+      "log_level"
+    ],
+    "validate_before_preserve": [
+      "alternating_anchor_date",
+      "alternating_anchor_week_type"
+    ],
+    "drop": [
+      "pet_id",
+      "pet_package_id",
+      "pet_package_version",
+      "pure_pet_mode",
+      "pet_scale",
+      "pet_opacity",
+      "click_through",
+      "pet_animation_state"
+    ]
+  },
+  "transactions": [
+    {
+      "id": "migration_success",
+      "result": "saved",
+      "runtime_snapshot": "new",
+      "disk_config": "v6",
+      "side_effects": "committed"
+    },
+    {
+      "id": "migration_validation_failure",
+      "result": "failed",
+      "runtime_snapshot": "old",
+      "disk_config": "source_unchanged",
+      "side_effects": "none"
+    },
+    {
+      "id": "save_unchanged",
+      "result": "unchanged",
+      "runtime_snapshot": "old",
+      "disk_config": "unchanged",
+      "side_effects": "none"
+    },
+    {
+      "id": "save_write_failure",
+      "result": "failed",
+      "runtime_snapshot": "old",
+      "disk_config": "old_valid",
+      "draft": "preserved",
+      "side_effects": "rolled_back"
+    },
+    {
+      "id": "registry_failure_after_file_write",
+      "result": "failed",
+      "runtime_snapshot": "old",
+      "disk_config": "restored_previous",
+      "draft": "preserved",
+      "side_effects": "rollback_required"
+    },
+    {
+      "id": "partial_rollback_failure",
+      "result": "failed",
+      "runtime_snapshot": "old",
+      "disk_config": "best_known_valid",
+      "draft": "preserved",
+      "side_effects": "explicit_failure_list"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+name: Windows v1 verification
+
+on:
+  pull_request:
+  push:
+    branches: [main, test]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/windows-v1/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: x86_64-pc-windows-msvc
+      - name: Install frontend dependencies
+        working-directory: apps/windows-v1
+        run: npm ci
+      - name: Verify contracts and UI
+        shell: pwsh
+        run: |
+          ./scripts/verify_v10_m0.ps1
+          ./scripts/verify_v10_m1.ps1
+          ./scripts/verify_v10_m2.ps1
+          ./scripts/verify_v10_m3.ps1
+          ./scripts/verify_v10_m4.ps1
+          ./scripts/verify_v10_m5.ps1 -SkipBuild
+          ./scripts/verify_v10_m6.ps1
+          ./scripts/verify_v10_docs.ps1

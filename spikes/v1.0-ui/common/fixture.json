@@ -1,0 +1,45 @@
+{
+  "fixture_version": 1,
+  "clock": "2026-07-23T13:21:40+08:00",
+  "locale": "zh-CN",
+  "currency": "CNY",
+  "salary": {
+    "monthly_minor": 1000000,
+    "workdays_in_month": 20,
+    "daily_minor": 50000,
+    "hourly_minor": 6250
+  },
+  "schedule": {
+    "work_start": "08:00",
+    "lunch_start": "12:00",
+    "lunch_end": "14:00",
+    "work_end": "18:00",
+    "effective_hours": 8
+  },
+  "today": {
+    "status": "working",
+    "earned_minor": 18642,
+    "progress": 0.56,
+    "remaining_seconds": 16700,
+    "monthly_earned_minor": 384200,
+    "completed_workdays": 8
+  },
+  "calendar": {
+    "year": 2026,
+    "month": 7,
+    "selected_day": 23,
+    "manual_adjustments": [
+      {
+        "date": "2026-07-26",
+        "type": "workday"
+      }
+    ]
+  },
+  "edge_cases": {
+    "long_amount_minor": 123456789012,
+    "long_status_zh": "调休工作日，距离午休结束还有较长时间",
+    "long_status_en": "Adjusted workday with an extended schedule",
+    "save_error": "无法写入测试配置，请检查测试目录权限后重试。"
+  }
+}
+

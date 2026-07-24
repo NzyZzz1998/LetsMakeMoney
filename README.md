@@ -1,155 +1,74 @@
-<p align="center">
-  <img src="assets/readme/hero.png" alt="LetsMakeMoney Windows v0.9 Beta：桌面宠物与实时收入进度" width="100%">
-</p>
+# LetsMakeMoney
 
-<p align="center">
-  <a href="README.en.md">English</a>
-  ·
-  <a href="doc/releases/v0.9/README.md">v0.9 版本说明</a>
-  ·
-  <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta">下载 v0.9 Beta</a>
-  ·
-  <a href="CONTRIBUTING.md">参与贡献</a>
-</p>
+[English](README.en.md) | [当前状态](doc/current.md) | [v1.0 文档](doc/releases/v1.0/README.md)
 
-## 它是什么
+LetsMakeMoney 是一款 Windows 本地收入进度工具。填写月薪与工作安排后，它会在桌面迷你窗口中持续显示今日已赚、工作进度和距离下班时间，并提供今日详情、日历、设置与首次配置向导。
 
-LetsMakeMoney 是一款用 Godot 4.7 开发的 Windows 桌面宠物应用。你提供月薪与工作安排，它会在桌面持续估算今日已赚、工作进度与下班时间；桌宠则根据工作、清醒休息和睡眠状态陪伴你。
+v1.0 使用 Rust、Tauri 与 React 重建，重点是清晰、克制、稳定的 Windows 桌面体验。配置与日志只保存在本机；应用不需要账号，也不会静默安装更新。
 
-项目只在本地保存配置与日志，不需要账户，也不会静默更新。
+## v1.0 当前范围
 
-| 收入进度 | 桌面陪伴 | Windows 原生体验 | 本地可控 |
-|---|---|---|---|
-| 按实际工作日、午休和作息估算今日收入 | Classic 与多多状态随工作节律变化 | 托盘、透明窗口、点击穿透、纯桌宠模式 | 配置、日志和更新确认均由用户掌控 |
+- 无宠物的迷你收入视图，默认不占用任务栏。
+- 今日与日历工作台，展示收入、进度、安排和工作日口径。
+- 三步首次配置向导与四组任务化设置。
+- 保存成功、无变化、失败保留输入、恢复默认和配置损坏恢复。
+- 原生托盘隐藏、找回、设置和退出。
+- 本地诊断摘要、数据目录和用户确认式更新检查。
+- Windows x86_64 便携 Zip。
 
-## v0.9 Beta
-
-Windows v0.9 Beta 完成了计薪、配置流程、窗口界面和宠物运行时的大范围重构，锁定候选已通过最终验收。实际发布状态、下载附件与校验文件以 [GitHub Release `v0.9-beta`](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta) 为准。
-
-| 事实 | 当前口径 |
-|---|---|
-| 发布线 | `main` / Windows v0.9 Beta |
-| 状态 | 最终验收通过 |
-| 官方下载 | [v0.9 Beta GitHub Release](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta) |
-| 上一稳定 Beta | [v0.8 Beta](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.8-beta) |
-| 稳定回退 | v0.8 Beta |
-
-完整事实见 [v0.9 版本入口](doc/releases/v0.9/README.md)、[验证记录](doc/releases/v0.9/verification.md) 与 [人工验收边界](doc/releases/v0.9/manual-verification.md)。
-
-## v0.9 做了什么
-
-- **统一工资与作息口径**：支持单休、双休、大小周、每日 8 小时、午休、节假日和调休。
-- **重做配置链路**：Wizard 与 Settings 共用配置草稿、默认推算、校验、保存和失败恢复。
-- **重组桌面信息**：调整收入 Panel，并加入单实例今日详情窗口、位置记忆和安全回落。
-- **升级宠物运行时**：建立通用宠物包校验与损坏回退合同，保留 Classic 稳定链路并接入多多。
-- **改进交互状态**：引入事件驱动动画、状态感知单击、长按拖动和动态命中区。
-- **保护 Windows 特色**：继续支持托盘找回、透明窗口、点击穿透、右键菜单和纯桌宠模式。
-
-## 验证边界
-
-已通过自动回归、候选包启动、100% DPI 主要窗口复验，以及 Classic、多多、Panel、今日详情和模态点击穿透的定向检查。
-
-以下项目**没有被写成通过**：
-
-- 真实 Windows 125% 与 150% DPI 全窗口复验。
-- Windows 通知区真实鼠标左键显隐与任务栏入口。
-- 500ms 长按进入方向跑动及释放收势。
-- Classic 与多多全部状态和事件动作的完整视觉质量。
-- 损坏宠物包在真实桌面上的回退观感。
-- 连续两小时 GUI 稳定运行。
-
-这些边界不得写成通过，但按当前 Beta 验收口径不阻塞便携 Beta 分发。
-
-## 如何体验
-
-### 下载与运行
-
-1. 从 [v0.9 Beta GitHub Release](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta) 下载 **Windows x86_64** 便携 Zip。
-2. 解压到独立目录。
-3. 运行 `LetsMakeMoney.exe`，按首次配置向导填写月薪与工作安排。
-4. 右键桌宠可打开今日详情、设置和重新配置；关闭主窗口后可从系统托盘找回。
-
-### 发布与校验
-
-v0.9 已通过最终验收。请以 GitHub Release 附带的 `SHA256SUMS.txt` 校验下载文件；不要把本地 `build/`、旧 Zip 或单独 Git HEAD 当作正式发布附件。
-
-> Windows 可能提示未知发布者。当前公开 EXE 未进行 Authenticode 签名。请只从本仓库 GitHub Releases 下载稳定包，并核对 Release 提供的 SHA-256。
-
-配置与日志位于：
-
-```text
-%APPDATA%\LetsMakeMoney\config.json
-%APPDATA%\LetsMakeMoney\debug.log
-```
-
-升级前请退出应用并备份 `config.json`。便携版与测试安装版共享上述数据目录，不应同时运行。
+v1.0 不包含宠物、透明宠物窗口、点击穿透、纯桌宠模式、账号、云同步、主题系统或安装器。需要旧桌宠体验的用户可继续使用 [v0.9 Beta](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta)。
 
 ## 从源码运行
 
 要求：
 
-- Windows x86_64
-- Godot 4.7 stable
-- PowerShell
-- MSYS2 UCRT64、Python 3.12 与 SCons 4.10.1（仅 native bridge 本地构建需要）
+- Windows 10/11 x86_64
+- Node.js 22+
+- Rust stable MSVC toolchain
+- Microsoft Edge WebView2 Runtime
 
 ```powershell
-$env:LMM_GODOT_EXE = "<Godot 4.7 console executable>"
-& $env:LMM_GODOT_EXE --path (Resolve-Path .).Path
+cd apps\windows-v1
+npm install
+npm run tauri dev
 ```
 
-构建 Windows native bridge：
+构建：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap_native_dependencies.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\build_native_windows.ps1 -ValidateOnly
-powershell -ExecutionPolicy Bypass -File .\scripts\build_native_windows.ps1 -Target template_debug
+cd apps\windows-v1
+npm run build:web
+npm run tauri build -- --no-bundle
 ```
-
-固定依赖、离线缓存与故障处理见 [Windows native 构建说明](native/windows/README.md)。
 
 ## 验证
 
 ```powershell
-# 文档与公开合规
-powershell -ExecutionPolicy Bypass -File .\scripts\run_ci_verification.ps1 -Suite docs
-
-# v0.9 聚合验证
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v09.ps1
-
-# v0.9 候选打包与包体验证
-powershell -ExecutionPolicy Bypass -File .\scripts\package_v09.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v09_package.ps1
-
-# 稳定回退基线仍由 v0.8 验证保护
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v08.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\package_v08.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m0.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m2.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m3.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m4.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m5.ps1 -SkipBuild
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m6.ps1
 ```
 
-脚本分层与维护边界见 [scripts/README.md](scripts/README.md)。自动测试用于守住合同，托盘、任务栏、DPI 和点击穿透等 Windows 行为仍需要真实桌面验收。
+真实托盘、任务栏、DPI 和系统重启后的恢复行为仍需要 Windows 桌面验收，自动测试不能替代这些证据。
 
-## 版本脉络
+## 数据与回退
 
-- **v0.6 Beta**：共享控件、诊断与 Windows 边缘链路收敛。
-- **v0.7 Beta**：开源治理、可复现构建和便携发布基线。
-- **v0.8 Beta**：工资日历、午休和作息计算基线。
-- **v0.9 Beta**：界面、配置与宠物运行时重塑；最终验收通过并进入公开 Beta 分发。
+v1.0 数据目录：
+
+```text
+%APPDATA%\io.letsmakemoney.windows\
+```
+
+从 v0.9 首次迁移时会保留兼容备份。回退前请退出 v1.0，再按 [v0.9 回退指南](doc/releases/v1.0/v0.9-rollback.md) 恢复旧配置。
 
 ## 参与项目
 
-欢迎代码、文档、测试、UI 说明和 Windows native integration 贡献。提交前请阅读：
-
-- [贡献指南](CONTRIBUTING.md)
-- [行为准则](CODE_OF_CONDUCT.md)
-- [安全策略](SECURITY.md)
-- [当前项目状态](doc/current.md)
-
-安全漏洞请按 `SECURITY.md` 私下报告，不要公开提交包含敏感信息的 Issue。
+欢迎代码、文档、测试和 Windows 体验贡献。提交前请阅读 [贡献指南](CONTRIBUTING.md)、[行为准则](CODE_OF_CONDUCT.md) 与 [安全策略](SECURITY.md)。
 
 ## 许可
 
-- 项目原创代码、构建脚本、纯文本配置和代码文档采用 [MIT License](LICENSE)。
-- 猫咪、动画帧、Logo 和应用图标不适用 MIT，采用 [视觉素材受限许可](ASSETS_LICENSE.md)；详见 [视觉资产清单](ASSETS_MANIFEST.md)。
-- 第三方依赖保留各自许可；详见 [第三方声明](THIRD_PARTY_NOTICES.md) 与 `LICENSES/`。
-
-未经书面许可，不得提取受限视觉素材用于其他项目，也不得分发包含这些素材的非官方二进制。
+项目原创代码与文档采用 [MIT License](LICENSE)。v1.0 当前发布包不包含宠物或其他受限视觉素材；v0.9 历史视觉资产仍按对应版本中的受限素材许可处理。第三方组件见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

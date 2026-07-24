@@ -1,104 +1,84 @@
 # LetsMakeMoney 当前状态入口
 
-**最后更新**：2026-07-23
+**最后更新**：2026-07-24
 
-**项目名**：LetsMakeMoney 赚钱模拟器
+本文件是项目当前事实的唯一内部入口。用户与贡献者先读根目录 README；需要实施或验收细节时再进入对应版本目录。
 
-**当前发布版本**：v0.9 Beta
+## 当前版本
 
-**当前发布 tag**：`v0.9-beta`
+| 对象 | 当前事实 |
+|---|---|
+| 当前公开版本 | Windows v0.9 Beta |
+| 当前公开 tag | `v0.9-beta` |
+| 当前开发版本 | Windows v1.0 Stable 候选 |
+| v1 技术主线 | Rust + Tauri + TypeScript/React |
+| v1 产品主线 | 无宠物迷你收入视图 + 今日/日历工作台 |
+| 当前开发阶段 | M7 自动门禁、定向 GUI、三档真实 DPI、通知区、Explorer 重启与长期运行复验已完成 |
+| 发布判断 | v1.0 验收通过，可进入 Stable 发布收口；仍需干净提交重打包 |
+| 历史恢复基线 | `v0.9-beta` tag 与 GitHub Release |
 
-**发布提交**：`94f46229cd72a6648fa6d027130efd07354215e2`
+当前工作分支与 HEAD 以 `git status --branch` 为准。开发工作树包含尚未提交的 v1.0 实现，不得把当前 HEAD 单独解释为候选包身份。
 
-**当前发布分支**：`main`
+## v1.0 已完成
 
-**当前开发分支**：`test`
+- M0：事实冻结、配置/窗口/日志/视觉合同与隔离骨架。
+- M1：Tauri 壳、四窗口与设计系统。
+- M2：工资作息、配置事务、日志、诊断与更新服务。
+- M3：迷你收入视图、今日与日历工作台。
+- M4：三步 Wizard 与四组 Settings。
+- M5：托盘、窗口生命周期与诊断实现；真实通知区鼠标左键隐藏/找回和 Explorer 重启后重新注册均已通过。
+- M6：旧 Godot、native、宠物资源与旧脚本从当前树下线；配置迁移和零宠物门禁通过。
 
-**当前阶段**：v0.9 Beta 已完成最终验收、受保护 CI、发布提交、annotated tag 和 GitHub Pre-release，当前进入发布后观察
+## 当前必须完成
 
-本文件是人工或 agent 接手时的唯一内部当前事实入口。README 面向用户和贡献者；`doc/releases/v0.9/` 保存当前发布版本证据；v0.1-v0.8 及跨版本大文档按需作为历史参考。
+1. 多显示器安全回落因当前设备仅有一台显示器，标记为待补证；项目所有者批准其不阻塞本次 Stable。
+2. 独立候选约 95 分钟连续运行稳定，项目所有者确认按约 100 分钟门禁通过。
+3. v0.9 官方 Release 包桌面回退与 v1 配置隔离已通过。
+4. 将已验收实现形成干净提交后重新打包并锁定正式 Stable 候选身份。
 
-## 1. 当前发布事实
+## 当前候选身份
 
-| 对象 | 当前身份 | 说明 |
-|---|---|---|
-| 公开源码仓库 | `main` / `94f46229...` | PR #6 已通过两项必需 CI 并 squash 合并 |
-| v0.9 Beta tag | `v0.9-beta` | annotated tag，指向发布提交 `94f46229...` |
-| GitHub Release | v0.9 Beta Pre-release | 已发布，只包含便携 Zip 与校验文件 |
-| 便携 Zip | `releases/v0.9/LetsMakeMoney-v0.9-beta-windows-x86_64.zip` | SHA256 `B10FDE2027D4ABC71C41F0F7AC7BDCE3D93AEB8AFAF4058BA1A592B6A75CC1EC` |
-| 测试安装器 | 本地未签名验收产物 | `NotSigned`，未上传且不得作为公开附件 |
-| 稳定回退 | `v0.8-beta` | 上一公开 Beta 与配置回退基线 |
-| v0.7 Beta 兼容基线 | `v0.7-beta` | 历史桌宠体验与配置兼容门禁继续保留 |
+- 源码基线：`aa7c0b93780d7511a6551624f2eea88595cee51f`，验收时工作树包含尚未提交的 v1.0 实现。
+- 便携 Zip：`releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64.zip`
+- Zip SHA256：`8EB5060994A4265B90F57A50E304F7F698754AD055CAD53E9AEE08F19F4B334B`
+- EXE SHA256：`286F99D3B6C03B4D22362E968502C5644562CE2CCA7B8B892184547BC32B5334`
+- WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
+- 新候选 GUI 复验路径：`releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64/LetsMakeMoney.exe`
+- 说明：新候选已完成迷你收入视图、Today、Calendar、Settings 四任务组、无变化保存、100%/125%/150% 真实 Windows DPI、通知区左键双向切换和 Explorer 重启后托盘重注册复验；迷你窗口恢复后重新应用 `skip_taskbar=true`，Settings 关闭后任务栏入口正常消失。首次 Wizard 全链路证据保留在上一候选验收记录中。
 
-发布地址：<https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta>
+## 版本边界
 
-## 2. 已验证边界
+- v1.0 不包含宠物 UI、运行时、配置、资源、点击穿透或纯桌宠模式。
+- v1.0 不提供安装器、静默更新、账号、云同步或主题系统。
+- v0.9 的桌宠体验只通过历史 tag 与 Release 恢复，不复制回 v1 主线。
+- 配置与日志保存在 `%APPDATA%\io.letsmakemoney.windows\`。
 
-- v0.9 最终 Acceptance 已通过，便携 Zip 已公开发布。
-- Panel、今日详情、Settings、Wizard、菜单、Classic/多多切换、当前状态单击、Popup/Modal 点击穿透和 v0.8 核心回归已有真实桌面证据。
-- 真实通知区鼠标、500ms 长按跑动和两套宠物完整三状态观感仍为待人工补证；真实 125%/150% DPI、受控损坏包桌面观感和两小时稳定运行暂不验证，不得写成通过。
-- 未签名安装器不属于 v0.9 Release 附件。
-- 2026-07-15，SignPath Foundation 免费签名申请未获批准，原因为项目当前缺少足够的社区采用、外部讨论和持续公开影响力信号；这不是对代码质量或安全性的否定。当前 EXE 与测试安装器继续保持未签名，后续积累公开社区信号后再申请或评估商业证书。
-- 当前正式支持平台仍为 Windows x86_64；iOS、macOS、Android 仅有规划。
+## 推荐阅读顺序
 
-## 3. 当前工作
+1. [v1.0 进度看板](releases/v1.0/progress_v1.0.md)
+2. [v1.0 验证记录](releases/v1.0/verification.md)
+3. [v1.0 PRD](releases/v1.0/prd.md)
+4. [v1.0 开发计划](releases/v1.0/dev_plan_v1.0.md)
+5. [宠物退役审计](releases/v1.0/pet-retirement-audit.md)
+6. [v0.9 回退说明](releases/v1.0/v0.9-rollback.md)
+7. [v1.0 人工验证](releases/v1.0/manual-verification.md)
 
-v0.8 历史基线包含两条已经执行的工作线：
-
-1. 工程治理 C0-C5：当前事实、生成物、历史文档、脚本职责、Main/native 状态和发布边界已完成治理及对应回归。
-2. 薪资与作息规则：按当月实际工作日计算日薪，增加午休扣除和大小周，配置升级至 v4，并保持 v3 配置迁移。
-
-薪资与作息实现已完成候选验证和发布。2026-07-17 已使用新解压候选 Zip 完成 Settings 五页、Wizard 四步、保存/无变化、重启持久化、工资与作息、右键菜单、托盘、纯桌宠和点击穿透的最终桌面验收。
-
-v0.8 候选包由源码提交 `08f7820bfd95ff56132eb87eb9255078adb9572a` 构建并完成验收，发布文档通过 PR #3 一并收口；最终发布提交为 `a330d14230add1537b18c35c8ad38c6ae43430a2`。发布 Zip 为 `releases/v0.8/LetsMakeMoney-v0.8-beta-windows-x86_64.zip`，SHA256 为 `A2065B82F7674E5A19AC4FD467E7DEA3E8D665E3C148634C3721B7BD90AE098E`。
-
-下一版本计划对宠物动作进行较大范围优化。2026-07-17 已开始审查 LetsMakeMoney 内部宠物运行时与仓库外部的独立 PetManager 素材生产项目。当前只确认两者职责和契约缺口，不在 v0.8 分支直接替换素材、重构状态机或接入 PetManager 交付包。
-
-2026-07-23，v0.9 已完成工资与作息口径、Settings/Wizard 高保真生产级还原、Panel/今日详情、通用宠物包运行时、动画状态机、输入仲裁、业务事件层和配套自动门禁。多多 S5.5 已接入，Classic 保持兼容回退；`V09-BUG-002` 至 `V09-BUG-008` 均已关闭。最终真实 GUI 验收使用 Zip SHA256 `DFADCFF7F1DB1F461D4241EFC9F86E286E7C533211785BA7E5C74072FE5144DF` 的全新解压副本，完成 Panel、今日详情、Settings 五页、Wizard 四步/返回/取消/关闭、菜单、Classic/多多切换与当前状态单击、Popup/Modal 穿透、语义日志和 v0.8 回归。项目所有者随后选择重新打包最终文档快照；最终发布附件 Zip SHA256 为 `B10FDE2027D4ABC71C41F0F7AC7BDCE3D93AEB8AFAF4058BA1A592B6A75CC1EC`，EXE 与 Native DLL 哈希保持不变，包体验证和新解压冒烟通过。最终结论仍为“通过 / 可进入发布收口”。真实通知区鼠标、500ms 长按跑动和两套宠物完整三状态观感仍待人工补证；真实 125%/150% DPI、受控损坏包桌面观感和两小时稳定运行暂不验证。
-
-当前版本入口：
-
-- [v0.9 版本索引](releases/v0.9/README.md)
-- [v0.9 版本级验证](releases/v0.9/verification.md)
-- [v0.9 人工验证](releases/v0.9/manual-verification.md)
-- [v0.9 发布说明](releases/v0.9/release-notes.md)
-- [v0.9 发布检查清单](releases/v0.9/release-checklist.md)
-- [v0.9 进度看板](releases/v0.9/progress_v0.9.md)
-
-## 4. 推荐阅读顺序
-
-1. [当前状态](current.md)
-2. [v0.9 进度看板](releases/v0.9/progress_v0.9.md)
-3. [v0.9 目录与保留决策](releases/v0.9/structure-retention.md)
-4. [v0.9 PRD](releases/v0.9/prd.md)
-5. [v0.9 版本级验证](releases/v0.9/verification.md)
-6. [v0.9 发布说明](releases/v0.9/release-notes.md)
-7. [v0.9 人工验证](releases/v0.9/manual-verification.md)
-8. [v0.9 发布检查清单](releases/v0.9/release-checklist.md)
-9. [v0.8 版本级验证](releases/v0.8/verification.md)
-
-## 5. 文档可信度
+## 可信度
 
 ### 当前事实源
 
-- `README.md` / `README.en.md`：外部入口。
-- `doc/current.md`：内部唯一当前状态入口。
-- `doc/releases/v0.9/verification.md`：当前版本最终验收与发布证据。
-- `doc/releases/v0.9/release-notes.md`：当前版本用户可见变化与分发边界。
-- `doc/releases/v0.9/progress_v0.9.md`：当前版本开发状态、阻塞关闭情况和证据入口。
-- `releases/CHANGELOG.md`：版本变化摘要。
+- `doc/current.md`
+- `doc/releases/v1.0/progress_v1.0.md`
+- `doc/releases/v1.0/verification.md`
+- `doc/releases/v1.0/prd.md`
+- `apps/windows-v1/`
 
 ### 历史参考
 
-- `doc/releases/v0.4/` 至 `doc/releases/v0.6/`：已分层的版本事实。
-- `doc/archive/legacy-core/`：v0.1-v0.4 跨版本大文档原文。
-- `doc/archive/v0.1/` 至 `doc/archive/v0.6/`：旧验证、日志和素材探索。
-- `doc/LetsMakeMoneyPRD.md`、`doc/implementation-plan.md`、`doc/progress.md` 仅为兼容入口，不承载正文。
+- `doc/releases/v0.9/`：最后一个桌宠版本的产品、验收和发布记录。
+- `v0.9-beta` tag / Release：桌宠恢复基线。
+- v0.1-v0.8 文档：仅用于历史追溯，不覆盖本文件。
 
-历史文档不得覆盖本文件中的当前发布状态。
+## 下一步
 
-## 6. 下一步
-
-v0.9 发布收口已完成。发布后优先观察配置迁移、工资与午休计算、托盘找回、宠物包加载和 Windows 未签名提示，不在维护阶段扩入新功能。
-
-后续版本进入新一轮 `/idea` 或缺陷收集前，应继续保留 v0.9 的待人工补证、暂不验证和前端质感体验债；不得把这些边界追溯改写为通过。v0.8 Beta 继续作为稳定回退版本。
+将已验收实现形成干净提交，重新生成 Stable 候选包并复核哈希。项目所有者已批准提交与重打包；推送、tag 和 Release 仍需另行明确授权。

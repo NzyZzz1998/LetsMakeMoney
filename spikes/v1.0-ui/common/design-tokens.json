@@ -1,0 +1,63 @@
+{
+  "token_version": 1,
+  "font": {
+    "family": "\"Segoe UI Variable\", \"Segoe UI\", sans-serif",
+    "size": {
+      "caption": 12,
+      "label": 13,
+      "body": 14,
+      "heading": 18,
+      "title": 22,
+      "amount": 32
+    }
+  },
+  "color": {
+    "canvas": "#F1F2EF",
+    "window": "#FCFCFA",
+    "subtle": "#F5F5F2",
+    "raised": "#FFFFFF",
+    "ink": "#262522",
+    "muted": "#67645E",
+    "line": "#DEDED8",
+    "accent": "#EBAA24",
+    "accent_hover": "#D99618",
+    "accent_soft": "#FFF1C9",
+    "success": "#5E8D6B",
+    "success_soft": "#E8F1E9",
+    "danger": "#B44D43",
+    "danger_soft": "#F8EAE8",
+    "focus": "#2F6FED"
+  },
+  "space": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "xxl": 32
+  },
+  "radius": {
+    "control": 8,
+    "panel": 10,
+    "window": 12,
+    "pill": 999
+  },
+  "control": {
+    "compact_height": 32,
+    "height": 36,
+    "large_height": 40,
+    "icon_button": 32
+  },
+  "window": {
+    "mini": [344, 120],
+    "workbench": [820, 620],
+    "settings": [720, 540]
+  },
+  "motion": {
+    "press_ms": 120,
+    "popover_ms": 160,
+    "window_ms": 200,
+    "ease_out": [0.23, 1, 0.32, 1]
+  }
+}
+
