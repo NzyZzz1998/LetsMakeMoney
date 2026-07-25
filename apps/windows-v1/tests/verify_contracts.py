@@ -151,6 +151,7 @@ def verify_ci_utf8_environment() -> None:
     workflow = (REPO_ROOT / ".github/workflows/windows-v1-verify.yml").read_text(encoding="utf-8")
     require('PYTHONUTF8: "1"' in workflow, "Windows CI must force Python UTF-8 mode")
     require('PYTHONIOENCODING: "utf-8"' in workflow, "Windows CI must use UTF-8 standard streams")
+    require("cargo fetch --locked" in workflow, "Windows CI must fetch locked Rust dependencies before offline checks")
 
 
 def main() -> int:

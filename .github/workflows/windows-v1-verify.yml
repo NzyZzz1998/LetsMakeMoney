@@ -26,6 +26,9 @@ jobs:
         with:
           toolchain: stable
           targets: x86_64-pc-windows-msvc
+      - name: Fetch locked Rust dependencies
+        working-directory: apps/windows-v1/src-tauri
+        run: cargo fetch --locked
       - name: Install frontend dependencies
         working-directory: apps/windows-v1
         run: npm ci
