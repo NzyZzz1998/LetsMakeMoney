@@ -4,7 +4,7 @@
 
 | 项目 | 状态 |
 |---|---|
-| 当前阶段 | M7 验收通过，可进入 Stable 发布收口 |
+| 当前阶段 | M7 功能验收通过；`test` 候选等待项目所有者视觉签字 |
 | M0 结论 | 通过 |
 | M1 结论 | 通过 |
 | M2 结论 | 通过 |
@@ -13,7 +13,7 @@
 | M5 结论 | 通过（通知区左键与 Explorer 重启后重新注册均已通过） |
 | M6 结论 | 通过（9/9） |
 | GUI 验收 | 独立解压候选核心黄金路径通过 |
-| 发布判断 | 可进入 Stable 发布收口；多显示器待补证但不阻塞，干净提交候选已生成 |
+| 发布判断 | 无业务阻塞；完成视觉签字与分支保护检查名更新后可进入 Stable 发布收口 |
 
 ## M0 自动门禁
 
@@ -221,3 +221,17 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 - Zip SHA256：`3652A31D416B1B9CDDA2876EA2743586B8EC698C63DCC57078A116F8AFEA92D4`
 - EXE SHA256：`73C41A3295C137F467A5B669A72EAD6A9BA37EC83F30545051680CDF9D1FD4F2`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
+
+## `test` 候选复核
+
+| 项目 | 结果 |
+|---|---|
+| 远端分支 | `test` |
+| 当前文档与 CI HEAD | `0cfd0ac528c972d16f75fc40cb3c4120c7394f4b` |
+| 候选产物源码基线 | `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9` |
+| GitHub Actions | `Windows v1 verification` run `30167118353` 通过 |
+| 独立视觉抽查 | 迷你收入视图、Today、Calendar、Settings 四任务组通过 |
+| 项目所有者视觉验收 | 进行中，尚未签字 |
+| 分支保护 | `Protect_main` 仍引用旧检查名，发布前需更新为 `Windows v1 verification` |
+
+说明：`test` HEAD 包含候选生成后的 README、视觉验收说明与 CI 兼容修正；候选 Zip、EXE 和 DLL 未重打包，身份仍以上述锁定 SHA256 为准。

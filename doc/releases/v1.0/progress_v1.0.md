@@ -5,16 +5,16 @@
 | 项目 | 状态 |
 |---|---|
 | 版本 | Windows v1.0 Stable |
-| 阶段 | M7 验收通过，可进入 Stable 发布收口 |
+| 阶段 | M7 功能验收通过；`test` 候选等待项目所有者视觉签字 |
 | 技术主线 | Rust + Tauri + TypeScript/React |
 | 产品主线 | 无宠物迷你收入视图 + 今日/日历工作台 |
 | 回退基线 | Windows v0.9 Beta |
-| 当前阻塞 | 无验收阻塞；等待最终发布批准 |
+| 当前阻塞 | 无业务阻塞；发布前需完成视觉签字并更新 `main` 分支保护检查名 |
 | PRD | `doc/releases/v1.0/prd.md` |
 | 开发计划 | `doc/releases/v1.0/dev_plan_v1.0.md` |
 | 开发日志 | `doc/logs/dev_log_v1.0.md` |
 | 原型 | `doc/prototypes/v1.0/index.html` |
-| 最后更新 | 2026-07-24 |
+| 最后更新 | 2026-07-26 |
 
 ## 状态约定
 
@@ -151,7 +151,9 @@
 ## 当前阻塞
 
 - 无业务开发阻塞。
-- 干净实现提交与 Stable 候选包已经生成；等待最终发布批准。
+- 干净实现提交与 Stable 候选包已经生成并推送 `test`。
+- 项目所有者正在按 `doc/releases/v1.0/visual-acceptance.md` 进行最终视觉复验，尚未签字。
+- GitHub `Protect_main` ruleset 仍要求旧检查名；进入发布收口前需改为 `Windows v1 verification`。
 
 ## 最近验证
 
@@ -176,9 +178,14 @@
 - Settings 无变化保存显示“没有需要保存的更改”。
 - M7 证据：`.tmp_acceptance/v1.0-final-20260724-172154/evidence/`。
 - v0.9 回退证据：`.tmp_acceptance/v0.9-rollback-20260724/evidence/`；官方 Zip SHA256 `B10FDE2027D4ABC71C41F0F7AC7BDCE3D93AEB8AFAF4058BA1A592B6A75CC1EC`。
+- `test` 当前 HEAD：`0cfd0ac528c972d16f75fc40cb3c4120c7394f4b`；候选产物仍锁定源码基线 `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9`。
+- GitHub Actions `Windows v1 verification` run `30167118353`：通过。
+- 独立视觉抽查：迷你收入视图、Today、Calendar、Settings 四任务组通过；项目所有者完整视觉验收仍在进行。
 
 ## 下一步
 
+- 完成项目所有者视觉验收签字。
+- 将 `Protect_main` 必需检查更新为 `Windows v1 verification`。
 - 审核最终候选身份并等待项目所有者批准发布动作。
 - 多显示器不以静态测试冒充通过；三档真实 DPI 已完成 GUI 补证。
 

@@ -1,6 +1,6 @@
 # LetsMakeMoney 当前状态入口
 
-**最后更新**：2026-07-24
+**最后更新**：2026-07-26
 
 本文件是项目当前事实的唯一内部入口。用户与贡献者先读根目录 README；需要实施或验收细节时再进入对应版本目录。
 
@@ -13,8 +13,8 @@
 | 当前开发版本 | Windows v1.0 Stable 候选 |
 | v1 技术主线 | Rust + Tauri + TypeScript/React |
 | v1 产品主线 | 无宠物迷你收入视图 + 今日/日历工作台 |
-| 当前开发阶段 | M7 自动门禁、定向 GUI、三档真实 DPI、通知区、Explorer 重启与长期运行复验已完成 |
-| 发布判断 | v1.0 验收通过，干净提交候选已生成并通过包体验证 |
+| 当前开发阶段 | v1.0 Stable 候选已推送 `test`，自动门禁与独立视觉抽查通过，项目所有者视觉复验进行中 |
+| 发布判断 | 候选无已知业务阻塞；待项目所有者完成视觉签字并更新 `main` 分支保护检查名后进入发布收口 |
 | 历史恢复基线 | `v0.9-beta` tag 与 GitHub Release |
 
 当前工作分支与 HEAD 以 `git status --branch` 为准。正式候选包身份由实现提交、`BUILD-INFO.json` 与 SHA256 共同锁定。
@@ -34,17 +34,21 @@
 1. 多显示器安全回落因当前设备仅有一台显示器，标记为待补证；项目所有者批准其不阻塞本次 Stable。
 2. 独立候选约 95 分钟连续运行稳定，项目所有者确认按约 100 分钟门禁通过。
 3. v0.9 官方 Release 包桌面回退与 v1 配置隔离已通过。
-4. 已验收实现已形成干净提交并重新打包；发布动作仍需项目所有者另行批准。
+4. 功能验收通过，干净提交候选已生成并重新打包；项目所有者需按 `visual-acceptance.md` 完成最终视觉签字。
+5. GitHub `Protect_main` ruleset 仍引用 v0.9 时代的两个检查名，发布前需改为 `Windows v1 verification`。
 
 ## 当前候选身份
 
 - 源码基线：`88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9`，`BUILD-INFO.json` 记录 `source_tree_dirty=false`。
+- 当前 `test` 文档与 CI HEAD：`0cfd0ac528c972d16f75fc40cb3c4120c7394f4b`；该 HEAD 不改变下列已锁定候选包身份。
 - 便携 Zip：`releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64.zip`
 - Zip SHA256：`3652A31D416B1B9CDDA2876EA2743586B8EC698C63DCC57078A116F8AFEA92D4`
 - EXE SHA256：`73C41A3295C137F467A5B669A72EAD6A9BA37EC83F30545051680CDF9D1FD4F2`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 - 新候选 GUI 复验路径：`releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64/LetsMakeMoney.exe`
 - 说明：新候选已完成迷你收入视图、Today、Calendar、Settings 四任务组、无变化保存、100%/125%/150% 真实 Windows DPI、通知区左键双向切换和 Explorer 重启后托盘重注册复验；迷你窗口拖动、位置保存和重启恢复已通过真实 Windows 鼠标复验。迷你窗口恢复后重新应用 `skip_taskbar=true`，Settings 关闭后任务栏入口正常消失。首次 Wizard 全链路证据保留在上一候选验收记录中。
+- 远端 CI：`Windows v1 verification` 于 2026-07-26 通过，run `30167118353`。
+- 独立视觉抽查：迷你收入视图、Today、Calendar 与 Settings 四任务组未发现裁切、重叠或可读性阻塞；项目所有者完整视觉复验尚未签字。
 
 ## 版本边界
 
@@ -82,4 +86,4 @@
 
 ## 下一步
 
-干净提交与 Stable 候选包已生成。下一步是项目所有者审核最终身份后，另行决定推送、tag 和 GitHub Release。
+完成项目所有者视觉复验，更新 `Protect_main` 所需检查名，再审核最终身份并决定合并 `main`、tag 和 GitHub Release。
