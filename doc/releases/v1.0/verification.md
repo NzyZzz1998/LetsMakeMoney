@@ -227,9 +227,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 | 项目 | 结果 |
 |---|---|
 | 远端分支 | `test` |
-| 最近一次完整 CI 通过 HEAD | `c8618e4509a0ef416a177c7d45a8324a267a3c4e` |
+| 远端 CI | `test` 的 `Windows v1 verification` 于 2026-07-26 复核通过；实时 HEAD 与 run 以 GitHub 当前状态为准 |
 | 候选产物源码基线 | `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9` |
-| GitHub Actions | `Windows v1 verification` run `30168115925` 通过 |
 | 独立视觉抽查 | 迷你收入视图、Today、Calendar、Settings 四任务组通过；证据位于 `.tmp_acceptance/v1.0-visual-test-20260726/evidence/` |
 | 项目所有者视觉验收 | 进行中，尚未签字 |
 | 分支保护 | `Protect_main` 仍引用旧检查名，发布前需更新为 `Windows v1 verification` |
