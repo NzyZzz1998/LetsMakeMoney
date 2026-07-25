@@ -147,6 +147,12 @@ def verify_docs_exist() -> None:
     require(not missing, f"Missing M0 documents: {missing}")
 
 
+def verify_ci_utf8_environment() -> None:
+    workflow = (REPO_ROOT / ".github/workflows/windows-v1-verify.yml").read_text(encoding="utf-8")
+    require('PYTHONUTF8: "1"' in workflow, "Windows CI must force Python UTF-8 mode")
+    require('PYTHONIOENCODING: "utf-8"' in workflow, "Windows CI must use UTF-8 standard streams")
+
+
 def main() -> int:
     checks = [
         verify_config_contract,
@@ -154,6 +160,7 @@ def main() -> int:
         verify_platform_contracts,
         verify_formal_project_boundary,
         verify_docs_exist,
+        verify_ci_utf8_environment,
     ]
     try:
         for check in checks:
