@@ -100,10 +100,10 @@ visual-acceptance/
 
 依次检查以下任务组：
 
-1. 收入与休息。
-2. 工作与午休。
-3. 日历与调整。
-4. 应用与窗口。
+1. 收入与作息：月薪、休息模式、大小周周型、上下班与午休。
+2. 日历：月份规则、手动工作日/休息日调整。
+3. 窗口与启动：窗口行为、开机启动及相关反馈。
+4. 数据与支持：数据目录、诊断摘要、更新检查与版本信息。
 
 每个任务组都执行：
 
@@ -119,11 +119,12 @@ visual-acceptance/
 - 顶部任务组切换清楚，不像网页后台标签栏。
 - 页面标题、分组标题、设置行和底部反馈层级稳定。
 - 控件右侧边界对齐，标签与控件垂直居中。
+- 收入与作息中的金额、时间和午休控件不拥挤，长值不挤压标签。
 - 没有双横线、重复分隔线或说明文字贴线。
 - 保存、无变化、错误反馈位置固定且容易看到。
 - 底部按钮不会挤压正文，滚动条不遮挡内容。
 
-建议截图：`settings-income.png`、`settings-schedule.png`、`settings-calendar.png`、`settings-app.png`、`settings-feedback.png`。
+建议截图：`settings-income.png`、`settings-calendar.png`、`settings-window.png`、`settings-support.png`、`settings-feedback.png`。
 
 ## 五、托盘与窗口状态
 
@@ -151,7 +152,7 @@ visual-acceptance/
 - 今日工作台的“今日”。
 - 日历。
 - Wizard 的午休步骤。
-- Settings 的工作与午休任务组。
+- Settings 的收入与作息任务组。
 
 每档通过标准：
 
@@ -208,4 +209,3 @@ visual-acceptance/
 2. 恢复验收前的配置。
 3. 将截图和填写后的结果表保留在同一证据目录。
 4. 将问题按“界面 + 状态 + DPI + 截图”记录，避免只写“质感不好”。
-
