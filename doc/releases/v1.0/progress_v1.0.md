@@ -178,9 +178,9 @@
 - Settings 无变化保存显示“没有需要保存的更改”。
 - M7 证据：`.tmp_acceptance/v1.0-final-20260724-172154/evidence/`。
 - v0.9 回退证据：`.tmp_acceptance/v0.9-rollback-20260724/evidence/`；官方 Zip SHA256 `B10FDE2027D4ABC71C41F0F7AC7BDCE3D93AEB8AFAF4058BA1A592B6A75CC1EC`。
-- `test` 当前 HEAD：`0cfd0ac528c972d16f75fc40cb3c4120c7394f4b`；候选产物仍锁定源码基线 `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9`。
-- GitHub Actions `Windows v1 verification` run `30167118353`：通过。
-- 独立视觉抽查：迷你收入视图、Today、Calendar、Settings 四任务组通过；项目所有者完整视觉验收仍在进行。
+- `test` 最近一次完整 CI 通过 HEAD：`c8618e4509a0ef416a177c7d45a8324a267a3c4e`；候选产物仍锁定源码基线 `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9`。
+- GitHub Actions `Windows v1 verification` run `30168115925`：通过。
+- 独立视觉抽查：迷你收入视图、Today、Calendar、Settings 四任务组通过；证据位于 `.tmp_acceptance/v1.0-visual-test-20260726/evidence/`，项目所有者完整视觉验收仍在进行。
 
 ## 下一步
 

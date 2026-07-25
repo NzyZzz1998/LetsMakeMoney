@@ -40,15 +40,15 @@
 ## 当前候选身份
 
 - 源码基线：`88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9`，`BUILD-INFO.json` 记录 `source_tree_dirty=false`。
-- 当前 `test` 文档与 CI HEAD：`0cfd0ac528c972d16f75fc40cb3c4120c7394f4b`；该 HEAD 不改变下列已锁定候选包身份。
+- `test` 最近一次完整 CI 通过 HEAD：`c8618e4509a0ef416a177c7d45a8324a267a3c4e`；后续仅文档收口提交不改变下列已锁定候选包身份。
 - 便携 Zip：`releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64.zip`
 - Zip SHA256：`3652A31D416B1B9CDDA2876EA2743586B8EC698C63DCC57078A116F8AFEA92D4`
 - EXE SHA256：`73C41A3295C137F467A5B669A72EAD6A9BA37EC83F30545051680CDF9D1FD4F2`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 - 新候选 GUI 复验路径：`releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64/LetsMakeMoney.exe`
 - 说明：新候选已完成迷你收入视图、Today、Calendar、Settings 四任务组、无变化保存、100%/125%/150% 真实 Windows DPI、通知区左键双向切换和 Explorer 重启后托盘重注册复验；迷你窗口拖动、位置保存和重启恢复已通过真实 Windows 鼠标复验。迷你窗口恢复后重新应用 `skip_taskbar=true`，Settings 关闭后任务栏入口正常消失。首次 Wizard 全链路证据保留在上一候选验收记录中。
-- 远端 CI：`Windows v1 verification` 于 2026-07-26 通过，run `30167118353`。
-- 独立视觉抽查：迷你收入视图、Today、Calendar 与 Settings 四任务组未发现裁切、重叠或可读性阻塞；项目所有者完整视觉复验尚未签字。
+- 远端 CI：`Windows v1 verification` 于 2026-07-26 通过，run `30168115925`。
+- 独立视觉抽查：迷你收入视图、Today、Calendar 与 Settings 四任务组未发现裁切、重叠或可读性阻塞；证据位于 `.tmp_acceptance/v1.0-visual-test-20260726/evidence/`，项目所有者完整视觉复验尚未签字。
 
 ## 版本边界
 

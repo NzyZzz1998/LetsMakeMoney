@@ -181,6 +181,8 @@ visual-acceptance/
 
 ## 八、最终结果表
 
+自动化与独立抽查只能辅助你的最终视觉判断。本轮独立抽查已覆盖迷你收入视图、Today、Calendar 和 Settings 四个任务组，截图保存在 `.tmp_acceptance/v1.0-visual-test-20260726/evidence/`；Wizard、真实通知区以及你希望再次确认的三档 DPI 仍以本表人工结论为准。
+
 | 验收对象 | 结论 | 截图 | 问题说明 |
 |---|---|---|---|
 | 缩小版 Panel | 待验收 |  |  |
