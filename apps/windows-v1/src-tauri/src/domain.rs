@@ -60,6 +60,13 @@ pub struct DayResolution {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+pub struct CalendarDay {
+    pub date: String,
+    pub kind: DayKind,
+    pub source: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct MonthSalary {
     pub workdays: u32,
     pub daily_salary_minor: i64,
@@ -283,6 +290,40 @@ pub fn calculate_month(
     })
 }
 
+pub fn resolve_month_days(
+    month: &str,
+    schedule: &SalarySchedule,
+    calendar: &CalendarData,
+) -> Result<Vec<CalendarDay>, String> {
+    let start = CivilDate::parse(&format!("{month}-01"))?;
+    (1..=days_in_month(start.year, start.month))
+        .map(|day| {
+            let date = CivilDate { day, ..start }.format();
+            let resolution = resolve_day(&date, schedule, calendar)?;
+            Ok(CalendarDay {
+                date,
+                kind: resolution.kind,
+                source: resolution.source,
+            })
+        })
+        .collect()
+}
+
+pub fn next_workday(
+    after_date: &str,
+    schedule: &SalarySchedule,
+    calendar: &CalendarData,
+) -> Result<Option<String>, String> {
+    let start = CivilDate::parse(after_date)?;
+    for offset in 1..=62 {
+        let date = start.add_days(offset).format();
+        if resolve_day(&date, schedule, calendar)?.kind == DayKind::Workday {
+            return Ok(Some(date));
+        }
+    }
+    Ok(None)
+}
+
 fn interval_elapsed(now: i64, start: i64, end: i64) -> i64 {
     if now <= start {
         0
@@ -451,6 +492,21 @@ mod tests {
         assert_eq!(
             resolve_day("2026-10-01", &standard, &calendar).unwrap().source,
             "manual_override"
+        );
+    }
+
+    #[test]
+    fn month_days_and_next_workday_share_resolution_rules() {
+        let standard = schedule(RestMode::Double);
+        let days = resolve_month_days("2026-07", &standard, &CalendarData::default()).unwrap();
+        assert_eq!(days.len(), 31);
+        assert_eq!(days[23].date, "2026-07-24");
+        assert_eq!(days[23].kind, DayKind::Workday);
+        assert_eq!(days[25].date, "2026-07-26");
+        assert_eq!(days[25].kind, DayKind::RestDay);
+        assert_eq!(
+            next_workday("2026-07-26", &standard, &CalendarData::default()).unwrap(),
+            Some("2026-07-27".into())
         );
     }
 }

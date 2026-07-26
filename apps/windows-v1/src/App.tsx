@@ -97,8 +97,9 @@ function MiniWindow() {
   if (snapshot.state === "error") {
     return <main className="mini-window mini-window--state" data-window="mini"><strong>暂时无法计算</strong><button type="button" onClick={refresh}>重试</button></main>;
   }
+  const isRestDay = snapshot.phase === "rest_day";
   return (
-    <main className="mini-window" data-window="mini">
+    <main className={`mini-window ${isRestDay ? "mini-window--rest" : ""}`} data-window="mini">
       <div
         className="mini-window__drag"
         data-tauri-drag-region
@@ -119,10 +120,23 @@ function MiniWindow() {
           <span className="status-dot" />
           {snapshot.workState}
         </span>
-        <span className="mini-window__label">今日已赚</span>
-        <strong className="mini-window__amount">{formatMoney(snapshot.amount)}</strong>
-        <ProgressBar value={snapshot.progress} label="工作进度" compact />
-        <span className="mini-window__meta">剩余有效工时 {formatDuration(snapshot.remainingSeconds)}</span>
+        {isRestDay ? (
+          <>
+            <span className="mini-window__label">今天没有工作安排</span>
+            <strong className="mini-window__amount mini-window__amount--rest">安心休息</strong>
+            <span className="mini-window__rest-line" aria-hidden="true" />
+            <span className="mini-window__meta">
+              {snapshot.nextWorkDate ? `下一个工作日 ${formatShortDate(snapshot.nextWorkDate)} ${snapshot.workStartTime}` : "下一个工作日尚未确定"}
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="mini-window__label">今日已赚</span>
+            <strong className="mini-window__amount">{formatMoney(snapshot.amount)}</strong>
+            <ProgressBar value={snapshot.progress} label="工作进度" compact />
+            <span className="mini-window__meta">剩余有效工时 {formatDuration(snapshot.remainingSeconds)}</span>
+          </>
+        )}
       </button>
     </main>
   );
@@ -146,7 +160,7 @@ function WorkbenchWindow() {
           </button>
         </nav>
         <section className="workbench-content">
-          {tab === "today" ? <TodayView {...dashboard} /> : <CalendarView />}
+          {tab === "today" ? <TodayView {...dashboard} /> : <CalendarView snapshot={dashboard.snapshot} />}
         </section>
       </div>
     </WindowFrame>
@@ -156,11 +170,54 @@ function WorkbenchWindow() {
 function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
   if (snapshot.state === "loading") return <PageState title="正在整理今天" detail="收入、安排和日历正在同步。" />;
   if (snapshot.state === "error") return <PageState title="暂时无法计算" detail={snapshot.message ?? "请稍后重试。"} action={<Button onClick={refresh}>重新计算</Button>} />;
+  if (snapshot.phase === "rest_day") {
+    return (
+      <div className="page-stack" aria-label="今日休息">
+        <div className="page-heading">
+          <div>
+            <span className="eyebrow">{formatFullDate(snapshot.ownerDate)} · 休息日</span>
+            <h1>今天安心休息</h1>
+          </div>
+          <span className="status-pill status-pill--rest">休息日</span>
+        </div>
+        <section className="rest-hero">
+          <span className="rest-hero__symbol" aria-hidden="true">☕</span>
+          <div>
+            <h2>今天没有工作安排</h2>
+            <p>休息日不计算有效工时、工作进度和今日收入。</p>
+          </div>
+        </section>
+        <div className="content-grid">
+          <section className="surface rest-schedule">
+            <div className="section-heading">
+              <div><span className="eyebrow">今日状态</span><h2>休息日</h2></div>
+              <Button variant="ghost" onClick={() => showWindow("settings")}>调整今天</Button>
+            </div>
+            <div className="rest-schedule__body">
+              <strong>今天无需打卡或记录工时</strong>
+              <span>
+                {snapshot.nextWorkDate
+                  ? `下一个工作日是 ${formatFullDate(snapshot.nextWorkDate)}，${snapshot.workStartTime} 开始工作。`
+                  : "暂未找到下一个工作日，请检查休息模式和日期调整。"}
+              </span>
+            </div>
+          </section>
+          <section className="surface stats">
+            <div><span>本月累计</span><strong>{formatMoney(snapshot.monthTotal)}</strong></div>
+            <div><span>本月工作日</span><strong>{snapshot.workdays} 天</strong></div>
+            <div><span>下一工作日</span><strong>{snapshot.nextWorkDate ? formatShortDate(snapshot.nextWorkDate) : "待确定"}</strong></div>
+          </section>
+        </div>
+      </div>
+    );
+  }
+  const lunchCompleted = snapshot.phase === "after_work"
+    || (snapshot.phase === "working" && snapshot.completedSeconds > clockDifferenceSeconds(snapshot.workStartTime, snapshot.lunchStartTime));
   return (
     <div className="page-stack" aria-label="今日">
       <div className="page-heading">
         <div>
-          <span className="eyebrow">7 月 24 日 · 工作日</span>
+          <span className="eyebrow">{formatFullDate(snapshot.ownerDate)} · 工作日</span>
           <h1>今天的收入进度</h1>
         </div>
         <span className="status-pill status-pill--success">{snapshot.workState}</span>
@@ -178,9 +235,21 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
             <Button variant="ghost" onClick={() => showWindow("settings")}>调整今天</Button>
           </div>
           <ol>
-            <li className="is-done"><time>08:00</time><strong>开始工作</strong><span>已完成 3 小时 22 分钟</span></li>
-            <li className="is-current"><time>12:00</time><strong>午休</strong><span>12:00–14:00</span></li>
-            <li><time>18:00</time><strong>结束工作</strong><span>预计今日收入 ¥ 500.00</span></li>
+            <li className={snapshot.completedSeconds > 0 || snapshot.phase === "after_work" ? "is-done" : snapshot.phase === "before_work" ? "is-current" : ""}>
+              <time>{snapshot.workStartTime}</time>
+              <strong>开始工作</strong>
+              <span>{snapshot.completedSeconds > 0 ? `已完成 ${formatReadableDuration(snapshot.completedSeconds)}` : `将在 ${snapshot.workStartTime} 开始`}</span>
+            </li>
+            <li className={snapshot.phase === "lunch" ? "is-current" : lunchCompleted ? "is-done" : ""}>
+              <time>{snapshot.lunchStartTime}</time>
+              <strong>午休</strong>
+              <span>{snapshot.lunchStartTime}–{snapshot.lunchEndTime}</span>
+            </li>
+            <li className={snapshot.phase === "after_work" ? "is-done" : ""}>
+              <time>{snapshot.workEndTime}</time>
+              <strong>结束工作</strong>
+              <span>{snapshot.phase === "after_work" ? "今日工作已完成" : `预计 ${snapshot.workEndTime} 下班`}</span>
+            </li>
           </ol>
         </section>
         <section className="surface stats">
@@ -193,37 +262,55 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
   );
 }
 
-function CalendarView() {
-  const days = Array.from({ length: 31 }, (_, index) => index + 1);
+function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>["snapshot"] }) {
+  const owner = parseLocalDate(snapshot.ownerDate);
+  const days = snapshot.calendarDays;
+  const monthLabel = `${owner.getFullYear()} 年 ${owner.getMonth() + 1} 月`;
+  const leadingBlanks = Array.from({ length: new Date(owner.getFullYear(), owner.getMonth(), 1).getDay() });
   const { overrides, setOverride } = useCalendarOverrides();
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   return (
     <div className="page-stack" aria-label="日历">
       <div className="page-heading">
-        <div><span className="eyebrow">2026 年 7 月</span><h1>收入日历</h1></div>
+        <div><span className="eyebrow">{monthLabel}</span><h1>收入日历</h1></div>
         <Button variant="secondary" onClick={() => showWindow("settings")}>调整日期</Button>
       </div>
       <section className="surface calendar">
         <div className="calendar__weekdays">{["日","一","二","三","四","五","六"].map(day => <span key={day}>{day}</span>)}</div>
         <div className="calendar__grid">
-          <span />
-          <span />
-          <span />
-          {days.map(day => {
+          {leadingBlanks.map((_, index) => <span key={`blank-${index}`} />)}
+          {days.map(daySnapshot => {
+            const day = Number(daySnapshot.date.slice(-2));
             const override = overrides[day];
             const className = [
-              day === 24 ? "is-today" : "",
+              daySnapshot.date === snapshot.ownerDate ? "is-today" : "",
               override === "work" ? "is-manual-work" : "",
-              override === "rest" ? "is-rest" : !override && (day % 7 === 4 || day % 7 === 5) ? "is-rest" : "",
+              override === "rest" || (!override && daySnapshot.kind === "rest_day") ? "is-rest" : "",
+              daySnapshot.source === "manual_override" ? "is-manual" : "",
             ].filter(Boolean).join(" ");
-            return <button key={day} aria-label={`7月${day}日${override ? "，已手动调整" : ""}`} className={className} onClick={() => setSelectedDay(day)}>{day}</button>;
+            return (
+              <button
+                key={daySnapshot.date}
+                aria-current={daySnapshot.date === snapshot.ownerDate ? "date" : undefined}
+                aria-label={`${owner.getMonth() + 1}月${day}日，${daySnapshot.kind === "rest_day" ? "休息日" : "工作日"}${daySnapshot.date === snapshot.ownerDate ? "，今天" : ""}`}
+                className={className}
+                onClick={() => setSelectedDay(day)}
+              >
+                {day}
+              </button>
+            );
           })}
         </div>
-        <div className="calendar__legend"><span><i className="legend-dot legend-dot--work" />工作日</span><span><i className="legend-dot legend-dot--rest" />休息日</span><span><i className="legend-dot legend-dot--manual" />手动调整</span></div>
+        <div className="calendar__legend">
+          <span><i className="legend-dot legend-dot--work" />工作日</span>
+          <span><i className="legend-dot legend-dot--rest" />休息日</span>
+          <span><i className="legend-ring" />今天</span>
+          <span><i className="legend-dot legend-dot--manual" />手动调整</span>
+        </div>
       </section>
       {selectedDay !== null && (
-        <section className="surface date-editor" role="dialog" aria-label={`调整 7 月 ${selectedDay} 日`}>
-          <div><span className="eyebrow">手动调整</span><h2>7 月 {selectedDay} 日</h2><p>本次调整只影响这一天。</p></div>
+        <section className="surface date-editor" role="dialog" aria-label={`调整 ${owner.getMonth() + 1} 月 ${selectedDay} 日`}>
+          <div><span className="eyebrow">手动调整</span><h2>{owner.getMonth() + 1} 月 {selectedDay} 日</h2><p>本次调整只影响这一天。</p></div>
           <SegmentedControl
             value={overrides[selectedDay] ?? "default"}
             onChange={value => setOverride(selectedDay, value as "work" | "rest" | "default")}
@@ -234,6 +321,35 @@ function CalendarView() {
       )}
     </div>
   );
+}
+
+function parseLocalDate(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function formatFullDate(value: string) {
+  return new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "long" }).format(parseLocalDate(value));
+}
+
+function formatShortDate(value: string) {
+  return new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric" }).format(parseLocalDate(value));
+}
+
+function formatReadableDuration(seconds: number) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  if (hours && minutes) return `${hours} 小时 ${minutes} 分钟`;
+  if (hours) return `${hours} 小时`;
+  return `${minutes} 分钟`;
+}
+
+function clockDifferenceSeconds(start: string, end: string) {
+  const [startHour, startMinute] = start.split(":").map(Number);
+  const [endHour, endMinute] = end.split(":").map(Number);
+  const startMinutes = startHour * 60 + startMinute;
+  const endMinutes = endHour * 60 + endMinute;
+  return (((endMinutes - startMinutes) % 1440) + 1440) % 1440 * 60;
 }
 
 function PageState({ title, detail, action }: { title: string; detail: string; action?: React.ReactNode }) {

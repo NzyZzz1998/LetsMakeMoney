@@ -8,8 +8,8 @@
 
 - 分支：`test`
 - 便携包：`releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64.zip`
-- Zip SHA256：`3652A31D416B1B9CDDA2876EA2743586B8EC698C63DCC57078A116F8AFEA92D4`
-- EXE SHA256：`73C41A3295C137F467A5B669A72EAD6A9BA37EC83F30545051680CDF9D1FD4F2`
+- Zip SHA256：`647AA441F3FB7FFB5CF60EDE6A0AE2CE89D98FEEA5459565C7CDB593C9FB57B3`
+- EXE SHA256：`CF28374BA84960EAB894AD2654B25489CE96EEB9120295C879F29CAA1BA20C83`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 
 如果哈希不同，停止验收并重新确认候选身份。
@@ -68,6 +68,8 @@ visual-acceptance/
 - 卡片之间留白一致，没有套框感或大面积无意义空洞。
 - 今日安排的时间轴、文字和节点对齐。
 - 日历每列宽度一致，日期不偏移，图例不拥挤。
+- 当前日期描边必须由“今天”图例明确解释；它不表示工作日、手动调整或选中日期。
+- 休息日不得显示今日收益、日薪、时薪、有效工时、工作进度、预计收入或工作时间线，只显示休息说明和下一个工作日。
 - 页面切换时没有明显跳动、闪白或控件位移。
 
 建议截图：`today.png`、`today-long-amount.png`、`calendar.png`。

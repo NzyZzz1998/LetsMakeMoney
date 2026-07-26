@@ -165,8 +165,8 @@
 - 文档与静态检查：文档状态、UTF-8、链接和 `git diff --check` 通过。
 - 待补证但不阻塞：多显示器安全回落。
 - M7 聚合验证、打包和包体验证通过。
-- Stable 候选 Zip SHA256：`3652A31D416B1B9CDDA2876EA2743586B8EC698C63DCC57078A116F8AFEA92D4`。
-- Stable 候选 EXE SHA256：`73C41A3295C137F467A5B669A72EAD6A9BA37EC83F30545051680CDF9D1FD4F2`。
+- Stable 候选 Zip SHA256：`647AA441F3FB7FFB5CF60EDE6A0AE2CE89D98FEEA5459565C7CDB593C9FB57B3`。
+- Stable 候选 EXE SHA256：`CF28374BA84960EAB894AD2654B25489CE96EEB9120295C879F29CAA1BA20C83`。
 - 迷你收入视图拖动、位置持久化与重启恢复通过真实 Windows 鼠标复验；`V10-BUG-004` 已关闭。
 - 新候选迷你收入视图、Today、Calendar、Settings 四任务组与无变化保存完成真实 GUI 定向复验；配置哈希未变化。
 - 真实通知区左键完成“恢复 → 隐藏 → 再恢复”；迷你窗口恢复日志重新应用 `skip_taskbar=true`，Settings 关闭后任务栏入口正常消失。
@@ -180,6 +180,7 @@
 - v0.9 回退证据：`.tmp_acceptance/v0.9-rollback-20260724/evidence/`；官方 Zip SHA256 `B10FDE2027D4ABC71C41F0F7AC7BDCE3D93AEB8AFAF4058BA1A592B6A75CC1EC`。
 - `test` 的 `Windows v1 verification` 于 2026-07-26 复核通过；实时 HEAD 与 run 以 GitHub 当前状态为准，候选产物仍锁定源码基线 `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9`。
 - 独立视觉抽查：迷你收入视图、Today、Calendar、Settings 四任务组通过；证据位于 `.tmp_acceptance/v1.0-visual-test-20260726/evidence/`，项目所有者完整视觉验收仍在进行。
+- 休息日定向修正与真实 GUI 复验通过：迷你收入视图和 Today 仅展示休息状态与下一个工作日，不展示收益、时薪、有效工时、工作进度或预计收入；Calendar 使用真实月份和日期，当前日描边由“今天”图例明确解释。证据位于 `.tmp_acceptance/v1.0-rest-day-20260726-101249/evidence/`。
 
 ## 下一步
 

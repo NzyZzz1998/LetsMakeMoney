@@ -139,8 +139,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 | 源码基线 | `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9` |
 | 工作树 | 打包时干净；`BUILD-INFO.json` 记录 `source_tree_dirty=false` |
 | Zip | `releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64.zip` |
-| Zip SHA256 | `3652A31D416B1B9CDDA2876EA2743586B8EC698C63DCC57078A116F8AFEA92D4` |
-| EXE SHA256 | `73C41A3295C137F467A5B669A72EAD6A9BA37EC83F30545051680CDF9D1FD4F2` |
+| Zip SHA256 | `647AA441F3FB7FFB5CF60EDE6A0AE2CE89D98FEEA5459565C7CDB593C9FB57B3` |
+| EXE SHA256 | `CF28374BA84960EAB894AD2654B25489CE96EEB9120295C879F29CAA1BA20C83` |
 | WebView2Loader SHA256 | `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C` |
 | 新候选 GUI 复验路径 | `releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64/LetsMakeMoney.exe` |
 | 上一候选完整黄金路径证据 | `.tmp_acceptance/v1.0-final-20260724-172154/evidence/` |
@@ -218,8 +218,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 
 最终候选身份：
 
-- Zip SHA256：`3652A31D416B1B9CDDA2876EA2743586B8EC698C63DCC57078A116F8AFEA92D4`
-- EXE SHA256：`73C41A3295C137F467A5B669A72EAD6A9BA37EC83F30545051680CDF9D1FD4F2`
+- Zip SHA256：`647AA441F3FB7FFB5CF60EDE6A0AE2CE89D98FEEA5459565C7CDB593C9FB57B3`
+- EXE SHA256：`CF28374BA84960EAB894AD2654B25489CE96EEB9120295C879F29CAA1BA20C83`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 
 ## `test` 候选复核
@@ -234,3 +234,41 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 | 分支保护 | `Protect_main` 仍引用旧检查名，发布前需更新为 `Windows v1 verification` |
 
 说明：`test` HEAD 包含候选生成后的 README、视觉验收说明与 CI 兼容修正；候选 Zip、EXE 和 DLL 未重打包，身份仍以上述锁定 SHA256 为准。
+
+## 休息日与真实日历定向复验
+
+### 问题与口径
+
+- 旧界面在休息日仍显示今日已赚、日薪、时薪、工作进度、有效工时和预计收入，且 Today 时间线使用固定演示数据。
+- 旧 Calendar 固定高亮 24 日，描边没有可见解释，也不对应系统当前日期。
+- 修正后，休息日是独立展示状态：不计算、不展示任何当日工作收益或工作进度，只显示休息说明与下一个工作日。
+- Calendar 从 Rust 工作日解析结果生成真实月份数据；描边仅表示“今天”，并由图例和无障碍标签明确说明，不代表工作日或手动选择。
+
+### 自动验证
+
+| 项目 | 结论 | 证据 |
+| --- | --- | --- |
+| Rust 日历解析与下一个工作日 | 通过 | `resolve_month_days`、`next_workday` 及 15 项 Rust 测试通过 |
+| React 休息日合同 | 通过 | `verify_v10_m3.ps1` 16/16 通过，禁止固定 24 日、固定时间线和预计 500 元 |
+| v1.0 聚合验证 | 通过 | `scripts/verify_v10.ps1` 通过 |
+| Web 构建 | 通过 | TypeScript 与 Vite 构建通过 |
+| 打包与包体验证 | 通过 | `package_v10.ps1`、`verify_v10_package.ps1` 通过 |
+
+### 真实候选包 GUI 证据
+
+验收目录：`.tmp_acceptance/v1.0-rest-day-20260726-101249/evidence/`
+
+| 界面 | 结论 | 证据 |
+| --- | --- | --- |
+| 迷你收入视图 | 通过 | `mini-rest-day.png`：显示“休息日”“今天没有工作安排”“安心休息”和下一个工作日，不显示收益与进度 |
+| Today | 通过 | `today-rest-day.png`：显示休息说明与下一个工作日，不显示工作时间线、有效工时、今日收益或预计收入 |
+| Calendar | 通过 | `calendar-rest-day.png`：26 日为“休息日，今天”，24 日恢复普通工作日样式，图例包含“今天” |
+| 配置与日志恢复 | 通过 | 验收前后配置与日志已备份并恢复，候选进程已停止 |
+
+### 新候选身份
+
+- Zip SHA256：`647AA441F3FB7FFB5CF60EDE6A0AE2CE89D98FEEA5459565C7CDB593C9FB57B3`
+- EXE SHA256：`CF28374BA84960EAB894AD2654B25489CE96EEB9120295C879F29CAA1BA20C83`
+- WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
+
+结论：休息日信息错误和 Calendar 固定日期问题已关闭，没有新增发布阻塞项。项目所有者完整视觉签字仍按 `visual-acceptance.md` 执行。

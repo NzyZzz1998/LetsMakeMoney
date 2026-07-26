@@ -32,7 +32,18 @@ checks = {
     ),
     "tauri-commands": all(
         token in (TAURI / "lib.rs").read_text(encoding="utf-8")
-        for token in ("calculate_month_salary", "calculate_today_income", "save_configuration", "diagnostic_summary")
+        for token in (
+            "calculate_month_salary",
+            "calculate_today_income",
+            "resolve_calendar_month",
+            "resolve_next_workday",
+            "save_configuration",
+            "diagnostic_summary",
+        )
+    ),
+    "calendar-shared-rules": all(
+        token in (TAURI / "domain.rs").read_text(encoding="utf-8")
+        for token in ("resolve_month_days", "next_workday", "CalendarDay")
     ),
     "fixtures-present": all(
         (ROOT / "tests" / "fixtures" / name).exists()

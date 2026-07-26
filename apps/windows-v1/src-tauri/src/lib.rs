@@ -125,6 +125,24 @@ fn calculate_today_income(request: TodayRequest) -> Result<domain::TodaySnapshot
 }
 
 #[tauri::command]
+fn resolve_calendar_month(
+    month: String,
+    schedule: domain::SalarySchedule,
+    calendar: domain::CalendarData,
+) -> Result<Vec<domain::CalendarDay>, String> {
+    domain::resolve_month_days(&month, &schedule, &calendar)
+}
+
+#[tauri::command]
+fn resolve_next_workday(
+    after_date: String,
+    schedule: domain::SalarySchedule,
+    calendar: domain::CalendarData,
+) -> Result<Option<String>, String> {
+    domain::next_workday(&after_date, &schedule, &calendar)
+}
+
+#[tauri::command]
 fn read_configuration(state: tauri::State<'_, RuntimeConfig>) -> Result<config::AppConfig, String> {
     state
         .0
@@ -820,6 +838,8 @@ pub fn run() {
             exit_application,
             calculate_month_salary,
             calculate_today_income,
+            resolve_calendar_month,
+            resolve_next_workday,
             read_configuration,
             save_configuration,
             configuration_initialized,
