@@ -11,8 +11,25 @@ checks = {
     "shared-draft": "useConfigDraft" in app and "dirty" in model and "validate(draft)" in model,
     "wizard-income-rest": all(token in app for token in ("先告诉我你的月薪", "双休", "单休", "大小周")),
     "alternating-explicit": all(token in app for token in ("本周是哪一周？", "大周", "小周", "我们不会替你决定")),
+    "wizard-workday-preview": all(token in app for token in (
+        "useMonthWorkdayPreview",
+        "预计本月工作日 {workdayPreview.workdays} 天",
+        "选择本周类型后显示预计工作日",
+    )) and "预计本月工作日 23 天" not in app,
     "schedule-inference": all(token in app for token in ("addHours", "午休开始", "推算下班时间", "有效工时")),
+    "fractional-lunch-duration": all(token in app for token in (
+        "lunchDurationInput",
+        "parseLunchDuration",
+        'inputMode="decimal"',
+        'pattern="[0-9]*[.,]?[0-9]{0,2}"',
+        "onBlur={commitLunchDuration}",
+    )) and "Number(event.target.value) || 0" not in app,
     "wizard-exits": all(token in app for token in ("上一步", "下一步", "放弃本次配置？", "确认配置")),
+    "wizard-reopen-reset": all(token in app + rust_app for token in (
+        "lmm:window-shown",
+        "setStep(1)",
+        "CustomEvent",
+    )),
     "first-run-wizard": all(token in app + rust_app + rust_config for token in (
         "configuration_initialized",
         "config_missing_or_invalid",

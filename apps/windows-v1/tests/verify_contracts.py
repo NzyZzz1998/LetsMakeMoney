@@ -91,6 +91,7 @@ def verify_platform_contracts() -> None:
         "config.save.saved",
         "config.save.unchanged",
         "config.save.failed",
+        "salary.calculate.invalid",
         "tray.command",
         "window.applied",
         "diagnostics.summary_copied",
@@ -106,6 +107,7 @@ def verify_formal_project_boundary() -> None:
     tauri = load_json(APP_ROOT / "src-tauri" / "tauri.conf.json")
     cargo = (APP_ROOT / "src-tauri" / "Cargo.toml").read_text(encoding="utf-8")
     cargo_lock = (APP_ROOT / "src-tauri" / "Cargo.lock").read_text(encoding="utf-8")
+    main_rs = (APP_ROOT / "src-tauri" / "src" / "main.rs").read_text(encoding="utf-8")
 
     require(package["dependencies"]["react"] == "19.1.1", "React version must match approved spike")
     require(package["dependencies"]["@tauri-apps/api"] == "2.11.1", "Tauri API version drift")
@@ -114,6 +116,10 @@ def verify_formal_project_boundary() -> None:
     require('tauri = { version = "=2.11.5"' in cargo, "Rust Tauri version drift")
     require('name = "letsmakemoney_windows_v1"' in cargo_lock, "Cargo lock identity differs from package")
     require(tauri["app"]["windows"][0]["label"] == "mini", "Formal shell must start with mini window")
+    require(
+        '#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]' in main_rs,
+        "Windows release binary must not open a console window",
+    )
 
     forbidden_fragments = ("petmanager", "pet_id", "pure_pet_mode", "click_through")
     text_extensions = {".css", ".html", ".js", ".json", ".md", ".ps1", ".rs", ".toml", ".ts", ".tsx"}

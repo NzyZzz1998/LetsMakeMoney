@@ -16,6 +16,7 @@
     "config.rollback.partial_failed",
     "config.corrupt_detected",
     "config.corrupt_recovered",
+    "salary.calculate.invalid",
     "tray.command",
     "tray.re_registered",
     "window.requested",

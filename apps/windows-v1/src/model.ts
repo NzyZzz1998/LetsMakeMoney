@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { defaultConfig, type AppConfig } from "./configModel";
 
@@ -33,6 +33,14 @@ export interface DashboardSnapshot {
   nextWorkDate: string | null;
   calendarDays: CalendarDaySnapshot[];
   message?: string;
+  errorCode?: string;
+}
+
+export type WorkdayPreviewState = "loading" | "ready" | "needs_week_type" | "error";
+
+export interface WorkdayPreview {
+  state: WorkdayPreviewState;
+  workdays: number | null;
 }
 
 function isTauri() {
@@ -45,6 +53,34 @@ function localDateKey(date: Date) {
 
 function monthKey(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function mondaySerial(date: Date) {
+  const copy = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const weekday = copy.getDay() || 7;
+  copy.setDate(copy.getDate() - weekday + 1);
+  return Math.floor(copy.getTime() / 86_400_000);
+}
+
+function fallbackWorkdays(config: AppConfig, now: Date) {
+  const days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const anchor = config.alternating_anchor_date
+    ? new Date(`${config.alternating_anchor_date}T00:00:00`)
+    : null;
+  let workdays = 0;
+  for (let day = 1; day <= days; day += 1) {
+    const date = new Date(now.getFullYear(), now.getMonth(), day);
+    const weekday = date.getDay() || 7;
+    if (config.rest_mode === "double" && weekday <= 5) workdays += 1;
+    if (config.rest_mode === "single" && weekday <= 6) workdays += 1;
+    if (config.rest_mode === "alternating" && anchor && config.alternating_anchor_week_type) {
+      const deltaWeeks = Math.floor((mondaySerial(date) - mondaySerial(anchor)) / 7);
+      const anchorIsBig = config.alternating_anchor_week_type === "big";
+      const isBig = Math.abs(deltaWeeks % 2) === 0 ? anchorIsBig : !anchorIsBig;
+      if (weekday <= 5 || (weekday === 6 && isBig)) workdays += 1;
+    }
+  }
+  return workdays;
 }
 
 function toSchedule(config: AppConfig) {
@@ -67,6 +103,51 @@ function toCalendar(config: AppConfig) {
     adjusted_workdays: [] as string[],
     date_overrides: config.date_overrides,
   };
+}
+
+export function useMonthWorkdayPreview(config: AppConfig): WorkdayPreview {
+  const [preview, setPreview] = useState<WorkdayPreview>({
+    state: "loading",
+    workdays: null,
+  });
+  const previewKey = JSON.stringify({
+    monthly_salary: config.monthly_salary,
+    rest_mode: config.rest_mode,
+    alternating_anchor_date: config.alternating_anchor_date,
+    alternating_anchor_week_type: config.alternating_anchor_week_type,
+    work_hours_per_day: config.work_hours_per_day,
+    date_overrides: config.date_overrides,
+  });
+
+  useEffect(() => {
+    if (config.rest_mode === "alternating" && !config.alternating_anchor_week_type) {
+      setPreview({ state: "needs_week_type", workdays: null });
+      return;
+    }
+    const now = new Date();
+    if (!isTauri()) {
+      setPreview({ state: "ready", workdays: fallbackWorkdays(config, now) });
+      return;
+    }
+    let active = true;
+    setPreview(current => ({ state: "loading", workdays: current.workdays }));
+    void invoke<{ workdays: number }>("calculate_month_salary", {
+      month: monthKey(now),
+      schedule: toSchedule(config),
+      calendar: toCalendar(config),
+    })
+      .then(result => {
+        if (active) setPreview({ state: "ready", workdays: result.workdays });
+      })
+      .catch(() => {
+        if (active) setPreview({ state: "error", workdays: null });
+      });
+    return () => {
+      active = false;
+    };
+  }, [previewKey]);
+
+  return preview;
 }
 
 function fallbackCalendarDays(now: Date): CalendarDaySnapshot[] {
@@ -143,6 +224,7 @@ export function useDashboard() {
     ...fallbackSnapshot(new Date()),
     state: "loading",
   });
+  const lastErrorCode = useRef<string | null>(null);
 
   const refresh = useCallback(async () => {
     const now = new Date();
@@ -225,11 +307,23 @@ export function useDashboard() {
         nextWorkDate,
         calendarDays,
       });
+      lastErrorCode.current = null;
     } catch (error) {
+      const { code, message } = describeDashboardError(error);
+      if (lastErrorCode.current !== code) {
+        lastErrorCode.current = code;
+        void invoke("record_semantic_event", {
+          event: "salary.calculate.invalid",
+          detail: `reason=${code}`,
+        }).catch(() => {
+          // Browser preview and a degraded native bridge intentionally have no logger.
+        });
+      }
       setSnapshot(current => ({
         ...current,
         state: "error",
-        message: error instanceof Error ? error.message : String(error),
+        message,
+        errorCode: code,
       }));
     }
   }, []);
@@ -241,6 +335,45 @@ export function useDashboard() {
   }, [refresh]);
 
   return { snapshot, refresh };
+}
+
+const DASHBOARD_ERROR_CODES = [
+  "invalid_monthly_salary",
+  "invalid_salary_denominator",
+  "invalid_work_hours",
+  "invalid_time",
+  "invalid_lunch_interval",
+  "invalid_work_interval",
+  "alternating_anchor_date_required",
+  "alternating_week_type_required",
+] as const;
+
+function describeDashboardError(error: unknown) {
+  const raw = error instanceof Error ? error.message : String(error);
+  const code = DASHBOARD_ERROR_CODES.find(candidate => raw.includes(candidate)) ?? "calculation_unavailable";
+  if (code === "invalid_monthly_salary" || code === "invalid_salary_denominator") {
+    return { code, message: "请检查月薪和休息模式后重试。" };
+  }
+  if (code === "alternating_anchor_date_required" || code === "alternating_week_type_required") {
+    return { code, message: "大小周需要明确选择本周是大周还是小周。" };
+  }
+  if (code !== "calculation_unavailable") {
+    return { code, message: "请检查上班、下班和午休时间后重试。" };
+  }
+  return { code, message: "请稍后重试；若仍失败，请检查设置。" };
+}
+
+export function dashboardErrorTitle(errorCode?: string) {
+  if (errorCode === "invalid_monthly_salary" || errorCode === "invalid_salary_denominator") {
+    return "收入配置有误";
+  }
+  if (errorCode === "alternating_anchor_date_required" || errorCode === "alternating_week_type_required") {
+    return "大小周尚未配置完整";
+  }
+  if (errorCode && errorCode !== "calculation_unavailable") {
+    return "工作时间配置有误";
+  }
+  return "暂时无法计算";
 }
 
 export function formatMoney(value: number) {
@@ -259,14 +392,55 @@ export function formatDuration(seconds: number) {
 }
 
 export function useCalendarOverrides() {
-  const [overrides, setOverrides] = useState<Record<number, "work" | "rest">>({});
-  const setOverride = useCallback((day: number, kind: "work" | "rest" | "default") => {
+  const [overrides, setOverrides] = useState<Record<string, "work" | "rest">>({});
+  const setOverride = useCallback((date: string, kind: "work" | "rest" | "default") => {
     setOverrides(current => {
       const next = { ...current };
-      if (kind === "default") delete next[day];
-      else next[day] = kind;
+      if (kind === "default") delete next[date];
+      else next[date] = kind;
       return next;
     });
   }, []);
   return useMemo(() => ({ overrides, setOverride }), [overrides, setOverride]);
+}
+
+export function useCalendarMonth(month: string, currentMonthDays: CalendarDaySnapshot[]) {
+  const [days, setDays] = useState<CalendarDaySnapshot[]>(currentMonthDays);
+  const [state, setState] = useState<"loading" | "ready" | "error">("ready");
+
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      setState("loading");
+      try {
+        if (!isTauri()) {
+          const [year, monthNumber] = month.split("-").map(Number);
+          const result = fallbackCalendarDays(new Date(year, monthNumber - 1, 1));
+          if (active) {
+            setDays(result);
+            setState("ready");
+          }
+          return;
+        }
+        const config = await invoke<AppConfig>("read_configuration");
+        const result = await invoke<CalendarDaySnapshot[]>("resolve_calendar_month", {
+          month,
+          schedule: toSchedule(config),
+          calendar: toCalendar(config),
+        });
+        if (active) {
+          setDays(result);
+          setState("ready");
+        }
+      } catch {
+        if (active) setState("error");
+      }
+    };
+    void load();
+    return () => {
+      active = false;
+    };
+  }, [month]);
+
+  return { days, state };
 }

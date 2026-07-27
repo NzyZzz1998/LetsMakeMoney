@@ -42,6 +42,7 @@ native/windows/**/*.obj
 /.tmp_public_audit/
 /.tmp_installer/
 /.tmp_update/
+/.tmp_launch_v10/
 /.tmp_ui_review*/
 /.superpowers/
 /.tmp_*.log

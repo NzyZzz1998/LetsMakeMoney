@@ -42,16 +42,24 @@
 - 源码基线：`88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9`，`BUILD-INFO.json` 记录 `source_tree_dirty=false`。
 - `test` 的 `Windows v1 verification` 已持续通过；文档收口提交不改变下列已锁定候选包身份，具体远端 HEAD 与 run 以 GitHub 当前状态为准。
 - 便携 Zip：`releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64.zip`
-- Zip SHA256：`647AA441F3FB7FFB5CF60EDE6A0AE2CE89D98FEEA5459565C7CDB593C9FB57B3`
-- EXE SHA256：`CF28374BA84960EAB894AD2654B25489CE96EEB9120295C879F29CAA1BA20C83`
+- Zip SHA256：`E0A8ACE0DE2ACBC6F733900FFE537B21912B654F7BDEC937FCE060FC7147CF74`
+- EXE SHA256：`30C6FAB3813E6DA318C54096E8659D902EDF281EFBE508C6A12FCDEB0094446D`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 - 新候选 GUI 复验路径：`releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64/LetsMakeMoney.exe`
 - 说明：新候选已完成迷你收入视图、Today、Calendar、Settings 四任务组、无变化保存、100%/125%/150% 真实 Windows DPI、通知区左键双向切换和 Explorer 重启后托盘重注册复验；迷你窗口拖动、位置保存和重启恢复已通过真实 Windows 鼠标复验。迷你窗口恢复后重新应用 `skip_taskbar=true`，Settings 关闭后任务栏入口正常消失。首次 Wizard 全链路证据保留在上一候选验收记录中。
 - 远端 CI：`Windows v1 verification` 于 2026-07-26 复核通过。
 - 独立视觉抽查：迷你收入视图、Today、Calendar 与 Settings 四任务组未发现裁切、重叠或可读性阻塞；证据位于 `.tmp_acceptance/v1.0-visual-test-20260726/evidence/`，项目所有者完整视觉复验尚未签字。
 - 休息日定向复验：迷你收入视图和 Today 不再显示今日收益、日薪、时薪、有效工时、工作进度或预计收入；Calendar 使用真实当前日期，并通过图例和无障碍标签明确描边代表“今天”。真实候选包证据位于 `.tmp_acceptance/v1.0-rest-day-20260726-101249/evidence/`。
+- 窗口与导航定向修正：默认位置、今日工作台/Settings/Wizard 拖动权限、日历跨月、日历入口图标、Settings 分隔线与间距、Wizard 重新配置回到第 1 步均已完成。定向包 Zip SHA256 为 `99DB494245F207B420B9B3CCDBA96D8DC65EC4F444926DF4DE03AD021A8911A8`，但其 `BUILD-INFO.json` 记录 `source_tree_dirty=true`，仅用于本轮验收，不替代上方干净 Stable 候选。
+- 控制台窗口定向修正：Release 入口已声明 Windows GUI 子系统，新 EXE 的 PE Subsystem 为 `2 (Windows GUI)`，从便携包启动不再附带控制台窗口。定向包 Zip SHA256 为 `A3725C89D7F886FAC8D5B89E92750B719A54D7B2B4345AE76533D57C44236A21`，EXE SHA256 为 `698212B4D9479BA1C674C2118FC04075FFA9C87F10A4DCC8AAFFDCD0E308215C`；该包同样记录 `source_tree_dirty=true`，不替代上方干净 Stable 候选。
+- 全窗口拖动与 Wizard 午休单位定向修正：迷你收入视图、今日工作台、Settings 和 Wizard 改为移动超过 `5px` 后进入拖动，不再依赖 `220ms` 长按或 WebView 系统拖动入口；按钮、输入框、选择器、链接和开关继续保留原交互。Computer Use 已确认四类窗口均可从普通文字或空白区域移动，Wizard 的“2 小时”保持单行横排。
+- 午休时长小数定向修正：Wizard 允许输入至多两位小数，例如 `0.5`、`1.5`、`2.25`；输入文本不会在键入小数点时被提前取整。真实 GUI 输入 `1.5` 后，午休区间由 `12:00–14:00` 更新为 `12:00–13:30`，推算下班时间由 `18:00` 更新为 `17:30`，有效工时保持 8 小时。
+- 最新定向包 Zip SHA256：`91F672A14C2432F232DBE2F90EDF9027C3FB5C02E75BBC12FF2D2325C2A80DB4`；EXE SHA256：`ECFDFAB4BE44EF24EA738CA7821BE3EC6F477CDBA5248A34D0BC5B343ED5F0E0`；WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。该包记录 `source_tree_dirty=true`，用于定向验收，不替代上方干净 Stable 候选。
 
 ## 版本边界
+
+- 零午休时长已经纳入 v1.0 正式计算口径：`lunch_start_time == lunch_end_time` 表示无午休，不再触发收入计算失败。
+- 最新零午休定向候选 Zip SHA256：`0609FA1F8B508D5CBDFF9061D1D270AE78FB66B5666119839996346D087D1029`；EXE SHA256：`1C909C40DF6A0D10EB58D3C65A418AE618FA89C64F725547E53AA63A79509FC2`。
 
 - v1.0 不包含宠物 UI、运行时、配置、资源、点击穿透或纯桌宠模式。
 - v1.0 不提供安装器、静默更新、账号、云同步或主题系统。

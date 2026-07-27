@@ -368,7 +368,7 @@ pub fn calculate_today(
             lunch_end += 86400;
         }
     }
-    if lunch_end <= lunch_start || lunch_start < start || lunch_end > end {
+    if lunch_end < lunch_start || lunch_start < start || lunch_end > end {
         return Err("invalid_lunch_interval".into());
     }
     let day_offset = current_date.serial() - owner.serial();
@@ -434,6 +434,32 @@ mod tests {
     }
 
     #[test]
+    fn july_2026_workday_preview_changes_with_rest_mode() {
+        let calendar = CalendarData::default();
+        assert_eq!(
+            calculate_month("2026-07", &schedule(RestMode::Double), &calendar)
+                .unwrap()
+                .workdays,
+            23
+        );
+        assert_eq!(
+            calculate_month("2026-07", &schedule(RestMode::Single), &calendar)
+                .unwrap()
+                .workdays,
+            27
+        );
+        let mut alternating = schedule(RestMode::Alternating);
+        alternating.alternating_anchor_date = Some("2026-07-26".into());
+        alternating.alternating_anchor_week_type = Some(WeekType::Small);
+        assert_eq!(
+            calculate_month("2026-07", &alternating, &calendar)
+                .unwrap()
+                .workdays,
+            25
+        );
+    }
+
+    #[test]
     fn alternating_requires_explicit_week_type() {
         let mut alternating = schedule(RestMode::Alternating);
         alternating.alternating_anchor_date = Some("2026-02-02".into());
@@ -475,6 +501,30 @@ mod tests {
         .unwrap();
         assert_eq!(snapshot.state, "lunch");
         assert_eq!(snapshot.effective_work_seconds, 28_800);
+    }
+
+    #[test]
+    fn zero_lunch_duration_is_a_valid_continuous_workday() {
+        let mut no_lunch = schedule(RestMode::Double);
+        no_lunch.work_start_time = "09:30".into();
+        no_lunch.work_end_time = "17:30".into();
+        no_lunch.lunch_start_time = "12:00".into();
+        no_lunch.lunch_end_time = "12:00".into();
+
+        let snapshot = calculate_today(
+            "2026-07-27",
+            "2026-07-27",
+            "13:30",
+            &no_lunch,
+            50_000,
+            &CalendarData::default(),
+        )
+        .unwrap();
+
+        assert_eq!(snapshot.state, "working");
+        assert_eq!(snapshot.effective_work_seconds, 28_800);
+        assert_eq!(snapshot.completed_work_seconds, 14_400);
+        assert_eq!(snapshot.earned_minor, 25_000);
     }
 
     #[test]

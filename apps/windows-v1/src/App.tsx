@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   Button,
   Field,
@@ -13,8 +12,11 @@ import {
 import {
   formatDuration,
   formatMoney,
+  dashboardErrorTitle,
   useCalendarOverrides,
+  useCalendarMonth,
   useDashboard,
+  useMonthWorkdayPreview,
 } from "./model";
 import {
   addHours,
@@ -54,12 +56,126 @@ async function hideCurrentWindow() {
   }
 }
 
-async function startCurrentWindowDrag() {
-  try {
-    await getCurrentWindow().startDragging();
-  } catch {
-    // Browser preview intentionally has no native window to drag.
-  }
+const DRAG_THRESHOLD_PX = 5;
+const INTERACTIVE_DRAG_SELECTOR = "button, input, select, textarea, a, [role='switch'], [data-window-drag='false']";
+
+type WindowDragOrigin = {
+  x: number;
+  y: number;
+  scale_factor: number;
+};
+
+type WindowDragPointer = {
+  id: number;
+  startX: number;
+  startY: number;
+  currentX: number;
+  currentY: number;
+  origin: WindowDragOrigin | null;
+  dragging: boolean;
+  frame: number | null;
+  captureTarget: HTMLElement;
+};
+
+function useWindowDrag({ allowInteractiveStart = false }: { allowInteractiveStart?: boolean } = {}) {
+  const pointer = useRef<WindowDragPointer | null>(null);
+  const dragged = useRef(false);
+
+  const moveWindow = (current: NonNullable<typeof pointer.current>) => {
+    if (!current.origin) return;
+    const scale = current.origin.scale_factor;
+    void invoke("move_app_window", {
+      label: resolveWindowKind(),
+      x: Math.round(current.origin.x + (current.currentX - current.startX) * scale),
+      y: Math.round(current.origin.y + (current.currentY - current.startY) * scale),
+    });
+  };
+
+  const scheduleMove = (current: NonNullable<typeof pointer.current>) => {
+    if (current.frame !== null) return;
+    current.frame = window.requestAnimationFrame(() => {
+      current.frame = null;
+      if (pointer.current === current && current.dragging) moveWindow(current);
+    });
+  };
+
+  const cancel = (event?: React.PointerEvent<HTMLElement>, commit = false) => {
+    const current = pointer.current;
+    if (!current || (event && current.id !== event.pointerId)) return;
+    if (event) {
+      current.currentX = event.screenX;
+      current.currentY = event.screenY;
+    }
+    if (commit && current.dragging) moveWindow(current);
+    if (current.frame !== null) window.cancelAnimationFrame(current.frame);
+    if (current.captureTarget.hasPointerCapture(current.id)) {
+      current.captureTarget.releasePointerCapture(current.id);
+    }
+    pointer.current = null;
+  };
+
+  const handlers = {
+    onPointerDownCapture(event: React.PointerEvent<HTMLElement>) {
+      if (event.button !== 0 || !event.isPrimary) return;
+      const target = event.target as HTMLElement;
+      if (!allowInteractiveStart && target.closest(INTERACTIVE_DRAG_SELECTOR)) return;
+      dragged.current = false;
+      const captureTarget = event.currentTarget;
+      const current: WindowDragPointer = {
+        id: event.pointerId,
+        startX: event.screenX,
+        startY: event.screenY,
+        currentX: event.screenX,
+        currentY: event.screenY,
+        origin: null,
+        dragging: false,
+        frame: null,
+        captureTarget,
+      };
+      pointer.current = current;
+      void invoke<WindowDragOrigin>("window_drag_origin", { label: resolveWindowKind() })
+        .then(origin => {
+          if (pointer.current !== current) return;
+          current.origin = origin;
+          if (current.dragging) scheduleMove(current);
+        })
+        .catch(() => cancel());
+    },
+    onPointerMoveCapture(event: React.PointerEvent<HTMLElement>) {
+      const current = pointer.current;
+      if (!current || current.id !== event.pointerId) return;
+      if ((event.buttons & 1) === 0) {
+        cancel(event);
+        return;
+      }
+      current.currentX = event.screenX;
+      current.currentY = event.screenY;
+      const distance = Math.hypot(current.currentX - current.startX, current.currentY - current.startY);
+      if (distance < DRAG_THRESHOLD_PX) return;
+      if (!current.dragging) {
+        current.dragging = true;
+        dragged.current = true;
+        current.captureTarget.setPointerCapture(current.id);
+      }
+      event.preventDefault();
+      if (current.origin) scheduleMove(current);
+    },
+    onPointerUpCapture(event: React.PointerEvent<HTMLElement>) {
+      cancel(event, true);
+    },
+    onPointerCancelCapture(event: React.PointerEvent<HTMLElement>) {
+      cancel(event);
+    },
+  };
+
+  return {
+    handlers,
+    consumeDraggedClick() {
+      if (!dragged.current) return false;
+      dragged.current = false;
+      return true;
+    },
+  };
 }
 
 function WindowFrame({
@@ -75,14 +191,20 @@ function WindowFrame({
   className?: string;
   onClose?: () => void;
 }) {
+  const drag = useWindowDrag();
+
   return (
-    <main className={`window-frame ${className}`} data-window={kind}>
-      <header className="titlebar" data-tauri-drag-region>
+    <main
+      className={`window-frame ${className}`}
+      data-window={kind}
+      {...drag.handlers}
+    >
+      <header className="titlebar">
         <div className="titlebar__identity">
           <span className="coin-mark" aria-hidden="true">¥</span>
           <strong>{title}</strong>
         </div>
-        <IconButton label={`关闭${title}`} icon="×" onClick={onClose} />
+        <IconButton label={`关闭${title}`} icon="×" data-window-drag="false" onClick={onClose} />
       </header>
       {children}
     </main>
@@ -91,29 +213,39 @@ function WindowFrame({
 
 function MiniWindow() {
   const { snapshot, refresh } = useDashboard();
+  const drag = useWindowDrag({ allowInteractiveStart: true });
   if (snapshot.state === "loading") {
-    return <main className="mini-window mini-window--state" data-window="mini"><span className="spinner" /><strong>正在计算今天的收入</strong></main>;
+    return <main className="mini-window mini-window--state" data-window="mini" {...drag.handlers}><span className="spinner" /><strong>正在计算今天的收入</strong></main>;
   }
   if (snapshot.state === "error") {
-    return <main className="mini-window mini-window--state" data-window="mini"><strong>暂时无法计算</strong><button type="button" onClick={refresh}>重试</button></main>;
+    return (
+      <main className="mini-window mini-window--state mini-window--error" data-window="mini" {...drag.handlers}>
+        <div className="mini-window__error-copy">
+          <strong>{dashboardErrorTitle(snapshot.errorCode)}</strong>
+          <span>{snapshot.message}</span>
+        </div>
+        <div className="mini-window__error-actions">
+          <button type="button" data-window-drag="false" onClick={() => showWindow("settings")}>检查设置</button>
+          <button type="button" data-window-drag="false" onClick={refresh}>重试</button>
+        </div>
+      </main>
+    );
   }
   const isRestDay = snapshot.phase === "rest_day";
   return (
-    <main className={`mini-window ${isRestDay ? "mini-window--rest" : ""}`} data-window="mini">
+    <main className={`mini-window ${isRestDay ? "mini-window--rest" : ""}`} data-window="mini" {...drag.handlers}>
       <div
         className="mini-window__drag"
-        data-tauri-drag-region
         aria-label="拖动迷你收入视图"
-        onMouseDown={(event) => {
-          if (event.button === 0) void startCurrentWindowDrag();
-        }}
       >
         <span aria-hidden="true" />
       </div>
       <button
         className="mini-window__primary"
         type="button"
-        onClick={() => showWindow("workbench")}
+        onClick={() => {
+          if (!drag.consumeDraggedClick()) void showWindow("workbench");
+        }}
         aria-label="打开今日工作台"
       >
         <span className="mini-window__status">
@@ -153,7 +285,7 @@ function WorkbenchWindow() {
             <span aria-hidden="true">¥</span>今日
           </button>
           <button className={tab === "calendar" ? "is-active" : ""} onClick={() => setTab("calendar")}>
-            <span aria-hidden="true">▦</span>日历
+            <span className="nav-calendar-mark" aria-hidden="true">日</span>日历
           </button>
           <button onClick={() => showWindow("settings")}>
             <span aria-hidden="true">⚙</span>设置
@@ -169,7 +301,20 @@ function WorkbenchWindow() {
 
 function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
   if (snapshot.state === "loading") return <PageState title="正在整理今天" detail="收入、安排和日历正在同步。" />;
-  if (snapshot.state === "error") return <PageState title="暂时无法计算" detail={snapshot.message ?? "请稍后重试。"} action={<Button onClick={refresh}>重新计算</Button>} />;
+  if (snapshot.state === "error") {
+    return (
+      <PageState
+        title={dashboardErrorTitle(snapshot.errorCode)}
+        detail={snapshot.message ?? "请稍后重试。"}
+        action={(
+          <div className="page-state__actions">
+            <Button variant="secondary" onClick={() => showWindow("settings")}>检查设置</Button>
+            <Button onClick={refresh}>重新计算</Button>
+          </div>
+        )}
+      />
+    );
+  }
   if (snapshot.phase === "rest_day") {
     return (
       <div className="page-stack" aria-label="今日休息">
@@ -211,8 +356,9 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
       </div>
     );
   }
-  const lunchCompleted = snapshot.phase === "after_work"
-    || (snapshot.phase === "working" && snapshot.completedSeconds > clockDifferenceSeconds(snapshot.workStartTime, snapshot.lunchStartTime));
+  const hasLunch = snapshot.lunchStartTime !== snapshot.lunchEndTime;
+  const lunchCompleted = hasLunch && (snapshot.phase === "after_work"
+    || (snapshot.phase === "working" && snapshot.completedSeconds > clockDifferenceSeconds(snapshot.workStartTime, snapshot.lunchStartTime)));
   return (
     <div className="page-stack" aria-label="今日">
       <div className="page-heading">
@@ -240,11 +386,13 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
               <strong>开始工作</strong>
               <span>{snapshot.completedSeconds > 0 ? `已完成 ${formatReadableDuration(snapshot.completedSeconds)}` : `将在 ${snapshot.workStartTime} 开始`}</span>
             </li>
-            <li className={snapshot.phase === "lunch" ? "is-current" : lunchCompleted ? "is-done" : ""}>
-              <time>{snapshot.lunchStartTime}</time>
-              <strong>午休</strong>
-              <span>{snapshot.lunchStartTime}–{snapshot.lunchEndTime}</span>
-            </li>
+            {hasLunch && (
+              <li className={snapshot.phase === "lunch" ? "is-current" : lunchCompleted ? "is-done" : ""}>
+                <time>{snapshot.lunchStartTime}</time>
+                <strong>午休</strong>
+                <span>{snapshot.lunchStartTime}–{snapshot.lunchEndTime}</span>
+              </li>
+            )}
             <li className={snapshot.phase === "after_work" ? "is-done" : ""}>
               <time>{snapshot.workEndTime}</time>
               <strong>结束工作</strong>
@@ -264,11 +412,19 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
 
 function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>["snapshot"] }) {
   const owner = parseLocalDate(snapshot.ownerDate);
-  const days = snapshot.calendarDays;
-  const monthLabel = `${owner.getFullYear()} 年 ${owner.getMonth() + 1} 月`;
-  const leadingBlanks = Array.from({ length: new Date(owner.getFullYear(), owner.getMonth(), 1).getDay() });
+  const [visibleMonth, setVisibleMonth] = useState(() => `${owner.getFullYear()}-${String(owner.getMonth() + 1).padStart(2, "0")}`);
+  const calendarMonth = useCalendarMonth(visibleMonth, snapshot.calendarDays);
+  const [visibleYear, visibleMonthNumber] = visibleMonth.split("-").map(Number);
+  const days = calendarMonth.days;
+  const monthLabel = `${visibleYear} 年 ${visibleMonthNumber} 月`;
+  const leadingBlanks = Array.from({ length: new Date(visibleYear, visibleMonthNumber - 1, 1).getDay() });
   const { overrides, setOverride } = useCalendarOverrides();
-  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const moveMonth = (offset: number) => {
+    const next = new Date(visibleYear, visibleMonthNumber - 1 + offset, 1);
+    setVisibleMonth(`${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`);
+    setSelectedDate(null);
+  };
   return (
     <div className="page-stack" aria-label="日历">
       <div className="page-heading">
@@ -276,12 +432,17 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
         <Button variant="secondary" onClick={() => showWindow("settings")}>调整日期</Button>
       </div>
       <section className="surface calendar">
+        <div className="calendar__toolbar" aria-label="切换月份">
+          <IconButton label="查看上个月" icon="‹" onClick={() => moveMonth(-1)} />
+          <strong>{monthLabel}</strong>
+          <IconButton label="查看下个月" icon="›" onClick={() => moveMonth(1)} />
+        </div>
         <div className="calendar__weekdays">{["日","一","二","三","四","五","六"].map(day => <span key={day}>{day}</span>)}</div>
         <div className="calendar__grid">
           {leadingBlanks.map((_, index) => <span key={`blank-${index}`} />)}
           {days.map(daySnapshot => {
             const day = Number(daySnapshot.date.slice(-2));
-            const override = overrides[day];
+            const override = overrides[daySnapshot.date];
             const className = [
               daySnapshot.date === snapshot.ownerDate ? "is-today" : "",
               override === "work" ? "is-manual-work" : "",
@@ -292,9 +453,9 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
               <button
                 key={daySnapshot.date}
                 aria-current={daySnapshot.date === snapshot.ownerDate ? "date" : undefined}
-                aria-label={`${owner.getMonth() + 1}月${day}日，${daySnapshot.kind === "rest_day" ? "休息日" : "工作日"}${daySnapshot.date === snapshot.ownerDate ? "，今天" : ""}`}
+                aria-label={`${visibleMonthNumber}月${day}日，${daySnapshot.kind === "rest_day" ? "休息日" : "工作日"}${daySnapshot.date === snapshot.ownerDate ? "，今天" : ""}`}
                 className={className}
-                onClick={() => setSelectedDay(day)}
+                onClick={() => setSelectedDate(daySnapshot.date)}
               >
                 {day}
               </button>
@@ -308,15 +469,15 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
           <span><i className="legend-dot legend-dot--manual" />手动调整</span>
         </div>
       </section>
-      {selectedDay !== null && (
-        <section className="surface date-editor" role="dialog" aria-label={`调整 ${owner.getMonth() + 1} 月 ${selectedDay} 日`}>
-          <div><span className="eyebrow">手动调整</span><h2>{owner.getMonth() + 1} 月 {selectedDay} 日</h2><p>本次调整只影响这一天。</p></div>
+      {selectedDate !== null && (
+        <section className="surface date-editor" role="dialog" aria-label={`调整 ${visibleMonthNumber} 月 ${Number(selectedDate.slice(-2))} 日`}>
+          <div><span className="eyebrow">手动调整</span><h2>{visibleMonthNumber} 月 {Number(selectedDate.slice(-2))} 日</h2><p>本次调整只影响这一天。</p></div>
           <SegmentedControl
-            value={overrides[selectedDay] ?? "default"}
-            onChange={value => setOverride(selectedDay, value as "work" | "rest" | "default")}
+            value={overrides[selectedDate] ?? "default"}
+            onChange={value => setOverride(selectedDate, value as "work" | "rest" | "default")}
             options={[{ value: "default", label: "跟随规则" }, { value: "work", label: "工作日" }, { value: "rest", label: "休息日" }]}
           />
-          <IconButton label="关闭日期调整" icon="×" onClick={() => setSelectedDay(null)} />
+          <IconButton label="关闭日期调整" icon="×" onClick={() => setSelectedDate(null)} />
         </section>
       )}
     </div>
@@ -352,6 +513,16 @@ function clockDifferenceSeconds(start: string, end: string) {
   return (((endMinutes - startMinutes) % 1440) + 1440) % 1440 * 60;
 }
 
+function parseLunchDuration(value: string) {
+  if (!value.trim()) return null;
+  const parsed = Number(value.replace(",", "."));
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+}
+
+function formatLunchDuration(value: number) {
+  return String(Math.round(value * 100) / 100);
+}
+
 function PageState({ title, detail, action }: { title: string; detail: string; action?: React.ReactNode }) {
   return <div className="page-state" role="status"><span className="state-symbol" aria-hidden="true">¥</span><h1>{title}</h1><p>{detail}</p>{action}</div>;
 }
@@ -359,7 +530,10 @@ function PageState({ title, detail, action }: { title: string; detail: string; a
 function WizardWindow() {
   const [step, setStep] = useState(1);
   const config = useConfigDraft();
-  const [lunchDuration, setLunchDuration] = useState(2);
+  const workdayPreview = useMonthWorkdayPreview(config.draft);
+  const [lunchDurationInput, setLunchDurationInput] = useState("2");
+  const lunchDurationEdited = useRef(false);
+  const lunchDuration = parseLunchDuration(lunchDurationInput) ?? 0;
   const [confirmClose, setConfirmClose] = useState(false);
   const [firstRun, setFirstRun] = useState(false);
   useEffect(() => {
@@ -367,6 +541,25 @@ function WizardWindow() {
       .then(value => setFirstRun(!value))
       .catch(() => setFirstRun(false));
   }, []);
+  useEffect(() => {
+    if (!config.loading && !lunchDurationEdited.current) {
+      setLunchDurationInput(formatLunchDuration(
+        clockDifferenceSeconds(config.draft.lunch_start_time, config.draft.lunch_end_time) / 3600,
+      ));
+    }
+  }, [config.loading, config.draft.lunch_end_time, config.draft.lunch_start_time]);
+  useEffect(() => {
+    const resetWizard = () => {
+      setStep(1);
+      setConfirmClose(false);
+      lunchDurationEdited.current = false;
+      setLunchDurationInput(formatLunchDuration(
+        clockDifferenceSeconds(config.draft.lunch_start_time, config.draft.lunch_end_time) / 3600,
+      ));
+    };
+    window.addEventListener("lmm:window-shown", resetWizard);
+    return () => window.removeEventListener("lmm:window-shown", resetWizard);
+  }, [config.draft.lunch_end_time, config.draft.lunch_start_time]);
   const requestClose = () => setConfirmClose(true);
   const updateRestMode = (mode: RestMode) => {
     config.update("rest_mode", mode);
@@ -380,8 +573,19 @@ function WizardWindow() {
     config.update("lunch_start_time", value);
     config.update("lunch_end_time", addHours(value, lunchDuration));
   };
-  const updateLunchDuration = (value: number) => {
-    setLunchDuration(value);
+  const updateLunchDuration = (rawValue: string) => {
+    const value = rawValue.replace(",", ".");
+    if (!/^\d*(?:\.\d{0,2})?$/.test(value)) return;
+    setLunchDurationInput(value);
+    lunchDurationEdited.current = true;
+    const parsed = parseLunchDuration(value);
+    if (parsed === null) return;
+    config.update("lunch_end_time", addHours(config.draft.lunch_start_time, parsed));
+    config.update("work_end_time", addHours(config.draft.work_start_time, config.draft.work_hours_per_day + parsed));
+  };
+  const commitLunchDuration = () => {
+    const value = parseLunchDuration(lunchDurationInput) ?? 0;
+    setLunchDurationInput(formatLunchDuration(value));
     config.update("lunch_end_time", addHours(config.draft.lunch_start_time, value));
     config.update("work_end_time", addHours(config.draft.work_start_time, config.draft.work_hours_per_day + value));
   };
@@ -444,7 +648,18 @@ function WizardWindow() {
                     {!config.draft.alternating_anchor_week_type && <small className="field-hint">请选择后再继续，我们不会替你决定。</small>}
                   </fieldset>
                 )}
-                <Feedback tone="success">预计本月工作日 23 天</Feedback>
+                {workdayPreview.state === "ready" && (
+                  <Feedback tone="success">预计本月工作日 {workdayPreview.workdays} 天</Feedback>
+                )}
+                {workdayPreview.state === "loading" && (
+                  <Feedback tone="success">正在计算本月工作日…</Feedback>
+                )}
+                {workdayPreview.state === "needs_week_type" && (
+                  <Feedback tone="success">选择本周类型后显示预计工作日</Feedback>
+                )}
+                {workdayPreview.state === "error" && (
+                  <Feedback tone="error">暂时无法计算工作日，请检查当前配置</Feedback>
+                )}
               </>
             )}
             {step === 2 && (
@@ -455,10 +670,22 @@ function WizardWindow() {
                 <div className="form-grid">
                   <Field label="上班时间" value={config.draft.work_start_time} type="time" onChange={event => updateStart(event.target.value)} />
                   <Field label="午休开始" value={config.draft.lunch_start_time} type="time" onChange={event => updateLunchStart(event.target.value)} />
-                  <Field label="午休时长" value={lunchDuration} suffix="小时" inputMode="decimal" onChange={event => updateLunchDuration(Math.max(0, Number(event.target.value) || 0))} />
+                  <Field
+                    label="午休时长"
+                    value={lunchDurationInput}
+                    suffix="小时"
+                    inputMode="decimal"
+                    pattern="[0-9]*[.,]?[0-9]{0,2}"
+                    onChange={event => updateLunchDuration(event.target.value)}
+                    onBlur={commitLunchDuration}
+                  />
                   <Field label="推算下班时间" value={config.draft.work_end_time} type="time" readOnly />
                 </div>
-                <Feedback tone="success">有效工时 {config.draft.work_hours_per_day} 小时 · 午休 {config.draft.lunch_start_time}–{config.draft.lunch_end_time}</Feedback>
+                <Feedback tone="success">
+                  有效工时 {config.draft.work_hours_per_day} 小时 · {config.draft.lunch_start_time === config.draft.lunch_end_time
+                    ? "无午休"
+                    : `午休 ${config.draft.lunch_start_time}–${config.draft.lunch_end_time}`}
+                </Feedback>
               </>
             )}
             {step === 3 && (
@@ -470,7 +697,7 @@ function WizardWindow() {
                   <div><dt>月薪</dt><dd>{formatMoney(config.draft.monthly_salary)}</dd></div>
                   <div><dt>休息模式</dt><dd>{config.draft.rest_mode === "single" ? "单休" : config.draft.rest_mode === "alternating" ? `大小周 · 本周${config.draft.alternating_anchor_week_type === "small" ? "小周" : "大周"}` : "双休"}</dd></div>
                   <div><dt>工作时间</dt><dd>{config.draft.work_start_time}–{config.draft.work_end_time}</dd></div>
-                  <div><dt>午休</dt><dd>{config.draft.lunch_start_time}–{config.draft.lunch_end_time}</dd></div>
+                  <div><dt>午休</dt><dd>{config.draft.lunch_start_time === config.draft.lunch_end_time ? "无午休" : `${config.draft.lunch_start_time}–${config.draft.lunch_end_time}`}</dd></div>
                 </dl>
                 {config.feedback === "failed" && <Feedback tone="error">{config.message}</Feedback>}
               </>

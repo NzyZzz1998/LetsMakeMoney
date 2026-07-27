@@ -57,6 +57,7 @@ def main() -> int:
     check("CreateMutexW" in rust and "ERROR_ALREADY_EXISTS" in rust, "单实例互斥没有实现")
     check("ensure_window" in rust and "get_webview_window" in rust, "窗口复用没有实现")
     check("CloseRequested" in rust and "prevent_close" in rust, "关闭隐藏策略没有实现")
+    check("position_new_window" in rust and 'label == "mini"' in rust, "窗口默认位置策略没有实现")
 
     required_components = ["Button", "IconButton", "Field", "Switch", "SegmentedControl", "ProgressBar", "Feedback"]
     for component in required_components:

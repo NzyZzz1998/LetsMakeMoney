@@ -79,6 +79,13 @@ struct WindowSnapshot {
     height: u32,
 }
 
+#[derive(Serialize)]
+struct WindowDragOrigin {
+    x: i32,
+    y: i32,
+    scale_factor: f64,
+}
+
 struct RuntimeConfig(Mutex<config::AppConfig>);
 struct ConfigurationState(AtomicBool);
 struct ExitState(AtomicBool);
@@ -246,7 +253,7 @@ fn window_spec(label: &str) -> Result<WindowSpec, String> {
 
 fn build_window(app: &AppHandle, spec: WindowSpec) -> Result<WebviewWindow, String> {
     let route = format!("index.html?window={}", spec.label);
-    WebviewWindowBuilder::new(app, spec.label, WebviewUrl::App(route.into()))
+    let window = WebviewWindowBuilder::new(app, spec.label, WebviewUrl::App(route.into()))
         .title(spec.title)
         .inner_size(spec.width, spec.height)
         .min_inner_size(spec.min_width, spec.min_height)
@@ -257,7 +264,37 @@ fn build_window(app: &AppHandle, spec: WindowSpec) -> Result<WebviewWindow, Stri
         .skip_taskbar(spec.skip_taskbar)
         .visible(spec.label == "mini")
         .build()
-        .map_err(|error| format!("failed to create {} window: {error}", spec.label))
+        .map_err(|error| format!("failed to create {} window: {error}", spec.label))?;
+    position_new_window(&window, spec.label)?;
+    Ok(window)
+}
+
+fn position_new_window(window: &WebviewWindow, label: &str) -> Result<(), String> {
+    let Some(monitor) = window
+        .current_monitor()
+        .ok()
+        .flatten()
+        .or_else(|| window.primary_monitor().ok().flatten())
+    else {
+        return Ok(());
+    };
+    let origin = monitor.position();
+    let monitor_size = monitor.size();
+    let size = window.inner_size().map_err(|error| error.to_string())?;
+    let (x, y) = if label == "mini" {
+        (
+            origin.x + monitor_size.width as i32 - size.width as i32 - 28,
+            origin.y + monitor_size.height as i32 - size.height as i32 - 76,
+        )
+    } else {
+        (
+            origin.x + (monitor_size.width as i32 - size.width as i32) / 2,
+            origin.y + (monitor_size.height as i32 - size.height as i32) / 2,
+        )
+    };
+    window
+        .set_position(Position::Physical(PhysicalPosition::new(x, y)))
+        .map_err(|error| error.to_string())
 }
 
 fn ensure_window(app: &AppHandle, label: &str) -> Result<WebviewWindow, String> {
@@ -350,6 +387,8 @@ fn apply_window_policy(app: &AppHandle, window: &WebviewWindow, label: &str) -> 
                     position.y.round() as i32,
                 )))
                 .map_err(|error| error.to_string())?;
+        } else {
+            position_new_window(window, label)?;
         }
     }
     safe_window_position(window)?;
@@ -365,6 +404,7 @@ fn show_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
     append_log(app, "window.show_requested", &format!("label={label}"));
     let window = ensure_window(app, label)?;
     apply_window_policy(app, &window, label)?;
+    let _ = window.eval("window.dispatchEvent(new CustomEvent('lmm:window-shown'))");
     window.show().map_err(|error| error.to_string())?;
     window.unminimize().map_err(|error| error.to_string())?;
     window.set_focus().map_err(|error| {
@@ -563,6 +603,17 @@ fn move_app_window(app: AppHandle, label: String, x: i32, y: i32) -> Result<(), 
         .set_position(Position::Physical(PhysicalPosition::new(x, y)))
         .map_err(|error| error.to_string())?;
     safe_window_position(&window)
+}
+
+#[tauri::command]
+fn window_drag_origin(app: AppHandle, label: String) -> Result<WindowDragOrigin, String> {
+    let window = ensure_window(&app, &label)?;
+    let position = window.outer_position().map_err(|error| error.to_string())?;
+    Ok(WindowDragOrigin {
+        x: position.x,
+        y: position.y,
+        scale_factor: window.scale_factor().map_err(|error| error.to_string())?,
+    })
 }
 
 fn persist_runtime_mini_position(app: &AppHandle) -> Result<(), String> {
@@ -832,6 +883,7 @@ pub fn run() {
             hide_app_window,
             toggle_mini,
             move_app_window,
+            window_drag_origin,
             window_snapshot,
             platform_capabilities,
             open_data_directory,

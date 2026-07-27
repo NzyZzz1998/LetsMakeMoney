@@ -139,8 +139,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 | 源码基线 | `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9` |
 | 工作树 | 打包时干净；`BUILD-INFO.json` 记录 `source_tree_dirty=false` |
 | Zip | `releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64.zip` |
-| Zip SHA256 | `647AA441F3FB7FFB5CF60EDE6A0AE2CE89D98FEEA5459565C7CDB593C9FB57B3` |
-| EXE SHA256 | `CF28374BA84960EAB894AD2654B25489CE96EEB9120295C879F29CAA1BA20C83` |
+| Zip SHA256 | `E0A8ACE0DE2ACBC6F733900FFE537B21912B654F7BDEC937FCE060FC7147CF74` |
+| EXE SHA256 | `30C6FAB3813E6DA318C54096E8659D902EDF281EFBE508C6A12FCDEB0094446D` |
 | WebView2Loader SHA256 | `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C` |
 | 新候选 GUI 复验路径 | `releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64/LetsMakeMoney.exe` |
 | 上一候选完整黄金路径证据 | `.tmp_acceptance/v1.0-final-20260724-172154/evidence/` |
@@ -218,8 +218,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 
 最终候选身份：
 
-- Zip SHA256：`647AA441F3FB7FFB5CF60EDE6A0AE2CE89D98FEEA5459565C7CDB593C9FB57B3`
-- EXE SHA256：`CF28374BA84960EAB894AD2654B25489CE96EEB9120295C879F29CAA1BA20C83`
+- Zip SHA256：`E0A8ACE0DE2ACBC6F733900FFE537B21912B654F7BDEC937FCE060FC7147CF74`
+- EXE SHA256：`30C6FAB3813E6DA318C54096E8659D902EDF281EFBE508C6A12FCDEB0094446D`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 
 ## `test` 候选复核
@@ -267,8 +267,161 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 
 ### 新候选身份
 
-- Zip SHA256：`647AA441F3FB7FFB5CF60EDE6A0AE2CE89D98FEEA5459565C7CDB593C9FB57B3`
-- EXE SHA256：`CF28374BA84960EAB894AD2654B25489CE96EEB9120295C879F29CAA1BA20C83`
+- Zip SHA256：`E0A8ACE0DE2ACBC6F733900FFE537B21912B654F7BDEC937FCE060FC7147CF74`
+- EXE SHA256：`30C6FAB3813E6DA318C54096E8659D902EDF281EFBE508C6A12FCDEB0094446D`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 
 结论：休息日信息错误和 Calendar 固定日期问题已关闭，没有新增发布阻塞项。项目所有者完整视觉签字仍按 `visual-acceptance.md` 执行。
+
+## 工作日预览定向复验（2026-07-26）
+
+| 项目 | 结论 | 证据 |
+| --- | --- | --- |
+| 双休 | 通过 | 2026 年 7 月预计 23 个工作日 |
+| 单休 | 通过 | 2026 年 7 月预计 27 个工作日 |
+| 大小周 | 通过 | 明确本周周型后预计 25 个工作日；未选择时不显示推测结果 |
+| 计算口径 | 通过 | Wizard 调用 `calculate_month_salary`，与 Today、Calendar 和保存后的工资计算复用同一 Rust 日历引擎 |
+| 自动门禁 | 通过 | Rust 16/16、M4 14/14、v1.0 聚合验证、打包与包体验证通过 |
+| 真实候选 | 通过 | 新解压候选中大小周实际显示 25 天；双休/单休由同引擎回归与定向门禁确认 |
+
+## 窗口与导航定向复验（2026-07-26）
+
+本节记录未提交工作树生成的定向验收包，不替代上文干净 Stable 候选身份。
+
+| 项目 | 结论 | 证据 |
+| --- | --- | --- |
+| 默认窗口位置 | 通过 | 原生窗口创建统一应用定位策略；迷你收入视图右下出现，今日工作台与 Settings 首次显示居中 |
+| 今日工作台与 Settings 拖动权限 | 通过 | 四窗口均获得 `core:window:allow-start-dragging`，M1/M3 静态门禁通过 |
+| 任意内容区拖动 | 通过 | 后续定向候选已改为移动超过 `5px` 后进入拖动；Computer Use 已完成四窗口普通文字或空白区域真实移动复验 |
+| 数据与支持分隔线 | 通过 | 真实 Settings GUI 中“关于”标题下仅一条分隔线 |
+| 收入与作息间距 | 通过 | 真实 Settings GUI 中“工作与午休”标题、分隔线和首行表单间距一致 |
+| 日历图标 | 通过 | 侧栏使用简洁“日”图标，不再显示旧字符图标 |
+| 跨月浏览 | 通过 | 真实 GUI 从 2026 年 7 月切换至 8 月，标题、日期网格和工作日状态同步更新 |
+| 重新配置回到第 1 步 | 通过 | `lmm:window-shown` 重置 Wizard 步骤，M4 门禁覆盖重新打开场景 |
+| 自动门禁 | 通过 | M1 9/9、M3 17/17、M4 15/15、Rust 16/16、v1.0 聚合验证、打包与包体验证通过 |
+
+定向候选身份：
+
+- 源码 HEAD：`da4326e18536d8846fdd6ef49ae894de4a8975c5`
+- `BUILD-INFO.json`：`source_tree_dirty=true`
+- Zip SHA256：`99DB494245F207B420B9B3CCDBA96D8DC65EC4F444926DF4DE03AD021A8911A8`
+- EXE SHA256：`78E5ECDABC2F710569942F1918E80601136A8638A92DCBCD76A90B0E5D03F820`
+- WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
+- 独立解压目录：`.tmp_acceptance/v1.0-window-ux-20260726-163642/`
+
+结论：七项窗口与导航问题已关闭。“任意内容区拖动”已由后续定向候选完成 Computer Use 真实窗口复验，不再要求 `220ms` 长按补证。
+
+## 全窗口拖动与午休单位定向复验（2026-07-26）
+
+| 项目 | 结论 | 证据 |
+| --- | --- | --- |
+| 迷你收入视图顶部区域拖动 | 通过 | 窗口从 `(1970, 708)` 移至 `(1870, 760)` |
+| 迷你收入视图内容区域拖动 | 通过 | 窗口从 `(1870, 760)` 移至 `(1800, 709)`；移动超过 `5px` 后才捕获指针 |
+| 今日工作台标题与内容区域拖动 | 通过 | 窗口从 `(827, 400)` 移至 `(727, 454)`，再由内容区域移至 `(817, 404)` |
+| Settings 拖动 | 通过 | 窗口从 `(907, 440)` 移至 `(827, 485)` |
+| Wizard 拖动 | 通过 | 窗口从 `(897, 430)` 移至 `(817, 475)` |
+| 交互控件保护 | 通过 | 按钮、输入框、选择器、链接和开关不作为拖动起点；Settings 页签点击可正常切换 |
+| 午休时长单位 | 通过 | Wizard 第 2 步真实 GUI 显示“2 小时”，单位未折行或竖排 |
+| 自动门禁 | 通过 | M3 `20/20`、M1 `9/9`、M4 `15/15`、契约检查 `6/6`、Rust 包测试 `4/4`、包体验证通过 |
+
+定向候选身份：
+
+- 源码 HEAD：`da4326e18536d8846fdd6ef49ae894de4a8975c5`
+- `BUILD-INFO.json`：`source_tree_dirty=true`
+- Zip 大小：`51,789,601` 字节
+- Zip SHA256：`12712A9EBE0145AF3503B874CD5DC219B5C603961AB557F6404B172144A61F03`
+- EXE SHA256：`206D2FAE37A85C5D067600D4B75154439212790C4050ED62B92133CEEFB09EE6`
+- WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
+- 独立解压目录：`.tmp_launch_v10/drag-native-final-20260726-211806/`
+
+结论：窗口拖动发布阻塞已关闭，Wizard 午休单位显示已修正。该定向候选由脏工作树生成，仍需在发布前从干净提交重新生成并锁定最终哈希。
+
+## Windows 控制台窗口定向修复（2026-07-26）
+
+| 项目 | 结论 | 证据 |
+| --- | --- | --- |
+| 根因定位 | 通过 | `src-tauri/src/main.rs` 原先缺少 Windows GUI 子系统声明 |
+| Release 入口 | 通过 | 增加 `cfg_attr(not(debug_assertions), windows_subsystem = "windows")` |
+| 防回退门禁 | 通过 | `verify_contracts.py` 要求 Release 入口保留 GUI 子系统声明 |
+| 契约验证 | 通过 | v1.0 M0 contracts 6/6 通过 |
+| 打包与包体验证 | 通过 | `package_v10.ps1` 与 `verify_v10_package.ps1` 通过 |
+| EXE 结构 | 通过 | PE Subsystem 为 `2 (Windows GUI)`，不再作为控制台程序启动 |
+| 新候选启动 | 通过 | 从新解压目录启动后进程持续运行，首次配置仍保持未初始化状态 |
+
+定向候选身份：
+
+- 源码 HEAD：`da4326e18536d8846fdd6ef49ae894de4a8975c5`
+- `BUILD-INFO.json`：`source_tree_dirty=true`
+- Zip SHA256：`A3725C89D7F886FAC8D5B89E92750B719A54D7B2B4345AE76533D57C44236A21`
+- EXE SHA256：`698212B4D9479BA1C674C2118FC04075FFA9C87F10A4DCC8AAFFDCD0E308215C`
+- WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
+
+结论：发布版控制台窗口问题已关闭。该定向候选仍需在生成干净 Stable 包时重新锁定最终哈希。
+
+## Wizard 午休时长小数输入定向复验（2026-07-26）
+
+| 项目 | 结论 | 证据 |
+| --- | --- | --- |
+| 小数输入 | 通过 | 真实 Wizard 输入 `1.5`，输入框保持 `1.5 小时`，未在键入小数点时回退为整数 |
+| 午休结束推算 | 通过 | 午休开始 `12:00`、时长 `1.5` 小时，结果为 `13:30` |
+| 下班时间推算 | 通过 | 上班 `08:00`、有效工时 8 小时、午休 `1.5` 小时，结果为 `17:30` |
+| 有效工时保护 | 通过 | 反馈继续显示“有效工时 8 小时”，午休不计入有效工时 |
+| 单位布局 | 通过 | “1.5 小时”单行横排，无折行或竖排 |
+| 自动门禁 | 通过 | M4 `16/16`、Rust 包测试 `4/4`、M6 和包体验证通过 |
+
+定向候选身份：
+
+- 源码 HEAD：`da4326e18536d8846fdd6ef49ae894de4a8975c5`
+- `BUILD-INFO.json`：`source_tree_dirty=true`
+- Zip 大小：`3,044,448` 字节
+- Zip SHA256：`91F672A14C2432F232DBE2F90EDF9027C3FB5C02E75BBC12FF2D2325C2A80DB4`
+- EXE 大小：`9,590,272` 字节
+- EXE SHA256：`ECFDFAB4BE44EF24EA738CA7821BE3EC6F477CDBA5248A34D0BC5B343ED5F0E0`
+- WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
+- 独立解压目录：`.tmp_launch_v10/fractional-lunch-20260726-214726/`
+
+结论：午休时长小数输入和对应时间推算通过真实 GUI 定向复验，无新增发布阻塞。该候选由脏工作树生成，发布前仍需从干净提交重新打包并锁定最终哈希。
+
+## 零午休收入计算定向复验（2026-07-27）
+
+| 项目 | 结论 | 证据 |
+| --- | --- | --- |
+| 根因定位 | 通过 | 午休 `12:00–12:00` 被收入计算误判为 `invalid_lunch_interval` |
+| 零午休语义 | 通过 | 相同午休开始、结束时间按“无午休”处理，全天连续累计 |
+| 收入计算 | 通过 | `09:30–17:30`、`13:30` 时完成 4 小时，进度与收入均为 50% |
+| 状态判断 | 通过 | 零午休时不进入 `lunch`，当前状态保持 `working` |
+| 非法区间保护 | 通过 | 午休结束早于开始或越过工作班次时继续返回失败 |
+| 自动测试 | 通过 | Rust `17/17`；M6 与包体验证通过 |
+| 真实 GUI | 通过 | 新解压候选启动后显示“上班前 / ¥0.00 / 剩余有效工时 08:00:00”，未再出现“暂时无法计算” |
+
+定向候选身份：
+
+- 源码 HEAD：`da4326e18536d8846fdd6ef49ae894de4a8975c5`
+- `BUILD-INFO.json`：`source_tree_dirty=true`
+- Zip SHA256：`0609FA1F8B508D5CBDFF9061D1D270AE78FB66B5666119839996346D087D1029`
+- EXE SHA256：`1C909C40DF6A0D10EB58D3C65A418AE618FA89C64F725547E53AA63A79509FC2`
+- WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
+- 独立解压目录：`.tmp_launch_v10/zero-lunch-20260727-002033/`
+
+结论：零午休配置导致的收入计算失败已关闭。该候选用于定向验收，最终发布仍需从干净提交重新打包并锁定哈希。
+
+## 计算失败反馈与零午休展示复验（2026-07-27）
+
+| 项目 | 结论 | 证据 |
+| --- | --- | --- |
+| 错误分类 | 通过 | 非法午休区间映射为“工作时间配置有误”，不再直接展示底层错误 |
+| 可读说明 | 通过 | 显示“请检查上班、下班和午休时间后重试” |
+| 修正入口 | 通过 | 点击“检查设置”直接打开 Settings 的“收入与作息”任务组 |
+| 重试入口 | 通过 | 迷你收入视图和今日工作台均保留重新计算入口 |
+| 语义日志 | 通过 | `salary.calculate.invalid` 记录 `reason=invalid_lunch_interval`，不记录用户配置值 |
+| 无午休展示 | 通过 | 午休开始与结束相同时，今日工作台不绘制午休节点；Wizard 显示“无午休” |
+| 自动回归 | 通过 | `verify_v10.ps1 -SkipExport`、Rust `17/17`、M3 `22/22`、契约检查 `6/6` |
+| 用户环境恢复 | 通过 | 验收后已恢复原 `config.json`、`debug.log`，残留进程为 `0` |
+
+真实 GUI 证据：
+
+- `.tmp_acceptance/v1.0-final-20260727-094837/evidence/today-no-lunch-verified.png`
+- `.tmp_acceptance/v1.0-final-20260727-094837/evidence/mini-invalid-schedule.png`
+- `.tmp_acceptance/v1.0-final-20260727-094837/evidence/invalid-schedule-settings-action.png`
+
+结论：`V10-BUG-011` 已关闭，无新增发布阻塞。当前证据来自脏工作树定向包；最终发布身份以后续干净提交重新打包结果为准。
