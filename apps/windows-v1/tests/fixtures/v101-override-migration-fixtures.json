@@ -1,0 +1,9 @@
+{
+  "contract_version": 1,
+  "cases": [
+    {"id": "legacy-workday-kept", "automatic_kind": "rest_day", "legacy_kind": "workday", "expected_kind": "workday"},
+    {"id": "legacy-rest-on-auto-workday-becomes-paid", "automatic_kind": "workday", "legacy_kind": "rest_day", "expected_kind": "paid_rest"},
+    {"id": "legacy-rest-on-auto-rest-removed", "automatic_kind": "rest_day", "legacy_kind": "rest_day", "expected_kind": null, "backup_required": true},
+    {"id": "unknown-kind-backed-up-and-rejected", "automatic_kind": "workday", "legacy_kind": "mystery", "expected_kind": null, "backup_required": true, "expected_error": "config.override_kind_unknown"}
+  ]
+}

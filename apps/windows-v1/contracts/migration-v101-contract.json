@@ -1,0 +1,30 @@
+{
+  "contract_version": 1,
+  "source_config_version": 6,
+  "target_config_version": 7,
+  "backup_pattern": "config.v1.0-compatible-backup.<timestamp>.json",
+  "previous_file": "config.json.previous",
+  "legacy_workday": "preserve_as_workday",
+  "legacy_rest_day": {
+    "automatic_workday": "paid_rest",
+    "automatic_rest": "remove_after_backup"
+  },
+  "unknown_kind": "backup_and_reject_override",
+  "transaction_steps": [
+    "read_source",
+    "write_once_compatible_backup",
+    "load_verified_calendar",
+    "map_legacy_override_kinds",
+    "validate_v7",
+    "write_temp",
+    "flush_and_read_back",
+    "atomic_replace",
+    "publish_runtime_snapshot"
+  ],
+  "failure_policy": {
+    "disk_config": "old_valid",
+    "runtime_snapshot": "old",
+    "draft": "preserved",
+    "error": "readable_and_redacted"
+  }
+}

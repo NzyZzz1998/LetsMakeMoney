@@ -46,7 +46,13 @@ checks = {
         "if let Some(position) = config.mini_window_position",
     )),
     "mini-no-redundant-more": "更多操作" not in app and "mini-window__more" not in app + styles,
-    "live-dashboard": "useDashboard" in app and "setInterval(refresh, 1000)" in model,
+    "live-dashboard": all(token in app + model for token in (
+        "useDashboard",
+        "calculateLocalTick",
+        "window.setInterval",
+        "}, 1000);",
+        "30_000",
+    )),
     "shared-snapshot": all(token in app for token in ("<TodayView {...dashboard}", "formatMoney", "formatDuration")),
     "today-sections": all(token in app for token in ("今日已赚", "今日安排", "本月累计", "剩余有效工时")),
     "calendar-month": all(token in app + model for token in (
@@ -70,9 +76,15 @@ checks = {
     )),
     "no-demo-calendar-date": "day === 24" not in app and "7 月 24 日" not in app,
     "no-demo-income": "预计今日收入 ¥ 500.00" not in app and "monthTotal: 3842" not in model,
-    "manual-override": all(token in app for token in ("useCalendarOverrides", "跟随规则", "工作日", "休息日")),
+    "manual-override": all(token in app for token in (
+        "DateOverrideEditor",
+        "自动判断",
+        "工作日",
+        "带薪休息",
+        "不带薪休息",
+    )),
     "loading-error": all(token in app for token in ("正在计算今天的收入", "暂时无法计算", "重新计算")),
-    "actionable-calculation-error": all(token in app + model for token in (
+    "actionable-calculation-error": all(token in app + model + native for token in (
         "dashboardErrorTitle",
         "检查设置",
         "salary.calculate.invalid",

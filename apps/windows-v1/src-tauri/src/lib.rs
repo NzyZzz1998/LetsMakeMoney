@@ -106,29 +106,83 @@ struct TodayRequest {
     now_date: String,
     now_time: String,
     schedule: domain::SalarySchedule,
-    daily_salary_minor: i64,
+    month_salary: domain::MonthSalary,
     calendar: domain::CalendarData,
+}
+
+#[tauri::command]
+fn load_calendar_year(
+    app: AppHandle,
+    year: i32,
+) -> Result<calendar_data::CalendarDatasetResponse, String> {
+    match calendar_data::load_calendar_year(year) {
+        Ok(dataset) => {
+            append_log(
+                &app,
+                "calendar.dataset.loaded",
+                &format!("year={year} version={}", dataset.dataset_version),
+            );
+            Ok(dataset)
+        }
+        Err(error) => {
+            append_log(
+                &app,
+                "calendar.dataset.failed",
+                &format!("year={year} reason={error}"),
+            );
+            Err(error)
+        }
+    }
 }
 
 #[tauri::command]
 fn calculate_month_salary(
+    app: AppHandle,
     month: String,
     schedule: domain::SalarySchedule,
     calendar: domain::CalendarData,
 ) -> Result<domain::MonthSalary, String> {
-    domain::calculate_month(&month, &schedule, &calendar)
+    let result = domain::calculate_month(&month, &schedule, &calendar);
+    if let Err(error) = &result {
+        append_log(
+            &app,
+            "salary.calculate.invalid",
+            &format!("scope=month month={month} reason={error}"),
+        );
+    }
+    result
 }
 
 #[tauri::command]
-fn calculate_today_income(request: TodayRequest) -> Result<domain::TodaySnapshot, String> {
-    domain::calculate_today(
+fn calculate_today_income(
+    app: AppHandle,
+    request: TodayRequest,
+) -> Result<domain::TodaySnapshot, String> {
+    let result = domain::calculate_today(
         &request.owner_date,
         &request.now_date,
         &request.now_time,
         &request.schedule,
-        request.daily_salary_minor,
+        &request.month_salary,
         &request.calendar,
-    )
+    );
+    if let Err(error) = &result {
+        append_log(
+            &app,
+            "salary.calculate.invalid",
+            &format!("scope=today owner_date={} reason={error}", request.owner_date),
+        );
+    }
+    result
+}
+
+#[tauri::command]
+fn resolve_schedule_owner_date(
+    now_date: String,
+    now_time: String,
+    schedule: domain::SalarySchedule,
+) -> Result<String, String> {
+    domain::resolve_schedule_owner_date(&now_date, &now_time, &schedule)
 }
 
 #[tauri::command]
@@ -166,7 +220,10 @@ fn save_configuration(
     draft: config::AppConfig,
 ) -> Result<config::SaveResult, String> {
     let mut current = state.0.lock().map_err(|_| "config_lock_failed")?;
-    let data_dir = app.path().app_data_dir().map_err(|error| error.to_string())?;
+    let data_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|error| error.to_string())?;
     let initialized = configuration_state.0.load(Ordering::SeqCst);
     let config_path = data_dir.join("config.json");
     let result = if initialized {
@@ -184,6 +241,55 @@ fn save_configuration(
     if result.status == config::SaveStatus::Saved {
         *current = draft;
         configuration_state.0.store(true, Ordering::SeqCst);
+    }
+    Ok(result)
+}
+
+#[tauri::command]
+fn save_date_override(
+    app: AppHandle,
+    state: tauri::State<'_, RuntimeConfig>,
+    date: String,
+    kind: Option<domain::DateOverrideKind>,
+) -> Result<config::SaveResult, String> {
+    let mut current = state.0.lock().map_err(|_| "config_lock_failed")?;
+    let data_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|error| error.to_string())?;
+    let config_path = data_dir.join("config.json");
+    let (result, runtime) = config::save_date_override_transactional(
+        &config_path,
+        &current,
+        &date,
+        kind,
+        config::SaveFault::None,
+    );
+    let kind_label = match kind {
+        Some(domain::DateOverrideKind::Workday) => "workday",
+        Some(domain::DateOverrideKind::PaidRest) => "paid_rest",
+        Some(domain::DateOverrideKind::UnpaidRest) => "unpaid_rest",
+        None => "automatic",
+    };
+    let event = match result.status {
+        config::SaveStatus::Saved if kind.is_none() => "date_override.removed",
+        config::SaveStatus::Saved => "date_override.saved",
+        config::SaveStatus::Unchanged => "date_override.unchanged",
+        config::SaveStatus::Failed => "date_override.failed",
+    };
+    append_log(
+        &app,
+        event,
+        &format!(
+            "date={date} kind={kind_label} result={}",
+            result.message.replace(['\r', '\n'], " ")
+        ),
+    );
+    if matches!(
+        result.status,
+        config::SaveStatus::Saved | config::SaveStatus::Unchanged
+    ) {
+        *current = runtime;
     }
     Ok(result)
 }
@@ -209,12 +315,15 @@ fn diagnostic_summary(state: tauri::State<'_, RuntimeConfig>) -> Result<String, 
 
 #[tauri::command]
 fn data_directory_path(app: AppHandle) -> Result<String, String> {
-    let base = app.path().app_data_dir().map_err(|error| error.to_string())?;
-    Ok(support::data_directory(
-        base.parent().unwrap_or(base.as_path()),
+    let base = app
+        .path()
+        .app_data_dir()
+        .map_err(|error| error.to_string())?;
+    Ok(
+        support::data_directory(base.parent().unwrap_or(base.as_path()))
+            .display()
+            .to_string(),
     )
-    .display()
-    .to_string())
 }
 
 #[tauri::command]
@@ -314,7 +423,9 @@ fn append_log(app: &AppHandle, event: &str, message: &str) {
 fn safe_window_position(window: &WebviewWindow) -> Result<(), String> {
     let position = window.outer_position().map_err(|error| error.to_string())?;
     let size = window.outer_size().map_err(|error| error.to_string())?;
-    let monitors = window.available_monitors().map_err(|error| error.to_string())?;
+    let monitors = window
+        .available_monitors()
+        .map_err(|error| error.to_string())?;
     let center_x = position.x.saturating_add((size.width / 2) as i32);
     let center_y = position.y.saturating_add((size.height / 2) as i32);
     let selected = monitors
@@ -436,7 +547,10 @@ fn toggle_mini_window(app: &AppHandle) -> Result<(), String> {
 }
 
 fn open_data_directory_internal(app: &AppHandle) -> Result<String, String> {
-    let base = app.path().app_data_dir().map_err(|error| error.to_string())?;
+    let base = app
+        .path()
+        .app_data_dir()
+        .map_err(|error| error.to_string())?;
     std::fs::create_dir_all(&base).map_err(|error| error.to_string())?;
     Command::new("explorer.exe")
         .arg(&base)
@@ -460,7 +574,11 @@ fn platform_capabilities(
 fn dispatch_tray_command(app: &AppHandle, id: &str) {
     append_log(app, "tray.command", &format!("id={id}"));
     if !platform::is_known_tray_command(id) {
-        append_log(app, "tray.command_failed", &format!("id={id} reason=unknown"));
+        append_log(
+            app,
+            "tray.command_failed",
+            &format!("id={id} reason=unknown"),
+        );
         return;
     }
     let result = match id {
@@ -503,22 +621,10 @@ fn build_tray(app: &AppHandle) -> Result<(), String> {
         None::<&str>,
     )
     .map_err(|error| error.to_string())?;
-    let settings = MenuItem::with_id(
-        app,
-        platform::TRAY_SETTINGS,
-        "偏好设置",
-        true,
-        None::<&str>,
-    )
-    .map_err(|error| error.to_string())?;
-    let wizard = MenuItem::with_id(
-        app,
-        platform::TRAY_WIZARD,
-        "重新配置",
-        true,
-        None::<&str>,
-    )
-    .map_err(|error| error.to_string())?;
+    let settings = MenuItem::with_id(app, platform::TRAY_SETTINGS, "偏好设置", true, None::<&str>)
+        .map_err(|error| error.to_string())?;
+    let wizard = MenuItem::with_id(app, platform::TRAY_WIZARD, "重新配置", true, None::<&str>)
+        .map_err(|error| error.to_string())?;
     let data_dir = MenuItem::with_id(
         app,
         platform::TRAY_DATA_DIR,
@@ -539,13 +645,7 @@ fn build_tray(app: &AppHandle) -> Result<(), String> {
     let menu = Menu::with_items(
         app,
         &[
-            &toggle,
-            &workbench,
-            &settings,
-            &wizard,
-            &data_dir,
-            &separator,
-            &exit,
+            &toggle, &workbench, &settings, &wizard, &data_dir, &separator, &exit,
         ],
     )
     .map_err(|error| error.to_string())?;
@@ -623,7 +723,10 @@ fn persist_runtime_mini_position(app: &AppHandle) -> Result<(), String> {
         .lock()
         .map_err(|_| "config_lock_failed")?
         .clone();
-    let data_dir = app.path().app_data_dir().map_err(|error| error.to_string())?;
+    let data_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|error| error.to_string())?;
     let config_path = data_dir.join("config.json");
     let persisted = config::load_or_migrate(&config_path).unwrap_or_default();
     let result =
@@ -658,12 +761,7 @@ fn schedule_mini_position_save(app: &AppHandle, position: PhysicalPosition<i32>)
     let app = app.clone();
     thread::spawn(move || {
         thread::sleep(Duration::from_millis(300));
-        if app
-            .state::<PositionSaveRevision>()
-            .0
-            .load(Ordering::SeqCst)
-            == revision
-        {
+        if app.state::<PositionSaveRevision>().0.load(Ordering::SeqCst) == revision {
             if let Err(error) = persist_runtime_mini_position(&app) {
                 append_log(
                     &app,
@@ -804,11 +902,14 @@ pub fn run() {
             }
             let data_dir = app.path().app_data_dir()?;
             let config_path = data_dir.join("config.json");
+            let previous_config_version = config::stored_config_version(&config_path);
             let config_result = config::load_or_migrate(&config_path);
             let configuration_initialized = config_path.is_file() && config_result.is_ok();
             let config = config_result.unwrap_or_else(|_| config::AppConfig::default());
             app.manage(RuntimeConfig(Mutex::new(config)));
-            app.manage(ConfigurationState(AtomicBool::new(configuration_initialized)));
+            app.manage(ConfigurationState(AtomicBool::new(
+                configuration_initialized,
+            )));
             app.manage(ExitState(AtomicBool::new(false)));
             app.manage(PositionSaveRevision(AtomicU64::new(0)));
             app.manage(PlatformRuntime(Mutex::new(PlatformCapabilities {
@@ -821,6 +922,16 @@ pub fn run() {
                 tray_recovery: "TaskbarCreated",
             })));
             app.manage(instance_guard);
+            if matches!(previous_config_version, Some(5 | 6)) && configuration_initialized {
+                append_log(
+                    app.handle(),
+                    "date_override.migrated",
+                    &format!(
+                        "from_version={} to_version=7",
+                        previous_config_version.unwrap_or_default()
+                    ),
+                );
+            }
             if configuration_initialized {
                 if let Some(mini) = app.get_webview_window("mini") {
                     apply_window_policy(app.handle(), &mini, "mini")?;
@@ -853,29 +964,27 @@ pub fn run() {
             }
             Ok(())
         })
-        .on_window_event(|window, event| {
-            match event {
-                WindowEvent::Moved(position) if window.label() == "mini" => {
-                    schedule_mini_position_save(window.app_handle(), *position);
-                }
-                WindowEvent::CloseRequested { api, .. } => {
-                    let exiting = window
-                        .app_handle()
-                        .state::<ExitState>()
-                        .0
-                        .load(Ordering::SeqCst);
-                    if !exiting {
-                        api.prevent_close();
-                        let _ = window.hide();
-                        append_log(
-                            window.app_handle(),
-                            "window.close_hidden",
-                            &format!("label={}", window.label()),
-                        );
-                    }
-                }
-                _ => {}
+        .on_window_event(|window, event| match event {
+            WindowEvent::Moved(position) if window.label() == "mini" => {
+                schedule_mini_position_save(window.app_handle(), *position);
             }
+            WindowEvent::CloseRequested { api, .. } => {
+                let exiting = window
+                    .app_handle()
+                    .state::<ExitState>()
+                    .0
+                    .load(Ordering::SeqCst);
+                if !exiting {
+                    api.prevent_close();
+                    let _ = window.hide();
+                    append_log(
+                        window.app_handle(),
+                        "window.close_hidden",
+                        &format!("label={}", window.label()),
+                    );
+                }
+            }
+            _ => {}
         })
         .invoke_handler(tauri::generate_handler![
             implementation_phase,
@@ -888,12 +997,15 @@ pub fn run() {
             platform_capabilities,
             open_data_directory,
             exit_application,
+            load_calendar_year,
             calculate_month_salary,
             calculate_today_income,
+            resolve_schedule_owner_date,
             resolve_calendar_month,
             resolve_next_workday,
             read_configuration,
             save_configuration,
+            save_date_override,
             configuration_initialized,
             diagnostic_summary,
             data_directory_path,
@@ -903,6 +1015,7 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("failed to run LetsMakeMoney");
 }
+mod calendar_data;
 mod config;
 mod domain;
 mod platform;

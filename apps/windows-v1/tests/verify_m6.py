@@ -44,7 +44,7 @@ def check_source_tree() -> None:
         for name in scripts
         if not (
             name.startswith("verify_v10")
-            or name in {"package_v10.ps1", "v10_tools.ps1"}
+            or name in {"package_v10.ps1", "package_v101.ps1", "v10_tools.ps1"}
         )
     ]
     check(

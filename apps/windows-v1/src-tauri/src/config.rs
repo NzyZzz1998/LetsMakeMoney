@@ -1,4 +1,8 @@
-use crate::domain::{DateOverride, RestMode, WeekType};
+use crate::calendar_data;
+use crate::domain::{
+    self, CalendarData, DateOverride, DateOverrideKind, DayKind, RestMode, SalarySchedule,
+    WeekType,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::fs::{self, File};
@@ -38,8 +42,24 @@ pub struct AppConfig {
 
 impl Default for AppConfig {
     fn default() -> Self {
-        serde_json::from_str(include_str!("../../contracts/config-defaults.json"))
+        serde_json::from_str(include_str!("../../contracts/config-v101-defaults.json"))
             .expect("embedded config defaults must remain valid")
+    }
+}
+
+impl AppConfig {
+    pub fn salary_schedule(&self) -> SalarySchedule {
+        SalarySchedule {
+            monthly_salary_minor: (self.monthly_salary * 100.0).round() as i64,
+            rest_mode: self.rest_mode.clone(),
+            alternating_anchor_date: self.alternating_anchor_date.clone(),
+            alternating_anchor_week_type: self.alternating_anchor_week_type.clone(),
+            work_hours_per_day: self.work_hours_per_day,
+            work_start_time: self.work_start_time.clone(),
+            work_end_time: self.work_end_time.clone(),
+            lunch_start_time: self.lunch_start_time.clone(),
+            lunch_end_time: self.lunch_end_time.clone(),
+        }
     }
 }
 
@@ -66,15 +86,13 @@ pub enum SaveFault {
 }
 
 pub fn validate(config: &AppConfig) -> Result<(), String> {
-    if config.config_version != 6 {
+    if config.config_version != 7 {
         return Err("unsupported_config_version".into());
     }
     if !config.monthly_salary.is_finite() || config.monthly_salary < 0.0 {
         return Err("invalid_monthly_salary".into());
     }
-    if !(0.0..=24.0).contains(&config.work_hours_per_day)
-        || config.work_hours_per_day == 0.0
-    {
+    if !(0.0..=24.0).contains(&config.work_hours_per_day) || config.work_hours_per_day == 0.0 {
         return Err("invalid_work_hours".into());
     }
     for value in [
@@ -99,6 +117,16 @@ pub fn validate(config: &AppConfig) -> Result<(), String> {
     if !["error", "info", "debug"].contains(&config.log_level.as_str()) {
         return Err("invalid_log_level".into());
     }
+    let mut dates = std::collections::HashSet::new();
+    for entry in &config.date_overrides {
+        domain::validate_date(&entry.date)?;
+        if !dates.insert(entry.date.as_str()) {
+            return Err("duplicate_date_override".into());
+        }
+        if entry.note.chars().count() > 120 {
+            return Err("date_override_note_too_long".into());
+        }
+    }
     Ok(())
 }
 
@@ -119,6 +147,17 @@ pub fn migrate_v5(source: &Value) -> Result<AppConfig, String> {
     if source.get("config_version").and_then(Value::as_u64) != Some(5) {
         return Err("unsupported_source_config".into());
     }
+    migrate_legacy_to_v7(source)
+}
+
+pub fn migrate_v6(source: &Value) -> Result<AppConfig, String> {
+    if source.get("config_version").and_then(Value::as_u64) != Some(6) {
+        return Err("unsupported_source_config".into());
+    }
+    migrate_legacy_to_v7(source)
+}
+
+fn migrate_legacy_to_v7(source: &Value) -> Result<AppConfig, String> {
     let defaults = serde_json::to_value(AppConfig::default()).map_err(|error| error.to_string())?;
     let mut target = defaults.as_object().cloned().ok_or("invalid_defaults")?;
     let source_object = source.as_object().ok_or("invalid_source_config")?;
@@ -132,7 +171,6 @@ pub fn migrate_v5(source: &Value) -> Result<AppConfig, String> {
         "work_end_time",
         "lunch_start_time",
         "lunch_end_time",
-        "date_overrides",
         "mini_window_position",
         "mini_window_visible",
         "mini_window_always_on_top",
@@ -146,11 +184,77 @@ pub fn migrate_v5(source: &Value) -> Result<AppConfig, String> {
             target.insert(key.into(), value.clone());
         }
     }
-    target.insert("config_version".into(), Value::from(6));
-    let config: AppConfig =
+    target.insert("config_version".into(), Value::from(7));
+    target.insert(
+        "calendar_dataset_version".into(),
+        Value::from("cn-2025-2026-v1"),
+    );
+    target.insert("date_overrides".into(), Value::Array(Vec::new()));
+    let mut config: AppConfig =
         serde_json::from_value(Value::Object(target)).map_err(|error| error.to_string())?;
+    let legacy_overrides = source_object
+        .get("date_overrides")
+        .and_then(Value::as_array)
+        .cloned()
+        .unwrap_or_default();
+    let schedule = config.salary_schedule();
+    for value in legacy_overrides {
+        let object = value.as_object().ok_or("config.override_invalid")?;
+        let date = object
+            .get("date")
+            .and_then(Value::as_str)
+            .ok_or("config.override_invalid")?;
+        domain::validate_date(date)?;
+        let kind = object
+            .get("kind")
+            .and_then(Value::as_str)
+            .ok_or("config.override_kind_unknown")?;
+        let mapped = match kind {
+            "workday" => Some(DateOverrideKind::Workday),
+            "rest_day" => {
+                let calendar = calendar_for_date(date)?;
+                if domain::resolve_day_automatic(date, &schedule, &calendar)?.kind
+                    == DayKind::Workday
+                {
+                    Some(DateOverrideKind::PaidRest)
+                } else {
+                    None
+                }
+            }
+            _ => return Err("config.override_kind_unknown".into()),
+        };
+        if let Some(kind) = mapped {
+            config.date_overrides.push(DateOverride {
+                date: date.into(),
+                kind,
+                note: object
+                    .get("note")
+                    .and_then(Value::as_str)
+                    .unwrap_or_default()
+                    .into(),
+            });
+        }
+    }
+    config
+        .date_overrides
+        .sort_by(|left, right| left.date.cmp(&right.date));
     validate(&config)?;
     Ok(config)
+}
+
+fn calendar_for_date(date: &str) -> Result<CalendarData, String> {
+    let year = date
+        .get(0..4)
+        .ok_or("invalid_date")?
+        .parse::<i32>()
+        .map_err(|_| "invalid_date")?;
+    match calendar_data::load_calendar_year(year) {
+        Ok(dataset) => Ok(dataset.calendar),
+        Err(reason) if reason.starts_with("calendar_year_unsupported:") => {
+            Ok(CalendarData::default())
+        }
+        Err(reason) => Err(reason),
+    }
 }
 
 fn write_and_sync(path: &Path, bytes: &[u8]) -> Result<(), String> {
@@ -166,7 +270,55 @@ fn unique_backup_path(config_path: &Path) -> PathBuf {
         .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
         .as_secs();
-    config_path.with_file_name(format!("config.v0.9-compatible-backup.{stamp}.json"))
+    config_path.with_file_name(format!("config.v1.0-compatible-backup.{stamp}.json"))
+}
+
+pub fn build_date_override_draft(
+    current: &AppConfig,
+    date: &str,
+    kind: Option<DateOverrideKind>,
+) -> Result<AppConfig, String> {
+    let calendar = calendar_for_date(date)?;
+    let entry = domain::apply_date_override(date, kind, &current.salary_schedule(), &calendar)?;
+    let mut draft = current.clone();
+    draft.date_overrides.retain(|item| item.date != date);
+    if let Some(entry) = entry {
+        draft.date_overrides.push(entry);
+        draft
+            .date_overrides
+            .sort_by(|left, right| left.date.cmp(&right.date));
+    }
+    validate(&draft)?;
+    Ok(draft)
+}
+
+pub fn save_date_override_transactional(
+    config_path: &Path,
+    current: &AppConfig,
+    date: &str,
+    kind: Option<DateOverrideKind>,
+    fault: SaveFault,
+) -> (SaveResult, AppConfig) {
+    let draft = match build_date_override_draft(current, date, kind) {
+        Ok(draft) => draft,
+        Err(reason) => {
+            return (
+                SaveResult {
+                    status: SaveStatus::Failed,
+                    message: format!("日期调整失败：{reason}"),
+                    draft_preserved: true,
+                },
+                current.clone(),
+            )
+        }
+    };
+    let result = save_transactional(config_path, current, &draft, fault);
+    let runtime = if matches!(result.status, SaveStatus::Saved | SaveStatus::Unchanged) {
+        draft
+    } else {
+        current.clone()
+    };
+    (result, runtime)
 }
 
 pub fn save_transactional(
@@ -178,11 +330,7 @@ pub fn save_transactional(
     save_transactional_inner(config_path, current, draft, fault, false)
 }
 
-pub fn save_initial(
-    config_path: &Path,
-    current: &AppConfig,
-    draft: &AppConfig,
-) -> SaveResult {
+pub fn save_initial(config_path: &Path, current: &AppConfig, draft: &AppConfig) -> SaveResult {
     save_transactional_inner(config_path, current, draft, SaveFault::None, true)
 }
 
@@ -245,9 +393,10 @@ fn save_transactional_inner(
         }
     }
     let write_result = write_and_sync(&temp_path, &bytes).and_then(|_| {
-        let read_back = fs::read(&temp_path).map_err(|error| format!("read_back_failed:{error}"))?;
-        let parsed: AppConfig =
-            serde_json::from_slice(&read_back).map_err(|error| format!("read_back_failed:{error}"))?;
+        let read_back =
+            fs::read(&temp_path).map_err(|error| format!("read_back_failed:{error}"))?;
+        let parsed: AppConfig = serde_json::from_slice(&read_back)
+            .map_err(|error| format!("read_back_failed:{error}"))?;
         validate(&parsed)?;
         fs::rename(&temp_path, config_path)
             .map_err(|error| format!("atomic_replace_failed:{error}"))
@@ -284,15 +433,20 @@ pub fn load_or_migrate(config_path: &Path) -> Result<AppConfig, String> {
     let bytes = fs::read(config_path).map_err(|error| error.to_string())?;
     let value: Value = serde_json::from_slice(&bytes).map_err(|error| error.to_string())?;
     match value.get("config_version").and_then(Value::as_u64) {
-        Some(6) => {
-            let config: AppConfig = serde_json::from_value(value).map_err(|error| error.to_string())?;
+        Some(7) => {
+            let config: AppConfig =
+                serde_json::from_value(value).map_err(|error| error.to_string())?;
             validate(&config)?;
             Ok(config)
         }
-        Some(5) => {
-            let migrated = migrate_v5(&value)?;
+        Some(5) | Some(6) => {
             let backup = unique_backup_path(config_path);
             fs::copy(config_path, backup).map_err(|error| error.to_string())?;
+            let migrated = if value.get("config_version").and_then(Value::as_u64) == Some(5) {
+                migrate_v5(&value)?
+            } else {
+                migrate_v6(&value)?
+            };
             let current = AppConfig::default();
             let result = save_transactional(config_path, &current, &migrated, SaveFault::None);
             if result.status != SaveStatus::Saved {
@@ -302,6 +456,12 @@ pub fn load_or_migrate(config_path: &Path) -> Result<AppConfig, String> {
         }
         _ => Err("unsupported_config_version".into()),
     }
+}
+
+pub fn stored_config_version(config_path: &Path) -> Option<u64> {
+    let bytes = fs::read(config_path).ok()?;
+    let value: Value = serde_json::from_slice(&bytes).ok()?;
+    value.get("config_version").and_then(Value::as_u64)
 }
 
 #[cfg(test)]
@@ -340,7 +500,7 @@ mod tests {
         });
         let migrated = migrate_v5(&source).unwrap();
         let text = serde_json::to_string(&migrated).unwrap();
-        assert_eq!(migrated.config_version, 6);
+        assert_eq!(migrated.config_version, 7);
         for retired_key in [
             "pet_id",
             "pet_package_id",
@@ -394,6 +554,108 @@ mod tests {
         let result = save_initial(&path, &current, &current);
         assert_eq!(result.status, SaveStatus::Saved);
         assert!(path.is_file());
+        assert_eq!(load_or_migrate(&path).unwrap(), current);
+    }
+
+    #[test]
+    fn v6_rest_overrides_migrate_by_automatic_day_kind() {
+        let source = serde_json::json!({
+            "config_version": 6,
+            "monthly_salary": 10000,
+            "rest_mode": "double",
+            "alternating_anchor_date": null,
+            "alternating_anchor_week_type": null,
+            "work_hours_per_day": 8,
+            "work_start_time": "08:00",
+            "work_end_time": "18:00",
+            "lunch_start_time": "12:00",
+            "lunch_end_time": "14:00",
+            "calendar_dataset_version": "cn-2026",
+            "date_overrides": [
+                {"date": "2026-07-24", "kind": "rest_day"},
+                {"date": "2026-07-26", "kind": "rest_day"},
+                {"date": "2026-07-25", "kind": "workday"}
+            ],
+            "mini_window_position": null,
+            "mini_window_visible": true,
+            "mini_window_always_on_top": true,
+            "minimize_to_tray": true,
+            "auto_start": false,
+            "check_updates_on_start": true,
+            "update_channel": "stable",
+            "log_level": "info"
+        });
+
+        let migrated = migrate_v6(&source).expect("v6 config should migrate");
+        assert_eq!(migrated.config_version, 7);
+        assert_eq!(migrated.date_overrides.len(), 2);
+        assert!(migrated.date_overrides.iter().any(|entry| {
+            entry.date == "2026-07-24"
+                && entry.kind == crate::domain::DateOverrideKind::PaidRest
+        }));
+        assert!(migrated.date_overrides.iter().any(|entry| {
+            entry.date == "2026-07-25"
+                && entry.kind == crate::domain::DateOverrideKind::Workday
+        }));
+    }
+
+    #[test]
+    fn v6_unknown_override_kind_is_backed_up_and_rejected() {
+        let path = temp_config("unknown-override");
+        let source = serde_json::json!({
+            "config_version": 6,
+            "monthly_salary": 10000,
+            "rest_mode": "double",
+            "alternating_anchor_date": null,
+            "alternating_anchor_week_type": null,
+            "work_hours_per_day": 8,
+            "work_start_time": "08:00",
+            "work_end_time": "18:00",
+            "lunch_start_time": "12:00",
+            "lunch_end_time": "14:00",
+            "calendar_dataset_version": "cn-2026",
+            "date_overrides": [{"date": "2026-07-24", "kind": "mystery"}],
+            "mini_window_position": null,
+            "mini_window_visible": true,
+            "mini_window_always_on_top": true,
+            "minimize_to_tray": true,
+            "auto_start": false,
+            "check_updates_on_start": true,
+            "update_channel": "stable",
+            "log_level": "info"
+        });
+        fs::write(&path, serde_json::to_vec_pretty(&source).unwrap()).unwrap();
+
+        assert_eq!(
+            load_or_migrate(&path).unwrap_err(),
+            "config.override_kind_unknown"
+        );
+        assert!(path.parent().unwrap().read_dir().unwrap().any(|entry| {
+            entry
+                .unwrap()
+                .file_name()
+                .to_string_lossy()
+                .starts_with("config.v1.0-compatible-backup.")
+        }));
+    }
+
+    #[test]
+    fn date_override_transaction_preserves_old_config_on_failure() {
+        let path = temp_config("date-override-failure");
+        let current = AppConfig::default();
+        fs::write(&path, serde_json::to_vec_pretty(&current).unwrap()).unwrap();
+
+        let (result, next) = save_date_override_transactional(
+            &path,
+            &current,
+            "2026-07-24",
+            Some(crate::domain::DateOverrideKind::PaidRest),
+            SaveFault::TempWriteDenied,
+        );
+
+        assert_eq!(result.status, SaveStatus::Failed);
+        assert!(result.draft_preserved);
+        assert_eq!(next, current);
         assert_eq!(load_or_migrate(&path).unwrap(), current);
     }
 }
