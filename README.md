@@ -30,14 +30,14 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪
 
 ## 当前版本
 
-**v1.0 Stable 候选**使用 Rust、Tauri 与 React 重建 Windows 客户端，采用无宠物产品结构，目标是更清晰、更稳定的桌面工具体验。
+**v1.0 Stable** 使用 Rust、Tauri 与 React 重建 Windows 客户端，采用无宠物产品结构，提供更清晰、更稳定的桌面工具体验。
 
-- 当前公开版本仍为 [v0.9 Beta](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta)。
-- v1.0 候选已经完成自动门禁与真实 Windows 验收，发布动作尚待项目所有者批准。
+- 当前公开版本为 [v1.0 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0)。
+- v1.0 已完成自动门禁、真实 Windows 验收和发布收口。
 - v1.0 暂不包含宠物、透明宠物窗口、点击穿透、纯桌宠模式、云同步、主题系统或安装器。
-- 需要桌宠体验时，可以继续使用 v0.9 Beta；它也是 v1.0 的明确回退基线。
+- 需要桌宠体验时，可以继续使用 `v0.9-beta` tag 对应的 v0.9 Beta；它也是 v1.0 的明确回退基线。
 
-最新事实与候选哈希以 [当前状态入口](doc/current.md) 为准。
+最新事实与发布哈希以 [当前状态入口](doc/current.md) 为准。
 
 ## 从源码运行
 

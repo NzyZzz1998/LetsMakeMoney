@@ -8,18 +8,18 @@
 
 | 对象 | 当前事实 |
 |---|---|
-| 当前公开版本 | Windows v0.9 Beta |
-| 当前公开 tag | `v0.9-beta` |
-| 当前开发版本 | Windows v1.0 Stable 候选 |
+| 当前公开版本 | Windows v1.0 Stable |
+| 当前公开 tag | `v1.0` |
+| 当前开发版本 | Windows v1.0 Stable |
 | v1 技术主线 | Rust + Tauri + TypeScript/React |
 | v1 产品主线 | 无宠物迷你收入视图 + 今日/日历工作台 |
-| 当前开发阶段 | v1.0 本轮实现、定向 GUI 复验与干净 Stable 候选打包完成 |
-| 发布判断 | 候选无已知业务阻塞，可进入发布收口；远端写入仍等待项目所有者授权 |
+| 当前开发阶段 | v1.0 已完成实现、验收、发布收口和远端发布 |
+| 发布判断 | 已通过并发布；多显示器仍作为非阻塞待补证项 |
 | 历史恢复基线 | `v0.9-beta` tag 与 GitHub Release |
 
-当前工作分支与 HEAD 以 `git status --branch` 为准。正式候选包身份由实现提交、`BUILD-INFO.json` 与 SHA256 共同锁定。
+当前工作分支与 HEAD 以 `git status --branch` 为准。正式发布包身份由实现提交、`BUILD-INFO.json` 与 SHA256 共同锁定。
 
-当前验收通过，干净提交候选已生成；本轮未执行任何远端发布动作。
+当前验收与发布收口均已完成，`main` 和 `v1.0` tag 指向发布提交 `76a480602af9a3429f9919ec9f9ee66a2add089d`。
 
 ## v1.0 已完成
 
@@ -31,18 +31,18 @@
 - M5：托盘、窗口生命周期与诊断实现；真实通知区鼠标左键隐藏/找回和 Explorer 重启后重新注册均已通过。
 - M6：旧 Godot、native、宠物资源与旧脚本从当前树下线；配置迁移和零宠物门禁通过。
 
-## 当前必须完成
+## 发布后观察
 
 1. 多显示器安全回落因当前设备仅有一台显示器，标记为待补证；项目所有者批准其不阻塞本次 Stable。
 2. 独立候选约 95 分钟连续运行稳定，项目所有者确认按约 100 分钟门禁通过。
 3. v0.9 官方 Release 包桌面回退与 v1 配置隔离已通过。
 4. 功能验收与本轮视觉/交互复验通过，干净提交候选已生成并重新打包。
-5. GitHub `Protect_main` ruleset 仍引用 v0.9 时代的两个检查名，发布前需改为 `Windows v1 verification`。
+5. 持续确认 GitHub `Protect_main` ruleset 使用 `Windows v1 verification`，避免恢复 v0.9 时代的检查名。
 
-## 当前候选身份
+## v1.0 发布身份
 
 - 源码基线：`806bda6503f1b5ac61212d47abaf5e389fa1948a`，`BUILD-INFO.json` 记录 `source_tree_dirty=false`。
-- 当前候选从上述本地干净提交生成；尚未执行本轮远端推送、tag 或 Release。
+- 发布收口提交：`76a480602af9a3429f9919ec9f9ee66a2add089d`；tag：`v1.0`。
 - 便携 Zip：`releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64.zip`
 - Zip 大小：`3,044,917` 字节
 - Zip SHA256：`A5C33B9DB8787536145AE4B9A1AC00213E692C99A2201CC91EB811A0A0F3BBE6`
@@ -98,4 +98,4 @@
 
 ## 下一步
 
-更新 `Protect_main` 所需检查名，并在项目所有者明确授权后执行推送、合并 `main`、tag 和 GitHub Release。
+v1.0 已发布，当前进入稳定版维护阶段。后续产品改动应从新的版本 Review 或 Idea Pool 开始；除发布阻塞修复外，不再直接扩展 v1.0 范围。
