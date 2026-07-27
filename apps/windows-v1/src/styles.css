@@ -98,6 +98,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .mini-window__amount { grid-area: amount; align-self: center; font-size: 28px; font-variant-numeric: tabular-nums; line-height: 1; }
 .mini-window__amount--rest { max-width: 110px; font-size: 21px; text-align: right; }
 .mini-window__meta { grid-area: meta; color: var(--muted); font-size: 11px; }
+.mini-window__sync { position: absolute; right: 16px; bottom: 5px; color: #8b6b2d; font-size: 10px; }
 .mini-window__rest-line { grid-area: progress; height: 1px; margin: 8px 0 4px; background: var(--line); }
 .mini-window--rest .mini-window__status { color: #806f58; }
 .mini-window--rest .status-dot { box-shadow: 0 0 0 4px #ece7da; }
@@ -160,17 +161,27 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .calendar { padding: 20px; }
 .calendar__toolbar { display: grid; grid-template-columns: 32px 1fr 32px; align-items: center; gap: 10px; margin-bottom: 16px; }
 .calendar__toolbar strong { text-align: center; font-size: 14px; font-variant-numeric: tabular-nums; }
+.calendar__status { min-height: 280px; display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--muted); text-align: center; }
+.calendar__status--warning { min-height: 64px; margin-bottom: 16px; padding: 12px 14px; justify-content: space-between; border: 1px solid #e5ddcd; border-radius: 8px; background: #fbf7ee; color: var(--ink); text-align: left; }
+.sync-notice { display: flex; align-items: center; min-height: 34px; padding: 8px 12px; border: 1px solid #ead9ad; border-radius: 7px; background: #fff8e5; color: #725926; font-size: 12px; line-height: 1.4; }
+.sync-notice--syncing { border-color: var(--line); background: var(--subtle); color: var(--muted); }
 .calendar__weekdays, .calendar__grid { display: grid; grid-template-columns: repeat(7, minmax(38px, 1fr)); gap: 8px; }
 .calendar__weekdays { margin-bottom: 8px; color: var(--muted); font-size: 12px; text-align: center; }
 .calendar__grid button { aspect-ratio: 1.25; border: 1px solid transparent; border-radius: 8px; background: var(--success-soft); cursor: pointer; }
 .calendar__grid button:hover { border-color: var(--success); }
+.calendar__grid button:disabled { cursor: not-allowed; opacity: .72; }
 .calendar__grid button.is-rest { background: #ece7da; }
 .calendar__grid button.is-today { border-color: #5f765f; box-shadow: inset 0 0 0 1px rgb(95 118 95 / 24%); font-weight: 700; }
 .calendar__grid button.is-manual-work { border-color: var(--success); background: #e5f1e7; box-shadow: inset 0 0 0 1px rgba(75, 127, 87, .18); }
-.date-editor { display: grid; grid-template-columns: minmax(180px, 1fr) auto 34px; align-items: center; gap: 18px; padding: 16px 18px; }
+.date-editor { display: grid; grid-template-columns: minmax(220px, 1fr); width: min(520px, 100%); gap: 16px; padding: 20px; box-shadow: var(--shadow-float); }
 .date-editor h2, .date-editor p { margin: 0; }
 .date-editor p { color: var(--muted); font-size: 12px; }
-.date-editor .segmented { width: 292px; }
+.date-editor__heading { display: grid; gap: 4px; }
+.date-editor .segmented { width: 100%; }
+.date-editor__actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.date-editor__actions .icon-button { margin-left: auto; order: -1; }
+.calendar__grid button.is-paid-rest { border-color: #c89a33; background: #fff2cc; }
+.calendar__grid button.is-unpaid-rest { border-color: #b55b4d; background: #fae9e5; }
 .page-state { min-height: 420px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .page-state h1 { margin: 14px 0 6px; }
 .page-state p { max-width: 420px; margin: 0 0 18px; color: var(--muted); }
@@ -264,6 +275,7 @@ select { min-width: 146px; height: 36px; padding: 0 32px 0 10px; border: 1px sol
 .segmented { display: grid; grid-auto-flow: column; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: var(--subtle); }
 .segmented button { min-height: 30px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; cursor: pointer; }
 .segmented button.is-active { background: var(--raised); box-shadow: 0 1px 4px rgb(38 37 34 / 12%); font-weight: 600; }
+.segmented button:disabled { cursor: not-allowed; opacity: .42; }
 .switch { width: 40px; height: 22px; padding: 2px; border: 0; border-radius: 999px; background: #d6d6d1; cursor: pointer; transition: background 160ms var(--ease); }
 .switch span { display: block; width: 18px; height: 18px; border-radius: 50%; background: white; box-shadow: 0 1px 3px rgb(0 0 0 / 20%); transition: transform 160ms var(--ease); }
 .switch[aria-checked="true"] { background: var(--success); }

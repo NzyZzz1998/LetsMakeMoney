@@ -16,7 +16,7 @@ checks = {
     ),
     "calendar-priority": all(
         token in (TAURI / "domain.rs").read_text(encoding="utf-8")
-        for token in ("manual_override", "adjusted_workday", "statutory_holiday")
+        for token in ("manual_workday", "adjusted_workday", "statutory_holiday")
     ),
     "migration-no-pet": all(
         token in (TAURI / "config.rs").read_text(encoding="utf-8")

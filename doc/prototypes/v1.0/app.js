@@ -12,16 +12,23 @@ const state = {
   saving: false,
   wizardStep: 1,
   dialogAction: null,
+  calendarYear: 2026,
+  calendarMonth: 6,
+  calendarMode: "ready",
+  selectedDate: "2026-07-23",
+  calendarOverrides: new Map(),
 };
 
 const salaryInput = document.querySelector("#salary-input");
 const saveButton = document.querySelector("#save-button");
 const saveFeedback = document.querySelector("#save-feedback");
 const salaryError = document.querySelector("#salary-error");
-const miniMenu = document.querySelector("#mini-menu");
 const traySimulation = document.querySelector("#tray-simulation");
 const toastStack = document.querySelector("#toast-stack");
 const productDialog = document.querySelector("#product-dialog");
+const calendarOverrideDialog = document.querySelector("#calendar-override-dialog");
+const calendarGrid = document.querySelector(".calendar-grid");
+const calendarStatus = document.querySelector("#calendar-status");
 
 function showWindow(name) {
   if (!windows[name]) return;
@@ -35,14 +42,12 @@ function showWindow(name) {
   state.previousWindow = previous;
   state.currentWindow = name;
   traySimulation.hidden = true;
-  miniMenu.hidden = true;
 }
 
 function hideToTray() {
   Object.values(windows).forEach((element) => element.classList.remove("is-visible"));
   state.previousWindow = state.currentWindow;
   traySimulation.hidden = false;
-  miniMenu.hidden = true;
   showToast("窗口已隐藏，托盘可随时找回。");
 }
 
@@ -121,8 +126,52 @@ function setBusinessState(value) {
   });
 }
 
+function formatDateKey(year, month, day) {
+  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function getAutomaticDayKind(year, month, day) {
+  const weekday = new Date(year, month, day).getDay();
+  return weekday === 0 || weekday === 6 ? "restday" : "workday";
+}
+
+function updateCalendarStatus(mode) {
+  state.calendarMode = mode;
+  calendarStatus.className = `calendar-status is-${mode}`;
+  calendarStatus.hidden = mode === "ready";
+  const retryButton = document.querySelector("#calendar-retry");
+  const adjustButton = document.querySelector("#calendar-adjust");
+  adjustButton.disabled = ["loading", "error"].includes(mode);
+  if (mode === "ready") {
+    retryButton.hidden = true;
+    return;
+  }
+  const statusCopy = {
+    loading: ["正在加载日历", "当前页面保持稳定，完成后自动刷新"],
+    stale: ["本次加载失败，正在使用上次成功数据", "旧日历仍可查看和调整；重试成功前不会覆盖"],
+    error: ["日历暂时不可用", "没有可安全保留的旧数据，请重试"],
+    unsupported: ["当前年份不在官方数据范围内", "仅支持 2025—2026；将按休息模式判断，不猜测节假日"],
+  }[mode];
+  calendarStatus.querySelector("span").textContent = statusCopy[0];
+  calendarStatus.querySelector("small").textContent = statusCopy[1];
+  retryButton.hidden = !["stale", "error"].includes(mode);
+}
+
 function buildCalendar() {
-  const root = document.querySelector(".calendar-grid");
+  const root = calendarGrid;
+  root.replaceChildren();
+  root.className = "calendar-grid";
+  root.removeAttribute("data-empty-message");
+  document.querySelector("#calendar-month-label").textContent =
+    `${state.calendarYear} 年 ${state.calendarMonth + 1} 月`;
+  root.setAttribute("aria-label", `${state.calendarYear} 年 ${state.calendarMonth + 1} 月收入日历`);
+
+  if (state.calendarMode === "error") {
+    root.classList.add("is-empty");
+    root.dataset.emptyMessage = "日历尚未加载成功。点击上方“重试”重新读取，现有配置不会被修改。";
+    return;
+  }
+
   const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
   weekdays.forEach((label) => {
     const cell = document.createElement("span");
@@ -130,24 +179,113 @@ function buildCalendar() {
     cell.textContent = label;
     root.append(cell);
   });
-  for (let empty = 0; empty < 3; empty += 1) {
+  const firstWeekday = new Date(state.calendarYear, state.calendarMonth, 1).getDay();
+  for (let empty = 0; empty < firstWeekday; empty += 1) {
     const cell = document.createElement("span");
     cell.className = "calendar-cell empty";
     root.append(cell);
   }
-  for (let day = 1; day <= 31; day += 1) {
+  const daysInMonth = new Date(state.calendarYear, state.calendarMonth + 1, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day += 1) {
     const cell = document.createElement("button");
-    const date = new Date(2026, 6, day);
-    const weekend = date.getDay() === 0 || date.getDay() === 6;
-    cell.className = `calendar-cell ${weekend ? "restday" : "workday"}`;
-    if (day === 23) cell.classList.add("selected");
-    if (day === 26) cell.classList.add("adjusted");
+    const dateKey = formatDateKey(state.calendarYear, state.calendarMonth, day);
+    const automaticKind = getAutomaticDayKind(state.calendarYear, state.calendarMonth, day);
+    const manualKind = state.calendarOverrides.get(dateKey);
+    const resolvedClass = manualKind && manualKind !== "auto"
+      ? manualKind.replaceAll("_", "-")
+      : automaticKind;
+    cell.className = `calendar-cell ${resolvedClass}`;
+    if (manualKind && manualKind !== "auto") cell.classList.add("manual");
+    if (dateKey === state.selectedDate) cell.classList.add("selected");
     cell.textContent = String(day);
     cell.type = "button";
-    cell.setAttribute("aria-label", `2026 年 7 月 ${day} 日`);
-    cell.addEventListener("click", () => showToast(`已选择 7 月 ${day} 日，可调整工作日类型。`));
+    cell.setAttribute("aria-label", `${state.calendarYear} 年 ${state.calendarMonth + 1} 月 ${day} 日`);
+    cell.addEventListener("click", () => {
+      state.selectedDate = dateKey;
+      buildCalendar();
+    });
     root.append(cell);
   }
+
+  if (state.calendarMode === "loading") root.classList.add("is-loading");
+}
+
+function setCalendarMode(mode) {
+  const calendarStateControl = document.querySelector("#calendar-state");
+  if (calendarStateControl && calendarStateControl.value !== mode) {
+    calendarStateControl.value = mode;
+  }
+  updateCalendarStatus(mode);
+  buildCalendar();
+}
+
+function moveCalendarMonth(offset) {
+  const date = new Date(state.calendarYear, state.calendarMonth + offset, 1);
+  state.calendarYear = date.getFullYear();
+  state.calendarMonth = date.getMonth();
+  state.selectedDate = formatDateKey(state.calendarYear, state.calendarMonth, 1);
+  const supported = state.calendarYear === 2025 || state.calendarYear === 2026;
+  setCalendarMode(supported ? "loading" : "unsupported");
+  if (!supported) return;
+  window.setTimeout(() => setCalendarMode("ready"), 420);
+}
+
+function openCalendarOverride() {
+  if (state.calendarMode === "error" || state.calendarMode === "loading") {
+    showToast("当前日历不可调整，请先恢复可用数据。", true);
+    return;
+  }
+  const [year, month, day] = state.selectedDate.split("-").map(Number);
+  const currentOverride = state.calendarOverrides.get(state.selectedDate) || "auto";
+  const automaticKind = getAutomaticDayKind(year, month - 1, day);
+  const canSetLeave =
+    automaticKind === "workday" || ["paid_rest", "unpaid_rest"].includes(currentOverride);
+  document.querySelector("#override-date-title").textContent = `${year} 年 ${month} 月 ${day} 日`;
+  document.querySelector(`input[name="override-kind"][value="${currentOverride}"]`).checked = true;
+  document.querySelector("#override-auto-source").textContent =
+    automaticKind === "restday"
+      ? "当前来源：休息模式"
+      : "当前来源：官方日历或休息模式";
+  document.querySelectorAll('input[name="override-kind"][value="paid_rest"], input[name="override-kind"][value="unpaid_rest"]').forEach((control) => {
+    control.disabled = !canSetLeave;
+    control.closest("label").classList.toggle("is-disabled", !canSetLeave);
+  });
+  document.querySelector("#override-leave-hint").hidden = canSetLeave;
+  document.querySelector("#override-error").hidden = true;
+  updateOverrideImpact();
+  calendarOverrideDialog.showModal();
+}
+
+function updateOverrideImpact() {
+  const value = document.querySelector('input[name="override-kind"]:checked')?.value || "auto";
+  const copy = {
+    auto: "恢复自动判断，不保留手动覆盖",
+    workday: "重算为工作日并计入月度分配",
+    paid_rest: "不计算工时，保留当天应计金额和本月预计收入",
+    unpaid_rest: "不计算工时，并从本月预计收入中扣除当天应计金额",
+  };
+  document.querySelector("#override-impact-copy").textContent = copy[value];
+}
+
+function closeCalendarOverride() {
+  document.querySelector("#override-error").hidden = true;
+  calendarOverrideDialog.close();
+}
+
+function applyCalendarOverride() {
+  const value = document.querySelector('input[name="override-kind"]:checked')?.value || "auto";
+  if (document.querySelector("#failure-mode").checked) {
+    document.querySelector("#override-error").hidden = false;
+    return;
+  }
+  if (value === "auto") {
+    state.calendarOverrides.delete(state.selectedDate);
+  } else {
+    state.calendarOverrides.set(state.selectedDate, value);
+  }
+  buildCalendar();
+  closeCalendarOverride();
+  showToast("日期调整已应用，相关收入与状态已重新计算。");
 }
 
 function showSettingsPanel(name) {
@@ -229,8 +367,6 @@ document.querySelectorAll("[data-window]").forEach((button) => {
 });
 
 document.querySelector("#open-workbench").addEventListener("click", () => showWindow("workbench"));
-document.querySelector("#menu-open-workbench").addEventListener("click", () => showWindow("workbench"));
-document.querySelector("#menu-open-settings").addEventListener("click", () => showWindow("settings"));
 document.querySelector("#workbench-settings").addEventListener("click", () => showWindow("settings"));
 document.querySelector("#workbench-close").addEventListener("click", () => showWindow("mini"));
 document.querySelector("#settings-close").addEventListener("click", () => {
@@ -279,15 +415,24 @@ document.querySelector("#wizard-next").addEventListener("click", () => {
   showWindow("mini");
 });
 
-document.querySelector("#mini-more").addEventListener("click", () => {
-  miniMenu.hidden = !miniMenu.hidden;
-});
-document.querySelector("#menu-hide").addEventListener("click", hideToTray);
 document.querySelector("#workbench-hide").addEventListener("click", hideToTray);
 document.querySelector("#tray-restore").addEventListener("click", () => showWindow(state.previousWindow));
 
 document.querySelector("#business-state").addEventListener("change", (event) => {
   setBusinessState(event.target.value);
+});
+document.querySelector("#calendar-state").addEventListener("change", (event) => {
+  const nextMode = event.target.value;
+  if (nextMode === "unsupported" && (state.calendarYear === 2025 || state.calendarYear === 2026)) {
+    state.calendarYear = 2027;
+    state.calendarMonth = 0;
+    state.selectedDate = "2027-01-01";
+  } else if (nextMode !== "unsupported" && state.calendarYear !== 2025 && state.calendarYear !== 2026) {
+    state.calendarYear = 2026;
+    state.calendarMonth = 6;
+    state.selectedDate = "2026-07-23";
+  }
+  setCalendarMode(nextMode);
 });
 document.querySelector("#long-content").addEventListener("change", (event) => {
   document.body.classList.toggle("is-long", event.target.checked);
@@ -302,6 +447,24 @@ document.querySelectorAll(".nav-item[data-view]").forEach((button) => {
     document.querySelectorAll("[data-panel]").forEach((panel) => panel.classList.toggle("is-active", panel.dataset.panel === button.dataset.view));
   });
 });
+document.querySelector("#calendar-prev").addEventListener("click", () => moveCalendarMonth(-1));
+document.querySelector("#calendar-next").addEventListener("click", () => moveCalendarMonth(1));
+document.querySelector("#calendar-adjust").addEventListener("click", openCalendarOverride);
+document.querySelector("#calendar-retry").addEventListener("click", () => {
+  document.querySelector("#calendar-state").value = "loading";
+  setCalendarMode("loading");
+  window.setTimeout(() => {
+    document.querySelector("#calendar-state").value = "ready";
+    setCalendarMode("ready");
+    showToast("日历已重新加载，上次成功数据已安全替换。");
+  }, 520);
+});
+document.querySelectorAll('input[name="override-kind"]').forEach((control) => {
+  control.addEventListener("change", updateOverrideImpact);
+});
+document.querySelector("#override-close").addEventListener("click", closeCalendarOverride);
+document.querySelector("#override-cancel").addEventListener("click", closeCalendarOverride);
+document.querySelector("#override-apply").addEventListener("click", applyCalendarOverride);
 document.querySelectorAll("[data-settings-panel]").forEach((button) => {
   button.addEventListener("click", () => showSettingsPanel(button.dataset.settingsPanel));
 });
@@ -381,7 +544,7 @@ document.querySelector("#check-update").addEventListener("click", () => {
   }
   openDialog({
     title: "已经是最新版本",
-    message: "当前版本 v1.0.0，没有可用更新。",
+    message: "当前版本 v1.0.1，没有可用更新。",
     confirm: "完成",
     cancel: "",
   });
@@ -398,13 +561,7 @@ document.querySelector("#dialog-confirm").addEventListener("click", () => {
   action?.();
 });
 
-document.addEventListener("click", (event) => {
-  if (!miniMenu.hidden && !miniMenu.contains(event.target) && !event.target.closest("#mini-more")) {
-    miniMenu.hidden = true;
-  }
-});
-
-buildCalendar();
+setCalendarMode("ready");
 setBusinessState("working");
 showSettingsPanel("income");
 syncAlternatingWeekChoice();

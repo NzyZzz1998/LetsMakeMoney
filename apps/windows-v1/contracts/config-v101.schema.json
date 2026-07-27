@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://letsmakemoney.app/contracts/config-v101.schema.json",
+  "title": "LetsMakeMoney Windows v1.0.1 configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "config_version",
+    "monthly_salary",
+    "rest_mode",
+    "alternating_anchor_date",
+    "alternating_anchor_week_type",
+    "work_hours_per_day",
+    "work_start_time",
+    "work_end_time",
+    "lunch_start_time",
+    "lunch_end_time",
+    "calendar_dataset_version",
+    "date_overrides",
+    "mini_window_position",
+    "mini_window_visible",
+    "mini_window_always_on_top",
+    "minimize_to_tray",
+    "auto_start",
+    "check_updates_on_start",
+    "update_channel",
+    "log_level"
+  ],
+  "properties": {
+    "config_version": {"const": 7},
+    "monthly_salary": {
+      "type": "number",
+      "minimum": 0,
+      "multipleOf": 0.01,
+      "default": 0
+    },
+    "rest_mode": {
+      "enum": ["single", "double", "alternating"],
+      "default": "double"
+    },
+    "alternating_anchor_date": {
+      "type": ["string", "null"],
+      "format": "date",
+      "default": null
+    },
+    "alternating_anchor_week_type": {
+      "type": ["string", "null"],
+      "enum": ["big", "small", null],
+      "default": null
+    },
+    "work_hours_per_day": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 24,
+      "default": 8
+    },
+    "work_start_time": {"$ref": "#/$defs/time", "default": "08:00"},
+    "work_end_time": {"$ref": "#/$defs/time", "default": "18:00"},
+    "lunch_start_time": {"$ref": "#/$defs/time", "default": "12:00"},
+    "lunch_end_time": {"$ref": "#/$defs/time", "default": "14:00"},
+    "calendar_dataset_version": {
+      "type": "string",
+      "minLength": 1,
+      "default": "cn-2025-2026-v1"
+    },
+    "date_overrides": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["date", "kind"],
+        "properties": {
+          "date": {"type": "string", "format": "date"},
+          "kind": {"enum": ["workday", "paid_rest", "unpaid_rest"]},
+          "note": {"type": "string", "maxLength": 120}
+        }
+      }
+    },
+    "mini_window_position": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["x", "y"],
+          "properties": {
+            "x": {"type": "number"},
+            "y": {"type": "number"}
+          }
+        },
+        {"type": "null"}
+      ],
+      "default": null
+    },
+    "mini_window_visible": {"type": "boolean", "default": true},
+    "mini_window_always_on_top": {"type": "boolean", "default": true},
+    "minimize_to_tray": {"type": "boolean", "default": true},
+    "auto_start": {"type": "boolean", "default": false},
+    "check_updates_on_start": {"type": "boolean", "default": true},
+    "update_channel": {"const": "stable", "default": "stable"},
+    "log_level": {
+      "enum": ["error", "info", "debug"],
+      "default": "info"
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"rest_mode": {"const": "alternating"}}},
+      "then": {
+        "required": ["alternating_anchor_date", "alternating_anchor_week_type"],
+        "properties": {
+          "alternating_anchor_date": {"type": "string"},
+          "alternating_anchor_week_type": {"enum": ["big", "small"]}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "time": {
+      "type": "string",
+      "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+    }
+  }
+}

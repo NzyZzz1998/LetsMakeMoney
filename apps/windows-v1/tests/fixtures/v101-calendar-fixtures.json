@@ -1,0 +1,11 @@
+{
+  "contract_version": 1,
+  "cases": [
+    {"id": "official-holiday", "date": "2026-02-18", "expected_kind": "rest_day"},
+    {"id": "official-adjusted-workday", "date": "2026-02-28", "expected_kind": "workday"},
+    {"id": "unsupported-year", "year": 2027, "expected_state": "unsupported"},
+    {"id": "hash-mismatch", "fixture": "tampered-dataset", "expected_state": "error"},
+    {"id": "late-request-ignored", "requests": ["2026-07", "2026-08"], "resolve_order": [2, 1], "expected_month": "2026-08"},
+    {"id": "stale-keeps-last-valid-month", "last_valid": "2026-07", "failed": "2026-08", "expected_visible": "2026-07"}
+  ]
+}

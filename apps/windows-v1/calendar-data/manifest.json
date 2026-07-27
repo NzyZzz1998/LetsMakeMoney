@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "dataset_version": "cn-2025-2026-v1",
+  "supported_years": [2025, 2026],
+  "datasets": [
+    {
+      "year": 2025,
+      "file": "cn-2025.json",
+      "sha256": "3C7911EEEEC200FFCD4C7C20ED84C64B06F23EC81818AD50D9EAEE88081C1280"
+    },
+    {
+      "year": 2026,
+      "file": "cn-2026.json",
+      "sha256": "440169EAD0FCDA71C15CBAAE11EC557DC0846EECA103A988D267303D9C306042"
+    }
+  ]
+}

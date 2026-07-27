@@ -1,0 +1,12 @@
+{
+  "contract_version": 1,
+  "cases": [
+    {"id": "overnight-owner-before-end", "now": "2026-07-28T01:00:00+08:00", "start": "22:00", "end": "06:00", "expected_owner_date": "2026-07-27"},
+    {"id": "overnight-owner-after-end", "now": "2026-07-28T07:00:00+08:00", "start": "22:00", "end": "06:00", "expected_owner_date": "2026-07-28"},
+    {"id": "paid-rest-keeps-slot-amount", "monthly_salary_minor": 1000001, "slots": 20, "slot_index": 3, "override": "paid_rest", "expected_effective_seconds": 0},
+    {"id": "unpaid-rest-keeps-slot-but-zeroes-contribution", "monthly_salary_minor": 1000001, "slots": 20, "slot_index": 3, "override": "unpaid_rest", "expected_day_contribution_minor": 0, "expected_slot_retained": true},
+    {"id": "manual-workday-adds-slot", "automatic_slots": 20, "manual_workdays": 1, "expected_slots": 21},
+    {"id": "month-cent-conservation", "monthly_salary_minor": 1000001, "slots": 23, "expected_sum": 1000001},
+    {"id": "zero-slot-error", "monthly_salary_minor": 1000000, "slots": 0, "expected_error": "salary.zero_slots"}
+  ]
+}

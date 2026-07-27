@@ -6,7 +6,7 @@
   <a href="README.en.md">English</a> ·
   <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">下载</a> ·
   <a href="doc/current.md">当前状态</a> ·
-  <a href="doc/releases/v1.0/README.md">v1.0 文档</a>
+  <a href="doc/releases/v1.0.1/README.md">v1.0.1 文档</a>
 </div>
 
 ## 一眼知道今天赚了多少
@@ -30,9 +30,12 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪
 
 ## 当前版本
 
-**v1.0 Stable** 使用 Rust、Tauri 与 React 重建 Windows 客户端，采用无宠物产品结构，提供更清晰、更稳定的桌面工具体验。
+**v1.0.1 Stable 候选**在 v1.0 的无宠物产品结构上修正日历、日期调整、跨夜班次和金额精度。
 
 - 当前公开版本为 [v1.0 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0)。
+- v1.0.1 已完成实现与独立验收，尚未发布。
+- v1.0.1 内置 2025/2026 中国大陆节假日与调休数据，支持工作日、带薪休息、不带薪休息和恢复自动。
+- 收入按秒展示并定期权威同步，整月金额按分守恒。
 - v1.0 已完成自动门禁、真实 Windows 验收和发布收口。
 - v1.0 暂不包含宠物、透明宠物窗口、点击穿透、纯桌宠模式、云同步、主题系统或安装器。
 - 需要桌宠体验时，可以继续使用 `v0.9-beta` tag 对应的 v0.9 Beta；它也是 v1.0 的明确回退基线。
@@ -61,11 +64,11 @@ npm run tauri dev
 
 ```powershell
 # 在仓库根目录执行
-powershell -ExecutionPolicy Bypass -File .\scripts\package_v10.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_package.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\package_v101.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v101_package.ps1
 ```
 
-产物位于 `releases\v1.0\`。构建和验证不应依赖未声明的本机路径或私有文件。
+候选产物位于 `releases\v1.0.1\`。构建和验证不应依赖未声明的本机路径或私有文件。
 
 ## 数据、隐私与回退
 
@@ -83,9 +86,9 @@ v1.0 的配置与日志目录：
 ## 验证
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10.ps1 -SkipExport
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v101.ps1 -SkipReleaseBuild
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_package.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v101_package.ps1
 ```
 
 自动测试覆盖工资计算、配置事务、窗口合同、托盘桥接、文档和包完整性。真实通知区、任务栏、DPI 与重启恢复仍以 Windows 桌面验收为准。
@@ -97,7 +100,7 @@ apps/windows-v1/       v1.0 Tauri + React 正式客户端
 shared/                节假日与共享数据
 scripts/               验证、打包和合规检查
 doc/current.md         当前唯一内部事实入口
-doc/releases/v1.0/     v1.0 PRD、进度、验收与发布文档
+doc/releases/v1.0.1/   v1.0.1 PRD、进度、验收与发布文档
 ```
 
 ## 参与项目

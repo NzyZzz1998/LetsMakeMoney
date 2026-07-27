@@ -1,0 +1,24 @@
+{
+  "contract_version": 1,
+  "minor_unit": "cent",
+  "rounding": "half_away_from_zero",
+  "owner_date": {
+    "normal_shift": "current_local_date",
+    "overnight_before_end": "previous_local_date",
+    "overnight_at_or_after_end": "current_local_date",
+    "rule": "shift_start_date"
+  },
+  "salary_slots": {
+    "automatic_workday": "one_slot",
+    "manual_workday_on_automatic_rest": "one_added_slot",
+    "paid_rest_on_automatic_workday": "keep_slot_without_effective_seconds",
+    "unpaid_rest_on_automatic_workday": "zero_slot_and_reduce_expected_payable",
+    "automatic_rest": "no_slot"
+  },
+  "cumulative_formula": "round(S*k/N)",
+  "slot_formula": "C(k)-C(k-1)",
+  "month_invariant": "sum(slot_amounts)=monthly_salary_minor",
+  "zero_slot_result": "readable_error",
+  "today_formula": "round(S*((k-1)*E+e)/(N*E))-round(S*(k-1)/N)",
+  "today_rounding": "round_to_nearest_cent_for_display"
+}

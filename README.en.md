@@ -6,7 +6,7 @@
   <a href="README.md">简体中文</a> ·
   <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">Download</a> ·
   <a href="doc/current.md">Current status</a> ·
-  <a href="doc/releases/v1.0/README.md">v1.0 docs</a>
+  <a href="doc/releases/v1.0.1/README.md">v1.0.1 docs</a>
 </div>
 
 ## Know what today is worth
@@ -30,9 +30,12 @@ The compact earnings window is designed to stay on the desktop. Open the Today a
 
 ## Current release status
 
-The **v1.0 Stable release** rebuilds the Windows client with Rust, Tauri, and React around a pet-free product structure for a clearer and more reliable desktop-tool experience.
+The **v1.0.1 Stable candidate** improves calendar accuracy, date overrides, overnight shifts, and money precision on top of the pet-free v1.0 client.
 
 - The current public release is [v1.0 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0).
+- v1.0.1 has completed implementation and independent acceptance, but has not been released.
+- It includes offline 2025/2026 mainland China holiday data and supports workday, paid-rest, unpaid-rest, and automatic date handling.
+- Earnings advance by the second with authoritative synchronization, while monthly allocation remains exact to the cent.
 - v1.0 has passed automated gates, real Windows acceptance, and release closeout.
 - v1.0 does not include pets, transparent pet windows, click-through, pure-pet mode, cloud sync, themes, or an installer.
 - Users who need the desktop-pet experience can remain on v0.9 Beta, which is also the explicit rollback baseline.
@@ -61,11 +64,11 @@ npm run tauri dev
 
 ```powershell
 # Run from the repository root
-powershell -ExecutionPolicy Bypass -File .\scripts\package_v10.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_package.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\package_v101.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v101_package.ps1
 ```
 
-Outputs are written to `releases\v1.0\`. The build and verification flow must not depend on undeclared local paths or private files.
+Candidate outputs are written to `releases\v1.0.1\`. The build and verification flow must not depend on undeclared local paths or private files.
 
 ## Data, privacy, and rollback
 
@@ -83,9 +86,9 @@ v1.0 stores configuration and logs under:
 ## Verification
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10.ps1 -SkipExport
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v101.ps1 -SkipReleaseBuild
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_package.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v101_package.ps1
 ```
 
 Automated checks cover earnings calculations, configuration transactions, window contracts, the tray bridge, documentation, and package integrity. Real notification-area, taskbar, DPI, and restart-recovery behavior remains part of Windows desktop acceptance.
@@ -97,7 +100,7 @@ apps/windows-v1/       Production v1.0 Tauri + React client
 shared/                Holiday and shared data
 scripts/               Verification, packaging, and compliance checks
 doc/current.md         Single internal source of current project truth
-doc/releases/v1.0/     v1.0 PRD, progress, acceptance, and release docs
+doc/releases/v1.0.1/   v1.0.1 PRD, progress, acceptance, and release docs
 ```
 
 ## Contributing

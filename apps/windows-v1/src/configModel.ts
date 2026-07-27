@@ -3,9 +3,10 @@ import { invoke } from "@tauri-apps/api/core";
 
 export type RestMode = "single" | "double" | "alternating";
 export type WeekType = "big" | "small" | null;
+export type DateOverrideKind = "workday" | "paid_rest" | "unpaid_rest";
 
 export interface AppConfig {
-  config_version: 6;
+  config_version: 7;
   monthly_salary: number;
   rest_mode: RestMode;
   alternating_anchor_date: string | null;
@@ -16,7 +17,7 @@ export interface AppConfig {
   lunch_start_time: string;
   lunch_end_time: string;
   calendar_dataset_version: string;
-  date_overrides: Array<{ date: string; kind: "workday" | "rest_day"; note?: string }>;
+  date_overrides: Array<{ date: string; kind: DateOverrideKind; note?: string }>;
   mini_window_position: { x: number; y: number } | null;
   mini_window_visible: boolean;
   mini_window_always_on_top: boolean;
@@ -28,7 +29,7 @@ export interface AppConfig {
 }
 
 export const defaultConfig: AppConfig = {
-  config_version: 6,
+  config_version: 7,
   monthly_salary: 0,
   rest_mode: "double",
   alternating_anchor_date: null,
@@ -38,7 +39,7 @@ export const defaultConfig: AppConfig = {
   work_end_time: "18:00",
   lunch_start_time: "12:00",
   lunch_end_time: "14:00",
-  calendar_dataset_version: "cn-2026",
+  calendar_dataset_version: "cn-2025-2026-v1",
   date_overrides: [],
   mini_window_position: null,
   mini_window_visible: true,

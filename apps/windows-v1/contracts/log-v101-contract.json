@@ -1,0 +1,45 @@
+{
+  "contract_version": 1,
+  "levels": ["error", "info", "debug"],
+  "default_level": "info",
+  "events": [
+    "calendar.dataset.loaded",
+    "calendar.dataset.failed",
+    "calendar.dataset.stale",
+    "calendar.request.ignored",
+    "date_override.saved",
+    "date_override.unchanged",
+    "date_override.failed",
+    "date_override.removed",
+    "date_override.migrated",
+    "schedule.owner_date.resolved",
+    "schedule.overnight.invalid",
+    "schedule.wall_clock_changed",
+    "salary.calculate.invalid",
+    "earnings.authoritative_sync.requested",
+    "earnings.authoritative_sync.completed",
+    "earnings.authoritative_sync.failed",
+    "earnings.authoritative_sync.drift_corrected",
+    "earnings.authoritative_sync.ignored",
+    "earnings.boundary.recalculated",
+    "earnings.local_tick.paused"
+  ],
+  "required_fields": ["timestamp", "level", "event", "app_version", "session_id"],
+  "redaction": {
+    "forbidden_values": [
+      "monthly_salary",
+      "user_name",
+      "home_directory",
+      "absolute_config_path",
+      "clipboard_contents",
+      "environment_secrets"
+    ],
+    "path_policy": "emit logical location or final filename only",
+    "error_policy": "emit stable error code and redacted reason"
+  },
+  "rate_limit": {
+    "earnings.authoritative_sync.requested": "debug_only",
+    "earnings.authoritative_sync.completed": "debug_only",
+    "schedule.owner_date.resolved": "emit_on_change_only"
+  }
+}

@@ -55,11 +55,11 @@ export function SegmentedControl({
   value,
   onChange,
 }: {
-  options: Array<{ value: string; label: string }>;
+  options: Array<{ value: string; label: string; disabled?: boolean }>;
   value: string;
   onChange(value: string): void;
 }) {
-  return <div className="segmented">{options.map(option => <button type="button" key={option.value} className={value === option.value ? "is-active" : ""} onClick={() => onChange(option.value)}>{option.label}</button>)}</div>;
+  return <div className="segmented">{options.map(option => <button type="button" key={option.value} disabled={option.disabled} className={value === option.value ? "is-active" : ""} onClick={() => onChange(option.value)}>{option.label}</button>)}</div>;
 }
 
 export function ProgressBar({ value, label, compact = false }: { value: number; label: string; compact?: boolean }) {
