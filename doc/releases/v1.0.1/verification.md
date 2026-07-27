@@ -10,19 +10,19 @@
 - 发布阻塞：无
 - 说明：候选包含基线之后尚未提交的实现，最终身份以 Zip、EXE、DLL 与 `BUILD-INFO.json` 的 SHA256 为准。
 
-## 最终候选身份
+## 干净发布构建身份
 
-- 生成时间：2026-07-27 20:33:22（Asia/Shanghai）
+- 生成时间：2026-07-27 20:57:37（Asia/Shanghai）
 - 便携 Zip：`releases/v1.0.1/LetsMakeMoney-v1.0.1-windows-x86_64.zip`
-- Zip 大小：3,128,362 字节
-- Zip SHA256：`CBF19024A8337E36E58F2EC23B0AE10EA1013616ED278CB2FEC590AA717F280D`
+- Zip 大小：3,128,361 字节
+- Zip SHA256：`8EF7BCBE56C1667AAE2F45681EE2B71CE8C2BFCEA397C53A74AC650E06623AD4`
 - EXE 大小：9,776,640 字节
-- EXE SHA256：`5BC7E6D04DDD65E4CE745D368CCF2369E66ED501D9BC683EC690EB16DA807C38`
+- EXE SHA256：`E9B384EEFE2906611EEE1CB9E880A66347278EC55019649A04EB9C1BBDA8027B`
 - WebView2Loader 大小：160,320 字节
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 - 日历 manifest SHA256：`66EFF12D277E75CF2E178AE7DCCB59BF678F16E056C514A1C1676E00C0D482A1`
-- 构建身份：`BUILD-INFO.json` 记录版本 `1.0.1`、渠道 `stable-candidate`、源码基线 `5fa9293799a15956dd5d18bcd297b5d0e542cd3b`。
-- 工作树说明：候选包含尚未提交的 v1.0.1 实现，因此 `source_tree_dirty` 为 `true`；发布提交创建后必须重新构建并重新验收哈希，不得沿用本段哈希冒充发布提交产物。
+- 构建身份：`BUILD-INFO.json` 记录版本 `1.0.1`、渠道 `stable-candidate`、源码提交 `a3f3674c2d7435243ad60b57551505c2b0c16f26`。
+- 工作树状态：`source_tree_dirty` 为 `false`，该产物由干净发布实现提交构建。
 
 ## 自动验证
 
