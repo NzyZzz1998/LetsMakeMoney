@@ -5,16 +5,16 @@
 | 项目 | 状态 |
 |---|---|
 | 版本 | Windows v1.0 Stable |
-| 阶段 | M7 功能验收通过；`test` 候选等待项目所有者视觉签字 |
+| 阶段 | M7 与本轮定向复验通过；最终干净 Stable 候选已生成 |
 | 技术主线 | Rust + Tauri + TypeScript/React |
 | 产品主线 | 无宠物迷你收入视图 + 今日/日历工作台 |
 | 回退基线 | Windows v0.9 Beta |
-| 当前阻塞 | 无业务阻塞；发布前需完成视觉签字并更新 `main` 分支保护检查名 |
+| 当前阻塞 | 无业务阻塞；发布前需更新 `main` 分支保护检查名并取得远端发布授权 |
 | PRD | `doc/releases/v1.0/prd.md` |
 | 开发计划 | `doc/releases/v1.0/dev_plan_v1.0.md` |
 | 开发日志 | `doc/logs/dev_log_v1.0.md` |
 | 原型 | `doc/prototypes/v1.0/index.html` |
-| 最后更新 | 2026-07-26 |
+| 最后更新 | 2026-07-27 |
 
 ## 状态约定
 
@@ -151,8 +151,8 @@
 ## 当前阻塞
 
 - 无业务开发阻塞。
-- 干净实现提交与 Stable 候选包已经生成并推送 `test`。
-- 项目所有者正在按 `doc/releases/v1.0/visual-acceptance.md` 进行最终视觉复验，尚未签字。
+- 干净实现提交与 Stable 候选包已在本地生成并完成验证；本轮未推送远端。
+- 本轮视觉、拖动、零午休和计算失败出口已完成真实 GUI 定向复验。
 - GitHub `Protect_main` ruleset 仍要求旧检查名；进入发布收口前需改为 `Windows v1 verification`。
 
 ## 最近验证
@@ -165,8 +165,9 @@
 - 文档与静态检查：文档状态、UTF-8、链接和 `git diff --check` 通过。
 - 待补证但不阻塞：多显示器安全回落。
 - M7 聚合验证、打包和包体验证通过。
-- Stable 候选 Zip SHA256：`E0A8ACE0DE2ACBC6F733900FFE537B21912B654F7BDEC937FCE060FC7147CF74`。
-- Stable 候选 EXE SHA256：`30C6FAB3813E6DA318C54096E8659D902EDF281EFBE508C6A12FCDEB0094446D`。
+- Stable 候选源码提交：`806bda6503f1b5ac61212d47abaf5e389fa1948a`，`source_tree_dirty=false`。
+- Stable 候选 Zip SHA256：`A5C33B9DB8787536145AE4B9A1AC00213E692C99A2201CC91EB811A0A0F3BBE6`。
+- Stable 候选 EXE SHA256：`BD25B13F084A0F101DD77239F215019C0BB9E246847BBD15B2D0BEE98B381C44`。
 - 迷你收入视图拖动、位置持久化与重启恢复通过真实 Windows 鼠标复验；`V10-BUG-004` 已关闭。
 - 新候选迷你收入视图、Today、Calendar、Settings 四任务组与无变化保存完成真实 GUI 定向复验；配置哈希未变化。
 - 真实通知区左键完成“恢复 → 隐藏 → 再恢复”；迷你窗口恢复日志重新应用 `skip_taskbar=true`，Settings 关闭后任务栏入口正常消失。
@@ -178,8 +179,8 @@
 - Settings 无变化保存显示“没有需要保存的更改”。
 - M7 证据：`.tmp_acceptance/v1.0-final-20260724-172154/evidence/`。
 - v0.9 回退证据：`.tmp_acceptance/v0.9-rollback-20260724/evidence/`；官方 Zip SHA256 `B10FDE2027D4ABC71C41F0F7AC7BDCE3D93AEB8AFAF4058BA1A592B6A75CC1EC`。
-- `test` 的 `Windows v1 verification` 于 2026-07-26 复核通过；实时 HEAD 与 run 以 GitHub 当前状态为准，候选产物仍锁定源码基线 `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9`。
-- 独立视觉抽查：迷你收入视图、Today、Calendar、Settings 四任务组通过；证据位于 `.tmp_acceptance/v1.0-visual-test-20260726/evidence/`，项目所有者完整视觉验收仍在进行。
+- `test` 的上一候选在 2026-07-26 通过 `Windows v1 verification`；本轮最终干净候选尚未推送远端。
+- 独立视觉抽查：迷你收入视图、Today、Calendar、Settings 四任务组通过；证据位于 `.tmp_acceptance/v1.0-visual-test-20260726/evidence/`。
 - 休息日定向修正与真实 GUI 复验通过：迷你收入视图和 Today 仅展示休息状态与下一个工作日，不展示收益、时薪、有效工时、工作进度或预计收入；Calendar 使用真实月份和日期，当前日描边由“今天”图例明确解释。证据位于 `.tmp_acceptance/v1.0-rest-day-20260726-101249/evidence/`。
 - Wizard 工作日预览已改为读取当前配置草稿并复用正式 Rust 日历引擎；2026 年 7 月回归结果为双休 23 天、单休 27 天、大小周 25 天，大小周未选周型时不推测。
 - 窗口与导航定向修正完成：默认位置、四窗口拖动权限、日历跨月、日历入口图标、Settings 分隔线/间距和 Wizard 重开归零均已通过自动门禁及真实 GUI 定向复验。
@@ -190,9 +191,8 @@
 
 ## 下一步
 
-- 完成项目所有者视觉验收签字。
 - 将 `Protect_main` 必需检查更新为 `Windows v1 verification`。
-- 审核最终候选身份并等待项目所有者批准发布动作。
+- 等待项目所有者批准推送、合并、tag 与 GitHub Release。
 - 多显示器不以静态测试冒充通过；三档真实 DPI 已完成 GUI 补证。
 
 ## 记录边界

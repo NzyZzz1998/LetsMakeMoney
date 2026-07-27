@@ -15,16 +15,20 @@ v1.0 已完成业务实现、自动门禁、便携 Zip 打包和独立解压核�
 - 优化窗口首次出现位置、内容区长按拖动、日历跨月浏览和重新配置重置流程。
 - 修正 Settings“数据与支持”的重复分隔线，以及“收入与作息”标题、分隔线和表单之间的留白。
 - 保留原子保存、无变化、失败补偿、诊断、日志轮换、托盘和本地更新查询能力。
+- 零午休按连续工作日计算，Today 不再绘制虚假的午休节点。
+- 收入计算失败时提供可读原因、“检查设置”和“重试”出口，并记录脱敏语义日志。
 
 ## 当前候选
 
 - Zip：`LetsMakeMoney-v1.0-windows-x86_64.zip`
-- 源码提交：`88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9`
-- Zip SHA256：`E0A8ACE0DE2ACBC6F733900FFE537B21912B654F7BDEC937FCE060FC7147CF74`
-- EXE SHA256：`30C6FAB3813E6DA318C54096E8659D902EDF281EFBE508C6A12FCDEB0094446D`
+- 源码提交：`806bda6503f1b5ac61212d47abaf5e389fa1948a`
+- `BUILD-INFO.json`：`source_tree_dirty=false`
+- Zip 大小：`3,044,917` 字节
+- Zip SHA256：`A5C33B9DB8787536145AE4B9A1AC00213E692C99A2201CC91EB811A0A0F3BBE6`
+- EXE SHA256：`BD25B13F084A0F101DD77239F215019C0BB9E246847BBD15B2D0BEE98B381C44`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 
-以上为已完成核心验收的干净 Stable 候选身份，不因后续定向修正而覆写。
+以上为纳入全部定向修正后重新生成并通过包体验证的干净 Stable 候选身份。
 
 窗口与导航定向验收包：
 
@@ -32,7 +36,7 @@ v1.0 已完成业务实现、自动门禁、便携 Zip 打包和独立解压核�
 - EXE SHA256：`78E5ECDABC2F710569942F1918E80601136A8638A92DCBCD76A90B0E5D03F820`
 - 源码 HEAD：`da4326e18536d8846fdd6ef49ae894de4a8975c5`
 
-该定向包的 `BUILD-INFO.json` 记录 `source_tree_dirty=true`，只用于项目所有者复验窗口与导航修正。正式发布前必须先提交有意变更，再从干净提交重新打包并更新最终哈希。
+该定向包的 `BUILD-INFO.json` 记录 `source_tree_dirty=true`，仅作为窗口与导航修正的历史验收证据；其内容已经纳入上方最终干净候选。
 
 新候选已使用实际 EXE 定向复验迷你收入视图、Today、Calendar、Settings 四任务组、无变化保存反馈、真实通知区左键双向切换和 Explorer 重启后的托盘重注册；配置哈希在复验前后保持一致。迷你窗口恢复后重新应用 `skip_taskbar=true`，Settings 关闭后任务栏入口正常消失。首次配置全链路仍引用上一候选的独立验收证据。
 

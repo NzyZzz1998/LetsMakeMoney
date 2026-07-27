@@ -8,11 +8,12 @@
 | --- | --- |
 | 应用版本 | 1.0.0 Stable Candidate |
 | 分支 | `agent/v1.0-review` |
-| HEAD | `da4326e18536d8846fdd6ef49ae894de4a8975c5` |
-| 候选包 | `releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64.zip` |
-| Zip SHA-256 | `99DB494245F207B420B9B3CCDBA96D8DC65EC4F444926DF4DE03AD021A8911A8` |
-| EXE SHA-256 | `78E5ECDABC2F710569942F1918E80601136A8638A92DCBCD76A90B0E5D03F820` |
-| 截图说明 | 全部来自独立解压后的真实候选 EXE |
+| 截图采集 HEAD | `da4326e18536d8846fdd6ef49ae894de4a8975c5` |
+| 截图采集 Zip SHA-256 | `99DB494245F207B420B9B3CCDBA96D8DC65EC4F444926DF4DE03AD021A8911A8` |
+| 最终候选 HEAD | `806bda6503f1b5ac61212d47abaf5e389fa1948a` |
+| 最终候选 Zip SHA-256 | `A5C33B9DB8787536145AE4B9A1AC00213E692C99A2201CC91EB811A0A0F3BBE6` |
+| 最终候选 EXE SHA-256 | `BD25B13F084A0F101DD77239F215019C0BB9E246847BBD15B2D0BEE98B381C44` |
+| 截图说明 | 全部来自独立解压后的真实截图采集候选；最终干净候选已通过相同主链路及本轮定向兼容回归 |
 
 本轮统一演示数据：
 
@@ -343,4 +344,3 @@ v1.0 的原生托盘菜单包含：
 9. 从托盘隐藏、找回或退出应用。
 
 计算公式与复算示例见 [计算口径参考](calculation-reference.md)，每个控件的覆盖情况见 [控件覆盖表](control-coverage.md)。
-

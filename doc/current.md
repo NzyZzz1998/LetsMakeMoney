@@ -1,6 +1,6 @@
 # LetsMakeMoney 当前状态入口
 
-**最后更新**：2026-07-26
+**最后更新**：2026-07-27
 
 本文件是项目当前事实的唯一内部入口。用户与贡献者先读根目录 README；需要实施或验收细节时再进入对应版本目录。
 
@@ -13,11 +13,13 @@
 | 当前开发版本 | Windows v1.0 Stable 候选 |
 | v1 技术主线 | Rust + Tauri + TypeScript/React |
 | v1 产品主线 | 无宠物迷你收入视图 + 今日/日历工作台 |
-| 当前开发阶段 | v1.0 Stable 候选已推送 `test`，自动门禁与独立视觉抽查通过，项目所有者视觉复验进行中 |
-| 发布判断 | 候选无已知业务阻塞；待项目所有者完成视觉签字并更新 `main` 分支保护检查名后进入发布收口 |
+| 当前开发阶段 | v1.0 本轮实现、定向 GUI 复验与干净 Stable 候选打包完成 |
+| 发布判断 | 候选无已知业务阻塞，可进入发布收口；远端写入仍等待项目所有者授权 |
 | 历史恢复基线 | `v0.9-beta` tag 与 GitHub Release |
 
 当前工作分支与 HEAD 以 `git status --branch` 为准。正式候选包身份由实现提交、`BUILD-INFO.json` 与 SHA256 共同锁定。
+
+当前验收通过，干净提交候选已生成；本轮未执行任何远端发布动作。
 
 ## v1.0 已完成
 
@@ -34,21 +36,22 @@
 1. 多显示器安全回落因当前设备仅有一台显示器，标记为待补证；项目所有者批准其不阻塞本次 Stable。
 2. 独立候选约 95 分钟连续运行稳定，项目所有者确认按约 100 分钟门禁通过。
 3. v0.9 官方 Release 包桌面回退与 v1 配置隔离已通过。
-4. 功能验收通过，干净提交候选已生成并重新打包；项目所有者需按 `visual-acceptance.md` 完成最终视觉签字。
+4. 功能验收与本轮视觉/交互复验通过，干净提交候选已生成并重新打包。
 5. GitHub `Protect_main` ruleset 仍引用 v0.9 时代的两个检查名，发布前需改为 `Windows v1 verification`。
 
 ## 当前候选身份
 
-- 源码基线：`88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9`，`BUILD-INFO.json` 记录 `source_tree_dirty=false`。
-- `test` 的 `Windows v1 verification` 已持续通过；文档收口提交不改变下列已锁定候选包身份，具体远端 HEAD 与 run 以 GitHub 当前状态为准。
+- 源码基线：`806bda6503f1b5ac61212d47abaf5e389fa1948a`，`BUILD-INFO.json` 记录 `source_tree_dirty=false`。
+- 当前候选从上述本地干净提交生成；尚未执行本轮远端推送、tag 或 Release。
 - 便携 Zip：`releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64.zip`
-- Zip SHA256：`E0A8ACE0DE2ACBC6F733900FFE537B21912B654F7BDEC937FCE060FC7147CF74`
-- EXE SHA256：`30C6FAB3813E6DA318C54096E8659D902EDF281EFBE508C6A12FCDEB0094446D`
+- Zip 大小：`3,044,917` 字节
+- Zip SHA256：`A5C33B9DB8787536145AE4B9A1AC00213E692C99A2201CC91EB811A0A0F3BBE6`
+- EXE SHA256：`BD25B13F084A0F101DD77239F215019C0BB9E246847BBD15B2D0BEE98B381C44`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 - 新候选 GUI 复验路径：`releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64/LetsMakeMoney.exe`
 - 说明：新候选已完成迷你收入视图、Today、Calendar、Settings 四任务组、无变化保存、100%/125%/150% 真实 Windows DPI、通知区左键双向切换和 Explorer 重启后托盘重注册复验；迷你窗口拖动、位置保存和重启恢复已通过真实 Windows 鼠标复验。迷你窗口恢复后重新应用 `skip_taskbar=true`，Settings 关闭后任务栏入口正常消失。首次 Wizard 全链路证据保留在上一候选验收记录中。
 - 远端 CI：`Windows v1 verification` 于 2026-07-26 复核通过。
-- 独立视觉抽查：迷你收入视图、Today、Calendar 与 Settings 四任务组未发现裁切、重叠或可读性阻塞；证据位于 `.tmp_acceptance/v1.0-visual-test-20260726/evidence/`，项目所有者完整视觉复验尚未签字。
+- 独立视觉抽查：迷你收入视图、Today、Calendar 与 Settings 四任务组未发现裁切、重叠或可读性阻塞；证据位于 `.tmp_acceptance/v1.0-visual-test-20260726/evidence/`。
 - 休息日定向复验：迷你收入视图和 Today 不再显示今日收益、日薪、时薪、有效工时、工作进度或预计收入；Calendar 使用真实当前日期，并通过图例和无障碍标签明确描边代表“今天”。真实候选包证据位于 `.tmp_acceptance/v1.0-rest-day-20260726-101249/evidence/`。
 - 窗口与导航定向修正：默认位置、今日工作台/Settings/Wizard 拖动权限、日历跨月、日历入口图标、Settings 分隔线与间距、Wizard 重新配置回到第 1 步均已完成。定向包 Zip SHA256 为 `99DB494245F207B420B9B3CCDBA96D8DC65EC4F444926DF4DE03AD021A8911A8`，但其 `BUILD-INFO.json` 记录 `source_tree_dirty=true`，仅用于本轮验收，不替代上方干净 Stable 候选。
 - 控制台窗口定向修正：Release 入口已声明 Windows GUI 子系统，新 EXE 的 PE Subsystem 为 `2 (Windows GUI)`，从便携包启动不再附带控制台窗口。定向包 Zip SHA256 为 `A3725C89D7F886FAC8D5B89E92750B719A54D7B2B4345AE76533D57C44236A21`，EXE SHA256 为 `698212B4D9479BA1C674C2118FC04075FFA9C87F10A4DCC8AAFFDCD0E308215C`；该包同样记录 `source_tree_dirty=true`，不替代上方干净 Stable 候选。
@@ -95,4 +98,4 @@
 
 ## 下一步
 
-完成项目所有者视觉复验，更新 `Protect_main` 所需检查名，再审核最终身份并决定合并 `main`、tag 和 GitHub Release。
+更新 `Protect_main` 所需检查名，并在项目所有者明确授权后执行推送、合并 `main`、tag 和 GitHub Release。

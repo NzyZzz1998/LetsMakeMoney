@@ -4,7 +4,7 @@
 
 | 项目 | 状态 |
 |---|---|
-| 当前阶段 | M7 功能验收通过；`test` 候选等待项目所有者视觉签字 |
+| 当前阶段 | M7 与本轮定向复验通过；最终干净 Stable 候选已生成 |
 | M0 结论 | 通过 |
 | M1 结论 | 通过 |
 | M2 结论 | 通过 |
@@ -13,7 +13,7 @@
 | M5 结论 | 通过（通知区左键与 Explorer 重启后重新注册均已通过） |
 | M6 结论 | 通过（9/9） |
 | GUI 验收 | 独立解压候选核心黄金路径通过 |
-| 发布判断 | 无业务阻塞；完成视觉签字与分支保护检查名更新后可进入 Stable 发布收口 |
+| 发布判断 | 无业务阻塞，可进入 Stable 发布收口；远端发布动作等待项目所有者授权 |
 
 ## M0 自动门禁
 
@@ -136,11 +136,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 | 对象 | 结果 |
 |---|---|
 | 分支 | `agent/v1.0-review` |
-| 源码基线 | `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9` |
+| 源码基线 | `806bda6503f1b5ac61212d47abaf5e389fa1948a` |
 | 工作树 | 打包时干净；`BUILD-INFO.json` 记录 `source_tree_dirty=false` |
 | Zip | `releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64.zip` |
-| Zip SHA256 | `E0A8ACE0DE2ACBC6F733900FFE537B21912B654F7BDEC937FCE060FC7147CF74` |
-| EXE SHA256 | `30C6FAB3813E6DA318C54096E8659D902EDF281EFBE508C6A12FCDEB0094446D` |
+| Zip SHA256 | `A5C33B9DB8787536145AE4B9A1AC00213E692C99A2201CC91EB811A0A0F3BBE6` |
+| EXE SHA256 | `BD25B13F084A0F101DD77239F215019C0BB9E246847BBD15B2D0BEE98B381C44` |
 | WebView2Loader SHA256 | `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C` |
 | 新候选 GUI 复验路径 | `releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64/LetsMakeMoney.exe` |
 | 上一候选完整黄金路径证据 | `.tmp_acceptance/v1.0-final-20260724-172154/evidence/` |
@@ -151,7 +151,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 - `scripts/verify_v10_docs.ps1`：通过；19 份当前文档可按 UTF-8 读取，本地链接有效，三个候选身份事实源哈希一致。
 - `scripts/package_v10.ps1`：通过。
 - `scripts/verify_v10_package.ps1`：通过。
-- Rust：14/14 通过；包体验证定向测试 4/4 通过。
+- Rust：17/17 通过；包体验证定向测试通过。
 - 前端构建、组件/流程/可访问性和 Playwright 视觉回归：通过。
 - 零宠物、许可、包内容、UTF-8、乱码、文档状态和 `git diff --check`：通过。
 - 新候选包重新运行 `scripts/verify_v10.ps1`、`scripts/package_v10.ps1` 与 `scripts/verify_v10_package.ps1`：通过。
@@ -183,7 +183,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 
 | 路径 | 结论 | 证据 |
 |---|---|---|
-| 干净提交候选启动冒烟 | 通过 | 实际运行提交 `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9` 生成的 EXE；迷你收入视图与今日工作台可见且内容完整 |
+| 干净提交候选启动冒烟 | 通过 | 最终候选包含已通过的真实 GUI 定向修正；迷你收入视图与今日工作台可见且内容完整 |
 | 新 EXE 启动 | 通过 | 实际进程路径为新候选解包目录，窗口标题为 `LetsMakeMoney` |
 | 迷你收入视图 | 通过 | 已下班、今日已赚、100% 进度与剩余有效工时显示正常 |
 | 今日工作台 | 通过 | 收益、日薪、时薪、时间线、月度摘要和 Settings 入口完整 |
@@ -218,11 +218,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 
 最终候选身份：
 
-- Zip SHA256：`E0A8ACE0DE2ACBC6F733900FFE537B21912B654F7BDEC937FCE060FC7147CF74`
-- EXE SHA256：`30C6FAB3813E6DA318C54096E8659D902EDF281EFBE508C6A12FCDEB0094446D`
+- Zip SHA256：`A5C33B9DB8787536145AE4B9A1AC00213E692C99A2201CC91EB811A0A0F3BBE6`
+- EXE SHA256：`BD25B13F084A0F101DD77239F215019C0BB9E246847BBD15B2D0BEE98B381C44`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 
-## `test` 候选复核
+## `test` 上一候选复核（历史）
 
 | 项目 | 结果 |
 |---|---|
@@ -230,10 +230,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 | 远端 CI | `test` 的 `Windows v1 verification` 于 2026-07-26 复核通过；实时 HEAD 与 run 以 GitHub 当前状态为准 |
 | 候选产物源码基线 | `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9` |
 | 独立视觉抽查 | 迷你收入视图、Today、Calendar、Settings 四任务组通过；证据位于 `.tmp_acceptance/v1.0-visual-test-20260726/evidence/` |
-| 项目所有者视觉验收 | 进行中，尚未签字 |
+| 项目所有者视觉验收 | 后续定向问题已修正并纳入最终干净候选 |
 | 分支保护 | `Protect_main` 仍引用旧检查名，发布前需更新为 `Windows v1 verification` |
 
-说明：`test` HEAD 包含候选生成后的 README、视觉验收说明与 CI 兼容修正；候选 Zip、EXE 和 DLL 未重打包，身份仍以上述锁定 SHA256 为准。
+说明：本节保留 2026-07-26 远端 `test` 候选的真实历史。当前最终候选身份以本文 M7“候选身份”表及发布说明为准。
 
 ## 休息日与真实日历定向复验
 
@@ -265,13 +265,13 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 | Calendar | 通过 | `calendar-rest-day.png`：26 日为“休息日，今天”，24 日恢复普通工作日样式，图例包含“今天” |
 | 配置与日志恢复 | 通过 | 验收前后配置与日志已备份并恢复，候选进程已停止 |
 
-### 新候选身份
+### 当时锁定的候选身份（历史）
 
 - Zip SHA256：`E0A8ACE0DE2ACBC6F733900FFE537B21912B654F7BDEC937FCE060FC7147CF74`
 - EXE SHA256：`30C6FAB3813E6DA318C54096E8659D902EDF281EFBE508C6A12FCDEB0094446D`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 
-结论：休息日信息错误和 Calendar 固定日期问题已关闭，没有新增发布阻塞项。项目所有者完整视觉签字仍按 `visual-acceptance.md` 执行。
+结论：休息日信息错误和 Calendar 固定日期问题已关闭，没有新增发布阻塞项；修正已纳入最终干净候选。
 
 ## 工作日预览定向复验（2026-07-26）
 
@@ -424,4 +424,4 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
 - `.tmp_acceptance/v1.0-final-20260727-094837/evidence/mini-invalid-schedule.png`
 - `.tmp_acceptance/v1.0-final-20260727-094837/evidence/invalid-schedule-settings-action.png`
 
-结论：`V10-BUG-011` 已关闭，无新增发布阻塞。当前证据来自脏工作树定向包；最终发布身份以后续干净提交重新打包结果为准。
+结论：`V10-BUG-011` 已关闭，无新增发布阻塞。修正已纳入干净提交 `806bda6503f1b5ac61212d47abaf5e389fa1948a`，并由最终候选包的自动门禁和包体验证确认。

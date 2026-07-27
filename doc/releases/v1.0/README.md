@@ -26,4 +26,4 @@ v1.0 是首个 Stable 候选版本，使用 Rust、Tauri 与 React 重建 Window
 
 - v1.0 当前树与发布包不包含宠物 UI、运行时、资源和配置。
 - v0.9 Beta tag 与 GitHub Release 是桌宠版本的恢复基线。
-- 正式 Stable 候选已从干净提交 `88f1e2a8a66dd7b97ffd7d0b6e127b7ac06189a9` 重新生成。
+- 正式 Stable 候选已从干净提交 `806bda6503f1b5ac61212d47abaf5e389fa1948a` 重新生成并通过包体验证。
