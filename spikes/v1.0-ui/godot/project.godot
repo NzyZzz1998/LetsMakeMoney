@@ -1,0 +1,19 @@
+[application]
+
+config/name="LMM v1.0 Godot Spike"
+run/main_scene="res://main.tscn"
+
+[display]
+
+window/size/viewport_width=344
+window/size/viewport_height=120
+window/size/window_width_override=344
+window/size/window_height_override=120
+window/stretch/mode="disabled"
+window/per_pixel_transparency/allowed=true
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0, 0, 0, 0)

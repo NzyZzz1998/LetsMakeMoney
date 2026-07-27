@@ -1,0 +1,6 @@
+﻿LetsMakeMoney 1.0.0
+平台：Windows
+配置版本：6
+配置状态：正常
+原生能力：可用
+日志级别：info

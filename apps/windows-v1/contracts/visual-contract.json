@@ -1,0 +1,72 @@
+{
+  "contract_version": 1,
+  "source": "doc/prototypes/v1.0 and approved Tauri spike",
+  "font": {
+    "family": ["Segoe UI Variable", "Segoe UI", "system-ui", "sans-serif"],
+    "sizes": {
+      "caption": 12,
+      "body": 14,
+      "window_title": 16,
+      "section_heading": 18,
+      "page_title_min": 24,
+      "page_title_max": 28,
+      "amount_min": 32,
+      "amount_max": 40
+    }
+  },
+  "color": {
+    "canvas": "#F1F2EF",
+    "window": "#FCFCFA",
+    "subtle": "#F5F5F2",
+    "raised": "#FFFFFF",
+    "ink": "#262522",
+    "muted": "#67645E",
+    "line": "#DEDED8",
+    "accent": "#EBAA24",
+    "accent_hover": "#D99618",
+    "accent_soft": "#FFF1C9",
+    "success": "#5E8D6B",
+    "success_soft": "#E8F1E9",
+    "danger": "#B44D43",
+    "danger_soft": "#F8EAE8",
+    "focus": "#2F6FED"
+  },
+  "spacing": [4, 8, 12, 16, 24, 32],
+  "radius": {
+    "control": 8,
+    "panel": 10,
+    "window": 12
+  },
+  "control_height": {
+    "compact": 32,
+    "default": 36,
+    "primary_max": 40,
+    "menu_row": 34
+  },
+  "motion": {
+    "minimum_ms": 120,
+    "maximum_ms": 220,
+    "reduced_motion": true
+  },
+  "states": [
+    "normal",
+    "hover",
+    "pressed",
+    "focus-visible",
+    "disabled",
+    "loading",
+    "success",
+    "warning",
+    "error",
+    "empty"
+  ],
+  "dpi_percent": [100, 125, 150],
+  "rules": [
+    "layout uses logical pixels and scales once",
+    "no bitmap scaling of complete windows",
+    "no emoji as product control icons",
+    "no nested decorative cards",
+    "text must not clip or overlap",
+    "state must not rely on color alone"
+  ]
+}

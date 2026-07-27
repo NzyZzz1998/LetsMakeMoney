@@ -1,0 +1,71 @@
+{
+  "contract_version": 1,
+  "levels": ["error", "info", "debug"],
+  "default_level": "info",
+  "events": [
+    "app.started",
+    "app.ready",
+    "app.exit_requested",
+    "config.migration.started",
+    "config.migration.completed",
+    "config.migration.failed",
+    "config.save.saved",
+    "config.save.unchanged",
+    "config.save.failed",
+    "config.rollback.completed",
+    "config.rollback.partial_failed",
+    "config.corrupt_detected",
+    "config.corrupt_recovered",
+    "salary.calculate.invalid",
+    "tray.command",
+    "tray.re_registered",
+    "window.requested",
+    "window.applied",
+    "window.activation_failed",
+    "diagnostics.summary_copied",
+    "diagnostics.summary_copy_failed",
+    "diagnostics.data_directory_opened",
+    "update.check.started",
+    "update.check.no_update",
+    "update.check.available",
+    "update.check.failed"
+  ],
+  "required_fields": [
+    "timestamp",
+    "level",
+    "event",
+    "app_version",
+    "session_id"
+  ],
+  "redaction": {
+    "forbidden_values": [
+      "monthly_salary",
+      "user_name",
+      "home_directory",
+      "absolute_config_path",
+      "clipboard_contents",
+      "environment_secrets"
+    ],
+    "path_policy": "emit logical location or final filename only",
+    "error_policy": "emit stable error code and redacted reason"
+  },
+  "diagnostic_summary": {
+    "include": [
+      "app_version",
+      "config_version",
+      "log_level",
+      "window_capability",
+      "tray_capability",
+      "recent_error_codes"
+    ],
+    "exclude": [
+      "monthly_salary",
+      "user_name",
+      "absolute_paths",
+      "raw_config",
+      "raw_log"
+    ],
+    "clipboard_success": "write_api_succeeded",
+    "readback": "non_blocking_diagnostic_only"
+  }
+}

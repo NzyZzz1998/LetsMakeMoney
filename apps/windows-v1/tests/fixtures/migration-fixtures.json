@@ -1,0 +1,65 @@
+{
+  "fixture_version": 1,
+  "cases": [
+    {
+      "id": "v5-double-weekend-to-v6",
+      "source": {
+        "config_version": 5,
+        "monthly_salary": 10000,
+        "rest_mode": "double",
+        "work_hours_per_day": 8,
+        "work_start_time": "08:00",
+        "work_end_time": "18:00",
+        "lunch_start_time": "12:00",
+        "lunch_end_time": "14:00",
+        "pet_id": "classic_pro",
+        "pet_package_id": "classic_pro",
+        "pet_package_version": "s5.5",
+        "pure_pet_mode": true,
+        "pet_scale": 1.25,
+        "click_through": true
+      },
+      "expected": {
+        "config_version": 6,
+        "monthly_salary": 10000,
+        "rest_mode": "double"
+      },
+      "expected_removed": [
+        "pet_id",
+        "pet_package_id",
+        "pet_package_version",
+        "pure_pet_mode",
+        "pet_scale",
+        "click_through"
+      ]
+    },
+    {
+      "id": "v5-alternating-without-week-type",
+      "source": {
+        "config_version": 5,
+        "monthly_salary": 10000,
+        "rest_mode": "alternating",
+        "alternating_anchor_date": "2026-07-20"
+      },
+      "expected_error": "alternating_week_type_required",
+      "disk_config": "source_unchanged",
+      "runtime_snapshot": "old"
+    },
+    {
+      "id": "write-failure-preserves-draft",
+      "fault": "temp_write_denied",
+      "expected_result": "failed",
+      "expected_draft": "preserved",
+      "expected_disk_config": "old_valid",
+      "expected_runtime_snapshot": "old"
+    },
+    {
+      "id": "registry-failure-compensates-file",
+      "fault": "auto_start_registry_denied",
+      "expected_result": "failed",
+      "expected_draft": "preserved",
+      "expected_disk_config": "restored_previous",
+      "expected_runtime_snapshot": "old"
+    }
+  ]
+}

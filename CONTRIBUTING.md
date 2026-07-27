@@ -1,42 +1,27 @@
 # 参与 LetsMakeMoney
 
-仓库目前处于 v0.7 公开开发阶段。欢迎小而清晰、带验证证据的贡献。
-
-## 当前接受
-
-- GDScript、C++ native 和构建/验证脚本代码；
-- 中文或英文文档修正；
-- UI 交互、可用性和视觉规范建议；
-- 不包含第三方视觉文件的原型代码；
-- 测试、问题复现和 Windows 兼容性证据。
-
-## 当前不接受
-
-- 猫咪、Logo、图标、动画、音频或其他外部素材文件；
-- 来源或授权不明确的 AI 生成输出；
-- ComfyUI 模型、工作流包、缓存或大体积生成产物；
-- 凭据、用户配置、日志、私有截图或本机绝对路径。
-
-## 许可约定
-
-- 提交代码和代码文档，即表示同意按项目根目录 [MIT License](LICENSE) 提供贡献，并确认自己有权提交。
-- 项目视觉素材适用 [ASSETS_LICENSE.md](ASSETS_LICENSE.md)，不能因为代码采用 MIT 就视为可自由复用。
-- 不要在 Pull Request 中加入素材文件。需要表达视觉建议时，提供文字说明、线框或不含第三方受限内容的示意。
+LetsMakeMoney v1.0 是一个 Rust + Tauri + React 的 Windows 桌面应用。欢迎范围清晰、带验证证据的代码、文档、测试和体验改进。
 
 ## 开发环境
 
-- Windows x86_64、Godot 4.7 stable、PowerShell。
-- native 贡献还需要 Python 3.12、SCons 4.10.1 和 MSYS2 UCRT64 GCC。
-- 先运行 `scripts/bootstrap_native_dependencies.ps1`，再按 `native/windows/README.md` 构建。
+- Windows 10/11 x86_64
+- Node.js 22+
+- Rust stable MSVC toolchain
+- Microsoft Edge WebView2 Runtime
 
-## Pull Request 颗粒度
+应用代码位于 `apps/windows-v1/`。旧 Godot 桌宠实现不在 v1.0 活跃树中；需要研究历史行为时请查看 `v0.9-beta` tag，不要把旧宠物模块重新复制回主线。
 
-一个 PR 只解决一个明确问题。业务行为改动必须说明入口、失败路径、配置与日志影响；Main/native 改动必须对照 `doc/releases/v0.7/window-native-state-contract.md` 并提供 Windows 实机证据。不要把格式化、素材替换和功能修改混在一起。
+## Pull Request 边界
+
+1. 一个 PR 只解决一个明确问题。
+2. 业务改动说明入口、失败路径、配置、日志和回退影响。
+3. UI 改动附上 100% DPI 截图；涉及缩放时补 125%/150% 证据。
+4. 托盘、任务栏和窗口策略改动必须提供真实 Windows 证据。
+5. 不提交构建缓存、用户配置、日志、验收临时目录、凭据或本机绝对路径。
+6. 不加入宠物、动画、受限视觉素材或隐藏宠物入口。
 
 ## 提交前
 
-1. 不提交构建缓存、本地依赖、验收证据、配置、日志、签名材料或 Release 展开目录。
-2. 至少运行 `scripts/check_public_candidate.ps1`、对应版本验证和 `git diff --check`。
-3. 说明目的、影响范围、测试结果和回退方式。
-4. 安全问题不要放在公开 Issue；按 [SECURITY.md](SECURITY.md) 使用 Private Vulnerability Reporting。
-5. 遵守 [参与者行为准则](CODE_OF_CONDUCT.md)。
+至少运行与改动对应的 `scripts/verify_v10_m*.ps1`、前端构建、Rust 测试以及 `git diff --check`。安全问题请按 [SECURITY.md](SECURITY.md) 私下报告。
+
+提交代码和代码文档即表示你有权按 [MIT License](LICENSE) 提供该贡献。

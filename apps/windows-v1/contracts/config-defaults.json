@@ -1,0 +1,22 @@
+{
+  "config_version": 6,
+  "monthly_salary": 0,
+  "rest_mode": "double",
+  "alternating_anchor_date": null,
+  "alternating_anchor_week_type": null,
+  "work_hours_per_day": 8,
+  "work_start_time": "08:00",
+  "work_end_time": "18:00",
+  "lunch_start_time": "12:00",
+  "lunch_end_time": "14:00",
+  "calendar_dataset_version": "cn-2026",
+  "date_overrides": [],
+  "mini_window_position": null,
+  "mini_window_visible": true,
+  "mini_window_always_on_top": true,
+  "minimize_to_tray": true,
+  "auto_start": false,
+  "check_updates_on_start": true,
+  "update_channel": "stable",
+  "log_level": "info"
+}

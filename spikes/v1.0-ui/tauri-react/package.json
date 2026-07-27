@@ -1,0 +1,25 @@
+{
+  "name": "lmm-v1-tauri-spike",
+  "private": true,
+  "version": "1.0.0-spike",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:web": "tsc && vite build",
+    "test:contract": "node scripts/verify-contract.mjs",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "2.11.1",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.11.4",
+    "@types/react": "19.1.10",
+    "@types/react-dom": "19.1.7",
+    "@vitejs/plugin-react": "5.0.4",
+    "typescript": "5.9.2",
+    "vite": "7.3.6"
+  }
+}

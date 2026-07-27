@@ -1,0 +1,326 @@
+{
+  "raw": [
+    {
+      "file": "LMM-V10-CALENDAR-001-MONTH.png",
+      "bytes": 147797,
+      "width": 922,
+      "height": 642,
+      "sha256": "B78401A7E93A94F5E4C9791BCE00AAF9CD57D532C85DBEC57BF3AA162BF2C33E",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-CALENDAR-002-NEXT-MONTH.png",
+      "bytes": 140840,
+      "width": 922,
+      "height": 642,
+      "sha256": "2BEF47D1F7B541239A251BBFCECE9F939D740FF57BD4B2598440FCBC8B002745",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-CALENDAR-005-DATE-EDITOR.png",
+      "bytes": 153723,
+      "width": 922,
+      "height": 642,
+      "sha256": "B69AADC190BA1416CE7542663BEF057A413BB86A2B1AC81991ABE0953F5536CA",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-CALENDAR-006-MANUAL-REST.png",
+      "bytes": 154102,
+      "width": 922,
+      "height": 642,
+      "sha256": "17CC1E6D12EF323208D0319634D2FFE635CC7A260B6E67C23D93E391BF58E4A4",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-MINI-001-REST-DAY.png",
+      "bytes": 17657,
+      "width": 346,
+      "height": 122,
+      "sha256": "36DC9319ED4BE5F57D53566967FB664C558E765C6EA17196780B03DF331C6CF2",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-MINI-002-WORKDAY-COMPLETED.png",
+      "bytes": 19627,
+      "width": 346,
+      "height": 122,
+      "sha256": "CC24C3C9E9C3385A7E7FFB1ACA0B036C736E1084DE3BA226D68BC6C9BDB74942",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SETTINGS-001-INCOME.png",
+      "bytes": 111921,
+      "width": 762,
+      "height": 562,
+      "sha256": "E08F03A822FA582A1F90A944790A70384DE6129A6196CC7DAD0428B0FBFF1A6C",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SETTINGS-002-REST-MODE-OPTIONS.png",
+      "bytes": 127888,
+      "width": 762,
+      "height": 562,
+      "sha256": "B382C5B828903A7D55D181B75A9609152D392268600E28695400C0A6A0385FD8",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SETTINGS-003-CALENDAR.png",
+      "bytes": 102593,
+      "width": 762,
+      "height": 562,
+      "sha256": "F68593CE285B2920BE79B80ABF772711F742BA7939786CB606A37D300C7D0FF5",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SETTINGS-004-WINDOW-STARTUP.png",
+      "bytes": 111972,
+      "width": 762,
+      "height": 562,
+      "sha256": "4FE099CC36C10D7DEE5BF2CB727506CE68F139AF60C8730F99FC115E734BB49E",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SETTINGS-005-DATA-SUPPORT.png",
+      "bytes": 111907,
+      "width": 762,
+      "height": 562,
+      "sha256": "E5E1FEBA8A208AAD0BF1A3232E894DE9677CAB3E46AF1D53676051F63373CE4F",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SETTINGS-006-DIRTY-STATE.png",
+      "bytes": 120749,
+      "width": 762,
+      "height": 562,
+      "sha256": "AF2050BF748F230096B7FD711B3ADD66B0B7987DCFF016874D326E092E9972F2",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SETTINGS-007-SAVE-SUCCESS.png",
+      "bytes": 112046,
+      "width": 762,
+      "height": 562,
+      "sha256": "0A28E019BB36ED0B9D06B52E03EACE9A004A99E848D8601D5E2D5617269DFC59",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SETTINGS-008-SAVE-UNCHANGED.png",
+      "bytes": 110401,
+      "width": 762,
+      "height": 562,
+      "sha256": "0765B6143290138E378E2276AEB12AA52B01F4D5C0224F0B9A0F2861EF8BF576",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SETTINGS-009-SAVE-FAILED.png",
+      "bytes": 125990,
+      "width": 762,
+      "height": 562,
+      "sha256": "DDE24CC60EFCB62B5E5B6D9F70A99C0CF44EA870901ED0218188528C68EC6573",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SETTINGS-010-CLOSE-DIRTY-CONFIRM.png",
+      "bytes": 135742,
+      "width": 762,
+      "height": 562,
+      "sha256": "A9D65B8AAE5B0823A949CC1982B2A67CA12A4BBE89DACF2F941B98774ED384CE",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SETTINGS-011-RESTORE-DEFAULT-CONFIRM.png",
+      "bytes": 132658,
+      "width": 762,
+      "height": 562,
+      "sha256": "DDE6DC25EE70668666396234D4E7A796F26C80E144DE98AE3B65252B5163A815",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SUPPORT-001-DIAGNOSTIC-COPIED.png",
+      "bytes": 124456,
+      "width": 762,
+      "height": 562,
+      "sha256": "3ACE7A42BDC67F37B0C1E281D9FC4DFC38B3DFF02D7AA764EF1760C292446917",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SUPPORT-003-UPDATE-RESULT.png",
+      "bytes": 128668,
+      "width": 762,
+      "height": 562,
+      "sha256": "56A65FF9524C404F4892676C8A23E1C0BD652AD85873F250290494F63B11793B",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-TODAY-001-REST-DAY.png",
+      "bytes": 119374,
+      "width": 922,
+      "height": 642,
+      "sha256": "9972EDD77E93BC3D91D64D0CAFF22E4422CCB4B9C38E90610BA89FD872331210",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-TODAY-002-WORKDAY-COMPLETED.png",
+      "bytes": 125398,
+      "width": 922,
+      "height": 642,
+      "sha256": "0A344CCBC8CC4362B06024A05151F80C4C278E41B206ABE4E740C63861681032",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-WIZARD-001-WELCOME.png",
+      "bytes": 127896,
+      "width": 782,
+      "height": 582,
+      "sha256": "3F5275532A6E04427C0E64014107A1B97791BD0A062480A89A786A6BF1A0FB1B",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-WIZARD-002-SALARY-DOUBLE.png",
+      "bytes": 139057,
+      "width": 782,
+      "height": 582,
+      "sha256": "1CBCA5C1F1D66D0B5D40FFE8B79131ABC120493E8F5F1DFBD97EC172E2F2B745",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-WIZARD-003-SINGLE.png",
+      "bytes": 138256,
+      "width": 782,
+      "height": 582,
+      "sha256": "A866532C426FEE0A1AF3274E0149A4B25D21F85FD1D364EA2BF7E5AC722AD910",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-WIZARD-004-ALTERNATING.png",
+      "bytes": 162191,
+      "width": 782,
+      "height": 582,
+      "sha256": "7DE73D5971A918A371C18C4811581145A441D9A7EFEDE4EC4F6B9314492CFE5D",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-WIZARD-005-BIG-WEEK.png",
+      "bytes": 145646,
+      "width": 782,
+      "height": 582,
+      "sha256": "964FBD639560C44A10FF8C066C4F670CA217F3F51729DF430ED8F5564111D417",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-WIZARD-006-SMALL-WEEK.png",
+      "bytes": 146215,
+      "width": 782,
+      "height": 582,
+      "sha256": "91FB5F44248CF6DE5A7B170DE18C10E577A0E339ECDD78DBB0333681947B40C4",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-WIZARD-007-SCHEDULE.png",
+      "bytes": 132433,
+      "width": 782,
+      "height": 582,
+      "sha256": "0457DB1E9A2CFBC124B78FFCED7F3D136ED5BE940E30EB0E2DD99443B0FD0AE0",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-WIZARD-008-SCHEDULE-DEMO.png",
+      "bytes": 140240,
+      "width": 782,
+      "height": 582,
+      "sha256": "C67146944C3C108D65B8B7E593122B05EF77C3075FA3A6E16D56B1F3377BAFA9",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-WIZARD-010-TIME-PICKER.png",
+      "bytes": 145567,
+      "width": 782,
+      "height": 582,
+      "sha256": "F37240564687160AFE041AA06D159271C8181A5D533FDAB0C1745486636FFE3E",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-WIZARD-011-SCHEDULE-FINAL.png",
+      "bytes": 139206,
+      "width": 782,
+      "height": 582,
+      "sha256": "F5D8D545F1DE342B6C44FBA3E0DBA16B25141EA0F8C2C6EFD714A694F36F9C4E",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-WIZARD-012-CONFIRM.png",
+      "bytes": 112269,
+      "width": 782,
+      "height": 582,
+      "sha256": "2FAF25BA4AE8D9E1FD1FBA38A9771CFCF406392E2B03A3A380BAA3ACC911BD7A",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-WIZARD-013-CANCEL-CONFIRM.png",
+      "bytes": 137904,
+      "width": 782,
+      "height": 582,
+      "sha256": "8EA560931EC6BC5213295880FC17EF8A94D8C3BB7F5CDDC6006288168DAE786C",
+      "signature": "89504e470d0a1a0a"
+    }
+  ],
+  "annotated": [
+    {
+      "file": "LMM-V10-CALENDAR-001-MONTH-ANNOTATED.png",
+      "bytes": 161372,
+      "width": 922,
+      "height": 642,
+      "sha256": "8A0CC655CBF4610F2C09EC7EABFC1108A4F885629EE704BA1F9A5DC0BE168AA1",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SETTINGS-001-INCOME-ANNOTATED.png",
+      "bytes": 115600,
+      "width": 762,
+      "height": 562,
+      "sha256": "88619E3D253D426D7ECA54973771B07E4F6E781D7902AEA5C2D697EA3A431DE2",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-SETTINGS-005-DATA-SUPPORT-ANNOTATED.png",
+      "bytes": 116165,
+      "width": 762,
+      "height": 562,
+      "sha256": "72FE2BB352DA817D2FE77102DB717949276BF4C48BAACCA7AFC24B9BCC5FA352",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-TODAY-001-REST-DAY-ANNOTATED.png",
+      "bytes": 119128,
+      "width": 922,
+      "height": 642,
+      "sha256": "E3370E770B7AF505319F2B90868E3B549F4AEB7C2391E41B9CE7D0A5A6C20EBE",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-TODAY-002-WORKDAY-COMPLETED-ANNOTATED.png",
+      "bytes": 128325,
+      "width": 922,
+      "height": 642,
+      "sha256": "8ED12D9CDC7DF68AD862015825B1E3411D5A6D12F3867FB977848947F55B9C1C",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-WIZARD-001-WELCOME-ANNOTATED.png",
+      "bytes": 128664,
+      "width": 782,
+      "height": 582,
+      "sha256": "FB9640FA18D01A6A9831F517703A4E5C8B3B8BABE5AF3FCBB09CF7284EC00C7C",
+      "signature": "89504e470d0a1a0a"
+    },
+    {
+      "file": "LMM-V10-WIZARD-002-SALARY-DOUBLE-ANNOTATED.png",
+      "bytes": 138790,
+      "width": 782,
+      "height": 582,
+      "sha256": "6E5DC4E5A826CD6B9F9F76A5D386032880DE4017BFE8F12042BDAA3238DC353D",
+      "signature": "89504e470d0a1a0a"
+    }
+  ]
+}

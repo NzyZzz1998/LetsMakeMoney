@@ -1,0 +1,18 @@
+{
+  "product": "LetsMakeMoney",
+  "version": "1.0.0",
+  "channel": "stable-candidate",
+  "platform": "windows-x86_64",
+  "branch": "agent/v1.0-review",
+  "head": "da4326e18536d8846fdd6ef49ae894de4a8975c5",
+  "source_tree_dirty": true,
+  "zip": "releases/v1.0/LetsMakeMoney-v1.0-windows-x86_64.zip",
+  "zip_size": 3069355,
+  "zip_sha256": "99DB494245F207B420B9B3CCDBA96D8DC65EC4F444926DF4DE03AD021A8911A8",
+  "exe": "LetsMakeMoney-v1.0-windows-x86_64/LetsMakeMoney.exe",
+  "exe_size": 9634816,
+  "exe_sha256": "78E5ECDABC2F710569942F1918E80601136A8638A92DCBCD76A90B0E5D03F820",
+  "built_at_utc": "2026-07-26T08:33:41.8872349Z",
+  "prepared_at": "2026-07-26T17:56:37.9084222+08:00",
+  "guide": "doc/user-guide/v1.0/user-manual.md"
+}

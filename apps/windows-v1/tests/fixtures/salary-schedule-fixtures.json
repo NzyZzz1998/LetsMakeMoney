@@ -1,0 +1,127 @@
+{
+  "fixture_version": 1,
+  "currency": "CNY",
+  "money_unit": "minor",
+  "calendar_assumption": "No statutory holiday adjustments unless explicitly listed.",
+  "cases": [
+    {
+      "id": "double-weekend-2026-02",
+      "rest_mode": "double",
+      "month": "2026-02",
+      "monthly_salary_minor": 1000000,
+      "expected_workdays": 20,
+      "expected_daily_salary_minor": 50000,
+      "expected_hourly_salary_minor": 6250
+    },
+    {
+      "id": "single-weekend-2026-02",
+      "rest_mode": "single",
+      "month": "2026-02",
+      "monthly_salary_minor": 1000000,
+      "expected_workdays": 24
+    },
+    {
+      "id": "alternating-big-anchor-2026-02",
+      "rest_mode": "alternating",
+      "month": "2026-02",
+      "alternating_anchor_date": "2026-02-02",
+      "alternating_anchor_week_type": "big",
+      "monthly_salary_minor": 1000000,
+      "expected_workdays": 22,
+      "expected_working_saturdays": ["2026-02-07", "2026-02-21"]
+    },
+    {
+      "id": "alternating-small-anchor-2026-02",
+      "rest_mode": "alternating",
+      "month": "2026-02",
+      "alternating_anchor_date": "2026-02-02",
+      "alternating_anchor_week_type": "small",
+      "monthly_salary_minor": 1000000,
+      "expected_workdays": 22,
+      "expected_working_saturdays": ["2026-02-14", "2026-02-28"]
+    },
+    {
+      "id": "alternating-week-type-required",
+      "rest_mode": "alternating",
+      "month": "2026-02",
+      "alternating_anchor_date": "2026-02-02",
+      "alternating_anchor_week_type": null,
+      "expected_error": "alternating_week_type_required"
+    },
+    {
+      "id": "default-eight-hours-before-lunch",
+      "rest_mode": "double",
+      "date": "2026-02-02",
+      "now": "2026-02-02T10:00:00+08:00",
+      "work_start_time": "08:00",
+      "work_end_time": "18:00",
+      "lunch_start_time": "12:00",
+      "lunch_end_time": "14:00",
+      "work_hours_per_day": 8,
+      "daily_salary_minor": 50000,
+      "expected_state": "working",
+      "expected_completed_work_seconds": 7200,
+      "expected_earned_minor": 12500,
+      "expected_progress": 0.25
+    },
+    {
+      "id": "lunch-freezes-income",
+      "rest_mode": "double",
+      "date": "2026-02-02",
+      "now": "2026-02-02T13:00:00+08:00",
+      "work_start_time": "08:00",
+      "work_end_time": "18:00",
+      "lunch_start_time": "12:00",
+      "lunch_end_time": "14:00",
+      "work_hours_per_day": 8,
+      "daily_salary_minor": 50000,
+      "expected_state": "lunch",
+      "expected_completed_work_seconds": 14400,
+      "expected_earned_minor": 25000,
+      "expected_progress": 0.5
+    },
+    {
+      "id": "night-shift-owned-by-start-date",
+      "rest_mode": "double",
+      "date": "2026-02-02",
+      "now": "2026-02-03T03:00:00+08:00",
+      "work_start_time": "22:00",
+      "work_end_time": "08:00",
+      "lunch_start_time": "02:00",
+      "lunch_end_time": "04:00",
+      "work_hours_per_day": 8,
+      "expected_schedule_owner_date": "2026-02-02",
+      "expected_state": "lunch",
+      "expected_effective_work_seconds": 28800
+    },
+    {
+      "id": "calendar-priority-manual-over-holiday",
+      "date": "2026-10-01",
+      "rest_mode": "double",
+      "calendar": {
+        "statutory_holidays": ["2026-10-01"],
+        "adjusted_workdays": [],
+        "date_overrides": [
+          {
+            "date": "2026-10-01",
+            "kind": "workday"
+          }
+        ]
+      },
+      "expected_day_kind": "workday",
+      "expected_source": "manual_override"
+    },
+    {
+      "id": "calendar-priority-adjusted-over-rest-mode",
+      "date": "2026-02-08",
+      "rest_mode": "double",
+      "calendar": {
+        "statutory_holidays": [],
+        "adjusted_workdays": ["2026-02-08"],
+        "date_overrides": []
+      },
+      "expected_day_kind": "workday",
+      "expected_source": "adjusted_workday"
+    }
+  ]
+}
