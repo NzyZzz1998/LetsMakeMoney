@@ -16,7 +16,7 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪
 迷你收入视图适合常驻桌面；需要更多信息时，再打开今日与日历工作台。无需账号，配置和日志都保存在本机。
 
 <div align="center">
-  <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney v1.0 今日收入工作台">
+  <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney v1.0.1 今日收入工作台">
 </div>
 
 ## 主要能力
@@ -30,14 +30,14 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪
 
 ## 当前版本
 
-**v1.0.1 Stable 候选**在 v1.0 的无宠物产品结构上修正日历、日期调整、跨夜班次和金额精度。
+**v1.0.1 Stable** 在 v1.0 的无宠物产品结构上修正日历、日期调整、跨夜班次和金额精度。
 
-- 当前公开版本为 [v1.0 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0)。
-- v1.0.1 已完成实现与独立验收，尚未发布。
+- 当前公开版本为 [v1.0.1 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.1)。
+- v1.0.1 已完成实现、独立验收与发布收口。
 - v1.0.1 内置 2025/2026 中国大陆节假日与调休数据，支持工作日、带薪休息、不带薪休息和恢复自动。
 - 收入按秒展示并定期权威同步，整月金额按分守恒。
-- v1.0 已完成自动门禁、真实 Windows 验收和发布收口。
-- v1.0 暂不包含宠物、透明宠物窗口、点击穿透、纯桌宠模式、云同步、主题系统或安装器。
+- v1.0.1 已完成自动门禁、真实 Windows 验收和发布收口。
+- v1.0.1 暂不包含宠物、透明宠物窗口、点击穿透、纯桌宠模式、云同步、主题系统或安装器。
 - 需要桌宠体验时，可以继续使用 `v0.9-beta` tag 对应的 v0.9 Beta；它也是 v1.0 的明确回退基线。
 
 最新事实与发布哈希以 [当前状态入口](doc/current.md) 为准。
@@ -68,11 +68,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package_v101.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_v101_package.ps1
 ```
 
-候选产物位于 `releases\v1.0.1\`。构建和验证不应依赖未声明的本机路径或私有文件。
+发布产物位于 `releases\v1.0.1\`。构建和验证不应依赖未声明的本机路径或私有文件。
 
 ## 数据、隐私与回退
 
-v1.0 的配置与日志目录：
+v1.0.1 的配置与日志目录：
 
 ```text
 %APPDATA%\io.letsmakemoney.windows\

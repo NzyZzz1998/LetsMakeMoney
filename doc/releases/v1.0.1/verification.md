@@ -2,26 +2,28 @@
 
 ## 验收结论
 
-- 版本：v1.0.1 Stable 候选
-- 实施分支：`agent/v1.0.1-implementation`
+- 版本：v1.0.1 Stable
+- 发布分支：`main`
 - 构建基线：`5fa9293799a15956dd5d18bcd297b5d0e542cd3b`
 - 最终结论：通过
-- 发布判断：可进入发布收口
+- 发布判断：已发布
 - 发布阻塞：无
-- 说明：候选包含基线之后尚未提交的实现，最终身份以 Zip、EXE、DLL 与 `BUILD-INFO.json` 的 SHA256 为准。
+- 发布提交：`4d00f97ff908d58f4ca14a6218377386c10bdc19`
+- 发布地址：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.1`
+- 说明：最终身份以 Zip、EXE、DLL 与 `BUILD-INFO.json` 的 SHA256 为准。
 
 ## 干净发布构建身份
 
-- 生成时间：2026-07-27 20:57:37（Asia/Shanghai）
+- 生成时间：2026-07-27 21:22:54（Asia/Shanghai）
 - 便携 Zip：`releases/v1.0.1/LetsMakeMoney-v1.0.1-windows-x86_64.zip`
-- Zip 大小：3,128,361 字节
-- Zip SHA256：`8EF7BCBE56C1667AAE2F45681EE2B71CE8C2BFCEA397C53A74AC650E06623AD4`
+- Zip 大小：3,128,301 字节
+- Zip SHA256：`DB45332F908669445B34FF40C490936B0EEAC0B41DC2FCDC2F5806924E5D1AC2`
 - EXE 大小：9,776,640 字节
-- EXE SHA256：`E9B384EEFE2906611EEE1CB9E880A66347278EC55019649A04EB9C1BBDA8027B`
+- EXE SHA256：`C71B378E55B455BB71FA356837039DC7BBC2DA2695371AE027BA21D715FE7694`
 - WebView2Loader 大小：160,320 字节
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 - 日历 manifest SHA256：`66EFF12D277E75CF2E178AE7DCCB59BF678F16E056C514A1C1676E00C0D482A1`
-- 构建身份：`BUILD-INFO.json` 记录版本 `1.0.1`、渠道 `stable-candidate`、源码提交 `a3f3674c2d7435243ad60b57551505c2b0c16f26`。
+- 构建身份：`BUILD-INFO.json` 记录版本 `1.0.1`、渠道 `stable-candidate`、源码提交 `4d00f97ff908d58f4ca14a6218377386c10bdc19`。
 - 工作树状态：`source_tree_dirty` 为 `false`，该产物由干净发布实现提交构建。
 
 ## 自动验证
