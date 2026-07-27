@@ -30,14 +30,14 @@ The compact earnings window is designed to stay on the desktop. Open the Today a
 
 ## Current release status
 
-The **v1.0 Stable candidate** rebuilds the Windows client with Rust, Tauri, and React around a pet-free product structure for a clearer and more reliable desktop-tool experience.
+The **v1.0 Stable release** rebuilds the Windows client with Rust, Tauri, and React around a pet-free product structure for a clearer and more reliable desktop-tool experience.
 
-- The current public release is still [v0.9 Beta](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta).
-- The v1.0 candidate has passed automated gates and real Windows acceptance; publishing still requires owner approval.
+- The current public release is [v1.0 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0).
+- v1.0 has passed automated gates, real Windows acceptance, and release closeout.
 - v1.0 does not include pets, transparent pet windows, click-through, pure-pet mode, cloud sync, themes, or an installer.
 - Users who need the desktop-pet experience can remain on v0.9 Beta, which is also the explicit rollback baseline.
 
-See the [current status source](doc/current.md) for the latest candidate identity and checksums.
+See the [current status source](doc/current.md) for the latest release identity and checksums.
 
 ## Run from source
 

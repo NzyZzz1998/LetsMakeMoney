@@ -1500,10 +1500,12 @@
         <img src="../../icons/app_icon_64.png" alt="LetsMakeMoney 图标">
         <div>
           <strong>LetsMakeMoney</strong>
-          <span>当前交互原型</span>
+          <span>历史与版本原型索引</span>
         </div>
       </div>
-      <div class="nav-group-label">当前产品</div>
+      <div class="nav-group-label">当前稳定版</div>
+      <button onclick="location.href='v1.0/index.html'"><span class="dot"></span>v1.0 无宠物稳定版 ↗</button>
+      <div class="nav-group-label">历史原型</div>
       <button class="active" data-screen="overview"><span class="dot"></span>总览</button>
       <button data-screen="desktop"><span class="dot"></span>桌宠主界面</button>
       <button data-screen="panel"><span class="dot"></span>Panel 便签</button>
@@ -1526,10 +1528,10 @@
     <section class="stage">
       <header class="hero">
         <div>
-          <h1 id="screenTitle">当前产品总览</h1>
-          <p id="screenLead">原型保留已发布 Windows 能力，并加入 v0.9 的计算、界面和宠物动画重塑方案。</p>
+          <h1 id="screenTitle">历史桌宠原型总览</h1>
+          <p id="screenLead">本页保留 v0.5-v0.9 的历史产品与设计证据；当前稳定版请进入 v1.0 原型。</p>
         </div>
-        <div class="status-chip" id="statusChip">main · v0.8 Beta 基线 / v0.9 PRD</div>
+        <div class="status-chip" id="statusChip">历史原型 · 当前稳定版 v1.0</div>
       </header>
 
       <div class="content">
@@ -2403,7 +2405,7 @@
 
   <script>
     const screens = {
-      overview: ["当前产品总览", "按当前真实能力组织，不再展示历史版本演进。"],
+      overview: ["历史桌宠原型总览", "保留 v0.5-v0.9 的桌宠、Panel、菜单和动画设计证据；当前稳定版为 v1.0。"],
       desktop: ["桌宠主界面", "透明无边框桌宠窗口，小猫和 Panel 为交互区，其余区域尽量点击穿透。"],
       panel: ["Panel 便签", "折叠态为金币计数器，展开态为薪资小票，支持边缘展开策略。"],
       menu: ["右键菜单与托盘", "桌宠右键负责上下文操作；托盘菜单负责窗口找回、设置、关于和退出。"],
@@ -2414,11 +2416,11 @@
       v07: ["v0.7 公开与可信分发", "展示签名安装器、用户确认更新、许可边界和仓库公开门禁。"],
       v09: ["v0.9 体验与动画重塑", "统一工资与作息、重塑 Windows 信息架构，并以通用宠物包和事件驱动状态机升级桌宠体验。"],
       debug: ["Debug 与验证", "Debug 模式用于观察输入分类、日志、窗口命中区和验证脚本结果。"],
-      release: ["发布包", "当前稳定基线为 Windows v0.8 Beta；v0.9 仍处于完整 PRD 与原型确认阶段。"]
+      release: ["历史发布包", "本页记录 v0.5-v0.9 的历史发布设计；当前公开稳定版为 Windows v1.0。"]
     };
 
     const notes = {
-      overview: "总览展示当前 Windows v0.8 Beta 基线体验：橘猫 v2、暖色 Panel、二级右键菜单、紧凑设置和托盘找回。",
+      overview: "总览展示 v0.8-v0.9 历史桌宠体验：橘猫、暖色 Panel、二级右键菜单、紧凑设置和托盘找回；不作为 v1.0 当前实现依据。",
       desktop: "主界面验收重点：小猫显示完整，单击/双击/长按/拖拽/右键均可用；Panel 不遮挡小猫；空白区域尽量穿透。",
       panel: "Panel 验收重点：折叠态金额清晰，展开态信息完整，靠近屏幕边缘时自动调整展开方向。",
       menu: "菜单验收重点：窗口模式和选择宠物使用二级入口；托盘左键显示/隐藏，右键菜单可设置、关于、退出。",
@@ -2429,14 +2431,14 @@
       v07: "v0.7 原型验收重点：安装与更新必须由用户确认，代码和素材许可清晰分层，签名与完整性失败不得继续安装，A-E 未全部通过前仓库保持私有。",
       v09: "v0.9 原型验收重点：Panel 与详情分层、Wizard 渐进提问、Settings 共用配置事务、Classic/多多同一包合同、动作按实际时长完成并保持 Windows 桌宠能力。",
       debug: "Debug 验收重点：可通过 config.json 开启，事件日志能区分 clicked_single、clicked_double、clicked_hold、drag、right_click_menu。",
-      release: "发布验收重点：Windows v0.8 Beta 是当前稳定基线；v0.9 通过 acceptance 前不生成发布结论。"
+      release: "历史发布验收证据保留在对应版本目录；Windows v1.0 是当前公开稳定版。"
     };
 
     const screenStatus = {
       v06: "main · v0.6 Beta 已发布",
       v07: "main · v0.7 Beta 历史公开基线",
-      v09: "main · v0.8 Beta 基线 / v0.9 PRD 待确认",
-      release: "main · 当前稳定基线 v0.8-beta"
+      v09: "历史 · v0.9 Beta 已发布",
+      release: "历史发布设计 · 当前稳定版 v1.0"
     };
 
     function setScreen(id) {
@@ -2446,7 +2448,7 @@
       document.getElementById("screenLead").textContent = screens[id][1];
       document.getElementById("noteTitle").textContent = screens[id][0] + "说明";
       document.getElementById("noteText").textContent = notes[id];
-      document.getElementById("statusChip").textContent = screenStatus[id] || "main · v0.8-beta 当前基线";
+      document.getElementById("statusChip").textContent = screenStatus[id] || "历史原型 · 当前稳定版 v1.0";
     }
 
     document.querySelectorAll(".nav button[data-screen]").forEach(btn => {

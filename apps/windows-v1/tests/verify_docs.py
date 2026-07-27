@@ -92,12 +92,12 @@ def main() -> int:
     check_candidate_identity()
 
     current = read_utf8(ROOT / "doc" / "current.md")
-    if "Windows v1.0 Stable 候选" not in current:
-        fail("doc/current.md 未声明当前开发版本为 v1.0 Stable 候选")
+    if "当前公开版本 | Windows v1.0 Stable" not in current:
+        fail("doc/current.md 未声明当前公开版本为 v1.0 Stable")
     if "v0.9-beta" not in current:
         fail("doc/current.md 缺少 v0.9 回退基线")
-    if "验收通过" not in current or "干净提交候选已生成" not in current:
-        fail("doc/current.md 未声明当前验收通过状态")
+    if "已通过并发布" not in current or "v1.0` tag 指向发布提交" not in current:
+        fail("doc/current.md 未声明 v1.0 已通过并发布")
     if "多显示器安全回落因当前设备仅有一台显示器，标记为待补证" not in current:
         fail("doc/current.md 未保留多显示器待补证边界")
 
@@ -110,7 +110,7 @@ def main() -> int:
     print("v1.0 文档检查通过")
     print(f"- UTF-8 与乱码：{len(DOCUMENTS)} 份文档")
     print("- v1.0 必需事实源与本地链接完整")
-    print("- current、release notes、verification 候选哈希一致")
+    print("- current、release notes、verification 发布哈希一致")
     return 0
 
 

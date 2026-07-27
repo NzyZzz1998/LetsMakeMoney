@@ -2,13 +2,15 @@
 
 ## 追踪信息
 
-- 当前状态：v0.9 完整 PRD 对照原型，待项目所有者确认
-- 当前稳定基线：Windows v0.8 Beta
-- 目标版本：Windows v0.9 Beta
+- 当前状态：v1.0 Stable 已发布；本文件同时保留 v0.5-v0.9 历史原型说明
+- 当前稳定基线：Windows v1.0 Stable
+- 当前原型：`doc/prototypes/v1.0/index.html`
 - 当前分支：`main`
-- 原型入口：`doc/prototypes/index.html`
-- 需求入口：`doc/releases/v0.9/prd.md`
-- 最后更新：2026-07-18
+- 历史原型索引：`doc/prototypes/index.html`
+- 需求入口：`doc/releases/v1.0/prd.md`
+- 最后更新：2026-07-27
+
+> 第 2-16 节记录 v0.5-v0.9 的历史设计与验收合同，不再代表当前产品。第 17 节及 `doc/prototypes/v1.0/` 是 v1.0 当前设计事实源。
 
 ## 1. 原型目标
 

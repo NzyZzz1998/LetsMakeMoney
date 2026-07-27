@@ -2,11 +2,11 @@
 
 ## 当前状态
 
-**验收通过，可进入发布收口。** M7 Acceptance 已通过；多显示器待补证但经项目所有者批准不阻塞，干净提交候选已生成。
+**验收通过，发布收口已完成。** M7 Acceptance 已通过；多显示器待补证但经项目所有者批准不阻塞，Stable 已发布。
 
 ## 事实与合同
 
-- [~] 实施提交、便携 Zip、EXE 和依赖身份已锁定；tag 尚未创建。
+- [x] 实施提交、便携 Zip、EXE、依赖身份和 `v1.0` tag 已锁定。
 - [x] v0.9 Beta 回退 tag、Release 与三组产物哈希已记录。
 - [x] v1.0 配置、迁移、窗口、日志和视觉合同已建立。
 - [x] 大小周本周类型没有隐式默认值。
@@ -39,5 +39,5 @@
 - [x] `FR-001` 至 `FR-012` 核心黄金路径通过；多显示器待补证已按项目所有者决定列为非阻塞项。
 - [x] `progress`、`verification`、release notes、changelog 与 current 状态一致。
 - [ ] 将 `Protect_main` 必需检查从旧版 `Windows docs and compliance`、`Windows native and Godot verification` 更新为 `Windows v1 verification`；保留 PR、squash、禁止删除和禁止强推规则。
-- [ ] 项目所有者批准 Stable 发布。
-- [ ] 提交、推送、tag 和 GitHub Release 仅在明确授权后执行。
+- [x] 项目所有者批准 Stable 发布。
+- [x] 发布收口提交、`main` 推送和 `v1.0` tag 已完成。
