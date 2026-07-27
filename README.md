@@ -35,7 +35,7 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪
 - 当前公开版本为 [v1.0 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0)。
 - v1.0 已完成自动门禁、真实 Windows 验收和发布收口。
 - v1.0 暂不包含宠物、透明宠物窗口、点击穿透、纯桌宠模式、云同步、主题系统或安装器。
-- 需要桌宠体验时，可以继续使用 v0.9 Beta；它也是 v1.0 的明确回退基线。
+- 需要桌宠体验时，可以继续使用 `v0.9-beta` tag 对应的 v0.9 Beta；它也是 v1.0 的明确回退基线。
 
 最新事实与发布哈希以 [当前状态入口](doc/current.md) 为准。
 
