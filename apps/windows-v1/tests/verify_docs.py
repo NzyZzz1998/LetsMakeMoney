@@ -9,8 +9,10 @@ APP = Path(__file__).resolve().parents[1]
 ROOT = APP.parents[1]
 FAILURES: list[str] = []
 
-ZIP_SHA256 = "A5C33B9DB8787536145AE4B9A1AC00213E692C99A2201CC91EB811A0A0F3BBE6"
-EXE_SHA256 = "BD25B13F084A0F101DD77239F215019C0BB9E246847BBD15B2D0BEE98B381C44"
+V10_ZIP_SHA256 = "A5C33B9DB8787536145AE4B9A1AC00213E692C99A2201CC91EB811A0A0F3BBE6"
+V10_EXE_SHA256 = "BD25B13F084A0F101DD77239F215019C0BB9E246847BBD15B2D0BEE98B381C44"
+V101_ZIP_SHA256 = "DB45332F908669445B34FF40C490936B0EEAC0B41DC2FCDC2F5806924E5D1AC2"
+V101_EXE_SHA256 = "C71B378E55B455BB71FA356837039DC7BBC2DA2695371AE027BA21D715FE7694"
 LOADER_SHA256 = "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
 
 DOCUMENTS = [
@@ -18,6 +20,7 @@ DOCUMENTS = [
     ROOT / "README.en.md",
     ROOT / "doc" / "current.md",
     *sorted((ROOT / "doc" / "releases" / "v1.0").glob("*.md")),
+    *sorted((ROOT / "doc" / "releases" / "v1.0.1").glob("*.md")),
 ]
 
 
@@ -52,21 +55,35 @@ def check_local_links(path: Path, text: str) -> None:
             )
 
 
-def check_candidate_identity() -> None:
-    identity_docs = [
-        ROOT / "doc" / "current.md",
+def check_release_identity() -> None:
+    v10_identity_docs = [
         ROOT / "doc" / "releases" / "v1.0" / "release-notes.md",
         ROOT / "doc" / "releases" / "v1.0" / "verification.md",
     ]
-    for path in identity_docs:
+    for path in v10_identity_docs:
         text = read_utf8(path)
         for label, expected in (
-            ("Zip", ZIP_SHA256),
-            ("EXE", EXE_SHA256),
+            ("Zip", V10_ZIP_SHA256),
+            ("EXE", V10_EXE_SHA256),
             ("WebView2Loader", LOADER_SHA256),
         ):
             if expected not in text:
-                fail(f"{path.relative_to(ROOT)} 缺少当前 {label} SHA256")
+                fail(f"{path.relative_to(ROOT)} 缺少 v1.0 {label} SHA256")
+
+    v101_identity_docs = [
+        ROOT / "doc" / "current.md",
+        ROOT / "doc" / "releases" / "v1.0.1" / "release-notes.md",
+        ROOT / "doc" / "releases" / "v1.0.1" / "verification.md",
+    ]
+    for path in v101_identity_docs:
+        text = read_utf8(path)
+        for label, expected in (
+            ("Zip", V101_ZIP_SHA256),
+            ("EXE", V101_EXE_SHA256),
+            ("WebView2Loader", LOADER_SHA256),
+        ):
+            if expected not in text:
+                fail(f"{path.relative_to(ROOT)} 缺少 v1.0.1 {label} SHA256")
 
 
 def main() -> int:
@@ -78,6 +95,12 @@ def main() -> int:
         ROOT / "doc" / "releases" / "v1.0" / "manual-verification.md",
         ROOT / "doc" / "releases" / "v1.0" / "release-checklist.md",
         ROOT / "doc" / "releases" / "v1.0" / "release-notes.md",
+        ROOT / "doc" / "releases" / "v1.0.1" / "prd.md",
+        ROOT / "doc" / "releases" / "v1.0.1" / "progress_v1.0.1.md",
+        ROOT / "doc" / "releases" / "v1.0.1" / "verification.md",
+        ROOT / "doc" / "releases" / "v1.0.1" / "manual-verification.md",
+        ROOT / "doc" / "releases" / "v1.0.1" / "release-checklist.md",
+        ROOT / "doc" / "releases" / "v1.0.1" / "release-notes.md",
     }
     for path in required:
         if not path.exists():
@@ -89,15 +112,19 @@ def main() -> int:
             fail(f"检测到乱码：{path.relative_to(ROOT)}")
         check_local_links(path, text)
 
-    check_candidate_identity()
+    check_release_identity()
 
     current = read_utf8(ROOT / "doc" / "current.md")
-    if "当前公开版本 | Windows v1.0 Stable" not in current:
-        fail("doc/current.md 未声明当前公开版本为 v1.0 Stable")
+    if "当前公开版本 | Windows v1.0.1 Stable" not in current:
+        fail("doc/current.md 未声明当前公开版本为 v1.0.1 Stable")
+    if "当前公开 tag | `v1.0.1`" not in current:
+        fail("doc/current.md 未声明当前公开 tag 为 v1.0.1")
     if "v0.9-beta" not in current:
         fail("doc/current.md 缺少 v0.9 回退基线")
     if "已通过并发布" not in current or "v1.0` tag 指向发布提交" not in current:
         fail("doc/current.md 未声明 v1.0 已通过并发布")
+    if "`main`、`v1.0.1` tag 与 GitHub Release 已完成" not in current:
+        fail("doc/current.md 未声明 v1.0.1 已完成发布")
     if "多显示器安全回落因当前设备仅有一台显示器，标记为待补证" not in current:
         fail("doc/current.md 未保留多显示器待补证边界")
 
@@ -107,10 +134,10 @@ def main() -> int:
             print(f"- {item}")
         return 1
 
-    print("v1.0 文档检查通过")
+    print("v1.0/v1.0.1 文档检查通过")
     print(f"- UTF-8 与乱码：{len(DOCUMENTS)} 份文档")
-    print("- v1.0 必需事实源与本地链接完整")
-    print("- current、release notes、verification 发布哈希一致")
+    print("- v1.0 与 v1.0.1 必需事实源及本地链接完整")
+    print("- current、release notes、verification 的历史与当前发布哈希一致")
     return 0
 
 

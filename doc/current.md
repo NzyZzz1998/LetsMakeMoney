@@ -6,10 +6,10 @@
 
 | 项目 | 状态 |
 | --- | --- |
-| 当前公开版本 | Windows v1.0 Stable |
-| 当前公开 tag | `v1.0` |
-| 当前开发版本 | Windows v1.0.1 Stable 候选 |
-| v1.0.1 阶段 | 实现与独立验收完成，可进入发布收口 |
+| 当前公开版本 | Windows v1.0.1 Stable |
+| 当前公开 tag | `v1.0.1` |
+| 当前开发版本 | 暂无 |
+| v1.0.1 阶段 | 已发布 |
 | 技术栈 | Rust + Tauri + TypeScript/React |
 | 产品形态 | 无宠物、本地优先的 Windows 收入进度工具 |
 | 发布阻塞 | 无 |
@@ -38,14 +38,15 @@ v1.0.1 只处理收入、日历、状态和用户信任链，不扩展产品范�
 7. 增加 Rust、TypeScript、配置事务、打包和包资源行为门禁。
 8. 修复日期调整反馈丢失和更新版本误判。
 
-自动门禁、包验证和新解压候选 GUI 验收均已通过，当前无发布阻塞。尚未执行提交、推送、tag 或 GitHub Release。
+自动门禁、包验证和新解压候选 GUI 验收均已通过，当前无发布阻塞。`main`、`v1.0.1` tag 与 GitHub Release 已完成。
 
 当前已验收干净发布构建：
 
-- Zip SHA256：`8EF7BCBE56C1667AAE2F45681EE2B71CE8C2BFCEA397C53A74AC650E06623AD4`
-- EXE SHA256：`E9B384EEFE2906611EEE1CB9E880A66347278EC55019649A04EB9C1BBDA8027B`
+- Zip SHA256：`DB45332F908669445B34FF40C490936B0EEAC0B41DC2FCDC2F5806924E5D1AC2`
+- EXE SHA256：`C71B378E55B455BB71FA356837039DC7BBC2DA2695371AE027BA21D715FE7694`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
-- 构建源码提交：`a3f3674c2d7435243ad60b57551505c2b0c16f26`，`source_tree_dirty=false`。
+- 构建源码提交：`4d00f97ff908d58f4ca14a6218377386c10bdc19`，`source_tree_dirty=false`。
+- GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.1`
 
 ## 待人工补证
 
@@ -56,7 +57,7 @@ v1.0.1 只处理收入、日历、状态和用户信任链，不扩展产品范�
 - 连续两小时桌面稳定运行
 - Computer Use 无法稳定覆盖时的通知区真实鼠标左键
 
-这些项目当前不阻塞候选进入发布收口，但发布后应继续观察。
+这些项目未写为通过，不阻塞本次 v1.0.1 Stable 发布；发布后继续观察。
 
 ## 范围边界
 
@@ -80,4 +81,4 @@ v1.0.1 只处理收入、日历、状态和用户信任链，不扩展产品范�
 
 ## 下一步
 
-项目所有者确认后进入发布收口：创建发布提交、推送、创建 `v1.0.1` tag 和 GitHub Release。未经确认，不执行任何远端写操作。
+进入 v1.0.1 发布后观察；后续需求需重新经过 `/review`、`/idea` 与 `/prd` 收敛。

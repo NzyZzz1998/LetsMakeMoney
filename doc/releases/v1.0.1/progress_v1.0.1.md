@@ -2,16 +2,18 @@
 
 ## 当前状态
 
-- 阶段：实现与独立验收完成
-- 结论：通过，可进入发布收口
-- 分支：`agent/v1.0.1-implementation`
+- 阶段：发布完成
+- 结论：通过，已发布
+- 分支：`main`
 - 实施基线：`5fa9293799a15956dd5d18bcd297b5d0e542cd3b`
 - 目标版本：Windows v1.0.1 Stable
-- 发布状态：尚未提交、推送、打 tag 或创建 Release
+- 发布状态：`main`、`v1.0.1` tag 与 GitHub Release 已完成
+- 发布提交：`4d00f97ff908d58f4ca14a6218377386c10bdc19`
+- 发布地址：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.1`
 - 发布阻塞：无
 - 最后更新：2026-07-27
-- 干净发布构建 Zip SHA256：`8EF7BCBE56C1667AAE2F45681EE2B71CE8C2BFCEA397C53A74AC650E06623AD4`
-- 干净发布构建 EXE SHA256：`E9B384EEFE2906611EEE1CB9E880A66347278EC55019649A04EB9C1BBDA8027B`
+- 干净发布构建 Zip SHA256：`DB45332F908669445B34FF40C490936B0EEAC0B41DC2FCDC2F5806924E5D1AC2`
+- 干净发布构建 EXE SHA256：`C71B378E55B455BB71FA356837039DC7BBC2DA2695371AE027BA21D715FE7694`
 
 ## 开发前门禁
 

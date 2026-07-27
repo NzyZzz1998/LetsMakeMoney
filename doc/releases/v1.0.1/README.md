@@ -17,4 +17,7 @@ v1.0.1 是 v1.0 Stable 的日历、日期调整与金额可信度修复版。
 
 - 实现与独立验收：通过
 - 发布阻塞：无
-- 发布状态：可进入发布收口，尚未提交、推送、打 tag 或创建 Release
+- 发布状态：已发布
+- 发布提交：`4d00f97ff908d58f4ca14a6218377386c10bdc19`
+- 发布 tag：`v1.0.1`
+- GitHub Release：<https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.1>
