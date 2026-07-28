@@ -122,6 +122,7 @@ pub struct TodaySnapshot {
     pub salary_slot_index: Option<u32>,
     pub salary_slot_count: u32,
     pub next_boundary_seconds: Option<i64>,
+    pub next_boundary_kind: Option<String>,
     pub progress: f64,
 }
 
@@ -609,6 +610,7 @@ pub fn calculate_today(
                 salary_slot_index,
                 salary_slot_count: month_salary.salary_slot_count,
                 next_boundary_seconds: None,
+                next_boundary_kind: None,
                 progress: 0.0,
             });
         }
@@ -629,6 +631,7 @@ pub fn calculate_today(
             salary_slot_index: None,
             salary_slot_count: month_salary.salary_slot_count,
             next_boundary_seconds: None,
+            next_boundary_kind: None,
             progress: 0.0,
         });
     }
@@ -675,14 +678,16 @@ pub fn calculate_today(
     } else {
         "after_work"
     };
-    let next_boundary_seconds = match state {
-        "before_work" => Some(start - now),
-        "working" if lunch_end > lunch_start && now < lunch_start => Some(lunch_start - now),
-        "working" => Some(end - now),
-        "lunch" => Some(lunch_end - now),
-        _ => None,
-    }
-    .map(|seconds| seconds.max(0));
+    let (next_boundary_seconds, next_boundary_kind) = match state {
+        "before_work" => (Some(start - now), Some("work_start")),
+        "working" if lunch_end > lunch_start && now < lunch_start => {
+            (Some(lunch_start - now), Some("rest_start"))
+        }
+        "working" => (Some(end - now), Some("work_end")),
+        "lunch" => (Some(lunch_end - now), Some("work_resume")),
+        _ => (None, None),
+    };
+    let next_boundary_seconds = next_boundary_seconds.map(|seconds| seconds.max(0));
     let progress = completed as f64 / effective as f64;
     let earned_minor = today_earned_for_work_slot(
         schedule.monthly_salary_minor,
@@ -711,6 +716,7 @@ pub fn calculate_today(
         salary_slot_index,
         salary_slot_count: month_salary.salary_slot_count,
         next_boundary_seconds,
+        next_boundary_kind: next_boundary_kind.map(str::to_string),
         progress,
     })
 }

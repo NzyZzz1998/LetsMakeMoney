@@ -15,8 +15,17 @@ const state = {
   calendarYear: 2026,
   calendarMonth: 6,
   calendarMode: "ready",
-  selectedDate: "2026-07-23",
-  calendarOverrides: new Map(),
+  naturalToday: "2026-07-27",
+  selectedDate: "2026-07-27",
+  calendarOverrides: new Map([
+    ["2026-07-23", "workday"],
+    ["2026-07-27", "paid_rest"],
+    ["2026-07-28", "unpaid_rest"],
+  ]),
+  businessState: "working_after_rest",
+  persistedTheme: "light",
+  previewTheme: "light",
+  longContent: false,
 };
 
 const salaryInput = document.querySelector("#salary-input");
@@ -29,6 +38,51 @@ const productDialog = document.querySelector("#product-dialog");
 const calendarOverrideDialog = document.querySelector("#calendar-override-dialog");
 const calendarGrid = document.querySelector(".calendar-grid");
 const calendarStatus = document.querySelector("#calendar-status");
+const themeModeControl = document.querySelector("#theme-mode");
+const dpiModeControl = document.querySelector("#dpi-mode");
+const themePreviewNote = document.querySelector("#theme-preview-note");
+
+function normalizeTheme(value) {
+  return value === "dark" ? "dark" : "light";
+}
+
+function updateThemeControls(mode) {
+  if (themeModeControl) themeModeControl.value = mode;
+  document.querySelectorAll('input[name="settings-theme"]').forEach((control) => {
+    control.checked = control.value === mode;
+  });
+}
+
+function applyTheme(mode, { syncControls = true, message = "" } = {}) {
+  const normalized = normalizeTheme(mode);
+  state.previewTheme = normalized;
+  document.documentElement.dataset.theme = normalized;
+  document.documentElement.style.colorScheme = normalized;
+  if (syncControls) updateThemeControls(normalized);
+  if (themePreviewNote) {
+    themePreviewNote.textContent = message || (
+      normalized === "dark"
+        ? "正在预览深色模式；保存后同步到全部应用窗口。"
+        : "浅色是新用户和旧配置的默认主题。"
+    );
+  }
+}
+
+function commitTheme(mode) {
+  const normalized = normalizeTheme(mode);
+  state.persistedTheme = normalized;
+  state.previewTheme = normalized;
+  window.localStorage.setItem("lmm-v102-prototype-theme", normalized);
+  applyTheme(normalized, {
+    message: normalized === "dark"
+      ? "深色模式已保存，并同步到全部应用窗口。"
+      : "浅色模式已保存，并同步到全部应用窗口。",
+  });
+}
+
+function revertThemeDraft(message = "主题预览已撤销，恢复上次保存的主题。") {
+  applyTheme(state.persistedTheme, { syncControls: false, message });
+}
 
 function showWindow(name) {
   if (!windows[name]) return;
@@ -76,54 +130,360 @@ function openDialog({ title, message, kind = "", confirm = "确定", cancel = "�
   productDialog.showModal();
 }
 
+function renderTimeline(kind) {
+  const timeline = document.querySelector("#today-timeline");
+  const variants = {
+    overnight: [
+        ["23:00", "开始工作", "归属 2026 年 7 月 22 日", "is-done"],
+        ["次日 02:00", "休息", "02:00—02:30", "is-current"],
+        ["次日 02:30", "恢复工作", "继续本次夜班", ""],
+        ["次日 07:30", "结束工作", "预计本次夜班收入 ¥ 500.00", ""],
+    ],
+    zero_rest: [
+      ["08:00", "开始工作", "已完成 3 小时 22 分钟", "is-done"],
+      ["16:00", "结束工作", "预计今日收入 ¥ 500.00", "is-current"],
+    ],
+    offday: [["全天", "休息", "今天没有工作安排", "is-current"]],
+    paid_rest: [["全天", "带薪休息", "保留当天应计金额，不累计实时工时", "is-current"]],
+    unpaid_rest: [["全天", "不带薪休息", "不计算当天收入与实时工时", "is-current"]],
+    loading: [["—", "正在同步", "完成后自动更新今天的安排", "is-current"]],
+    error: [["—", "暂时无法加载", "配置没有被修改，可以重试", "is-current"]],
+    normal: [
+      ["08:00", "开始工作", "已完成 3 小时 22 分钟", "is-done"],
+      ["12:00", "休息", "12:00—14:00", "is-current"],
+      ["14:00", "恢复工作", "继续完成今日安排", ""],
+      ["18:00", "结束工作", "预计今日收入 ¥ 500.00", ""],
+    ],
+  };
+  const rows = variants[kind] || variants.normal;
+  timeline.replaceChildren(...rows.map(([time, title, description, className]) => {
+    const row = document.createElement("li");
+    row.className = className;
+    const timeNode = document.createElement("time");
+    timeNode.textContent = time;
+    const dot = document.createElement("span");
+    dot.className = "timeline-dot";
+    const copy = document.createElement("div");
+    const strong = document.createElement("strong");
+    strong.textContent = title;
+    const detail = document.createElement("span");
+    detail.textContent = description;
+    copy.append(strong, detail);
+    row.append(timeNode, dot, copy);
+    return row;
+  }));
+}
+
 function setBusinessState(value) {
-  document.body.classList.toggle("is-lunch", value === "lunch");
-  document.body.classList.toggle("is-offday", value === "offday");
+  state.businessState = value;
   const values = {
-    working: {
+    loading: {
+      status: "正在同步",
+      amount: "—",
+      incomeLabel: "收入快照",
+      progress: "正在载入权威快照",
+      progressPercent: "—",
+      miniRemaining: "请稍候",
+      remaining: "—",
+      width: "0%",
+      title: "正在同步收入进度",
+      subtitle: "正在读取本机配置与权威快照",
+      bodyClass: "is-loading-state",
+      timeline: "normal",
+    },
+    error: {
+      status: "同步失败",
+      amount: "—",
+      incomeLabel: "收入快照",
+      progress: "暂时无法计算",
+      progressPercent: "—",
+      miniRemaining: "请重试",
+      remaining: "—",
+      width: "0%",
+      title: "暂时无法计算",
+      subtitle: "当前配置没有被修改，请重试权威同步",
+      bodyClass: "is-error-state",
+      timeline: "normal",
+    },
+    before_work: {
+      status: "上班前",
+      amount: "¥ 0.00",
+      incomeLabel: "今日已赚",
+      progress: "工作进度 0%",
+      progressPercent: "0%",
+      miniRemaining: "距离上班 00:38:20",
+      remaining: "00:38:20",
+      width: "0%",
+      title: "今天的收入进度",
+      subtitle: "2026 年 7 月 23 日 · 周四",
+      bodyClass: "",
+      timeline: "normal",
+    },
+    working_before_rest: {
       status: "工作中",
       amount: "¥ 186.42",
-      progress: "工作进度 56%",
-      miniRemaining: "距离下班 4:38:20",
-      remaining: "4:38:20",
-      width: "56%",
+      incomeLabel: "今日已赚",
+      progress: "工作进度 32%",
+      progressPercent: "32%",
+      miniRemaining: "距离休息 00:38:20",
+      remaining: "00:38:20",
+      width: "32%",
+      title: "今天的收入进度",
+      subtitle: "2026 年 7 月 23 日 · 周四",
+      bodyClass: "",
+      timeline: "normal",
     },
-    lunch: {
-      status: "午休中",
+    rest: {
+      status: "休息中",
       amount: "¥ 250.00",
-      progress: "工作进度 50%",
-      miniRemaining: "距离复工 38:20",
-      remaining: "38:20",
+      incomeLabel: "今日已赚",
+      progress: "收入已暂停累计",
+      progressPercent: "50%",
+      miniRemaining: "距离恢复工作 00:38:20",
+      remaining: "00:38:20",
       width: "50%",
+      title: "今天的收入进度",
+      subtitle: "2026 年 7 月 23 日 · 周四",
+      bodyClass: "is-rest-state",
+      timeline: "normal",
     },
-    offday: {
+    working_after_rest: {
+      status: "工作中",
+      amount: "¥ 186.42",
+      incomeLabel: "今日已赚",
+      progress: "工作进度 56%",
+      progressPercent: "56%",
+      miniRemaining: "距离下班 04:38:20",
+      remaining: "04:38:20",
+      width: "56%",
+      title: "今天的收入进度",
+      subtitle: "2026 年 7 月 23 日 · 周四",
+      bodyClass: "",
+      timeline: "normal",
+    },
+    after_work: {
+      status: "工作已结束",
+      amount: "¥ 500.00",
+      incomeLabel: "今日收入",
+      progress: "今日工作已完成",
+      progressPercent: "100%",
+      miniRemaining: "今日工作已结束",
+      remaining: "已完成",
+      width: "100%",
+      title: "今天的工作已完成",
+      subtitle: "2026 年 7 月 23 日 · 周四",
+      bodyClass: "is-after-work-state",
+      timeline: "normal",
+    },
+    rest_day: {
       status: "休息日",
-      amount: "¥ 0.00",
-      progress: "今日无需工作",
+      amount: "—",
+      incomeLabel: "今天休息",
+      progress: "今天没有工作安排",
+      progressPercent: "—",
       miniRemaining: "下个工作日 08:00",
       remaining: "明天 08:00",
       width: "0%",
+      title: "今天休息",
+      subtitle: "普通休息日 · 不计算实时收入与有效工时",
+      bodyClass: "is-offday",
+      timeline: "normal",
     },
-  }[value];
+    paid_rest: {
+      status: "带薪休息",
+      amount: "¥ 500.00",
+      incomeLabel: "今日应计",
+      progress: "不计算实时工时",
+      progressPercent: "—",
+      miniRemaining: "带薪休息",
+      remaining: "已按带薪规则计入",
+      width: "0%",
+      title: "今天是带薪休息",
+      subtitle: "手动日期调整 · 保留当天应计金额",
+      bodyClass: "is-offday",
+      timeline: "normal",
+    },
+    unpaid_rest: {
+      status: "不带薪休息",
+      amount: "—",
+      incomeLabel: "今天休息",
+      progress: "不计算实时工时",
+      progressPercent: "—",
+      miniRemaining: "不带薪休息",
+      remaining: "已从本月预计收入扣除",
+      width: "0%",
+      title: "今天是不带薪休息",
+      subtitle: "手动日期调整 · 不计算当天收入",
+      bodyClass: "is-offday",
+      timeline: "normal",
+    },
+    overnight: {
+      status: "夜班工作中",
+      amount: "¥ 312.50",
+      incomeLabel: "本次夜班已赚",
+      progress: "夜班进度 62%",
+      progressPercent: "62%",
+      miniRemaining: "距离下班 02:58:20",
+      remaining: "02:58:20",
+      width: "62%",
+      title: "本次夜班收入进度",
+      subtitle: "归属日期：2026 年 7 月 22 日，周三",
+      bodyClass: "is-overnight",
+      timeline: "overnight",
+    },
+  }[value] || {
+    status: "状态未知",
+    amount: "—",
+    incomeLabel: "收入快照",
+    progress: "暂时无法计算",
+    progressPercent: "—",
+    miniRemaining: "请重试",
+    remaining: "—",
+    width: "0%",
+    title: "暂时无法计算",
+    subtitle: "未识别的业务状态",
+    bodyClass: "is-error-state",
+    timeline: "error",
+  };
 
+  const details = {
+    loading: {
+      caption: "正在读取配置、日历与收入快照",
+      progressLabel: "同步状态",
+      boundaryLabel: "下一边界",
+      scheduleRange: "正在同步",
+      adjustLabel: "暂不可用",
+      timeline: "loading",
+    },
+    error: {
+      caption: "输入与上次成功配置均未被修改",
+      progressLabel: "计算状态",
+      boundaryLabel: "恢复路径",
+      scheduleRange: "暂时不可用",
+      adjustLabel: "先重试",
+      timeline: "error",
+    },
+    before_work: {
+      caption: "日薪 ¥ 500.00 · 时薪 ¥ 62.50",
+      progressLabel: "工作进度",
+      boundaryLabel: "距离上班",
+      scheduleRange: "08:00—18:00",
+      adjustLabel: "调整今天",
+    },
+    working_before_rest: {
+      caption: "日薪 ¥ 500.00 · 时薪 ¥ 62.50",
+      progressLabel: "工作进度",
+      boundaryLabel: "距离休息",
+      scheduleRange: "08:00—18:00",
+      adjustLabel: "调整今天",
+    },
+    rest: {
+      caption: "休息期间收入暂停累计",
+      progressLabel: "工作进度",
+      boundaryLabel: "距离恢复工作",
+      scheduleRange: "08:00—18:00",
+      adjustLabel: "调整今天",
+    },
+    working_after_rest: {
+      caption: "日薪 ¥ 500.00 · 时薪 ¥ 62.50",
+      progressLabel: "工作进度",
+      boundaryLabel: "距离下班",
+      scheduleRange: "08:00—18:00",
+      adjustLabel: "调整今天",
+    },
+    after_work: {
+      caption: "当天金额已封顶，不再继续累计",
+      progressLabel: "工作进度",
+      boundaryLabel: "完成状态",
+      scheduleRange: "08:00—18:00",
+      adjustLabel: "调整今天",
+    },
+    rest_day: {
+      caption: "不计算实时收入与有效工时",
+      progressLabel: "今日状态",
+      boundaryLabel: "下个工作日",
+      scheduleRange: "全天休息",
+      adjustLabel: "调整日期",
+      timeline: "offday",
+    },
+    paid_rest: {
+      caption: "按带薪休息规则保留当天应计金额",
+      progressLabel: "今日状态",
+      boundaryLabel: "金额处理",
+      scheduleRange: "全天带薪休息",
+      adjustLabel: "调整日期",
+      timeline: "paid_rest",
+    },
+    unpaid_rest: {
+      caption: "当天收入与实时工时均不计算",
+      progressLabel: "今日状态",
+      boundaryLabel: "金额处理",
+      scheduleRange: "全天不带薪休息",
+      adjustLabel: "调整日期",
+      timeline: "unpaid_rest",
+    },
+    overnight: {
+      caption: "日薪 ¥ 500.00 · 时薪 ¥ 62.50",
+      progressLabel: "夜班进度",
+      boundaryLabel: "距离下班",
+      scheduleRange: "23:00—次日 07:30",
+      adjustLabel: "调整归属日",
+    },
+  }[value] || {};
+  const presentation = { ...values, ...details };
+
+  document.body.classList.remove(
+    "is-loading-state",
+    "is-error-state",
+    "is-rest-state",
+    "is-after-work-state",
+    "is-offday",
+    "is-overnight",
+  );
+  if (presentation.bodyClass) document.body.classList.add(presentation.bodyClass);
+  document.querySelector("#today-title").textContent = presentation.title;
+  document.querySelector("#today-subtitle").textContent = presentation.subtitle;
+  document.querySelector("#income-caption").textContent = presentation.caption;
+  document.querySelector("#boundary-label").textContent = presentation.boundaryLabel;
+  document.querySelector("#schedule-range").textContent = presentation.scheduleRange;
+  document.querySelector("#adjust-today").textContent = presentation.adjustLabel;
+  document.querySelector("#adjust-today").disabled = ["loading", "error"].includes(value);
+  document.querySelector("#open-workbench").setAttribute(
+    "aria-label",
+    value === "error" ? "打开今日工作台并重试" : "打开今日工作台",
+  );
   document.querySelectorAll("[data-status]").forEach((node) => {
-    node.textContent = values.status;
+    node.textContent = presentation.status;
+  });
+  document.querySelectorAll("[data-income-label]").forEach((node) => {
+    node.textContent = presentation.incomeLabel;
   });
   document.querySelectorAll("[data-amount]").forEach((node) => {
-    node.textContent = values.amount;
+    node.textContent = state.longContent && presentation.amount !== "—"
+      ? "¥ 99,999,999.99"
+      : presentation.amount;
   });
   document.querySelectorAll("[data-progress]").forEach((node) => {
-    node.textContent = values.progress;
+    node.textContent = presentation.progress;
+  });
+  document.querySelectorAll("[data-progress-label]").forEach((node) => {
+    node.textContent = presentation.progressLabel;
+  });
+  document.querySelectorAll("[data-progress-percent]").forEach((node) => {
+    node.textContent = presentation.progressPercent;
   });
   document.querySelectorAll("[data-remaining]").forEach((node) => {
-    node.textContent = values.remaining;
+    node.textContent = presentation.remaining;
   });
   document.querySelectorAll("[data-mini-remaining]").forEach((node) => {
-    node.textContent = values.miniRemaining;
+    node.textContent = state.longContent && presentation.miniRemaining.includes("距离")
+      ? "距离恢复工作 23:59:59"
+      : presentation.miniRemaining;
   });
   document.querySelectorAll(".progress-track > span").forEach((node) => {
-    node.style.width = values.width;
+    node.style.width = presentation.width;
   });
+  renderTimeline(presentation.timeline);
 }
 
 function formatDateKey(year, month, day) {
@@ -131,6 +491,7 @@ function formatDateKey(year, month, day) {
 }
 
 function getAutomaticDayKind(year, month, day) {
+  if (formatDateKey(year, month, day) === "2026-07-25") return "adjusted";
   const weekday = new Date(year, month, day).getDay();
   return weekday === 0 || weekday === 6 ? "restday" : "workday";
 }
@@ -196,10 +557,42 @@ function buildCalendar() {
       : automaticKind;
     cell.className = `calendar-cell ${resolvedClass}`;
     if (manualKind && manualKind !== "auto") cell.classList.add("manual");
+    if (dateKey === state.naturalToday) cell.classList.add("today");
     if (dateKey === state.selectedDate) cell.classList.add("selected");
-    cell.textContent = String(day);
+    const number = document.createElement("span");
+    number.className = "calendar-number";
+    number.textContent = String(day);
+    cell.append(number);
     cell.type = "button";
-    cell.setAttribute("aria-label", `${state.calendarYear} 年 ${state.calendarMonth + 1} 月 ${day} 日`);
+    let businessCopy = {
+      workday: "工作日",
+      restday: "休息日",
+      adjusted: "官方调休工作日",
+      "paid-rest": "手动设为带薪休息",
+      "unpaid-rest": "手动设为不带薪休息",
+    }[resolvedClass] || "手动设为工作日";
+    if (manualKind === "workday") businessCopy = "手动设为工作日";
+    const states = [
+      `${state.calendarYear} 年 ${state.calendarMonth + 1} 月 ${day} 日`,
+      dateKey === state.naturalToday ? "今天" : "",
+      businessCopy,
+      dateKey === state.selectedDate ? "当前选中" : "",
+    ].filter(Boolean);
+    cell.setAttribute("aria-label", states.join("，"));
+    if (dateKey === state.naturalToday) cell.setAttribute("aria-current", "date");
+    cell.setAttribute("aria-selected", String(dateKey === state.selectedDate));
+    const markerCopy = automaticKind === "adjusted" && !manualKind
+      ? "调"
+      : manualKind && manualKind !== "auto"
+        ? "手"
+        : "";
+    if (markerCopy) {
+      const marker = document.createElement("span");
+      marker.className = "calendar-marker";
+      marker.textContent = markerCopy;
+      marker.setAttribute("aria-hidden", "true");
+      cell.append(marker);
+    }
     cell.addEventListener("click", () => {
       state.selectedDate = dateKey;
       buildCalendar();
@@ -208,6 +601,7 @@ function buildCalendar() {
   }
 
   if (state.calendarMode === "loading") root.classList.add("is-loading");
+  if (state.calendarMode === "stale") root.classList.add("is-stale");
 }
 
 function setCalendarMode(mode) {
@@ -357,6 +751,7 @@ function restoreDefaults() {
   document.querySelector("#work-start").value = "08:00";
   document.querySelector("#lunch-duration").value = "2 小时";
   document.querySelector("#lunch-start").value = "12:00";
+  applyTheme("light");
   state.dirty = true;
   syncSettingsWeekChoice();
   setFeedback("已恢复默认值，保存后生效");
@@ -378,6 +773,8 @@ document.querySelector("#settings-close").addEventListener("click", () => {
       confirm: "放弃更改",
       action: () => {
         state.dirty = false;
+        revertThemeDraft();
+        updateThemeControls(state.persistedTheme);
         showWindow("mini");
       },
     });
@@ -435,10 +832,21 @@ document.querySelector("#calendar-state").addEventListener("change", (event) => 
   setCalendarMode(nextMode);
 });
 document.querySelector("#long-content").addEventListener("change", (event) => {
+  state.longContent = event.target.checked;
   document.body.classList.toggle("is-long", event.target.checked);
-  document.querySelectorAll("[data-amount]").forEach((node) => {
-    node.textContent = event.target.checked ? "¥ 1,234,567,890.12" : "¥ 186.42";
-  });
+  setBusinessState(state.businessState);
+});
+themeModeControl.addEventListener("change", (event) => {
+  const mode = normalizeTheme(event.target.value);
+  state.persistedTheme = mode;
+  window.localStorage.setItem("lmm-v102-prototype-theme", mode);
+  applyTheme(mode);
+});
+dpiModeControl.addEventListener("change", (event) => {
+  const dpi = ["100", "125", "150"].includes(event.target.value) ? event.target.value : "100";
+  document.documentElement.dataset.dpi = dpi;
+  document.querySelector(".desktop-label span:last-child").textContent =
+    `${dpi}% DPI · 逻辑窗口尺寸保持不变`;
 });
 
 document.querySelectorAll(".nav-item[data-view]").forEach((button) => {
@@ -450,6 +858,20 @@ document.querySelectorAll(".nav-item[data-view]").forEach((button) => {
 document.querySelector("#calendar-prev").addEventListener("click", () => moveCalendarMonth(-1));
 document.querySelector("#calendar-next").addEventListener("click", () => moveCalendarMonth(1));
 document.querySelector("#calendar-adjust").addEventListener("click", openCalendarOverride);
+document.querySelector("#adjust-today").addEventListener("click", () => {
+  state.calendarYear = 2026;
+  state.calendarMonth = 6;
+  state.selectedDate = state.businessState === "overnight" ? "2026-07-22" : state.naturalToday;
+  setCalendarMode("ready");
+  showWindow("workbench");
+  document.querySelectorAll(".nav-item[data-view]").forEach((item) => {
+    item.classList.toggle("is-active", item.dataset.view === "calendar");
+  });
+  document.querySelectorAll("[data-panel]").forEach((panel) => {
+    panel.classList.toggle("is-active", panel.dataset.panel === "calendar");
+  });
+  window.setTimeout(openCalendarOverride, 120);
+});
 document.querySelector("#calendar-retry").addEventListener("click", () => {
   document.querySelector("#calendar-state").value = "loading";
   setCalendarMode("loading");
@@ -472,6 +894,13 @@ document.querySelectorAll('input[name="wizard-rest"], input[name="wizard-week-ty
   control.addEventListener("change", syncAlternatingWeekChoice);
 });
 document.querySelector("#rest-mode").addEventListener("change", syncSettingsWeekChoice);
+document.querySelectorAll('input[name="settings-theme"]').forEach((control) => {
+  control.addEventListener("change", () => {
+    applyTheme(control.value);
+    state.dirty = true;
+    setFeedback("正在预览主题；保存后同步到全部窗口");
+  });
+});
 
 document.querySelectorAll("#settings-form input, #settings-form select").forEach((control) => {
   control.addEventListener("input", () => {
@@ -515,10 +944,12 @@ document.querySelector("#settings-form").addEventListener("submit", (event) => {
     saveButton.disabled = false;
     saveButton.textContent = "保存";
     if (document.querySelector("#failure-mode").checked) {
+      revertThemeDraft("保存失败，全部窗口已恢复上次保存的主题；所选主题仍保留，可重试。");
       setFeedback("保存失败：无法写入测试配置。输入已保留，请检查数据目录权限后重试。", "error");
       showToast("保存失败，输入已保留。", true);
       return;
     }
+    commitTheme(document.querySelector('input[name="settings-theme"]:checked')?.value);
     state.dirty = false;
     setFeedback("已保存到本机", "success");
     showToast("设置已保存。");
@@ -544,7 +975,7 @@ document.querySelector("#check-update").addEventListener("click", () => {
   }
   openDialog({
     title: "已经是最新版本",
-    message: "当前版本 v1.0.1，没有可用更新。",
+    message: "当前版本 v1.0.2，没有可用更新。",
     confirm: "完成",
     cancel: "",
   });
@@ -561,8 +992,11 @@ document.querySelector("#dialog-confirm").addEventListener("click", () => {
   action?.();
 });
 
+state.persistedTheme = normalizeTheme(window.localStorage.getItem("lmm-v102-prototype-theme"));
+applyTheme(state.persistedTheme);
+document.documentElement.dataset.dpi = "100";
 setCalendarMode("ready");
-setBusinessState("working");
+setBusinessState("working_after_rest");
 showSettingsPanel("income");
 syncAlternatingWeekChoice();
 syncSettingsWeekChoice();

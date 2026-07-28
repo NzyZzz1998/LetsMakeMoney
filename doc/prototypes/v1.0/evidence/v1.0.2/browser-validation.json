@@ -1,0 +1,214 @@
+{
+  "checkedAt": "2026-07-27T17:27:14.835Z",
+  "pageTitle": "LetsMakeMoney v1.0.2 高保真产品原型",
+  "combinations": 180,
+  "failures": 0,
+  "failureDetails": [],
+  "interactionChecks": 22,
+  "interactionFailures": 0,
+  "interactionDetails": [
+    {
+      "name": "新用户默认浅色主题",
+      "passed": true,
+      "expected": "light",
+      "actual": "light"
+    },
+    {
+      "name": "新用户未产生主题持久化值",
+      "passed": true,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "深色主题即时预览",
+      "passed": true,
+      "expected": "dark",
+      "actual": "dark"
+    },
+    {
+      "name": "主题预览不提前写入配置",
+      "passed": true,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "有未保存更改时关闭设置显示确认框",
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "name": "放弃更改后恢复浅色主题",
+      "passed": true,
+      "expected": "light",
+      "actual": "light"
+    },
+    {
+      "name": "放弃更改后主题控件恢复浅色",
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "name": "深色主题保存成功",
+      "passed": true,
+      "expected": "dark",
+      "actual": "dark"
+    },
+    {
+      "name": "保存成功后主题持久化",
+      "passed": true,
+      "expected": "dark",
+      "actual": "dark"
+    },
+    {
+      "name": "保存成功反馈",
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "name": "重载后恢复深色主题",
+      "passed": true,
+      "expected": "dark",
+      "actual": "dark"
+    },
+    {
+      "name": "保存失败后恢复上次主题",
+      "passed": true,
+      "expected": "light",
+      "actual": "light"
+    },
+    {
+      "name": "保存失败不污染持久化主题",
+      "passed": true,
+      "expected": "light",
+      "actual": "light"
+    },
+    {
+      "name": "保存失败保留深色主题草稿",
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "name": "保存失败反馈可识别",
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "name": "无变化保存反馈",
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "name": "今天保留带薪休息业务状态",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "evidence": {
+        "todayClasses": [
+          "calendar-cell",
+          "paid-rest",
+          "manual",
+          "today"
+        ],
+        "todayCurrent": "date",
+        "todayLabel": "2026 年 7 月 27 日，今天，手动设为带薪休息",
+        "selectedClasses": [
+          "calendar-cell",
+          "unpaid-rest",
+          "manual",
+          "selected"
+        ],
+        "selectedAria": "true",
+        "selectedLabel": "2026 年 7 月 28 日，手动设为不带薪休息，当前选中",
+        "focusVisible": true
+      }
+    },
+    {
+      "name": "选中日期保留不带薪休息业务状态",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "evidence": {
+        "todayClasses": [
+          "calendar-cell",
+          "paid-rest",
+          "manual",
+          "today"
+        ],
+        "todayCurrent": "date",
+        "todayLabel": "2026 年 7 月 27 日，今天，手动设为带薪休息",
+        "selectedClasses": [
+          "calendar-cell",
+          "unpaid-rest",
+          "manual",
+          "selected"
+        ],
+        "selectedAria": "true",
+        "selectedLabel": "2026 年 7 月 28 日，手动设为不带薪休息，当前选中",
+        "focusVisible": true
+      }
+    },
+    {
+      "name": "日历键盘焦点可见",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "evidence": {
+        "todayClasses": [
+          "calendar-cell",
+          "paid-rest",
+          "manual",
+          "today"
+        ],
+        "todayCurrent": "date",
+        "todayLabel": "2026 年 7 月 27 日，今天，手动设为带薪休息",
+        "selectedClasses": [
+          "calendar-cell",
+          "unpaid-rest",
+          "manual",
+          "selected"
+        ],
+        "selectedAria": "true",
+        "selectedLabel": "2026 年 7 月 28 日，手动设为不带薪休息，当前选中",
+        "focusVisible": true
+      }
+    },
+    {
+      "name": "跨夜班次使用专用主标题",
+      "passed": true,
+      "expected": "本次夜班收入进度",
+      "actual": "本次夜班收入进度"
+    },
+    {
+      "name": "跨夜班次显示完整归属日期",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "evidence": {
+        "title": "本次夜班收入进度",
+        "subtitle": "归属日期：2026 年 7 月 22 日，周三",
+        "timeline": "23:00开始工作归属 2026 年 7 月 22 日次日 02:00休息02:00—02:30次日 02:30恢复工作继续本次夜班次日 07:30结束工作预计本次夜班收入 ¥ 500.00"
+      }
+    },
+    {
+      "name": "跨夜时间线标明次日",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "evidence": {
+        "title": "本次夜班收入进度",
+        "subtitle": "归属日期：2026 年 7 月 22 日，周三",
+        "timeline": "23:00开始工作归属 2026 年 7 月 22 日次日 02:00休息02:00—02:30次日 02:30恢复工作继续本次夜班次日 07:30结束工作预计本次夜班收入 ¥ 500.00"
+      }
+    }
+  ],
+  "screenshots": [
+    "v1.0.2-light-overnight-100.png",
+    "v1.0.2-dark-settings-150.png"
+  ]
+}

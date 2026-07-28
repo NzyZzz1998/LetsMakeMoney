@@ -17,8 +17,16 @@ pub struct WindowPosition {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum ThemeMode {
+    Light,
+    Dark,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct AppConfig {
     pub config_version: u32,
+    pub theme_mode: ThemeMode,
     pub monthly_salary: f64,
     pub rest_mode: RestMode,
     pub alternating_anchor_date: Option<String>,
@@ -42,7 +50,7 @@ pub struct AppConfig {
 
 impl Default for AppConfig {
     fn default() -> Self {
-        serde_json::from_str(include_str!("../../contracts/config-v101-defaults.json"))
+        serde_json::from_str(include_str!("../../contracts/config-v102-defaults.json"))
             .expect("embedded config defaults must remain valid")
     }
 }
@@ -86,7 +94,7 @@ pub enum SaveFault {
 }
 
 pub fn validate(config: &AppConfig) -> Result<(), String> {
-    if config.config_version != 7 {
+    if config.config_version != 8 {
         return Err("unsupported_config_version".into());
     }
     if !config.monthly_salary.is_finite() || config.monthly_salary < 0.0 {
@@ -147,17 +155,30 @@ pub fn migrate_v5(source: &Value) -> Result<AppConfig, String> {
     if source.get("config_version").and_then(Value::as_u64) != Some(5) {
         return Err("unsupported_source_config".into());
     }
-    migrate_legacy_to_v7(source)
+    migrate_legacy_to_v8(source)
 }
 
 pub fn migrate_v6(source: &Value) -> Result<AppConfig, String> {
     if source.get("config_version").and_then(Value::as_u64) != Some(6) {
         return Err("unsupported_source_config".into());
     }
-    migrate_legacy_to_v7(source)
+    migrate_legacy_to_v8(source)
 }
 
-fn migrate_legacy_to_v7(source: &Value) -> Result<AppConfig, String> {
+pub fn migrate_v7(source: &Value) -> Result<AppConfig, String> {
+    if source.get("config_version").and_then(Value::as_u64) != Some(7) {
+        return Err("unsupported_source_config".into());
+    }
+    let mut target = source.as_object().cloned().ok_or("invalid_source_config")?;
+    target.insert("config_version".into(), Value::from(8));
+    target.insert("theme_mode".into(), Value::from("light"));
+    let config: AppConfig =
+        serde_json::from_value(Value::Object(target)).map_err(|error| error.to_string())?;
+    validate(&config)?;
+    Ok(config)
+}
+
+fn migrate_legacy_to_v8(source: &Value) -> Result<AppConfig, String> {
     let defaults = serde_json::to_value(AppConfig::default()).map_err(|error| error.to_string())?;
     let mut target = defaults.as_object().cloned().ok_or("invalid_defaults")?;
     let source_object = source.as_object().ok_or("invalid_source_config")?;
@@ -184,7 +205,8 @@ fn migrate_legacy_to_v7(source: &Value) -> Result<AppConfig, String> {
             target.insert(key.into(), value.clone());
         }
     }
-    target.insert("config_version".into(), Value::from(7));
+    target.insert("config_version".into(), Value::from(8));
+    target.insert("theme_mode".into(), Value::from("light"));
     target.insert(
         "calendar_dataset_version".into(),
         Value::from("cn-2025-2026-v1"),
@@ -431,24 +453,44 @@ pub fn load_or_migrate(config_path: &Path) -> Result<AppConfig, String> {
         return Ok(AppConfig::default());
     }
     let bytes = fs::read(config_path).map_err(|error| error.to_string())?;
-    let value: Value = serde_json::from_slice(&bytes).map_err(|error| error.to_string())?;
+    let mut value: Value = serde_json::from_slice(&bytes).map_err(|error| error.to_string())?;
     match value.get("config_version").and_then(Value::as_u64) {
-        Some(7) => {
+        Some(8) => {
+            let theme_valid = matches!(
+                value.get("theme_mode").and_then(Value::as_str),
+                Some("light" | "dark")
+            );
+            if !theme_valid {
+                let backup = unique_backup_path(config_path);
+                fs::copy(config_path, backup).map_err(|error| error.to_string())?;
+                value
+                    .as_object_mut()
+                    .ok_or("invalid_source_config")?
+                    .insert("theme_mode".into(), Value::from("light"));
+            }
             let config: AppConfig =
                 serde_json::from_value(value).map_err(|error| error.to_string())?;
             validate(&config)?;
+            if !theme_valid {
+                let current = AppConfig::default();
+                let result = save_initial(config_path, &current, &config);
+                if result.status != SaveStatus::Saved {
+                    return Err(result.message);
+                }
+            }
             Ok(config)
         }
-        Some(5) | Some(6) => {
+        Some(5) | Some(6) | Some(7) => {
             let backup = unique_backup_path(config_path);
             fs::copy(config_path, backup).map_err(|error| error.to_string())?;
-            let migrated = if value.get("config_version").and_then(Value::as_u64) == Some(5) {
-                migrate_v5(&value)?
-            } else {
-                migrate_v6(&value)?
+            let migrated = match value.get("config_version").and_then(Value::as_u64) {
+                Some(5) => migrate_v5(&value)?,
+                Some(6) => migrate_v6(&value)?,
+                Some(7) => migrate_v7(&value)?,
+                _ => unreachable!("matched migration source version"),
             };
             let current = AppConfig::default();
-            let result = save_transactional(config_path, &current, &migrated, SaveFault::None);
+            let result = save_initial(config_path, &current, &migrated);
             if result.status != SaveStatus::Saved {
                 return Err(result.message);
             }
@@ -462,6 +504,20 @@ pub fn stored_config_version(config_path: &Path) -> Option<u64> {
     let bytes = fs::read(config_path).ok()?;
     let value: Value = serde_json::from_slice(&bytes).ok()?;
     value.get("config_version").and_then(Value::as_u64)
+}
+
+pub fn stored_theme_requires_fallback(config_path: &Path) -> bool {
+    let Ok(bytes) = fs::read(config_path) else {
+        return false;
+    };
+    let Ok(value) = serde_json::from_slice::<Value>(&bytes) else {
+        return false;
+    };
+    value.get("config_version").and_then(Value::as_u64) == Some(8)
+        && !matches!(
+            value.get("theme_mode").and_then(Value::as_str),
+            Some("light" | "dark")
+        )
 }
 
 #[cfg(test)]
@@ -500,7 +556,8 @@ mod tests {
         });
         let migrated = migrate_v5(&source).unwrap();
         let text = serde_json::to_string(&migrated).unwrap();
-        assert_eq!(migrated.config_version, 7);
+        assert_eq!(migrated.config_version, 8);
+        assert_eq!(migrated.theme_mode, ThemeMode::Light);
         for retired_key in [
             "pet_id",
             "pet_package_id",
@@ -587,7 +644,7 @@ mod tests {
         });
 
         let migrated = migrate_v6(&source).expect("v6 config should migrate");
-        assert_eq!(migrated.config_version, 7);
+        assert_eq!(migrated.config_version, 8);
         assert_eq!(migrated.date_overrides.len(), 2);
         assert!(migrated.date_overrides.iter().any(|entry| {
             entry.date == "2026-07-24"
@@ -657,5 +714,37 @@ mod tests {
         assert!(result.draft_preserved);
         assert_eq!(next, current);
         assert_eq!(load_or_migrate(&path).unwrap(), current);
+    }
+
+    #[test]
+    fn v7_migrates_to_light_theme_without_losing_user_data() {
+        let source: Value = serde_json::from_str(include_str!(
+            "../../contracts/config-v101-defaults.json"
+        ))
+        .unwrap();
+        let mut source = source.as_object().unwrap().clone();
+        source.insert("monthly_salary".into(), Value::from(12_345.67));
+        let migrated = migrate_v7(&Value::Object(source)).unwrap();
+        assert_eq!(migrated.config_version, 8);
+        assert_eq!(migrated.theme_mode, ThemeMode::Light);
+        assert_eq!(migrated.monthly_salary, 12_345.67);
+    }
+
+    #[test]
+    fn invalid_v8_theme_falls_back_and_is_persisted() {
+        let path = temp_config("invalid-theme");
+        let mut source = serde_json::to_value(AppConfig::default()).unwrap();
+        source
+            .as_object_mut()
+            .unwrap()
+            .insert("theme_mode".into(), Value::from("midnight"));
+        fs::write(&path, serde_json::to_vec_pretty(&source).unwrap()).unwrap();
+
+        assert!(stored_theme_requires_fallback(&path));
+        let loaded = load_or_migrate(&path).unwrap();
+        assert_eq!(loaded.theme_mode, ThemeMode::Light);
+        assert!(!stored_theme_requires_fallback(&path));
+        let persisted: AppConfig = serde_json::from_slice(&fs::read(path).unwrap()).unwrap();
+        assert_eq!(persisted.theme_mode, ThemeMode::Light);
     }
 }

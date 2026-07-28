@@ -26,6 +26,7 @@ export interface TickResult {
   completedSeconds: number;
   todayMinor: number;
   monthEarnedMinor: number;
+  nextBoundarySeconds: number | null;
   reachedBoundary: boolean;
 }
 
@@ -49,6 +50,14 @@ function cumulativeMinor(
 }
 
 export function calculateLocalTick(authority: TickAuthority, nowMs: number): TickResult {
+  const elapsedSeconds = Math.max(0, Math.floor((nowMs - authority.capturedAtMs) / 1000));
+  const nextBoundarySeconds = authority.nextBoundarySeconds === null
+    ? null
+    : Math.max(0, authority.nextBoundarySeconds - elapsedSeconds);
+  const reachedBoundary =
+    authority.nextBoundarySeconds !== null
+    && elapsedSeconds >= authority.nextBoundarySeconds;
+
   if (
     authority.phase !== "working"
     || authority.salarySlotIndex === null
@@ -59,11 +68,11 @@ export function calculateLocalTick(authority: TickAuthority, nowMs: number): Tic
       completedSeconds: authority.completedSeconds,
       todayMinor: authority.todayMinor,
       monthEarnedMinor: authority.monthEarnedMinor,
-      reachedBoundary: false,
+      nextBoundarySeconds,
+      reachedBoundary,
     };
   }
 
-  const elapsedSeconds = Math.max(0, Math.floor((nowMs - authority.capturedAtMs) / 1000));
   const boundarySeconds = authority.nextBoundarySeconds ?? Number.POSITIVE_INFINITY;
   const appliedSeconds = Math.min(elapsedSeconds, boundarySeconds);
   const completedSeconds = Math.min(
@@ -86,7 +95,8 @@ export function calculateLocalTick(authority: TickAuthority, nowMs: number): Tic
     completedSeconds,
     todayMinor,
     monthEarnedMinor: priorMonthMinor + todayMinor,
-    reachedBoundary: elapsedSeconds >= boundarySeconds,
+    nextBoundarySeconds,
+    reachedBoundary,
   };
 }
 
@@ -118,6 +128,19 @@ export function syncFailureDisposition(
   boundaryPending: boolean,
 ) {
   return boundaryPending && consecutiveFailures >= 2 ? "blocked" : "stale";
+}
+
+export function shouldRetryInitialSync(
+  hasAuthority: boolean,
+  errorCode: string,
+  consecutiveFailures: number,
+  maxAttempts = 2,
+) {
+  return (
+    !hasAuthority
+    && errorCode === "calculation_unavailable"
+    && consecutiveFailures <= maxAttempts
+  );
 }
 
 export function wallClockJumped(

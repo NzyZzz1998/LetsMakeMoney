@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import {
   defaultConfig,
   type AppConfig,
@@ -14,10 +15,12 @@ import {
   calculateLocalTick,
   needsAuthoritativeCorrection,
   shouldApplyAuthoritativeSnapshot,
+  shouldRetryInitialSync,
   syncFailureDisposition,
   wallClockJumped,
   type TickAuthority,
 } from "./authoritativeSync";
+import type { BoundaryKind } from "./presentation";
 
 export type DashboardState = "loading" | "ready" | "setup" | "error";
 export type WorkPhase =
@@ -80,6 +83,8 @@ export interface DashboardSnapshot {
   syncState: "synced" | "syncing" | "stale";
   algorithmVersion: string;
   effectiveSeconds: number;
+  nextBoundarySeconds: number | null;
+  nextBoundaryKind: BoundaryKind;
   workStartTime: string;
   lunchStartTime: string;
   lunchEndTime: string;
@@ -296,13 +301,24 @@ function fallbackSnapshot(now: Date): DashboardSnapshot {
             : "after_work";
   const workState = {
     working: "工作中",
-    lunch: "午休中",
+    lunch: "休息中",
     before_work: "上班前",
     after_work: "已下班",
     rest_day: "休息日",
   }[phase];
   const nextWorkDate = calendarDays.find(day => day.date > ownerDate && day.kind === "workday")?.date ?? null;
   const priorWorkdays = calendarDays.filter(day => day.date < ownerDate && day.kind === "workday").length;
+  const [nextBoundarySeconds, nextBoundaryKind]: [number | null, BoundaryKind] = isRestDay
+    ? [null, null]
+    : phase === "before_work"
+      ? [Math.max(0, start - second), "work_start"]
+      : phase === "working" && second < lunchStart
+        ? [Math.max(0, lunchStart - second), "rest_start"]
+        : phase === "lunch"
+          ? [Math.max(0, lunchEnd - second), "work_resume"]
+          : phase === "working"
+            ? [Math.max(0, end - second), "work_end"]
+            : [null, null];
   return {
     state: "ready",
     phase,
@@ -321,6 +337,8 @@ function fallbackSnapshot(now: Date): DashboardSnapshot {
     syncState: "synced",
     algorithmVersion: "browser-preview",
     effectiveSeconds: 8 * 3600,
+    nextBoundarySeconds,
+    nextBoundaryKind,
     workStartTime: "08:00",
     lunchStartTime: "12:00",
     lunchEndTime: "14:00",
@@ -343,8 +361,9 @@ export function useDashboard() {
   const consecutiveSyncFailures = useRef(0);
   const lastOwnerDate = useRef<string | null>(null);
   const clockSample = useRef({ wall: Date.now(), monotonic: performance.now() });
+  const initialRetryTimer = useRef<number | null>(null);
 
-  const refreshAuthority = useCallback(async (reason: string) => {
+  const refreshAuthority = useCallback(async function refreshAuthorityRequest(reason: string) {
     const sequence = ++requestSequence.current;
     const now = new Date();
     if (!isTauri()) {
@@ -406,6 +425,7 @@ export function useDashboard() {
         salary_slot_index: number | null;
         salary_slot_count: number;
         next_boundary_seconds: number | null;
+        next_boundary_kind: BoundaryKind;
         progress: number;
       }>("calculate_today_income", {
         request: {
@@ -437,7 +457,7 @@ export function useDashboard() {
         phase,
         workState: {
           working: "工作中",
-          lunch: "午休中",
+          lunch: "休息中",
           before_work: "上班前",
           after_work: "已下班",
           rest_day: "休息日",
@@ -460,6 +480,8 @@ export function useDashboard() {
         syncState: "synced",
         algorithmVersion: today.algorithm_version,
         effectiveSeconds: today.effective_work_seconds,
+        nextBoundarySeconds: today.next_boundary_seconds,
+        nextBoundaryKind: today.next_boundary_kind,
         workStartTime: config.work_start_time,
         lunchStartTime: config.lunch_start_time,
         lunchEndTime: config.lunch_end_time,
@@ -507,12 +529,36 @@ export function useDashboard() {
         "earnings.authoritative_sync.completed",
         `sequence=${sequence} owner_date=${today.schedule_owner_date} phase=${today.state}`,
       );
+      if (initialRetryTimer.current !== null) {
+        window.clearTimeout(initialRetryTimer.current);
+        initialRetryTimer.current = null;
+      }
       lastErrorCode.current = null;
       consecutiveSyncFailures.current = 0;
     } catch (error) {
       if (!shouldApplyAuthoritativeSnapshot(requestSequence.current, sequence)) return;
       const { code, message } = describeDashboardError(error);
       consecutiveSyncFailures.current += 1;
+      if (
+        shouldRetryInitialSync(
+          authority.current !== null,
+          code,
+          consecutiveSyncFailures.current,
+        )
+      ) {
+        recordSemanticEvent(
+          "earnings.authoritative_sync.retry_scheduled",
+          `sequence=${sequence} reason=${code} attempt=${consecutiveSyncFailures.current}`,
+        );
+        if (initialRetryTimer.current !== null) {
+          window.clearTimeout(initialRetryTimer.current);
+        }
+        initialRetryTimer.current = window.setTimeout(() => {
+          initialRetryTimer.current = null;
+          void refreshAuthorityRequest("startup_retry");
+        }, 500);
+        return;
+      }
       if (lastErrorCode.current !== code) {
         lastErrorCode.current = code;
         recordSemanticEvent(
@@ -592,6 +638,7 @@ export function useDashboard() {
           amount: tick.todayMinor / 100,
           monthTotal: tick.monthEarnedMinor / 100,
           completedSeconds: tick.completedSeconds,
+          nextBoundarySeconds: tick.nextBoundarySeconds,
           remainingSeconds: Math.max(0, current.effectiveSeconds - tick.completedSeconds),
           progress: current.effectiveSeconds > 0
             ? Math.round((tick.completedSeconds / current.effectiveSeconds) * 100)
@@ -623,12 +670,23 @@ export function useDashboard() {
     window.addEventListener("lmm:configuration-updated", handleConfigurationUpdate);
     window.addEventListener("focus", handleFocus);
     document.addEventListener("visibilitychange", handleVisibility);
+    let unlistenConfiguration: (() => void) | null = null;
+    if (isTauri()) {
+      void listen("lmm://configuration-updated", handleConfigurationUpdate).then(unlisten => {
+        unlistenConfiguration = unlisten;
+      });
+    }
     return () => {
       window.clearInterval(localTimer);
       window.clearInterval(authorityTimer);
+      if (initialRetryTimer.current !== null) {
+        window.clearTimeout(initialRetryTimer.current);
+        initialRetryTimer.current = null;
+      }
       window.removeEventListener("lmm:configuration-updated", handleConfigurationUpdate);
       window.removeEventListener("focus", handleFocus);
       document.removeEventListener("visibilitychange", handleVisibility);
+      unlistenConfiguration?.();
     };
   }, [refreshAuthority]);
 
@@ -663,7 +721,7 @@ function describeDashboardError(error: unknown) {
     return { code, message: "大小周需要明确选择本周是大周还是小周。" };
   }
   if (code !== "calculation_unavailable") {
-    return { code, message: "请检查上班、下班和午休时间后重试。" };
+    return { code, message: "请检查上班、下班和休息时间后重试。" };
   }
   return { code, message: "请稍后重试；若仍失败，请检查设置。" };
 }
