@@ -30,10 +30,10 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪
 
 ## 当前版本
 
-**v1.0.2 Stable 候选**在 v1.0.1 的可靠计算基础上，优化状态表达、桌面窗口质感和浅色/深色双主题。
+**v1.0.2 Stable** 在 v1.0.1 的可靠计算基础上，优化状态表达、桌面窗口质感和浅色/深色双主题。
 
-- 当前公开版本为 [v1.0.1 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.1)。
-- v1.0.2 已完成实现和独立验收，正在执行发布收口。
+- 当前公开版本为 [v1.0.2 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.2)。
+- v1.0.2 已完成实现、独立验收、干净提交构建和 GitHub Release 发布。
 - 阶段倒计时会按真实边界显示距离上班、休息、恢复工作或下班。
 - 今日安排、跨夜归属、调休来源和日历复合状态使用统一内容合同。
 - 迷你视图支持全窗口拖动，并针对加载、错误和不同工作阶段收敛尺寸。
@@ -69,7 +69,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package_v102.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_v102_package.ps1
 ```
 
-候选产物位于 `releases\v1.0.2\`。构建和验证不应依赖未声明的本机路径或私有文件。
+本地构建产物位于 `releases\v1.0.2\`。构建和验证不应依赖未声明的本机路径或私有文件。
 
 ## 数据、隐私与回退
 

@@ -2,7 +2,7 @@
 
 ## 当前结论
 
-结论：**通过，可进入发布收口。**
+结论：**通过，v1.0.2 Stable 已发布。**
 
 - FR-001 至 FR-008 已实现。
 - `V102-BUG-001` 至 `V102-BUG-007` 已关闭。
@@ -13,24 +13,25 @@
 - 真实 Windows 125%/150% 系统缩放已完成补证，Mini、Workbench、日历、Settings、Wizard 及浅色/深色关键状态均通过清晰度检查。
 - Windows 通知区真实鼠标左键隐藏与恢复已由项目所有者人工补证通过。
 - 配置后通过原生托盘入口重新打开 Wizard 时，关闭弹窗正确显示“放弃本次配置？”和“放弃配置”；`V102-BUG-007` 定向复验通过。
-- 候选由尚未提交的 v1.0.2 实现树构建；发布收口仍需从签核后的干净提交重新构建并更新最终发布哈希。
+- 发布产物已从干净提交 `fe074439521bda77c57e2e96f8065dad329a8686` 重新构建，包内 `BUILD-INFO.json` 记录 `source_tree_dirty=false`。
 
-## 最终候选身份
+## 最终发布身份
 
 | 项目 | 结果 |
 | --- | --- |
 | 版本 | `1.0.2` |
 | 分支 | `main` |
-| 构建基线 HEAD | `1eb3dadbd37dcc06141e82e5e043db529821a104` |
+| 发布源码提交 | `fe074439521bda77c57e2e96f8065dad329a8686` |
+| Source tree dirty | `false` |
 | Zip | `releases/v1.0.2/LetsMakeMoney-v1.0.2-windows-x86_64.zip` |
-| Zip 大小 | 3,194,384 字节 |
-| Zip SHA256 | `BA7330C0C14745CE1DB355C3E28CE75255E7B64250212CE25D8B36C054653DB2` |
+| Zip 大小 | 3,195,066 字节 |
+| Zip SHA256 | `EEBA1788A8C1D6AEB071728B78C71C3634062B3F5BD6E61BDB46DD171C97FEA2` |
 | EXE 大小 | 9,988,608 字节 |
-| EXE SHA256 | `BE54F049F2134536564EC8222F3C5446F54C3653223206A97BDE2A3B575CB6F7` |
+| EXE SHA256 | `4057E2F9F94B801A1A0A6C3D6F7B7AFE14DED2049478BF37AE6BBF17E33AD3BA` |
 | WebView2Loader 大小 | 160,320 字节 |
 | WebView2Loader SHA256 | `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C` |
-| 新解压目录 | `.tmp_acceptance/v1.0.2-bug007-20260728-193200/extracted/` |
-| 实际 EXE | `.tmp_acceptance/v1.0.2-bug007-20260728-193200/extracted/LetsMakeMoney-v1.0.2-windows-x86_64/LetsMakeMoney.exe` |
+| Tag | `v1.0.2` |
+| GitHub Release | `https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.2` |
 
 ## 自动验证
 
@@ -136,15 +137,15 @@ DPI 补证覆盖：
 - Windows 显示缩放已恢复为验收前的 `100%（推荐）`，注册表 `DpiValue=0`、`Win8DpiScaling=0`。
 - 验收结束后 LetsMakeMoney 进程数为 0。
 
-## 剩余门禁
+## 发布收口复核
 
 发布阻塞：**无。**
 
-发布收口仍需执行：
+- 发布提交经 PR #12 和必需 CI 检查合入 `main`。
+- 从最终干净源码提交重新构建并通过包体验证。
+- annotated tag `v1.0.2` 指向发布源码提交。
+- GitHub Stable Release 只包含便携 Zip 和 `SHA256SUMS.txt`。
+- 从 GitHub 重新下载的 Zip SHA256 为 `EEBA1788A8C1D6AEB071728B78C71C3634062B3F5BD6E61BDB46DD171C97FEA2`，与本地最终产物一致。
+- 包内 README 与 CHANGELOG 保留发布源码提交时的候选/收口状态快照；GitHub Release 页面和当前仓库文档作为发布后事实源。
 
-1. 创建签核后的发布提交。
-2. 从干净提交重新构建并验证最终候选。
-3. 更新 Zip、EXE、WebView2Loader 与 `SHA256SUMS.txt` 最终身份。
-4. 经项目所有者确认后再执行 push、tag 和 GitHub Release。
-
-当前发布判断：**可进入发布收口；本轮未执行 commit、push、tag 或 GitHub Release。**
+当前发布判断：**v1.0.2 Stable 已发布，进入发布后观察。**

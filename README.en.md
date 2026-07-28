@@ -30,10 +30,10 @@ The compact earnings window is designed to stay on the desktop. Open the Today a
 
 ## Current release status
 
-**v1.0.2 Stable candidate** improves state communication, desktop-window polish, and light/dark themes on top of v1.0.1's reliable calculations.
+**v1.0.2 Stable** improves state communication, desktop-window polish, and light/dark themes on top of v1.0.1's reliable calculations.
 
-- The current public release is [v1.0.1 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.1).
-- v1.0.2 has completed implementation and independent acceptance and is now in release closeout.
+- The current public release is [v1.0.2 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.2).
+- v1.0.2 has completed implementation, independent acceptance, a clean-source build, and GitHub Release publication.
 - Stage copy follows real boundaries: start of work, rest, return to work, or end of work.
 - Timeline alignment, overnight ownership, adjusted-workday sources, and compound calendar states share one presentation contract.
 - The compact window supports full-surface dragging and state-specific sizing for loading, errors, and work stages.
@@ -69,7 +69,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package_v102.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_v102_package.ps1
 ```
 
-Candidate outputs are written to `releases\v1.0.2\`. The build and verification flow must not depend on undeclared local paths or private files.
+Local build outputs are written to `releases\v1.0.2\`. The build and verification flow must not depend on undeclared local paths or private files.
 
 ## Data, privacy, and rollback
 

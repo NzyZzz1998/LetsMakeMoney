@@ -4,13 +4,17 @@
 
 v1.0.2 是 v1.0.1 Stable 之后的正式体验优化版本。它保留既有收入、日历、日期调整、跨夜班次和配置事务口径，集中改善状态表达、窗口密度、日历辨识度与浅色/深色主题体验。
 
-## 候选产物
+## 发布产物
 
 - 便携 Zip：`LetsMakeMoney-v1.0.2-windows-x86_64.zip`
-- Acceptance Zip SHA256：`BA7330C0C14745CE1DB355C3E28CE75255E7B64250212CE25D8B36C054653DB2`
-- Acceptance EXE SHA256：`BE54F049F2134536564EC8222F3C5446F54C3653223206A97BDE2A3B575CB6F7`
+- Zip 大小：3,195,066 字节
+- Zip SHA256：`EEBA1788A8C1D6AEB071728B78C71C3634062B3F5BD6E61BDB46DD171C97FEA2`
+- EXE SHA256：`4057E2F9F94B801A1A0A6C3D6F7B7AFE14DED2049478BF37AE6BBF17E33AD3BA`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
-- 发布状态：最终 Acceptance 通过，等待从干净发布提交重新构建并锁定最终哈希。
+- 发布源码提交：`fe074439521bda77c57e2e96f8065dad329a8686`
+- Tag：`v1.0.2`
+- GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.2`
+- 发布状态：Stable，已发布；远端下载包 SHA256 与本地最终产物一致。
 
 ## 主要改进
 
@@ -33,6 +37,7 @@ v1.0.2 是 v1.0.1 Stable 之后的正式体验优化版本。它保留既有收�
 
 ## 已知边界
 
+- 便携 Zip 内 README 与 CHANGELOG 保留发布源码提交时的候选/收口状态快照；GitHub Release 页面与当前仓库文档为发布后的最终状态事实源，程序和二进制身份不受影响。
 - 原生托盘菜单继续采用 Windows 系统样式，不模拟 Web 主题。
 - 官方离线日历仍覆盖 2025、2026；其他年份明确显示不支持。
 - Windows 睡眠恢复、手动修改系统时间/时区和连续两小时运行保留为非阻塞环境补证。
