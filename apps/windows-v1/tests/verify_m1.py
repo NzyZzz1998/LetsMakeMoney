@@ -41,7 +41,7 @@ def main() -> int:
     check(all(re.search(r"\d+\.\d+\.\d+", value) for value in exact_versions), "Node/React/Tauri 依赖未全部锁定到精确版本")
 
     expected_sizes = {
-        "mini": (344, 120),
+        "mini": (344, 108),
         "workbench": (920, 640),
         "settings": (760, 560),
         "wizard": (780, 580),
@@ -53,6 +53,21 @@ def main() -> int:
 
     contract_sizes = {item["id"]: tuple(item["default_size"]) for item in window_contract["windows"]}
     check(contract_sizes == expected_sizes, "窗口合同与 M1 实现尺寸不一致")
+    mini_contract = next(item for item in window_contract["windows"] if item["id"] == "mini")
+    check(
+        mini_contract.get("state_sizes")
+        == {
+            "normal": [344, 108],
+            "loading": [344, 108],
+            "error": [344, 120],
+        },
+        "迷你窗口状态尺寸合同不完整",
+    )
+    check(
+        '"normal" | "loading" => 108.0' in rust
+        and '"error" => 120.0' in rust,
+        "Rust 未实现迷你窗口状态尺寸",
+    )
     check(tauri["app"]["windows"][0]["skipTaskbar"] is True, "迷你窗口必须不显示任务栏入口")
     check("CreateMutexW" in rust and "ERROR_ALREADY_EXISTS" in rust, "单实例互斥没有实现")
     check("ensure_window" in rust and "get_webview_window" in rust, "窗口复用没有实现")

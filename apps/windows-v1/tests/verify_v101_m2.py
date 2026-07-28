@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -21,7 +22,11 @@ def verify_config_contract() -> None:
     defaults = json.loads(read(APP_ROOT / "contracts" / "config-v101-defaults.json"))
     model = read(APP_ROOT / "src" / "configModel.ts")
     require(defaults["config_version"] == 7, "Default config is not v7")
-    require("config_version: 7" in model, "TypeScript config is not v7")
+    versions = {
+        int(value)
+        for value in re.findall(r"config_version:\s*(\d+)", model)
+    }
+    require(versions and min(versions) >= 7, "TypeScript config regressed below v7")
     for kind in ["workday", "paid_rest", "unpaid_rest"]:
         require(kind in model, f"TypeScript override kind is missing: {kind}")
 

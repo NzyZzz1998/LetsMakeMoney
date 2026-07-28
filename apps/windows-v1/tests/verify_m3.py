@@ -4,23 +4,23 @@ ROOT = Path(__file__).resolve().parents[1]
 app = (ROOT / "src" / "App.tsx").read_text(encoding="utf-8")
 model = (ROOT / "src" / "model.ts").read_text(encoding="utf-8")
 styles = (ROOT / "src" / "styles.css").read_text(encoding="utf-8")
+presentation = (ROOT / "src" / "presentation.ts").read_text(encoding="utf-8")
 native = (ROOT / "src-tauri" / "src" / "lib.rs").read_text(encoding="utf-8")
 capability = (ROOT / "src-tauri" / "capabilities" / "mini-window.json").read_text(encoding="utf-8")
 
 checks = {
-    "mini-drag-region": all(token in app + styles + native for token in (
+    "mini-drag-region": all(token in app + native for token in (
         'invoke<WindowDragOrigin>("window_drag_origin"',
         'invoke("move_app_window"',
         "event.button !== 0",
         "event.screenX",
         "event.screenY",
         "setPointerCapture",
-        'aria-label="拖动迷你收入视图"',
-        "width: 76px",
-        "height: 20px",
-        "pointer-events: none",
+        "allowInteractiveStart: true",
+        "consumeDraggedClick",
+        'data-window-drag="false"',
         "fn window_drag_origin",
-    )),
+    )) and "mini-window__drag-handle" not in app + styles,
     "all-window-threshold-drag": all(token in app + capability for token in (
         "DRAG_THRESHOLD_PX",
         "useWindowDrag",
@@ -54,7 +54,13 @@ checks = {
         "30_000",
     )),
     "shared-snapshot": all(token in app for token in ("<TodayView {...dashboard}", "formatMoney", "formatDuration")),
-    "today-sections": all(token in app for token in ("今日已赚", "今日安排", "本月累计", "剩余有效工时")),
+    "today-sections": all(token in app + presentation for token in (
+        "今日已赚",
+        "今日安排",
+        "本月累计",
+        "boundary-summary",
+        "距离下班",
+    )),
     "calendar-month": all(token in app + model for token in (
         "calendar__grid",
         "收入日历",
@@ -88,12 +94,12 @@ checks = {
         "dashboardErrorTitle",
         "检查设置",
         "salary.calculate.invalid",
-        "请检查上班、下班和午休时间后重试",
+        "请检查上班、下班和休息时间后重试",
     )),
-    "zero-lunch-presentation": all(token in app for token in (
-        "const hasLunch = snapshot.lunchStartTime !== snapshot.lunchEndTime",
+    "zero-lunch-presentation": all(token in app + presentation for token in (
+        "function hasRest(schedule: TimelineSchedule)",
         'config.draft.lunch_start_time === config.draft.lunch_end_time',
-        '"无午休"',
+        '"无休息时段"',
     )),
     "long-content": "long-number" in app and "overflow-wrap: anywhere" in styles,
     "accessibility": all(token in app for token in ('role="dialog"', "aria-label", "IconButton")),

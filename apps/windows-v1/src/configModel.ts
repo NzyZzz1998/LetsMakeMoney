@@ -1,12 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { emit } from "@tauri-apps/api/event";
+import {
+  applyTheme,
+  broadcastTheme,
+  normalizeThemeMode,
+  type ThemeMode,
+} from "./theme";
 
 export type RestMode = "single" | "double" | "alternating";
 export type WeekType = "big" | "small" | null;
 export type DateOverrideKind = "workday" | "paid_rest" | "unpaid_rest";
 
 export interface AppConfig {
-  config_version: 7;
+  config_version: 8;
+  theme_mode: ThemeMode;
   monthly_salary: number;
   rest_mode: RestMode;
   alternating_anchor_date: string | null;
@@ -29,7 +37,8 @@ export interface AppConfig {
 }
 
 export const defaultConfig: AppConfig = {
-  config_version: 7,
+  config_version: 8,
+  theme_mode: "light",
   monthly_salary: 0,
   rest_mode: "double",
   alternating_anchor_date: null,
@@ -53,6 +62,15 @@ export const defaultConfig: AppConfig = {
 
 export type SaveFeedback = "idle" | "saved" | "unchanged" | "failed";
 
+function normalizeConfig(value: Partial<AppConfig> | null | undefined): AppConfig {
+  return {
+    ...defaultConfig,
+    ...value,
+    config_version: 8,
+    theme_mode: normalizeThemeMode(value?.theme_mode),
+  };
+}
+
 function isTauri() {
   return "__TAURI_INTERNALS__" in window;
 }
@@ -66,7 +84,7 @@ function validate(config: AppConfig) {
     errors.alternating_anchor_week_type = "请选择本周是大周还是小周";
   }
   if (!config.work_start_time) errors.work_start_time = "请选择上班时间";
-  if (!config.lunch_start_time) errors.lunch_start_time = "请选择午休开始时间";
+  if (!config.lunch_start_time) errors.lunch_start_time = "请选择休息开始时间";
   return errors;
 }
 
@@ -79,7 +97,7 @@ export function addHours(clock: string, hours: number) {
 
 export function useConfigDraft(seed?: Partial<AppConfig>) {
   const seedKey = JSON.stringify(seed ?? {});
-  const seeded = useMemo(() => ({ ...defaultConfig, ...seed }), [seedKey]);
+  const seeded = useMemo(() => normalizeConfig(seed), [seedKey]);
   const [persisted, setPersisted] = useState<AppConfig>(seeded);
   const [draft, setDraft] = useState<AppConfig>(seeded);
   const [loading, setLoading] = useState(true);
@@ -90,11 +108,13 @@ export function useConfigDraft(seed?: Partial<AppConfig>) {
   const reload = useCallback(async (preserveDirty = true) => {
     if (preserveDirty && dirtyRef.current) return;
     try {
-      const loaded = isTauri()
+      const loadedValue = isTauri()
         ? await invoke<AppConfig>("read_configuration")
         : JSON.parse(localStorage.getItem("lmm.config") ?? "null") ?? seeded;
+      const loaded = normalizeConfig(loadedValue);
       setPersisted(loaded);
       setDraft(loaded);
+      applyTheme(loaded.theme_mode);
       setFeedback("idle");
       setMessage("");
     } catch {
@@ -125,6 +145,9 @@ export function useConfigDraft(seed?: Partial<AppConfig>) {
 
   const update = useCallback(<K extends keyof AppConfig>(key: K, value: AppConfig[K]) => {
     setDraft(current => ({ ...current, [key]: value }));
+    if (key === "theme_mode") {
+      void broadcastTheme(normalizeThemeMode(value), "draft_changed");
+    }
     setFeedback("idle");
     setMessage("");
   }, []);
@@ -134,6 +157,7 @@ export function useConfigDraft(seed?: Partial<AppConfig>) {
     if (Object.keys(validation).length) {
       setFeedback("failed");
       setMessage(Object.values(validation)[0]);
+      void broadcastTheme(persisted.theme_mode, "validation_failed");
       return false;
     }
     if (!dirty) {
@@ -151,24 +175,32 @@ export function useConfigDraft(seed?: Partial<AppConfig>) {
       if (result.status === "failed") throw new Error(result.message);
       if (!isTauri()) localStorage.setItem("lmm.config", JSON.stringify(draft));
       setPersisted(draft);
+      void broadcastTheme(draft.theme_mode, result.status);
+      window.dispatchEvent(new Event("lmm:configuration-updated"));
+      if (isTauri()) {
+        void emit("lmm://configuration-updated", { source: "settings" });
+      }
       setFeedback(result.status === "unchanged" ? "unchanged" : "saved");
       setMessage(result.message);
       return true;
     } catch (error) {
       setFeedback("failed");
       setMessage(`保存失败：${error instanceof Error ? error.message : String(error)}`);
+      void broadcastTheme(persisted.theme_mode, "save_failed");
       return false;
     }
-  }, [dirty, draft]);
+  }, [dirty, draft, persisted.theme_mode]);
 
   const reset = useCallback(() => {
     setDraft(defaultConfig);
+    void broadcastTheme(defaultConfig.theme_mode, "reset_draft");
     setFeedback("idle");
     setMessage("");
   }, []);
 
   const cancel = useCallback(() => {
     setDraft(persisted);
+    void broadcastTheme(persisted.theme_mode, "draft_discarded");
     setFeedback("idle");
     setMessage("");
   }, [persisted]);

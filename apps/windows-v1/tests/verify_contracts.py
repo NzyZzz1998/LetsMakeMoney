@@ -79,7 +79,16 @@ def verify_platform_contracts() -> None:
     visual = load_json(CONTRACTS / "visual-contract.json")
 
     by_id = {window["id"]: window for window in windows["windows"]}
-    require(by_id["mini"]["default_size"] == [344, 120], "Mini window dimensions drift")
+    require(by_id["mini"]["default_size"] == [344, 108], "Mini window dimensions drift")
+    require(
+        by_id["mini"].get("state_sizes")
+        == {
+            "normal": [344, 108],
+            "loading": [344, 108],
+            "error": [344, 120],
+        },
+        "Mini window state dimensions drift",
+    )
     require(by_id["workbench"]["default_size"] == [920, 640], "Workbench dimensions drift")
     require(by_id["settings"]["default_size"] == [760, 560], "Settings dimensions drift")
     require(by_id["wizard"]["default_size"] == [780, 580], "Wizard dimensions drift")

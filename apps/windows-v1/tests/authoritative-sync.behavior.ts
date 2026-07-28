@@ -2,6 +2,7 @@ import {
   calculateLocalTick,
   needsAuthoritativeCorrection,
   shouldApplyAuthoritativeSnapshot,
+  shouldRetryInitialSync,
   shouldRunAuthoritativeSync,
   syncFailureDisposition,
   wallClockJumped,
@@ -33,10 +34,12 @@ assert(advanced.todayMinor >= working.todayMinor, "working income must be monoto
 
 const lunch = calculateLocalTick({ ...working, phase: "lunch" }, 4_000);
 assert(lunch.todayMinor === working.todayMinor, "lunch must freeze local income");
+assert(lunch.nextBoundarySeconds === 597, "lunch countdown must continue without changing income");
 
 const boundary = calculateLocalTick({ ...working, nextBoundarySeconds: 2 }, 10_000);
 assert(boundary.reachedBoundary, "local tick must stop and request authority at a business boundary");
 assert(boundary.completedSeconds === 3_602, "local tick must not interpolate past a boundary");
+assert(boundary.nextBoundarySeconds === 0, "a reached boundary must clamp its countdown to zero");
 
 assert(shouldRunAuthoritativeSync(1_000, 31_000), "30 seconds must trigger one authority sync");
 assert(!shouldRunAuthoritativeSync(1_000, 30_999), "authority sync must not run early");
@@ -66,5 +69,25 @@ assert(
   wallClockJumped(1_000, 10_000, 8_000, 11_000),
   "a wall-clock jump must force an immediate authoritative resync",
 );
+assert(
+  shouldRetryInitialSync(false, "calculation_unavailable", 1),
+  "the first unavailable startup result must remain loading and retry",
+);
+assert(
+  shouldRetryInitialSync(false, "calculation_unavailable", 2),
+  "the second unavailable startup result may retry once more",
+);
+assert(
+  !shouldRetryInitialSync(false, "calculation_unavailable", 3),
+  "startup retry must stop after the bounded retry budget",
+);
+assert(
+  !shouldRetryInitialSync(false, "invalid_work_hours", 1),
+  "a real configuration error must not be hidden by startup retry",
+);
+assert(
+  !shouldRetryInitialSync(true, "calculation_unavailable", 1),
+  "an established authority must retain the existing stale-result policy",
+);
 
-console.log("authoritative sync behavior: 13/13 passed");
+console.log("authoritative sync behavior: 20/20 passed");

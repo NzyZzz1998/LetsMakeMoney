@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LetsMakeMoney v1.0 高保真产品原型</title>
+  <title>LetsMakeMoney v1.0.2 高保真产品原型</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="lab-brand">
       <span class="lab-mark" aria-hidden="true">¥</span>
       <div>
-        <strong>v1.0.1 视觉事实源</strong>
-        <span>Tauri 主线 · 无宠物稳定版</span>
+        <strong>v1.0.2 视觉事实源</strong>
+        <span>阶段呈现 · 复合日历 · 浅色 / 深色</span>
       </div>
     </div>
 
@@ -26,9 +26,32 @@
       <label class="lab-select">
         <span>业务状态</span>
         <select id="business-state">
-          <option value="working">工作中</option>
-          <option value="lunch">午休</option>
-          <option value="offday">非工作日</option>
+          <option value="loading">加载中</option>
+          <option value="error">计算失败</option>
+          <option value="before_work">上班前</option>
+          <option value="working_before_rest">工作中 · 休息前</option>
+          <option value="rest">休息中</option>
+          <option value="working_after_rest" selected>工作中 · 休息后</option>
+          <option value="after_work">工作结束</option>
+          <option value="rest_day">普通休息日</option>
+          <option value="paid_rest">带薪休息</option>
+          <option value="unpaid_rest">不带薪休息</option>
+          <option value="overnight">跨夜班次</option>
+        </select>
+      </label>
+      <label class="lab-select">
+        <span>主题</span>
+        <select id="theme-mode">
+          <option value="light">浅色</option>
+          <option value="dark">深色</option>
+        </select>
+      </label>
+      <label class="lab-select">
+        <span>DPI</span>
+        <select id="dpi-mode">
+          <option value="100">100%</option>
+          <option value="125">125%</option>
+          <option value="150">150%</option>
         </select>
       </label>
       <label class="lab-select">
@@ -67,7 +90,7 @@
         </button>
         <div class="mini-copy">
           <div class="eyebrow-row">
-            <span>今日已赚</span>
+            <span data-income-label>今日已赚</span>
             <span class="status-text" data-status>工作中</span>
           </div>
           <strong class="amount" data-amount>¥ 186.42</strong>
@@ -92,7 +115,9 @@
           <button class="icon-button" id="workbench-settings" aria-label="打开设置" title="打开设置">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
           </button>
-          <button class="window-button" id="workbench-close" aria-label="关闭工作台" title="关闭">×</button>
+          <button class="window-button" id="workbench-close" aria-label="关闭工作台" title="关闭">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"/></svg>
+          </button>
         </div>
       </header>
 
@@ -117,21 +142,21 @@
           <section class="view-panel is-active" data-panel="today">
             <header class="content-heading">
               <div>
-                <h1>今天，继续把时间变成看得见的进度</h1>
-                <p>2026 年 7 月 23 日 · 周四</p>
+                <h1 id="today-title">今天的收入进度</h1>
+                <p id="today-subtitle">2026 年 7 月 23 日 · 周四</p>
               </div>
               <span class="status-badge" data-status>工作中</span>
             </header>
 
             <div class="today-grid">
               <section class="income-summary">
-                <span class="section-label">今日已赚</span>
+                <span class="section-label" data-income-label>今日已赚</span>
                 <strong class="hero-amount" data-amount>¥ 186.42</strong>
-                <div class="income-caption">日薪 ¥ 500.00 · 时薪 ¥ 62.50</div>
+                <div class="income-caption" id="income-caption">日薪 ¥ 500.00 · 时薪 ¥ 62.50</div>
                 <div class="progress-block">
                   <div class="progress-label">
-                    <span>收入进度</span>
-                    <strong>56%</strong>
+                    <span data-progress-label>工作进度</span>
+                    <strong data-progress-percent>56%</strong>
                   </div>
                   <div class="progress-track large"><span style="width: 56%"></span></div>
                 </div>
@@ -145,7 +170,7 @@
                     <dd>8 / 20 天</dd>
                   </div>
                   <div>
-                    <dt>距离下班</dt>
+                    <dt id="boundary-label">距离下班</dt>
                     <dd data-remaining>4:38:20</dd>
                   </div>
                 </dl>
@@ -155,11 +180,11 @@
                 <div class="section-heading-row">
                   <div>
                     <span class="section-label">今日安排</span>
-                    <h2>08:00—18:00</h2>
+                    <h2 id="schedule-range">08:00—18:00</h2>
                   </div>
-                  <button class="text-button">调整今天</button>
+                  <button class="text-button" id="adjust-today">调整今天</button>
                 </div>
-                <ol class="timeline">
+                <ol class="timeline" id="today-timeline">
                   <li class="is-done">
                     <time>08:00</time>
                     <span class="timeline-dot"></span>
@@ -168,7 +193,7 @@
                   <li class="is-current">
                     <time>12:00</time>
                     <span class="timeline-dot"></span>
-                    <div><strong>午休</strong><span>12:00—14:00</span></div>
+                    <div><strong>休息</strong><span>12:00—14:00</span></div>
                   </li>
                   <li>
                     <time>18:00</time>
@@ -194,9 +219,13 @@
               <button class="text-button" id="calendar-retry" hidden>重试</button>
             </div>
             <div class="calendar-header">
-              <button class="icon-button" id="calendar-prev" aria-label="上个月">‹</button>
+              <button class="icon-button" id="calendar-prev" aria-label="上个月">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
               <strong id="calendar-month-label">2026 年 7 月</strong>
-              <button class="icon-button" id="calendar-next" aria-label="下个月">›</button>
+              <button class="icon-button" id="calendar-next" aria-label="下个月">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
             </div>
             <div class="calendar-grid" aria-label="2026 年 7 月收入日历"></div>
             <div class="calendar-legend">
@@ -205,6 +234,8 @@
               <span><i class="legend-dot adjusted"></i>调休工作</span>
               <span><i class="legend-dot paid-rest"></i>带薪休息</span>
               <span><i class="legend-dot unpaid-rest"></i>不带薪休息</span>
+              <span><i class="legend-dot today"></i>今天</span>
+              <span><i class="legend-dot manual"></i>手动调整</span>
               <span><i class="legend-dot selected"></i>选中日期</span>
             </div>
           </section>
@@ -218,7 +249,9 @@
           <span class="app-mark">¥</span>
           <strong>开始配置</strong>
         </div>
-        <button class="window-button" id="wizard-close" aria-label="关闭首次配置" title="关闭">×</button>
+        <button class="window-button" id="wizard-close" aria-label="关闭首次配置" title="关闭">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"/></svg>
+        </button>
       </header>
       <div class="wizard-shell">
         <aside class="wizard-steps" aria-label="配置步骤">
@@ -229,7 +262,7 @@
           </div>
           <ol>
             <li class="is-current" data-step-marker="1"><span>1</span>收入与休息</li>
-            <li data-step-marker="2"><span>2</span>工作与午休</li>
+            <li data-step-marker="2"><span>2</span>工作与休息</li>
             <li data-step-marker="3"><span>3</span>确认配置</li>
           </ol>
           <div class="local-note">✓ 配置只保存在本机</div>
@@ -267,22 +300,22 @@
           <div class="wizard-panel" data-wizard-step="2">
             <span class="step-caption">第 2 步，共 3 步</span>
             <h2>一天通常怎样安排？</h2>
-            <p>默认按 8 小时有效工时推算，你仍可调整午休开始和时长。</p>
+            <p>默认按 8 小时有效工时推算，你仍可调整休息开始和时长。</p>
             <div class="wizard-fields">
               <label class="setting-row">
                 <span><strong>上班时间</strong><small>先确定一天从几点开始</small></span>
                 <input id="wizard-work-start" type="time" value="08:00">
               </label>
               <label class="setting-row">
-                <span><strong>午休开始</strong><small>默认从 12:00 开始</small></span>
+                <span><strong>休息开始</strong><small>默认从 12:00 开始</small></span>
                 <input id="wizard-lunch-start" type="time" value="12:00">
               </label>
               <label class="setting-row">
-                <span><strong>午休时长</strong><small>午休不计入有效工时</small></span>
-                <select id="wizard-lunch-duration"><option>2 小时</option><option>1.5 小时</option><option>1 小时</option><option>不午休</option></select>
+                <span><strong>休息时长</strong><small>休息不计入有效工时</small></span>
+                <select id="wizard-lunch-duration"><option>2 小时</option><option>1.5 小时</option><option>1 小时</option><option>不休息</option></select>
               </label>
             </div>
-            <div class="prediction-row"><span>自动推算</span><strong>午休 12:00—14:00 · 下班 18:00 · 有效工时 8 小时</strong></div>
+            <div class="prediction-row"><span>自动推算</span><strong>休息 12:00—14:00 · 下班 18:00 · 有效工时 8 小时</strong></div>
           </div>
           <div class="wizard-panel" data-wizard-step="3">
             <span class="step-caption">第 3 步，共 3 步</span>
@@ -292,7 +325,7 @@
               <div><dt>月薪</dt><dd>¥ 10,000</dd></div>
               <div><dt>休息模式</dt><dd id="wizard-confirm-rest">双休</dd></div>
               <div><dt>工作时间</dt><dd>08:00—18:00</dd></div>
-              <div><dt>午休</dt><dd>12:00—14:00</dd></div>
+              <div><dt>休息</dt><dd>12:00—14:00</dd></div>
               <div><dt>有效工时</dt><dd>8 小时</dd></div>
             </dl>
             <div class="success-note">配置将以事务方式写入，失败时不会覆盖旧配置。</div>
@@ -314,7 +347,9 @@
           <span class="app-mark">¥</span>
           <strong>设置</strong>
         </div>
-        <button class="window-button" id="settings-close" aria-label="关闭设置" title="关闭">×</button>
+        <button class="window-button" id="settings-close" aria-label="关闭设置" title="关闭">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"/></svg>
+        </button>
       </header>
 
       <div class="settings-shell">
@@ -400,20 +435,20 @@
               </label>
               <label class="setting-row" for="lunch-duration">
                 <span>
-                  <strong>午休时长</strong>
-                  <small>午休不计入有效工时</small>
+                  <strong>休息时长</strong>
+                  <small>休息不计入有效工时</small>
                 </span>
                 <select id="lunch-duration">
                   <option>2 小时</option>
                   <option>1.5 小时</option>
                   <option>1 小时</option>
-                  <option>不午休</option>
+                  <option>不休息</option>
                 </select>
               </label>
               <label class="setting-row" for="lunch-start">
                 <span>
-                  <strong>午休开始</strong>
-                  <small>修改后自动推算午休结束与下班时间</small>
+                  <strong>休息开始</strong>
+                  <small>修改后自动推算休息结束与下班时间</small>
                 </span>
                 <input id="lunch-start" type="time" value="12:00">
               </label>
@@ -421,7 +456,7 @@
 
             <div class="prediction-row">
               <span>自动推算</span>
-              <strong>午休 12:00—14:00 · 下班 18:00 · 有效工时 8 小时</strong>
+              <strong>休息 12:00—14:00 · 下班 18:00 · 有效工时 8 小时</strong>
             </div>
             </section>
 
@@ -441,6 +476,20 @@
             </section>
 
             <section class="settings-panel" data-settings-content="window">
+              <fieldset class="setting-group">
+                <legend>外观</legend>
+                <div class="setting-row">
+                  <span>
+                    <strong>主题</strong>
+                    <small>选择后立即预览，保存后同步到全部窗口</small>
+                  </span>
+                  <div class="theme-choice" role="radiogroup" aria-label="主题">
+                    <label><input type="radio" name="settings-theme" value="light" checked><span>浅色</span></label>
+                    <label><input type="radio" name="settings-theme" value="dark"><span>深色</span></label>
+                  </div>
+                </div>
+                <div class="theme-preview-note" id="theme-preview-note">浅色是新用户和旧配置的默认主题。</div>
+              </fieldset>
               <fieldset class="setting-group">
                 <legend>窗口</legend>
                 <label class="setting-row">
@@ -468,7 +517,7 @@
                   <span><strong>复制诊断摘要</strong><small>内容已脱敏，不包含用户名和完整路径</small></span><span>复制 ›</span>
                 </button>
                 <button type="button" class="setting-row row-button" id="check-update">
-                  <span><strong>检查更新</strong><small>当前版本 v1.0.1</small></span><span>检查 ›</span>
+                  <span><strong>检查更新</strong><small>当前版本 v1.0.2</small></span><span>检查 ›</span>
                 </button>
                 <button type="button" class="setting-row row-button" id="run-wizard">
                   <span><strong>重新运行配置向导</strong><small>不会在完成前写入半成品配置</small></span><span>开始 ›</span>
@@ -515,7 +564,9 @@
           <span class="section-label">单日调整</span>
           <h2 id="override-date-title">2026 年 7 月 23 日</h2>
         </div>
-        <button class="window-button" id="override-close" aria-label="关闭单日调整">×</button>
+        <button class="window-button" id="override-close" aria-label="关闭单日调整">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"/></svg>
+        </button>
       </header>
       <div class="override-body">
         <p>只改变所选日期。应用成功后，日历、今日状态、收入和进度会一起重算。</p>

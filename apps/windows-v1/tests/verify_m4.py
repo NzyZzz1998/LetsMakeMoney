@@ -16,7 +16,7 @@ checks = {
         "预计本月工作日 {workdayPreview.workdays} 天",
         "选择本周类型后显示预计工作日",
     )) and "预计本月工作日 23 天" not in app,
-    "schedule-inference": all(token in app for token in ("addHours", "午休开始", "推算下班时间", "有效工时")),
+    "schedule-inference": all(token in app for token in ("addHours", "休息开始", "推算下班时间", "有效工时")),
     "fractional-lunch-duration": all(token in app for token in (
         "lunchDurationInput",
         "parseLunchDuration",
