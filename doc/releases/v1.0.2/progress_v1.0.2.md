@@ -2,12 +2,12 @@
 
 ## 追踪信息
 
-- 当前状态：最终 Acceptance 通过，可进入发布收口
+- 当前状态：已发布 / 进入发布后观察
 - 目标版本：Windows v1.0.2 Stable
 - 上游来源：`prd.md`
 - 对应实施计划：`dev_plan_v1.0.2.md`
 - 对应开发日志：`../../logs/dev_log_v1.0.2.md`
-- 下游承接：`verification.md`、独立 Acceptance、发布收口
+- 下游承接：`verification.md`、独立 Acceptance、发布后观察
 - 当前事实源：本文
 - 最后更新：2026-07-28
 
@@ -107,16 +107,17 @@
 - 真实 DPI：在 `2560 × 1440` 显示器上完成 Windows 125%/150% 系统缩放复验；Mini、Workbench、日历、Settings、Wizard 及浅色/深色关键状态通过，证据位于 `.tmp_acceptance/v1.0.2-dpi-20260728-181435/evidence/`。
 - 人工托盘：真实鼠标左键隐藏/恢复通过；修复后托盘“重新配置”显示已配置用户关闭语义，证据位于 `.tmp_acceptance/v1.0.2-bug007-20260728-193200/evidence/`。
 - 环境恢复：Windows 缩放恢复 `100%（推荐）`，用户配置和日志哈希与验收前备份一致，进程数为 0。
-- 当前候选 Zip SHA256：`BA7330C0C14745CE1DB355C3E28CE75255E7B64250212CE25D8B36C054653DB2`。
-- 当前候选 EXE SHA256：`BE54F049F2134536564EC8222F3C5446F54C3653223206A97BDE2A3B575CB6F7`。
-- 当前候选 WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
+- 发布源码提交：`fe074439521bda77c57e2e96f8065dad329a8686`，`source_tree_dirty=false`。
+- 最终发布 Zip SHA256：`EEBA1788A8C1D6AEB071728B78C71C3634062B3F5BD6E61BDB46DD171C97FEA2`。
+- 最终发布 EXE SHA256：`4057E2F9F94B801A1A0A6C3D6F7B7AFE14DED2049478BF37AE6BBF17E33AD3BA`。
+- 最终发布 WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
+- `v1.0.2` tag 与 GitHub Stable Release 已发布，远端下载包哈希复核一致。
 
 ## 下一步
 
-- 创建签核后的发布提交。
-- 从干净发布提交重新构建并更新最终发布哈希。
-- 经项目所有者确认后执行 push、`v1.0.2` tag 和 GitHub Release。
-- 本轮不执行 commit、push、tag 或 GitHub Release。
+- 执行 v1.0.2 发布后观察。
+- 核对 GitHub 下载包、首次启动、旧配置兼容、日历、日期调整、跨夜班次、秒级收益、托盘和更新检查。
+- 只记录真实问题，不扩展 v1.0.2 范围。
 
 ## 记录边界
 

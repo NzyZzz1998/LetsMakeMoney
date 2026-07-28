@@ -28,15 +28,17 @@ v1.0.2 是 v1.0.1 之后的正式优化版本。在不改变既有收入、日�
 
 ## 当前状态
 
-完整 PRD、开发计划和 FR-001 至 FR-008 实现已经完成。聚合验证、历史回归、打包、包体验证、真实主题事务、二级窗口显示、WebView2 冷启动压力、真实 Windows 125%/150% DPI、通知区左键和配置后 Wizard 托盘复用均通过。`V102-BUG-007` 已关闭，最终 Acceptance 通过，可进入发布收口。
+完整 PRD、开发计划和 FR-001 至 FR-008 实现已经完成。聚合验证、历史回归、打包、包体验证、真实主题事务、二级窗口显示、WebView2 冷启动压力、真实 Windows 125%/150% DPI、通知区左键和配置后 Wizard 托盘复用均通过。`V102-BUG-007` 已关闭，最终 Acceptance 通过，v1.0.2 Stable 已发布。
 
-最终验收候选身份：
+最终发布身份：
 
-- Zip SHA256：`BA7330C0C14745CE1DB355C3E28CE75255E7B64250212CE25D8B36C054653DB2`
-- EXE SHA256：`BE54F049F2134536564EC8222F3C5446F54C3653223206A97BDE2A3B575CB6F7`
+- 发布源码提交：`fe074439521bda77c57e2e96f8065dad329a8686`
+- Zip SHA256：`EEBA1788A8C1D6AEB071728B78C71C3634062B3F5BD6E61BDB46DD171C97FEA2`
+- EXE SHA256：`4057E2F9F94B801A1A0A6C3D6F7B7AFE14DED2049478BF37AE6BBF17E33AD3BA`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
+- GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.2`
 
-上述哈希标识本次 Acceptance 候选。`V102-BUG-004` 至 `V102-BUG-007` 已关闭；Workbench、Settings 和 Wizard 均完成真实窗口显示链。配置后从托盘重新打开 Wizard 时，关闭弹窗正确使用“放弃本次配置”语义。发布收口仍需从签核后的干净提交重新构建并更新最终发布哈希。
+上述哈希标识从干净发布提交构建并上传 GitHub Release 的最终产物。`V102-BUG-004` 至 `V102-BUG-007` 已关闭；Workbench、Settings 和 Wizard 均完成真实窗口显示链。配置后从托盘重新打开 Wizard 时，关闭弹窗正确使用“放弃本次配置”语义。远端下载包已重新计算 SHA256，并与本地最终产物一致。
 
 ## 证据入口
 

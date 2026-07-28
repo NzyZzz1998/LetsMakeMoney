@@ -6,11 +6,11 @@
 
 | 项目 | 状态 |
 | --- | --- |
-| 当前公开版本 | Windows v1.0.1 Stable |
-| 当前公开 tag | `v1.0.1` |
-| 当前开发版本 | Windows v1.0.2 正式优化版 |
+| 当前公开版本 | Windows v1.0.2 Stable |
+| 当前公开 tag | `v1.0.2` |
+| 当前开发版本 | Windows v1.0.2 发布后观察 |
 | v1.0.1 阶段 | 已发布 |
-| v1.0.2 阶段 | 最终 Acceptance 通过，可进入发布收口 |
+| v1.0.2 阶段 | 已发布 / 发布后观察 |
 | 技术栈 | Rust + Tauri + TypeScript/React |
 | 产品形态 | 无宠物、本地优先的 Windows 收入进度工具 |
 | 发布阻塞 | 无 |
@@ -74,17 +74,22 @@ v1.0.1 只处理收入、日历、状态和用户信任链，不扩展产品范�
 
 完整 PRD、需求追踪矩阵、高保真交互原型、开发计划和正式实现已完成。浅色/深色配置事务与跨窗口同步已从真实候选通过；WebView2 辅助窗口改为按需创建后，连续 5 次冷启动均存活并响应。
 
-最终验收候选身份：
+最终发布身份：
 
-- Zip SHA256：`BA7330C0C14745CE1DB355C3E28CE75255E7B64250212CE25D8B36C054653DB2`
-- EXE SHA256：`BE54F049F2134536564EC8222F3C5446F54C3653223206A97BDE2A3B575CB6F7`
+- 发布源码提交：`fe074439521bda77c57e2e96f8065dad329a8686`，`source_tree_dirty=false`。
+- Zip：`LetsMakeMoney-v1.0.2-windows-x86_64.zip`，3,195,066 字节。
+- Zip SHA256：`EEBA1788A8C1D6AEB071728B78C71C3634062B3F5BD6E61BDB46DD171C97FEA2`
+- EXE SHA256：`4057E2F9F94B801A1A0A6C3D6F7B7AFE14DED2049478BF37AE6BBF17E33AD3BA`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
+- GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.2`
 
 `V102-BUG-001` 至 `V102-BUG-007` 已关闭。最终候选将二级窗口显示命令改为异步执行并隔离阻塞式窗口创建，Workbench、Settings 和首次配置 Wizard 均从新解压包形成 `show_requested -> policy_applied -> visible -> focused -> shown` 完整日志链。Settings 的深色草稿预览、关闭确认、放弃回滚和重新打开无残留确认框完成真实 GUI 复验。
 
 真实 Windows 125%/150% 系统缩放已完成补证，Mini、Workbench、日历、Settings、Wizard 及浅色/深色关键状态均通过清晰度检查。Windows 通知区真实鼠标左键隐藏与恢复也已由项目所有者补证通过。
 
-配置完成后通过托盘入口重新打开 Wizard 的旧候选曾错误显示首次配置退出语义。修复后首次配置保存会立即更新前端状态，每次复用窗口显示都会重新读取权威配置状态，并阻止旧异步结果回写。项目所有者已从真实 Windows 通知区完成定向复验，关闭弹窗正确显示“放弃本次配置？”和“放弃配置”，应用继续运行。v1.0.1 仍是当前公开稳定版；v1.0.2 已可进入发布收口。
+配置完成后通过托盘入口重新打开 Wizard 的旧候选曾错误显示首次配置退出语义。修复后首次配置保存会立即更新前端状态，每次复用窗口显示都会重新读取权威配置状态，并阻止旧异步结果回写。项目所有者已从真实 Windows 通知区完成定向复验，关闭弹窗正确显示“放弃本次配置？”和“放弃配置”，应用继续运行。
+
+发布提交经 PR #12 和必需 CI 检查合入 `main`，随后从干净提交重新构建。`v1.0.2` annotated tag 与 GitHub Stable Release 已发布；Release 只包含便携 Zip 和 `SHA256SUMS.txt`，远端下载包哈希与本地最终产物一致。v1.0.1 继续作为直接回滚基线。
 
 ## 待人工补证
 
@@ -124,10 +129,11 @@ v1.0.1 只处理收入、日历、状态和用户信任链，不扩展产品范�
 - [v1.0.2 进度](releases/v1.0.2/progress_v1.0.2.md)
 - [v1.0.2 验证](releases/v1.0.2/verification.md)
 - [v1.0.2 人工补证](releases/v1.0.2/manual-verification.md)
+- [v1.0.2 发布说明](releases/v1.0.2/release-notes.md)
 - [v1.0.2 发布检查](releases/v1.0.2/release-checklist.md)
 - [v1.0.2 高保真原型说明](prototypes/v1.0/README.md)
 - [v1.0.2 原型验证证据](prototypes/v1.0/evidence/v1.0.2/README.md)
 
 ## 下一步
 
-进入发布收口：创建签核后的发布提交，从干净提交重新构建并验证最终候选，更新最终哈希；经项目所有者确认后再执行 push、`v1.0.2` tag 和 GitHub Release。当前尚未执行 commit、push、tag 或 Release。
+进入 v1.0.2 发布后观察：核对 GitHub 下载包、首次启动、旧配置兼容、日历、日期调整、跨夜班次、秒级收益、托盘和更新检查。只记录真实问题，不扩展当前版本范围。

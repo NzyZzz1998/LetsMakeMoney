@@ -1,15 +1,15 @@
 # LetsMakeMoney v1.0.2 发布检查
 
-## 候选身份
+## 最终发布身份
 
 - [x] 分支：`main`
-- [x] 构建基线 HEAD：`1eb3dadbd37dcc06141e82e5e043db529821a104`
-- [x] 工作树中的 v1.0.2 实现尚未提交，候选以哈希为唯一身份。
+- [x] 发布源码提交：`fe074439521bda77c57e2e96f8065dad329a8686`
+- [x] `BUILD-INFO.json`：`source_tree_dirty=false`
 - [x] Zip：`releases/v1.0.2/LetsMakeMoney-v1.0.2-windows-x86_64.zip`
-- [x] Zip 大小：3,194,384 字节
-- [x] Zip SHA256：`BA7330C0C14745CE1DB355C3E28CE75255E7B64250212CE25D8B36C054653DB2`
+- [x] Zip 大小：3,195,066 字节
+- [x] Zip SHA256：`EEBA1788A8C1D6AEB071728B78C71C3634062B3F5BD6E61BDB46DD171C97FEA2`
 - [x] EXE 大小：9,988,608 字节
-- [x] EXE SHA256：`BE54F049F2134536564EC8222F3C5446F54C3653223206A97BDE2A3B575CB6F7`
+- [x] EXE SHA256：`4057E2F9F94B801A1A0A6C3D6F7B7AFE14DED2049478BF37AE6BBF17E33AD3BA`
 - [x] WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 
 ## 实现与回归
@@ -51,10 +51,10 @@
 - [x] 关闭 `V102-BUG-006` 并完成 Settings 真实 GUI 与双窗口静态回归。
 - [x] 关闭 `V102-BUG-007` 并完成首次配置与复用 Wizard 定向复验。
 - [x] 项目所有者完成最终 Acceptance 签核。
-- [ ] 从签核后的干净提交重新构建并更新最终哈希。
-- [ ] 创建发布提交并推送 `main`。
-- [ ] 创建并推送 `v1.0.2` tag。
-- [ ] 创建 GitHub Release，只上传便携 Zip 和 `SHA256SUMS.txt`。
-- [ ] 核对远端分支、tag、Release 附件和 SHA256。
+- [x] 从签核后的干净提交重新构建并更新最终哈希。
+- [x] 发布提交经 PR #12 和必需 CI 检查合入 `main`。
+- [x] 创建并推送 annotated tag `v1.0.2`。
+- [x] 创建 GitHub Stable Release，只上传便携 Zip 和 `SHA256SUMS.txt`。
+- [x] 核对远端分支、tag、Release 附件和 SHA256。
 
-当前结论：**最终 Acceptance 通过，无发布阻塞，可进入发布收口。仍需从签核后的干净提交重新构建并更新最终哈希；本轮未执行发布动作。**
+当前结论：**v1.0.2 Stable 已发布，无发布阻塞，进入发布后观察。**

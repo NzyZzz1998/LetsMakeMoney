@@ -1,11 +1,13 @@
 # 更新日志
 
-## v1.0.2 Stable 候选（未发布）
+## v1.0.2 Stable（2026-07-28）
 
 ### 状态
 
-- 实现与最终 Acceptance 通过，可进入发布收口。
-- 当前公开版本仍为 v1.0.1 Stable；本条不代表 v1.0.2 已发布。
+- 实现、最终 Acceptance 和发布收口均已通过。
+- 已通过 `v1.0.2` tag 发布 Windows x86_64 便携 Zip 与 `SHA256SUMS.txt`。
+- 发布源码提交：`fe074439521bda77c57e2e96f8065dad329a8686`。
+- 发布 Zip SHA256：`EEBA1788A8C1D6AEB071728B78C71C3634062B3F5BD6E61BDB46DD171C97FEA2`。
 
 ### 优化与修复
 
