@@ -43,21 +43,6 @@ try {
         throw "Calendar state behavior verification failed."
     }
 
-    Push-Location (Join-Path $AppRoot "src-tauri")
-    try {
-        & $Cargo +stable-x86_64-pc-windows-msvc test `
-            --locked `
-            --offline `
-            calendar_data::tests `
-            --quiet
-        if ($LASTEXITCODE -ne 0) {
-            throw "Native calendar tests failed."
-        }
-    }
-    finally {
-        Pop-Location
-    }
-
     if (-not $SkipFrontendBuild) {
         Push-Location $AppRoot
         try {
@@ -73,6 +58,21 @@ try {
         finally {
             Pop-Location
         }
+    }
+
+    Push-Location (Join-Path $AppRoot "src-tauri")
+    try {
+        & $Cargo +stable-x86_64-pc-windows-msvc test `
+            --locked `
+            --offline `
+            calendar_data::tests `
+            --quiet
+        if ($LASTEXITCODE -ne 0) {
+            throw "Native calendar tests failed."
+        }
+    }
+    finally {
+        Pop-Location
     }
 
     Write-Host "PASS LetsMakeMoney v1.0.1 M1 verification" -ForegroundColor Green
