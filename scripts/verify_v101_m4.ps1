@@ -20,7 +20,7 @@ try {
     }
 
     $Esbuild = Get-ChildItem `
-        -Path (Join-Path $NodeModules ".pnpm") `
+        -LiteralPath $NodeModules `
         -Recurse `
         -Filter "esbuild.exe" `
         -File |
