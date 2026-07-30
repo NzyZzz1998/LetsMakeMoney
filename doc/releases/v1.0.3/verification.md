@@ -2,29 +2,39 @@
 
 ## 当前结论
 
-结论：**部分通过，尚不可发布。**
+结论：**通过，可进入发布收口。**
 
 - 自动门禁、官方/估算日历、日期调整、Settings、窗口生命周期、原生 WebView2 挂起、真实时区切换、首次启动 Wizard 和修正版候选 120 分钟稳定运行已有证据。
 - `V103-BUG-001` 已由同一修正版候选的连续 7201 秒运行结果关闭。
 - Windows 通知区真实鼠标左键隐藏与恢复、系统时间向前/向后跳变及恢复、两条真实 Windows 睡眠跨边界路径均已通过。
-- 当前候选由脏工作树构建，仅用于验收；即使本轮通过，发布前仍必须从干净提交重新构建并重新锁定哈希。
+- 深度 GUI 与系统门禁由修正版验收候选完成；随后将同一实现内容提交并从干净提交重新构建。
+- 最终干净候选已通过全量自动验证、包体验证和新解压启动冒烟，发布身份门禁已关闭。
 
 ## 验收对象
 
 | 项目 | 身份 |
 | --- | --- |
 | 分支 | `main` |
-| 构建基线 HEAD | `27dc11421daa8289caf06d92c2f397d64c64c5df` |
-| Source tree dirty | `true` |
+| 发布候选源码提交 | `ebcd58844bc905874c2ddc9b267848ee1aec5b7b` |
+| Source tree dirty | `false` |
 | Zip | `releases/v1.0.3/LetsMakeMoney-v1.0.3-windows-x86_64.zip` |
-| Zip 大小 | 3,204,787 字节 |
-| Zip SHA256 | `91491B65F0CABFCA6889C18355AFD26E1BB22720DB8F61DB835F8CB86A4E0743` |
+| Zip 大小 | 3,204,792 字节 |
+| Zip SHA256 | `E4FF7771B3ACD5658DD84EE2CC6E14B1DACA685EBD0D2D180FC318B7BB1F2183` |
 | EXE 大小 | 9,997,312 字节 |
-| EXE SHA256 | `76773F00650523A0298C94365DB8B832B0B30B2331DEBE2D04E8FEF8A3D34D36` |
+| EXE SHA256 | `7DD45D6B35CE82A6241D359EFB2FE88A9A62B3ECD20703B19BAE82CEE98F5BBA` |
 | WebView2Loader 大小 | 160,320 字节 |
 | WebView2Loader SHA256 | `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C` |
-| 解压目录 | `.tmp_acceptance/v1.0.3-webview-visible-fix-20260730-045941/candidate/LetsMakeMoney-v1.0.3-windows-x86_64/` |
-| 证据目录 | `.tmp_acceptance/v1.0.3-final-20260730-014452/evidence/` |
+| 最终候选解压目录 | `.tmp_acceptance/v1.0.3-clean-build-20260730-173416/candidate/LetsMakeMoney-v1.0.3-windows-x86_64/` |
+| 最终身份与冒烟证据 | `.tmp_acceptance/v1.0.3-clean-build-20260730-173416/evidence/` |
+| 深度 GUI 与系统证据 | `.tmp_acceptance/v1.0.3-final-20260730-014452/evidence/` |
+
+### 证据继承边界
+
+- 深度 GUI、睡眠、系统时间、时区、托盘和 120 分钟稳定性证据来自修正版验收候选
+  `91491B65F0CABFCA6889C18355AFD26E1BB22720DB8F61DB835F8CB86A4E0743`。
+- 该候选的实现内容完整进入提交 `ebcd58844bc905874c2ddc9b267848ee1aec5b7b`，没有在提交后修改业务实现。
+- 最终干净构建因构建身份变化获得新的 Zip 与 EXE 哈希；本轮对其重新执行全量自动验证、包体验证及新解压真实启动冒烟。
+- 未将深度 GUI 项目描述为在新哈希上重复执行。
 
 ## 自动门禁
 
@@ -91,15 +101,19 @@
 
 ## 发布阻塞
 
-1. 当前验收包来自脏工作树；发布包必须在验收通过后从干净发布提交重新构建。
+无发布阻塞项。
 
 修复前候选的 120 分钟稳定性结果为未通过：隐藏 Workbench 后出现连续 28 分钟单核占用超过 `10%`。该结果保留为 `V103-BUG-001` 根因证据；同一修正版候选随后完成连续 7201 秒稳定运行并通过门禁，缺陷现已关闭。
 
-## 结论规则
+## 最终候选复核
 
-- 上述发布阻塞全部关闭前，v1.0.3 不能进入发布收口。
-- stale/error 缺少真实 GUI 注入不覆盖其自动门禁事实，也不冒充 GUI 通过。
-- 重新构建导致 Zip、EXE 或 DLL 身份变化时，候选身份相关证据必须重新核对。
+- `scripts/verify_v103.ps1`：通过。
+- `scripts/verify_v103_package.ps1`：通过。
+- `BUILD-INFO.json`：`source_head=ebcd58844bc905874c2ddc9b267848ee1aec5b7b`、`source_tree_dirty=false`。
+- 新解压候选真实启动并显示 Mini 工作状态；截图为
+  `.tmp_acceptance/v1.0.3-clean-build-20260730-173416/evidence/clean-candidate-mini-smoke.png`。
+- 启动进程路径、大小、哈希和退出结果见同目录 `launch-identity.json`；进程已停止。
+- stale/error 缺少真实 GUI 注入的边界继续如实保留，不冒充 GUI 通过。
 
 ## 用户环境恢复
 

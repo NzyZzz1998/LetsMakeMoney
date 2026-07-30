@@ -2,16 +2,16 @@
 
 ## 当前判断
 
-状态：**验收进行中，不可发布。**
+状态：**最终验收通过，可进入发布收口。**
 
 ## 候选身份
 
 - [x] 分支、HEAD、Zip、EXE 与 WebView2Loader 已记录。
 - [x] 候选已从新的独立目录解压运行。
 - [x] 包体结构、年度数据和许可证自动验证通过。
-- [ ] 发布源代码提交已创建且工作树干净。
-- [ ] 已从干净发布提交重新构建。
-- [ ] 最终发布 Zip、EXE、DLL 与 `SHA256SUMS.txt` 已重新锁定。
+- [x] 发布源代码提交已创建且工作树干净。
+- [x] 已从干净发布提交重新构建。
+- [x] 最终发布 Zip、EXE、DLL 与 `SHA256SUMS.txt` 已重新锁定。
 
 ## 功能与回归
 
@@ -41,11 +41,11 @@
 
 - [x] `progress_v1.0.3.md` 与真实完成度一致。
 - [x] `verification.md`、`manual-verification.md` 与证据一致。
-- [x] `release-notes.md` 已完成候选草案。
+- [x] `release-notes.md` 已更新为最终验收通过口径。
 - [x] `doc/current.md` 已更新为当前验收结论。
 - [x] 文档状态、UTF-8、乱码、本地链接与 `git diff --check` 通过。
-- [ ] 只保留发布所需 Zip 与校验文件。
-- [x] 未执行 commit、push、tag 或 GitHub Release。
+- [x] Release 附件清单只包含便携 Zip 与 `SHA256SUMS.txt`；本地解压目录仅用于验证，不得上传。
+- [x] 已创建本地发布候选提交；尚未执行 push、tag 或 GitHub Release。
 
 ## 发布停止条件
 

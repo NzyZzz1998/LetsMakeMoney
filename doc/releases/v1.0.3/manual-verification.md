@@ -10,9 +10,12 @@
 | V103-MAN-002 | 系统时间向前、向后跳变与恢复 | 通过 | 经项目所有者确认 UAC 后完成真实前拨、后拨及恢复；阶段在 5 秒内收敛，配置、时区和系统时间均已恢复 |
 | V103-MAN-003 | Windows 时区切换与恢复 | 通过 | Tokyo 与 China Standard Time 已真实切换并恢复 |
 | V103-MAN-004 | Windows 通知区真实左键隐藏/恢复 | 通过 | 真实通知区图标完成两次鼠标左键操作；隐藏、进程存活、恢复和生命周期日志均通过 |
-| V103-MAN-005 | 修正版最终候选连续 120 分钟运行 | 通过 | 连续运行 7201.27 秒，进程存活；CPU、内存、日志和同步频率均满足门禁 |
+| V103-MAN-005 | 修正版深度验收候选连续 120 分钟运行 | 通过 | 连续运行 7201.27 秒，进程存活；CPU、内存、日志和同步频率均满足门禁 |
 
-修复前候选已完成一次 120 分钟采样，但因隐藏 Workbench 造成连续高 CPU 而未通过。该失败已进入 `doc/logs/v1.0.3-bugfix-log.md`；修正版候选使用新的候选哈希重新采样并通过，未沿用失败候选证据。
+修复前候选已完成一次 120 分钟采样，但因隐藏 Workbench 造成连续高 CPU 而未通过。该失败已进入 `doc/logs/v1.0.3-bugfix-log.md`；修正版深度验收候选使用新的候选哈希重新采样并通过，未沿用失败候选证据。
+
+最终发布身份来自干净源码提交 `ebcd58844bc905874c2ddc9b267848ee1aec5b7b`。该提交保持上述已验收实现不变，并重新通过全量自动验证、包体验证和新解压启动冒烟；最终 Zip SHA256 为
+`E4FF7771B3ACD5658DD84EE2CC6E14B1DACA685EBD0D2D180FC318B7BB1F2183`。本清单不会把旧候选上的真实系统操作改写成在最终哈希上重复执行。
 
 剩余门禁的权限、Computer Use 边界与睡眠能力证据：
 `.tmp_acceptance/v1.0.3-final-20260730-014452/evidence/remaining-gates/V103-REMAINING-GATES-CAPABILITY.json`。
@@ -107,7 +110,7 @@
 - 主证据：`.tmp_acceptance/v1.0.3-final-20260730-014452/evidence/remaining-gates/V103-TRAY-LEFT-CLICK-EVIDENCE.json`。
 - 截图：同目录 `V103-TRAY-BEFORE-HIDE.png`、`V103-TRAY-AFTER-HIDE.png`、`V103-TRAY-BEFORE-RESTORE.png`、`V103-TRAY-AFTER-RESTORE.png`。
 
-## V103-MAN-005 连续 120 分钟运行
+## V103-MAN-005 深度验收候选连续 120 分钟运行
 
 - 候选 Zip SHA256：`91491B65F0CABFCA6889C18355AFD26E1BB22720DB8F61DB835F8CB86A4E0743`。
 - 实际运行：`7201.27` 秒，候选进程始终存活。
