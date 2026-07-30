@@ -82,11 +82,10 @@ def verify_runtime_scheduler_and_logs() -> None:
         'document.addEventListener("visibilitychange"',
         '"configuration_updated"',
         '"business_boundary"',
-        '"wall_clock_changed"',
     ]:
         require(token in model, f"Authority scheduler is missing: {token}")
     require(
-        'window.setInterval(() => {' in model and "}, 1000);" in model,
+        "window.setInterval" in model and "runLocalTick, 1000" in model,
         "One-second local display timer is missing",
     )
 

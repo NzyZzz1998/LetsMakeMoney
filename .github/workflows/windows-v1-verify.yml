@@ -35,4 +35,4 @@ jobs:
       - name: Verify current Windows release contracts and UI
         shell: pwsh
         run: |
-          ./scripts/verify_v102.ps1 -SkipReleaseBuild
+          ./scripts/verify_v103.ps1

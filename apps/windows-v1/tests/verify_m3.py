@@ -49,8 +49,7 @@ checks = {
     "live-dashboard": all(token in app + model for token in (
         "useDashboard",
         "calculateLocalTick",
-        "window.setInterval",
-        "}, 1000);",
+        "window.setInterval(runLocalTick, 1000)",
         "30_000",
     )),
     "shared-snapshot": all(token in app for token in ("<TodayView {...dashboard}", "formatMoney", "formatDuration")),

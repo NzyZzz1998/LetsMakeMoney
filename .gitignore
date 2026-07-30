@@ -17,6 +17,7 @@ export_credentials.cfg
 /releases/v1.0/
 /releases/v1.0.1/
 /releases/v1.0.2/
+/releases/v1.0.3/
 /deliverables/
 .godot_user_v05/
 assets/pets/cat/orange_v2/_incoming/
@@ -37,6 +38,8 @@ native/windows/**/*.obj
 /.cache/
 /.tmp_ci/
 /native/windows/bin/**/*.a
+__pycache__/
+*.py[cod]
 
 # Local acceptance evidence and extracted candidates
 /.manual-test/

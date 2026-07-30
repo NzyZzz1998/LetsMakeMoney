@@ -30,6 +30,56 @@ export interface TickResult {
   reachedBoundary: boolean;
 }
 
+export interface TimeEnvironmentSample {
+  wallMs: number;
+  monotonicMs: number;
+  timezoneId: string;
+  timezoneOffsetMinutes: number;
+}
+
+export type TimeEnvironmentChange =
+  | "none"
+  | "sleep_resume"
+  | "wall_clock"
+  | "timezone";
+
+export function createTimeEnvironmentSample(
+  wallMs = Date.now(),
+  monotonicMs = performance.now(),
+  timezoneId = Intl.DateTimeFormat().resolvedOptions().timeZone,
+  timezoneOffsetMinutes = new Date(wallMs).getTimezoneOffset(),
+): TimeEnvironmentSample {
+  return {
+    wallMs,
+    monotonicMs,
+    timezoneId,
+    timezoneOffsetMinutes,
+  };
+}
+
+export function classifyTimeEnvironmentChange(
+  previous: TimeEnvironmentSample,
+  current: TimeEnvironmentSample,
+  wallToleranceMs = 2_000,
+  suspensionThresholdMs = 5_000,
+): TimeEnvironmentChange {
+  if (
+    previous.timezoneId !== current.timezoneId
+    || previous.timezoneOffsetMinutes !== current.timezoneOffsetMinutes
+  ) {
+    return "timezone";
+  }
+  const wallElapsed = current.wallMs - previous.wallMs;
+  const monotonicElapsed = current.monotonicMs - previous.monotonicMs;
+  if (Math.abs(wallElapsed - monotonicElapsed) > wallToleranceMs) {
+    return "wall_clock";
+  }
+  if (Math.max(wallElapsed, monotonicElapsed) > suspensionThresholdMs) {
+    return "sleep_resume";
+  }
+  return "none";
+}
+
 function roundPositiveRatio(numerator: number, denominator: number) {
   if (!Number.isSafeInteger(numerator) || !Number.isSafeInteger(denominator) || denominator <= 0) {
     throw new Error("salary.local_tick_unsafe_integer");

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -16,6 +17,12 @@ def require(condition: bool, message: str) -> None:
 
 def read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def version_tuple(value: str) -> tuple[int, int, int]:
+    parts = value.split(".")
+    require(len(parts) == 3 and all(part.isdigit() for part in parts), f"invalid version: {value}")
+    return tuple(int(part) for part in parts)
 
 
 def main() -> int:
@@ -39,11 +46,21 @@ def main() -> int:
     log_contract = json.loads(read(APP / "contracts" / "log-v102-contract.json"))
     notices = read(ROOT / "THIRD_PARTY_NOTICES.md")
 
-    require(package["version"] == "1.0.2", "package.json version must be 1.0.2")
-    require('version = "1.0.2"' in cargo, "Cargo.toml version must be 1.0.2")
-    require(tauri["version"] == "1.0.2", "tauri.conf.json version must be 1.0.2")
-    require(app_source.count('currentVersion: "1.0.2"') == 2, "update checks must use 1.0.2")
-    require("<dd>1.0.2</dd>" in app_source, "About must display 1.0.2")
+    current_version = package["version"]
+    cargo_version = re.search(r'^version = "([^"]+)"$', cargo, re.MULTILINE)
+    require(version_tuple(current_version) >= (1, 0, 2), "current version must retain the v1.0.2 contract")
+    require(package_lock["version"] == current_version, "package-lock root version must match package.json")
+    require(
+        package_lock["packages"][""]["version"] == current_version,
+        "package-lock workspace version must match package.json",
+    )
+    require(cargo_version is not None and cargo_version.group(1) == current_version, "Cargo.toml version must match package.json")
+    require(tauri["version"] == current_version, "tauri.conf.json version must match package.json")
+    require(
+        app_source.count(f'currentVersion: "{current_version}"') == 2,
+        "update checks must use the current package version",
+    )
+    require(f"<dd>{current_version}</dd>" in app_source, "About must display the current package version")
     require(package["dependencies"]["lucide-react"] == "1.27.0", "lucide-react must be exactly pinned")
     require(
         package_lock["packages"]["node_modules/lucide-react"]["version"] == "1.27.0",
@@ -60,7 +77,7 @@ def main() -> int:
     require("earnings.authoritative_sync.retry_scheduled" in model, "startup retry semantic log is missing")
     require("initialRetryTimer" in model and "clearTimeout" in model, "startup retry cleanup is missing")
 
-    require("20/20 passed" in behavior, "authoritative sync behavior count is stale")
+    require("25/25 passed" in behavior, "authoritative sync behavior count is stale")
     require("invalid_work_hours" in behavior, "real configuration errors must remain visible")
     require(
         "earnings.authoritative_sync.retry_scheduled" in log_contract["events"],

@@ -1,10 +1,15 @@
+import {
+  createStaleCoverage,
+  type CalendarCoverage,
+} from "./calendarCoverage";
+import type { DateOverrideKind } from "./configModel";
+
 export type CalendarLoadStatus =
   | "loading"
   | "ready"
   | "empty"
   | "stale"
-  | "error"
-  | "unsupported";
+  | "error";
 
 export interface CalendarStateDay {
   date: string;
@@ -18,7 +23,8 @@ export interface CalendarStateDay {
 export interface CalendarMonthData {
   month: string;
   days: CalendarStateDay[];
-  datasetVersion: string;
+  datasetVersion: string | null;
+  coverage: CalendarCoverage;
 }
 
 export interface CalendarLoadState {
@@ -93,11 +99,16 @@ export function reduceCalendarState(
     };
   }
 
-  const unsupported = action.errorCode.startsWith("calendar_year_unsupported:");
+  const sameTargetData = state.data?.month === action.targetMonth
+    ? {
+        ...state.data,
+        coverage: createStaleCoverage(state.data.coverage, action.errorCode),
+      }
+    : undefined;
   return {
     ...state,
-    status: unsupported ? "unsupported" : state.data ? "stale" : "error",
+    status: sameTargetData ? "stale" : "error",
+    data: sameTargetData,
     errorCode: action.errorCode,
   };
 }
-import type { DateOverrideKind } from "./configModel";
