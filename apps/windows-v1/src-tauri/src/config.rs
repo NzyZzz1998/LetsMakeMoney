@@ -1,7 +1,6 @@
 use crate::calendar_data;
 use crate::domain::{
-    self, CalendarData, DateOverride, DateOverrideKind, DayKind, RestMode, SalarySchedule,
-    WeekType,
+    self, CalendarData, DateOverride, DateOverrideKind, DayKind, RestMode, SalarySchedule, WeekType,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -9,6 +8,9 @@ use std::fs::{self, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
+
+pub const CURRENT_CONFIG_VERSION: u32 = 8;
+pub const MIGRATABLE_CONFIG_VERSIONS: &[u64] = &[5, 6, 7];
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct WindowPosition {
@@ -59,7 +61,7 @@ impl AppConfig {
     pub fn salary_schedule(&self) -> SalarySchedule {
         SalarySchedule {
             monthly_salary_minor: (self.monthly_salary * 100.0).round() as i64,
-            rest_mode: self.rest_mode.clone(),
+            rest_mode: self.rest_mode,
             alternating_anchor_date: self.alternating_anchor_date.clone(),
             alternating_anchor_week_type: self.alternating_anchor_week_type.clone(),
             work_hours_per_day: self.work_hours_per_day,
@@ -94,7 +96,7 @@ pub enum SaveFault {
 }
 
 pub fn validate(config: &AppConfig) -> Result<(), String> {
-    if config.config_version != 8 {
+    if config.config_version != CURRENT_CONFIG_VERSION {
         return Err("unsupported_config_version".into());
     }
     if !config.monthly_salary.is_finite() || config.monthly_salary < 0.0 {
@@ -170,7 +172,7 @@ pub fn migrate_v7(source: &Value) -> Result<AppConfig, String> {
         return Err("unsupported_source_config".into());
     }
     let mut target = source.as_object().cloned().ok_or("invalid_source_config")?;
-    target.insert("config_version".into(), Value::from(8));
+    target.insert("config_version".into(), Value::from(CURRENT_CONFIG_VERSION));
     target.insert("theme_mode".into(), Value::from("light"));
     let config: AppConfig =
         serde_json::from_value(Value::Object(target)).map_err(|error| error.to_string())?;
@@ -205,7 +207,7 @@ fn migrate_legacy_to_v8(source: &Value) -> Result<AppConfig, String> {
             target.insert(key.into(), value.clone());
         }
     }
-    target.insert("config_version".into(), Value::from(8));
+    target.insert("config_version".into(), Value::from(CURRENT_CONFIG_VERSION));
     target.insert("theme_mode".into(), Value::from("light"));
     target.insert(
         "calendar_dataset_version".into(),
@@ -262,6 +264,15 @@ fn migrate_legacy_to_v8(source: &Value) -> Result<AppConfig, String> {
         .sort_by(|left, right| left.date.cmp(&right.date));
     validate(&config)?;
     Ok(config)
+}
+
+pub fn migrate_to_current(source: &Value) -> Result<AppConfig, String> {
+    match source.get("config_version").and_then(Value::as_u64) {
+        Some(5) => migrate_v5(source),
+        Some(6) => migrate_v6(source),
+        Some(7) => migrate_v7(source),
+        _ => Err("unsupported_source_config".into()),
+    }
 }
 
 fn calendar_for_date(date: &str) -> Result<CalendarData, String> {
@@ -455,7 +466,7 @@ pub fn load_or_migrate(config_path: &Path) -> Result<AppConfig, String> {
     let bytes = fs::read(config_path).map_err(|error| error.to_string())?;
     let mut value: Value = serde_json::from_slice(&bytes).map_err(|error| error.to_string())?;
     match value.get("config_version").and_then(Value::as_u64) {
-        Some(8) => {
+        Some(version) if version == u64::from(CURRENT_CONFIG_VERSION) => {
             let theme_valid = matches!(
                 value.get("theme_mode").and_then(Value::as_str),
                 Some("light" | "dark")
@@ -480,15 +491,10 @@ pub fn load_or_migrate(config_path: &Path) -> Result<AppConfig, String> {
             }
             Ok(config)
         }
-        Some(5) | Some(6) | Some(7) => {
+        Some(version) if MIGRATABLE_CONFIG_VERSIONS.contains(&version) => {
             let backup = unique_backup_path(config_path);
             fs::copy(config_path, backup).map_err(|error| error.to_string())?;
-            let migrated = match value.get("config_version").and_then(Value::as_u64) {
-                Some(5) => migrate_v5(&value)?,
-                Some(6) => migrate_v6(&value)?,
-                Some(7) => migrate_v7(&value)?,
-                _ => unreachable!("matched migration source version"),
-            };
+            let migrated = migrate_to_current(&value)?;
             let current = AppConfig::default();
             let result = save_initial(config_path, &current, &migrated);
             if result.status != SaveStatus::Saved {
@@ -513,7 +519,7 @@ pub fn stored_theme_requires_fallback(config_path: &Path) -> bool {
     let Ok(value) = serde_json::from_slice::<Value>(&bytes) else {
         return false;
     };
-    value.get("config_version").and_then(Value::as_u64) == Some(8)
+    value.get("config_version").and_then(Value::as_u64) == Some(u64::from(CURRENT_CONFIG_VERSION))
         && !matches!(
             value.get("theme_mode").and_then(Value::as_str),
             Some("light" | "dark")
@@ -523,6 +529,30 @@ pub fn stored_theme_requires_fallback(config_path: &Path) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn configuration_version_contract_has_one_current_target() {
+        assert_eq!(CURRENT_CONFIG_VERSION, 8);
+        assert_eq!(MIGRATABLE_CONFIG_VERSIONS, &[5, 6, 7]);
+        assert_eq!(AppConfig::default().config_version, CURRENT_CONFIG_VERSION);
+    }
+
+    #[test]
+    fn migration_dispatcher_accepts_every_declared_legacy_version() {
+        for version in MIGRATABLE_CONFIG_VERSIONS {
+            let mut source =
+                serde_json::to_value(AppConfig::default()).expect("defaults must serialize");
+            source
+                .as_object_mut()
+                .expect("defaults must be an object")
+                .insert("config_version".into(), Value::from(*version));
+            source.as_object_mut().unwrap().remove("theme_mode");
+
+            let migrated = migrate_to_current(&source)
+                .unwrap_or_else(|error| panic!("version {version} failed: {error}"));
+            assert_eq!(migrated.config_version, CURRENT_CONFIG_VERSION);
+        }
+    }
 
     fn temp_config(name: &str) -> PathBuf {
         let root = std::env::temp_dir().join(format!(
@@ -647,12 +677,10 @@ mod tests {
         assert_eq!(migrated.config_version, 8);
         assert_eq!(migrated.date_overrides.len(), 2);
         assert!(migrated.date_overrides.iter().any(|entry| {
-            entry.date == "2026-07-24"
-                && entry.kind == crate::domain::DateOverrideKind::PaidRest
+            entry.date == "2026-07-24" && entry.kind == crate::domain::DateOverrideKind::PaidRest
         }));
         assert!(migrated.date_overrides.iter().any(|entry| {
-            entry.date == "2026-07-25"
-                && entry.kind == crate::domain::DateOverrideKind::Workday
+            entry.date == "2026-07-25" && entry.kind == crate::domain::DateOverrideKind::Workday
         }));
     }
 
@@ -718,10 +746,9 @@ mod tests {
 
     #[test]
     fn v7_migrates_to_light_theme_without_losing_user_data() {
-        let source: Value = serde_json::from_str(include_str!(
-            "../../contracts/config-v101-defaults.json"
-        ))
-        .unwrap();
+        let source: Value =
+            serde_json::from_str(include_str!("../../contracts/config-v101-defaults.json"))
+                .unwrap();
         let mut source = source.as_object().unwrap().clone();
         source.insert("monthly_salary".into(), Value::from(12_345.67));
         let migrated = migrate_v7(&Value::Object(source)).unwrap();

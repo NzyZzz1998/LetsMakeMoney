@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build:web": "tsc && vite build",
+    "test": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File ../../scripts/verify_architecture.ps1",
     "test:contract": "python tests/verify_contracts.py",
     "test:m1": "python tests/verify_m1.py",
     "test:m2": "python tests/verify_m2.py",

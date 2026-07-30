@@ -225,10 +225,7 @@ fn parse_clock(value: &str) -> Result<i64, String> {
     } else {
         0
     };
-    if !(0..24).contains(&hour)
-        || !(0..60).contains(&minute)
-        || !(0..60).contains(&second)
-    {
+    if !(0..24).contains(&hour) || !(0..60).contains(&minute) || !(0..60).contains(&second) {
         return Err("invalid_time".into());
     }
     Ok(hour * 3600 + minute * 60 + second)
@@ -300,7 +297,7 @@ pub fn resolve_day(
                 DateOverrideKind::UnpaidRest => "manual_unpaid_rest",
             }
             .into(),
-            override_kind: Some(entry.kind.clone()),
+            override_kind: Some(entry.kind),
         });
     }
     resolve_day_automatic(date, schedule, calendar)
@@ -403,11 +400,8 @@ pub fn calculate_month(
     let mut payable_salary_minor = 0_i64;
     for (offset, (date, kind)) in slot_days.into_iter().enumerate() {
         let index = u32::try_from(offset + 1).map_err(|_| "salary.slot_overflow")?;
-        let target_minor = salary_slot_target(
-            schedule.monthly_salary_minor,
-            salary_slot_count,
-            index,
-        )?;
+        let target_minor =
+            salary_slot_target(schedule.monthly_salary_minor, salary_slot_count, index)?;
         let payable_minor = if kind == SalarySlotKind::UnpaidRest {
             0
         } else {
@@ -488,15 +482,12 @@ pub fn salary_slot_target(
         return Err("salary.slot_index_out_of_range".into());
     }
     Ok(
-        salary_cumulative(
-            monthly_salary_minor,
-            salary_slot_count,
-            salary_slot_index,
-        )? - salary_cumulative(
-            monthly_salary_minor,
-            salary_slot_count,
-            salary_slot_index - 1,
-        )?,
+        salary_cumulative(monthly_salary_minor, salary_slot_count, salary_slot_index)?
+            - salary_cumulative(
+                monthly_salary_minor,
+                salary_slot_count,
+                salary_slot_index - 1,
+            )?,
     )
 }
 
@@ -531,10 +522,7 @@ fn completed_salary_for_previous_slots(
         })
 }
 
-fn current_slot<'a>(
-    owner_date: &str,
-    month_salary: &'a MonthSalary,
-) -> Option<&'a SalarySlot> {
+fn current_slot<'a>(owner_date: &str, month_salary: &'a MonthSalary) -> Option<&'a SalarySlot> {
     month_salary
         .salary_slots
         .iter()
@@ -589,7 +577,10 @@ pub fn calculate_today(
     let previous_month_earned = completed_salary_for_previous_slots(month_salary, owner_date)?;
 
     if let Some(kind) = resolution.override_kind {
-        if matches!(kind, DateOverrideKind::PaidRest | DateOverrideKind::UnpaidRest) {
+        if matches!(
+            kind,
+            DateOverrideKind::PaidRest | DateOverrideKind::UnpaidRest
+        ) {
             let paid = kind == DateOverrideKind::PaidRest;
             let earned_minor = if paid { daily_target_minor } else { 0 };
             let month_earned_minor = previous_month_earned
@@ -775,7 +766,6 @@ fn interval_elapsed(now: i64, start: i64, end: i64) -> i64 {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -896,8 +886,7 @@ mod tests {
         no_lunch.work_end_time = "17:30".into();
         no_lunch.lunch_start_time = "12:00".into();
         no_lunch.lunch_end_time = "12:00".into();
-        let month =
-            calculate_month("2026-07", &no_lunch, &CalendarData::default()).unwrap();
+        let month = calculate_month("2026-07", &no_lunch, &CalendarData::default()).unwrap();
 
         let snapshot = calculate_today(
             "2026-07-27",
@@ -1035,10 +1024,7 @@ mod tests {
                     .map(|index| salary_slot_target(salary, slots, index).unwrap())
                     .sum();
                 assert_eq!(distributed, salary);
-                assert_eq!(
-                    salary_cumulative(salary, slots, slots).unwrap(),
-                    salary
-                );
+                assert_eq!(salary_cumulative(salary, slots, slots).unwrap(), salary);
             }
         }
     }

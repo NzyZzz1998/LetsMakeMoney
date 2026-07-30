@@ -17,8 +17,7 @@ fn generate_calendar_index() {
         .and_then(serde_json::Value::as_array)
         .expect("calendar manifest datasets must be an array");
 
-    let mut generated =
-        String::from("const CALENDAR_DATASETS: &[(i32, &str, &str)] = &[\n");
+    let mut generated = String::from("const CALENDAR_DATASETS: &[(i32, &str, &str)] = &[\n");
     for dataset in datasets {
         let year = dataset
             .get("year")

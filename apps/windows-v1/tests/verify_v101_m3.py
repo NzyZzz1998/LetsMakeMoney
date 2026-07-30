@@ -70,6 +70,8 @@ def verify_salary_contract_and_fixtures() -> None:
 def verify_native_behavior() -> None:
     domain = read(APP_ROOT / "src-tauri" / "src" / "domain.rs")
     lib = read(APP_ROOT / "src-tauri" / "src" / "lib.rs")
+    income_commands = read(APP_ROOT / "src-tauri" / "src" / "commands" / "income.rs")
+    income_model = read(APP_ROOT / "src-tauri" / "src" / "models" / "income.rs")
     for token in [
         "pub enum SalarySlotKind",
         "pub struct SalarySlot",
@@ -91,19 +93,38 @@ def verify_native_behavior() -> None:
         "month_without_salary_slots_has_a_readable_error",
     ]:
         require(test in domain, f"Native behavior test is missing: {test}")
-    require("month_salary: domain::MonthSalary" in lib, "Today command lacks month salary input")
     require(
-        "resolve_schedule_owner_date," in lib,
+        "pub month_salary: MonthSalary" in income_model,
+        "Today command request lacks month salary input",
+    )
+    require(
+        "commands::income::resolve_schedule_owner_date" in lib,
         "Owner-date command is not registered",
+    )
+    require(
+        "IncomeService::calculate_today" in income_commands,
+        "Today command does not delegate to the income service",
     )
 
 
 def verify_frontend_consumes_authority() -> None:
     model = read(APP_ROOT / "src" / "model.ts")
-    app = read(APP_ROOT / "src" / "App.tsx")
+    dashboard_service = read(APP_ROOT / "src" / "services" / "dashboardService.ts")
+    app = "\n".join([
+        read(APP_ROOT / "src" / "App.tsx"),
+        read(APP_ROOT / "src" / "features" / "mini" / "MiniWindow.tsx"),
+    ])
     for token in [
-        'invoke<string>("resolve_schedule_owner_date"',
-        'invoke<MonthSalaryResult>("calculate_month_salary"',
+        'runtime.invoke("resolve_schedule_owner_date"',
+        'runtime.invoke("calculate_month_salary"',
+        'runtime.invoke("calculate_today_income"',
+        "month_salary: input.monthSalary",
+    ]:
+        require(token in dashboard_service, f"Dashboard service authority flow is missing: {token}")
+    for token in [
+        "dashboardService.resolveOwnerDate",
+        "dashboardService.calculateMonth",
+        "dashboardService.calculateToday",
         "month_earned_minor",
         "payable_salary_minor",
         "salary_slot_count",
@@ -122,7 +143,10 @@ def verify_frontend_consumes_authority() -> None:
 def verify_no_sensitive_paths() -> None:
     files = [
         APP_ROOT / "src-tauri" / "src" / "domain.rs",
+        APP_ROOT / "src-tauri" / "src" / "commands" / "income.rs",
+        APP_ROOT / "src-tauri" / "src" / "models" / "income.rs",
         APP_ROOT / "src" / "model.ts",
+        APP_ROOT / "src" / "services" / "dashboardService.ts",
         APP_ROOT / "tests" / "fixtures" / "v101-salary-fixtures.json",
     ]
     content = "\n".join(read(path) for path in files)

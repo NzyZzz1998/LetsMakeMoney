@@ -52,5 +52,34 @@ function Get-V10Cargo {
         return $localCargo
     }
 
-    return Resolve-V10Executable -Name "cargo"
+    if ($env:LMM_CARGO -and (Test-Path -LiteralPath $env:LMM_CARGO -PathType Leaf)) {
+        if ($env:LMM_CARGO_HOME) {
+            $env:CARGO_HOME = [IO.Path]::GetFullPath($env:LMM_CARGO_HOME)
+        }
+        if ($env:LMM_RUSTUP_HOME) {
+            $env:RUSTUP_HOME = [IO.Path]::GetFullPath($env:LMM_RUSTUP_HOME)
+        }
+        return [IO.Path]::GetFullPath($env:LMM_CARGO)
+    }
+
+    $configuredCargoHome = if ($env:LMM_CARGO_HOME) {
+        $env:LMM_CARGO_HOME
+    } else {
+        $env:CARGO_HOME
+    }
+    $cargoHomeExecutable = if ($configuredCargoHome) {
+        Join-Path $configuredCargoHome "bin\cargo.exe"
+    } else {
+        ""
+    }
+    $userCargo = if ($env:USERPROFILE) {
+        Join-Path $env:USERPROFILE ".cargo\bin\cargo.exe"
+    } else {
+        ""
+    }
+
+    return Resolve-V10Executable -Name "cargo" -FallbackPaths @(
+        $cargoHomeExecutable,
+        $userCargo
+    )
 }

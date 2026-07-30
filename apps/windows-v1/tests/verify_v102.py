@@ -35,6 +35,7 @@ def main() -> int:
     main_source = read(APP / "src" / "main.tsx")
     presentation = read(APP / "src" / "presentation.ts")
     theme = read(APP / "src" / "theme.ts")
+    theme_domain = read(APP / "src" / "domain" / "theme.ts")
     styles = read(APP / "src" / "styles.css")
     config_source = read(APP / "src-tauri" / "src" / "config.rs")
     native_source = read(APP / "src-tauri" / "src" / "lib.rs")
@@ -57,7 +58,7 @@ def main() -> int:
     require(cargo_version is not None and cargo_version.group(1) == current_version, "Cargo.toml version must match package.json")
     require(tauri["version"] == current_version, "tauri.conf.json version must match package.json")
     require(
-        app_source.count(f'currentVersion: "{current_version}"') == 2,
+        app_source.count(f'evaluateUpdate("{current_version}"') == 2,
         "update checks must use the current package version",
     )
     require(f"<dd>{current_version}</dd>" in app_source, "About must display the current package version")
@@ -87,7 +88,10 @@ def main() -> int:
     require("nextBoundarySeconds" in presentation, "stage copy must consume authoritative boundaries")
     require("timelineRows" in presentation, "timeline presentation selector is missing")
     require("11/11 passed" in presentation_behavior, "presentation behavior count is stale")
-    require('type ThemeMode = "light" | "dark"' in theme, "theme mode contract is missing")
+    require(
+        'type ThemeMode = "light" | "dark"' in theme_domain,
+        "theme mode contract is missing",
+    )
     require("lmm://theme-preview" in theme, "cross-window theme event is missing")
     require(
         "core:event:default" in capabilities["permissions"],
@@ -100,7 +104,11 @@ def main() -> int:
         "cross-window theme listener registration must wait until WebView setup completes and handle failure",
     )
     require("[data-theme=\"dark\"]" in styles, "dark theme token layer is missing")
-    require("config.config_version != 8" in config_source, "configuration version must be 8")
+    require(
+        "pub const CURRENT_CONFIG_VERSION: u32 = 8" in config_source
+        and "config.config_version != CURRENT_CONFIG_VERSION" in config_source,
+        "configuration version must have one authoritative current-version contract",
+    )
     require("theme_mode" in config_source, "persisted theme field is missing")
     require("stored_theme_requires_fallback" in config_source, "invalid theme fallback is missing")
     require("set_mini_window_state" in native_source, "mini state size command is missing")

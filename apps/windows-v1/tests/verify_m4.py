@@ -3,12 +3,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 app = (ROOT / "src" / "App.tsx").read_text(encoding="utf-8")
 model = (ROOT / "src" / "configModel.ts").read_text(encoding="utf-8")
+configuration_domain = (ROOT / "src" / "domain" / "configuration.ts").read_text(encoding="utf-8")
+configuration_service = (ROOT / "src" / "services" / "configurationService.ts").read_text(encoding="utf-8")
 styles = (ROOT / "src" / "styles.css").read_text(encoding="utf-8")
 rust_config = (ROOT / "src-tauri" / "src" / "config.rs").read_text(encoding="utf-8")
 rust_app = (ROOT / "src-tauri" / "src" / "lib.rs").read_text(encoding="utf-8")
 
 checks = {
-    "shared-draft": "useConfigDraft" in app and "dirty" in model and "validate(draft)" in model,
+    "shared-draft": all(token in app + model + configuration_domain for token in (
+        "useConfigDraft",
+        "dirty",
+        "validateConfiguration(draft)",
+        "interface AppConfig",
+    )),
     "wizard-income-rest": all(token in app for token in ("先告诉我你的月薪", "双休", "单休", "大小周")),
     "alternating-explicit": all(token in app for token in ("本周是哪一周？", "大周", "小周", "我们不会替你决定")),
     "wizard-workday-preview": all(token in app for token in (
@@ -42,7 +49,10 @@ checks = {
         "dirtyRef.current",
         "reload(true)",
     )),
-    "failure-retains-draft": "配置目录不可写" in model and "setDraft" not in model[model.index("catch (error)"):model.index("const reset")],
+    "failure-retains-draft": (
+        "配置目录不可写" in configuration_service
+        and "setDraft" not in model[model.index("catch (error)"):model.index("const reset")]
+    ),
     "settings-groups": all(token in app for token in ("收入与作息", "日历", "窗口与启动", "数据与支持")),
     "save-feedback-reset": all(token in app + model for token in ("没有需要保存的更改", "保存失败", "恢复默认设置？")),
     "side-effect-rollback": "SideEffectDenied" in rust_config and "配置已回滚" in rust_config,

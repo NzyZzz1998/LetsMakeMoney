@@ -176,6 +176,21 @@ export type CalendarBusinessState =
   | "paid_rest"
   | "unpaid_rest";
 
+export function calendarBusinessState(day: {
+  kind: "workday" | "rest_day";
+  source: string;
+  automatic_source: string;
+  override_kind: "workday" | "paid_rest" | "unpaid_rest" | null;
+}): CalendarBusinessState {
+  if (day.override_kind === "workday") return "manual_workday";
+  if (day.override_kind === "paid_rest") return "paid_rest";
+  if (day.override_kind === "unpaid_rest") return "unpaid_rest";
+  if (day.source === "adjusted_workday" || day.automatic_source === "adjusted_workday") {
+    return "adjusted_workday";
+  }
+  return day.kind === "rest_day" ? "rest_day" : "workday";
+}
+
 export interface CalendarCellPresentation {
   businessState: CalendarBusinessState;
   isToday: boolean;
