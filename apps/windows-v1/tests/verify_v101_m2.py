@@ -21,14 +21,19 @@ def require(condition: bool, message: str) -> None:
 def verify_config_contract() -> None:
     defaults = json.loads(read(APP_ROOT / "contracts" / "config-v101-defaults.json"))
     model = read(APP_ROOT / "src" / "configModel.ts")
+    domain = read(APP_ROOT / "src" / "domain" / "configuration.ts")
     require(defaults["config_version"] == 7, "Default config is not v7")
     versions = {
         int(value)
-        for value in re.findall(r"config_version:\s*(\d+)", model)
+        for value in re.findall(r"(?:config_version:\s*|CURRENT_CONFIG_VERSION\s*=\s*)(\d+)", domain)
     }
     require(versions and min(versions) >= 7, "TypeScript config regressed below v7")
     for kind in ["workday", "paid_rest", "unpaid_rest"]:
-        require(kind in model, f"TypeScript override kind is missing: {kind}")
+        require(kind in domain, f"TypeScript override kind is missing: {kind}")
+    require(
+        'from "./domain/configuration"' in model,
+        "React config model does not consume the shared configuration domain",
+    )
 
 
 def verify_native_transaction() -> None:
@@ -94,7 +99,12 @@ def verify_frontend_flow() -> None:
         "draft: state.persisted",
         "failure must preserve",
     ]:
-        source = "\n".join([model, reducer, read(APP_ROOT / "tests" / "date-override-state.behavior.ts")])
+        source = "\n".join([
+            model,
+            reducer,
+            read(APP_ROOT / "src" / "services" / "dashboardService.ts"),
+            read(APP_ROOT / "tests" / "date-override-state.behavior.ts"),
+        ])
         require(token in source, f"Date override behavior contract is missing: {token}")
 
 

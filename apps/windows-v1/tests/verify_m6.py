@@ -45,6 +45,7 @@ def check_source_tree() -> None:
         if not (
             name.startswith("verify_v10")
             or name in {
+                "verify_architecture.ps1",
                 "package_v10.ps1",
                 "package_v101.ps1",
                 "package_v102.ps1",
@@ -62,7 +63,7 @@ def check_source_tree() -> None:
     )
 
     production_files = list((APP / "src").rglob("*"))
-    production_files += list((APP / "src-tauri" / "src").glob("*.rs"))
+    production_files += list((APP / "src-tauri" / "src").rglob("*.rs"))
     forbidden = re.compile(
         r"(?i)(\bpet(?:_|-|\b)|pure_pet|click_through|desktop\s+pet|桌宠|宠物)"
     )

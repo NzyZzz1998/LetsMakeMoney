@@ -94,7 +94,9 @@ pub struct UpdateResult {
 
 fn parse_version_parts(value: &str) -> Option<Vec<u64>> {
     let normalized = value.trim().trim_start_matches(['v', 'V']);
-    let core = normalized.split_once('-').map_or(normalized, |(core, _)| core);
+    let core = normalized
+        .split_once('-')
+        .map_or(normalized, |(core, _)| core);
     if core.is_empty() {
         return None;
     }

@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
 import {
   defaultConfig,
   type AppConfig,
@@ -35,6 +33,18 @@ import {
   type DashboardLifecycleEvent,
 } from "./dashboardLifecycle";
 import type { BoundaryKind } from "./presentation";
+import {
+  formatLocalDate as localDateKey,
+  monthKey,
+  systemTime,
+} from "./runtime/timeService";
+import { createDeferredDisposer } from "./runtime/appRuntime";
+import { configurationService } from "./services/configurationService";
+import {
+  dashboardService,
+  type DateOverrideSaveResult,
+} from "./services/dashboardService";
+import { supportService } from "./services/supportService";
 
 export type DashboardState = "loading" | "ready" | "setup" | "error";
 export type WorkPhase =
@@ -132,23 +142,20 @@ export interface WorkdayPreview {
   workdays: number | null;
 }
 
-function isTauri() {
-  return "__TAURI_INTERNALS__" in window;
-}
-
 export function recordSemanticEvent(event: string, detail: string) {
-  if (!isTauri()) return;
-  void invoke("record_semantic_event", { event, detail }).catch(() => {
+  if (!dashboardService.isDesktop) return;
+  void supportService.record(event, detail).catch(() => {
     // Logging must never replace or interrupt the user-visible result.
   });
 }
 
-function localDateKey(date: Date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-}
-
-function monthKey(date: Date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+function currentTimeEnvironmentSample() {
+  return createTimeEnvironmentSample(
+    systemTime.wallClockMs(),
+    systemTime.monotonicMs(),
+    systemTime.timezoneId(),
+    systemTime.timezoneOffsetMinutes(),
+  );
 }
 
 function mondaySerial(date: Date) {
@@ -207,7 +214,7 @@ function withCalendarOverrides(
 async function loadCalendarForYear(year: number, config: AppConfig) {
   let pending = calendarDatasetCache.get(year);
   if (!pending) {
-    pending = invoke<CalendarDatasetResponse>("load_calendar_year", { year });
+    pending = dashboardService.loadCalendarYear<CalendarDatasetResponse>(year);
     calendarDatasetCache.set(year, pending);
   }
   let dataset: CalendarDatasetResponse;
@@ -261,19 +268,19 @@ export function useMonthWorkdayPreview(config: AppConfig): WorkdayPreview {
       setPreview({ state: "needs_week_type", workdays: null });
       return;
     }
-    const now = new Date();
-    if (!isTauri()) {
+    const now = systemTime.now();
+    if (!dashboardService.isDesktop) {
       setPreview({ state: "ready", workdays: fallbackWorkdays(config, now) });
       return;
     }
     let active = true;
     setPreview(current => ({ state: "loading", workdays: current.workdays }));
     void loadCalendarForYear(now.getFullYear(), config)
-      .then(({ calendar }) => invoke<{ workdays: number }>("calculate_month_salary", {
-        month: monthKey(now),
-        schedule: toSchedule(config),
+      .then(({ calendar }) => dashboardService.calculateMonth<{ workdays: number }>(
+        monthKey(now),
+        toSchedule(config),
         calendar,
-      }))
+      ))
       .then(result => {
         if (active) setPreview({ state: "ready", workdays: result.workdays });
       })
@@ -380,7 +387,7 @@ function fallbackSnapshot(now: Date): DashboardSnapshot {
 
 export function useDashboard() {
   const [snapshot, setSnapshot] = useState<DashboardSnapshot>({
-    ...fallbackSnapshot(new Date()),
+    ...fallbackSnapshot(systemTime.now()),
     state: "loading",
   });
   const lastErrorCode = useRef<string | null>(null);
@@ -390,7 +397,7 @@ export function useDashboard() {
   const boundarySyncPending = useRef(false);
   const consecutiveSyncFailures = useRef(0);
   const lastOwnerDate = useRef<string | null>(null);
-  const clockSample = useRef<TimeEnvironmentSample>(createTimeEnvironmentSample());
+  const clockSample = useRef<TimeEnvironmentSample>(currentTimeEnvironmentSample());
   const initialRetryTimer = useRef<number | null>(null);
   const localTimer = useRef<number | null>(null);
   const authorityTimer = useRef<number | null>(null);
@@ -402,8 +409,8 @@ export function useDashboard() {
       return;
     }
     const sequence = ++requestSequence.current;
-    const now = new Date();
-    if (!isTauri()) {
+    const now = systemTime.now();
+    if (!dashboardService.isDesktop) {
       setSnapshot(fallbackSnapshot(now));
       return;
     }
@@ -418,15 +425,11 @@ export function useDashboard() {
       `sequence=${sequence} reason=${reason}`,
     );
     try {
-      const config = await invoke<AppConfig>("read_configuration");
+      const config = await configurationService.read(defaultConfig);
       const schedule = toSchedule(config);
       const nowDate = localDateKey(now);
       const nowTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
-      const ownerDate = await invoke<string>("resolve_schedule_owner_date", {
-        nowDate,
-        nowTime,
-        schedule,
-      });
+      const ownerDate = await dashboardService.resolveOwnerDate(nowDate, nowTime, schedule);
       if (ownerDate !== lastOwnerDate.current) {
         recordSemanticEvent(
           "schedule.owner_date.resolved",
@@ -437,17 +440,17 @@ export function useDashboard() {
       const ownerYear = Number(ownerDate.slice(0, 4));
       const currentMonth = ownerDate.slice(0, 7);
       const { calendar, coverage } = await loadCalendarForYear(ownerYear, config);
-      const month = await invoke<MonthSalaryResult>("calculate_month_salary", {
-        month: currentMonth,
+      const month = await dashboardService.calculateMonth<MonthSalaryResult>(
+        currentMonth,
         schedule,
         calendar,
-      });
-      const calendarDays = await invoke<CalendarDaySnapshot[]>("resolve_calendar_month", {
-        month: currentMonth,
+      );
+      const calendarDays = await dashboardService.resolveMonthDays<CalendarDaySnapshot[]>(
+        currentMonth,
         schedule,
         calendar,
-      });
-      const today = await invoke<{
+      );
+      const today = await dashboardService.calculateToday<{
         state: string;
         schedule_owner_date: string;
         algorithm_version: string;
@@ -464,23 +467,17 @@ export function useDashboard() {
         next_boundary_seconds: number | null;
         next_boundary_kind: BoundaryKind;
         progress: number;
-      }>("calculate_today_income", {
-        request: {
-          owner_date: ownerDate,
-          now_date: nowDate,
-          now_time: nowTime,
-          schedule,
-          month_salary: month,
-          calendar,
-        },
+      }>({
+        ownerDate,
+        nowDate,
+        nowTime,
+        schedule,
+        monthSalary: month,
+        calendar,
       });
       const phase = today.state as WorkPhase;
       const nextWorkDate = ["rest_day", "paid_rest", "unpaid_rest"].includes(phase)
-        ? await invoke<string | null>("resolve_next_workday", {
-            afterDate: ownerDate,
-            schedule,
-            calendar,
-          })
+        ? await dashboardService.resolveNextWorkday(ownerDate, schedule, calendar)
         : null;
       if (!shouldApplyAuthoritativeSnapshot(requestSequence.current, sequence)) {
         recordSemanticEvent(
@@ -677,7 +674,7 @@ export function useDashboard() {
     };
 
     const detectTimeEnvironmentChange = () => {
-      const next = createTimeEnvironmentSample();
+      const next = currentTimeEnvironmentSample();
       const change = classifyTimeEnvironmentChange(clockSample.current, next);
       clockSample.current = next;
       if (change !== "none") {
@@ -691,7 +688,7 @@ export function useDashboard() {
       if (!lifecycle.current.visible || detectTimeEnvironmentChange()) return;
       const currentAuthority = authority.current;
       if (!currentAuthority) return;
-      const wallNow = Date.now();
+      const wallNow = systemTime.wallClockMs();
       const tick = calculateLocalTick(currentAuthority, wallNow);
       setSnapshot(current => {
         if (
@@ -741,7 +738,7 @@ export function useDashboard() {
       for (const effect of effects) {
         if (effect === "stop_timers") stopTimers();
         if (effect === "reset_time_sample") {
-          clockSample.current = createTimeEnvironmentSample();
+          clockSample.current = currentTimeEnvironmentSample();
           timeRecoveryInFlight.current = false;
         }
         if (effect === "start_timers") startTimers();
@@ -781,10 +778,15 @@ export function useDashboard() {
     window.addEventListener("lmm:window-shown", handleWindowShown);
     window.addEventListener("focus", handleFocus);
     document.addEventListener("visibilitychange", handleVisibility);
-    let unlistenConfiguration: (() => void) | null = null;
-    if (isTauri()) {
-      void listen("lmm://configuration-updated", handleConfigurationUpdate).then(unlisten => {
-        unlistenConfiguration = unlisten;
+    const configurationListener = createDeferredDisposer();
+    if (dashboardService.isDesktop) {
+      void dashboardService.listenConfigurationUpdated(handleConfigurationUpdate).then(unlisten => {
+        configurationListener.attach(unlisten);
+      }).catch(error => {
+        recordSemanticEvent(
+          "dashboard.configuration_listener.failed",
+          `error=${error instanceof Error ? error.message : String(error)}`,
+        );
       });
     }
     return () => {
@@ -794,7 +796,7 @@ export function useDashboard() {
       window.removeEventListener("lmm:window-shown", handleWindowShown);
       window.removeEventListener("focus", handleFocus);
       document.removeEventListener("visibilitychange", handleVisibility);
-      unlistenConfiguration?.();
+      configurationListener.dispose();
     };
   }, [refreshAuthority]);
 
@@ -891,7 +893,7 @@ export function useCalendarMonth(
     dispatch({ type: "requested", requestId: activeRequestId, targetMonth: month });
     const load = async () => {
       try {
-        if (!isTauri()) {
+        if (!dashboardService.isDesktop) {
           const [year, monthNumber] = month.split("-").map(Number);
           const result = fallbackCalendarDays(new Date(year, monthNumber - 1, 1));
           if (requestId.current !== activeRequestId) return;
@@ -909,14 +911,14 @@ export function useCalendarMonth(
           });
           return;
         }
-        const config = await invoke<AppConfig>("read_configuration");
+        const config = await configurationService.read(defaultConfig);
         const year = Number(month.slice(0, 4));
         const { calendar, datasetVersion, coverage } = await loadCalendarForYear(year, config);
-        const result = await invoke<CalendarDaySnapshot[]>("resolve_calendar_month", {
+        const result = await dashboardService.resolveMonthDays<CalendarDaySnapshot[]>(
           month,
-          schedule: toSchedule(config),
+          toSchedule(config),
           calendar,
-        });
+        );
         if (requestId.current !== activeRequestId) {
           recordSemanticEvent(
             "calendar.request.ignored",
@@ -972,18 +974,12 @@ export function useCalendarMonth(
   };
 }
 
-export interface DateOverrideSaveResult {
-  status: "saved" | "unchanged" | "failed";
-  message: string;
-  draft_preserved: boolean;
-}
-
 export async function saveDateOverride(
   date: string,
   kind: DateOverrideKind | null,
 ): Promise<DateOverrideSaveResult> {
-  if (isTauri()) {
-    return invoke<DateOverrideSaveResult>("save_date_override", { date, kind });
+  if (dashboardService.isDesktop) {
+    return dashboardService.saveDateOverride(date, kind);
   }
   const config: AppConfig = JSON.parse(
     localStorage.getItem("lmm.config") ?? JSON.stringify(defaultConfig),
@@ -1003,6 +999,7 @@ export async function saveDateOverride(
     };
   }
   localStorage.setItem("lmm.config", JSON.stringify(next));
+  window.dispatchEvent(new Event("lmm:configuration-updated"));
   return {
     status: "saved",
     message: kind ? "日期调整已应用" : "已恢复自动判断",

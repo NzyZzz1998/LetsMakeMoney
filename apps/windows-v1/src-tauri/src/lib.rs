@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::process::Command;
 use std::sync::{
     atomic::{AtomicBool, AtomicU64, Ordering},
@@ -13,9 +13,7 @@ use tauri::{
     WebviewWindowBuilder, WindowEvent,
 };
 #[cfg(target_os = "windows")]
-use webview2_com::{
-    Microsoft::Web::WebView2::Win32::ICoreWebView2_3, TrySuspendCompletedHandler,
-};
+use webview2_com::{Microsoft::Web::WebView2::Win32::ICoreWebView2_3, TrySuspendCompletedHandler};
 #[cfg(target_os = "windows")]
 use windows_core::Interface;
 
@@ -106,16 +104,6 @@ struct PlatformCapabilities {
     tray_recovery: &'static str,
 }
 
-#[derive(Deserialize)]
-struct TodayRequest {
-    owner_date: String,
-    now_date: String,
-    now_time: String,
-    schedule: domain::SalarySchedule,
-    month_salary: domain::MonthSalary,
-    calendar: domain::CalendarData,
-}
-
 #[tauri::command]
 fn load_calendar_year(
     app: AppHandle,
@@ -152,74 +140,6 @@ fn load_calendar_year(
 }
 
 #[tauri::command]
-fn calculate_month_salary(
-    app: AppHandle,
-    month: String,
-    schedule: domain::SalarySchedule,
-    calendar: domain::CalendarData,
-) -> Result<domain::MonthSalary, String> {
-    let result = domain::calculate_month(&month, &schedule, &calendar);
-    if let Err(error) = &result {
-        append_log(
-            &app,
-            "salary.calculate.invalid",
-            &format!("scope=month month={month} reason={error}"),
-        );
-    }
-    result
-}
-
-#[tauri::command]
-fn calculate_today_income(
-    app: AppHandle,
-    request: TodayRequest,
-) -> Result<domain::TodaySnapshot, String> {
-    let result = domain::calculate_today(
-        &request.owner_date,
-        &request.now_date,
-        &request.now_time,
-        &request.schedule,
-        &request.month_salary,
-        &request.calendar,
-    );
-    if let Err(error) = &result {
-        append_log(
-            &app,
-            "salary.calculate.invalid",
-            &format!("scope=today owner_date={} reason={error}", request.owner_date),
-        );
-    }
-    result
-}
-
-#[tauri::command]
-fn resolve_schedule_owner_date(
-    now_date: String,
-    now_time: String,
-    schedule: domain::SalarySchedule,
-) -> Result<String, String> {
-    domain::resolve_schedule_owner_date(&now_date, &now_time, &schedule)
-}
-
-#[tauri::command]
-fn resolve_calendar_month(
-    month: String,
-    schedule: domain::SalarySchedule,
-    calendar: domain::CalendarData,
-) -> Result<Vec<domain::CalendarDay>, String> {
-    domain::resolve_month_days(&month, &schedule, &calendar)
-}
-
-#[tauri::command]
-fn resolve_next_workday(
-    after_date: String,
-    schedule: domain::SalarySchedule,
-    calendar: domain::CalendarData,
-) -> Result<Option<String>, String> {
-    domain::next_workday(&after_date, &schedule, &calendar)
-}
-
-#[tauri::command]
 fn read_configuration(state: tauri::State<'_, RuntimeConfig>) -> Result<config::AppConfig, String> {
     state
         .0
@@ -235,20 +155,23 @@ fn save_configuration(
     configuration_state: tauri::State<'_, ConfigurationState>,
     draft: config::AppConfig,
 ) -> Result<config::SaveResult, String> {
-    let mut current = state.0.lock().map_err(|_| "config_lock_failed")?;
-    let previous_theme = current.theme_mode.clone();
-    let requested_theme = draft.theme_mode.clone();
     let data_dir = app
         .path()
         .app_data_dir()
         .map_err(|error| error.to_string())?;
     let initialized = configuration_state.0.load(Ordering::SeqCst);
-    let config_path = data_dir.join("config.json");
-    let result = if initialized {
-        config::save_transactional(&config_path, &current, &draft, config::SaveFault::None)
-    } else {
-        config::save_initial(&config_path, &current, &draft)
-    };
+    let repository = repositories::configuration_repository::FileConfigurationRepository::new(
+        data_dir.join("config.json"),
+    );
+    let outcome = services::configuration_service::save_user_configuration(
+        &state.0,
+        &repository,
+        initialized,
+        draft,
+    )?;
+    let previous_theme = outcome.previous_theme;
+    let requested_theme = outcome.requested_theme;
+    let result = outcome.result;
     let logger = support::RotatingLogger::new(data_dir.join("debug.log"), 2_000_000, 3);
     let event = match result.status {
         config::SaveStatus::Saved => "settings.saved",
@@ -258,14 +181,10 @@ fn save_configuration(
     let _ = logger.append(event, &result.message);
     if previous_theme != requested_theme {
         let (theme_event, theme_detail) = match result.status {
-            config::SaveStatus::Saved => (
-                "theme.saved",
-                format!("theme={requested_theme:?}"),
-            ),
-            config::SaveStatus::Unchanged => (
-                "theme.unchanged",
-                format!("theme={previous_theme:?}"),
-            ),
+            config::SaveStatus::Saved => ("theme.saved", format!("theme={requested_theme:?}")),
+            config::SaveStatus::Unchanged => {
+                ("theme.unchanged", format!("theme={previous_theme:?}"))
+            }
             config::SaveStatus::Failed => (
                 "theme.reverted",
                 format!(
@@ -277,7 +196,6 @@ fn save_configuration(
         let _ = logger.append(theme_event, &theme_detail.to_lowercase());
     }
     if result.status == config::SaveStatus::Saved {
-        *current = draft;
         configuration_state.0.store(true, Ordering::SeqCst);
     }
     Ok(result)
@@ -290,19 +208,15 @@ fn save_date_override(
     date: String,
     kind: Option<domain::DateOverrideKind>,
 ) -> Result<config::SaveResult, String> {
-    let mut current = state.0.lock().map_err(|_| "config_lock_failed")?;
     let data_dir = app
         .path()
         .app_data_dir()
         .map_err(|error| error.to_string())?;
-    let config_path = data_dir.join("config.json");
-    let (result, runtime) = config::save_date_override_transactional(
-        &config_path,
-        &current,
-        &date,
-        kind,
-        config::SaveFault::None,
+    let repository = repositories::configuration_repository::FileConfigurationRepository::new(
+        data_dir.join("config.json"),
     );
+    let result =
+        services::configuration_service::save_date_override(&state.0, &repository, &date, kind)?;
     let kind_label = match kind {
         Some(domain::DateOverrideKind::Workday) => "workday",
         Some(domain::DateOverrideKind::PaidRest) => "paid_rest",
@@ -323,12 +237,6 @@ fn save_date_override(
             result.message.replace(['\r', '\n'], " ")
         ),
     );
-    if matches!(
-        result.status,
-        config::SaveStatus::Saved | config::SaveStatus::Unchanged
-    ) {
-        *current = runtime;
-    }
     Ok(result)
 }
 
@@ -643,10 +551,7 @@ fn suspend_webview_internal(app: &AppHandle, window: &WebviewWindow, label: &str
             append_log(
                 &callback_app,
                 "window.webview_suspend_failed",
-                &format!(
-                    "label={} stage=visibility reason={error}",
-                    callback_label
-                ),
+                &format!("label={} stage=visibility reason={error}", callback_label),
             );
             return;
         }
@@ -661,10 +566,7 @@ fn suspend_webview_internal(app: &AppHandle, window: &WebviewWindow, label: &str
                 append_log(
                     &callback_app,
                     "window.webview_suspend_failed",
-                    &format!(
-                        "label={} stage=controller reason={error}",
-                        callback_label
-                    ),
+                    &format!("label={} stage=controller reason={error}", callback_label),
                 );
                 return;
             }
@@ -692,10 +594,7 @@ fn suspend_webview_internal(app: &AppHandle, window: &WebviewWindow, label: &str
             append_log(
                 &callback_app,
                 "window.webview_suspend_failed",
-                &format!(
-                    "label={} stage=request reason={error}",
-                    callback_label
-                ),
+                &format!("label={} stage=request reason={error}", callback_label),
             );
         }
     }) {
@@ -781,9 +680,7 @@ fn show_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
         window_show_error(app, label, "focus", error.to_string())
     })?;
     append_log(app, "window.focused", &format!("label={label}"));
-    if let Err(error) =
-        window.eval("window.dispatchEvent(new CustomEvent('lmm:window-shown'))")
-    {
+    if let Err(error) = window.eval("window.dispatchEvent(new CustomEvent('lmm:window-shown'))") {
         append_log(
             app,
             "window.lifecycle_event_failed",
@@ -796,9 +693,7 @@ fn show_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
 
 fn hide_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
     let window = ensure_window(app, label)?;
-    if let Err(error) =
-        window.eval("window.dispatchEvent(new CustomEvent('lmm:window-hidden'))")
-    {
+    if let Err(error) = window.eval("window.dispatchEvent(new CustomEvent('lmm:window-hidden'))") {
         append_log(
             app,
             "window.lifecycle_event_failed",
@@ -964,18 +859,16 @@ fn implementation_phase() -> &'static str {
 async fn show_app_window(app: AppHandle, label: String) -> Result<(), String> {
     let task_app = app.clone();
     let task_label = label.clone();
-    tauri::async_runtime::spawn_blocking(move || {
-        show_window_internal(&task_app, &task_label)
-    })
-    .await
-    .map_err(|error| {
-        window_show_error(
-            &app,
-            &label,
-            "dispatch",
-            format!("window show task failed: {error}"),
-        )
-    })?
+    tauri::async_runtime::spawn_blocking(move || show_window_internal(&task_app, &task_label))
+        .await
+        .map_err(|error| {
+            window_show_error(
+                &app,
+                &label,
+                "dispatch",
+                format!("window show task failed: {error}"),
+            )
+        })?
 }
 
 #[tauri::command]
@@ -1004,23 +897,20 @@ fn window_drag_origin(app: AppHandle, label: String) -> Result<WindowDragOrigin,
 }
 
 fn persist_runtime_mini_position(app: &AppHandle) -> Result<(), String> {
-    let draft = app
-        .state::<RuntimeConfig>()
-        .0
-        .lock()
-        .map_err(|_| "config_lock_failed")?
-        .clone();
     let data_dir = app
         .path()
         .app_data_dir()
         .map_err(|error| error.to_string())?;
-    let config_path = data_dir.join("config.json");
-    let persisted = config::load_or_migrate(&config_path).unwrap_or_default();
-    let result =
-        config::save_transactional(&config_path, &persisted, &draft, config::SaveFault::None);
-    match result.status {
+    let repository = repositories::configuration_repository::FileConfigurationRepository::new(
+        data_dir.join("config.json"),
+    );
+    let outcome = services::configuration_service::persist_runtime_snapshot(
+        &app.state::<RuntimeConfig>().0,
+        &repository,
+    )?;
+    match outcome.result.status {
         config::SaveStatus::Saved | config::SaveStatus::Unchanged => {
-            if let Some(position) = draft.mini_window_position {
+            if let Some(position) = outcome.mini_window_position {
                 append_log(
                     app,
                     "window.position_saved",
@@ -1029,7 +919,7 @@ fn persist_runtime_mini_position(app: &AppHandle) -> Result<(), String> {
             }
             Ok(())
         }
-        config::SaveStatus::Failed => Err(result.message),
+        config::SaveStatus::Failed => Err(outcome.result.message),
     }
 }
 
@@ -1187,8 +1077,7 @@ pub fn run() {
             let data_dir = app.path().app_data_dir()?;
             let config_path = data_dir.join("config.json");
             let previous_config_version = config::stored_config_version(&config_path);
-            let theme_fallback_required =
-                config::stored_theme_requires_fallback(&config_path);
+            let theme_fallback_required = config::stored_theme_requires_fallback(&config_path);
             let config_result = config::load_or_migrate(&config_path);
             let configuration_initialized = config_path.is_file() && config_result.is_ok();
             let config = config_result.unwrap_or_else(|_| config::AppConfig::default());
@@ -1208,7 +1097,7 @@ pub fn run() {
                 tray_recovery: "TaskbarCreated",
             })));
             app.manage(instance_guard);
-            if matches!(previous_config_version, Some(5 | 6 | 7)) && configuration_initialized {
+            if matches!(previous_config_version, Some(5..=7)) && configuration_initialized {
                 if matches!(previous_config_version, Some(5 | 6)) {
                     append_log(
                         app.handle(),
@@ -1303,11 +1192,11 @@ pub fn run() {
             open_data_directory,
             exit_application,
             load_calendar_year,
-            calculate_month_salary,
-            calculate_today_income,
-            resolve_schedule_owner_date,
-            resolve_calendar_month,
-            resolve_next_workday,
+            commands::income::calculate_month_salary,
+            commands::income::calculate_today_income,
+            commands::income::resolve_schedule_owner_date,
+            commands::income::resolve_calendar_month,
+            commands::income::resolve_next_workday,
             read_configuration,
             save_configuration,
             save_date_override,
@@ -1321,7 +1210,11 @@ pub fn run() {
         .expect("failed to run LetsMakeMoney");
 }
 mod calendar_data;
+mod commands;
 mod config;
 mod domain;
+mod models;
 mod platform;
+mod repositories;
+mod services;
 mod support;

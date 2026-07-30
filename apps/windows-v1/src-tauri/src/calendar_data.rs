@@ -71,12 +71,24 @@ struct RawCalendarDataset {
     adjusted_workdays: Vec<String>,
 }
 
+pub trait CalendarProvider {
+    fn load_year(&self, year: i32) -> Result<CalendarDatasetResponse, String>;
+}
+
+pub struct EmbeddedChinaHolidayProvider;
+
+impl CalendarProvider for EmbeddedChinaHolidayProvider {
+    fn load_year(&self, year: i32) -> Result<CalendarDatasetResponse, String> {
+        let dataset = CALENDAR_DATASETS
+            .iter()
+            .find(|(dataset_year, _, _)| *dataset_year == year)
+            .map(|(_, file, json)| (*file, *json));
+        parse_calendar_response(year, MANIFEST_JSON, dataset)
+    }
+}
+
 pub fn load_calendar_year(year: i32) -> Result<CalendarDatasetResponse, String> {
-    let dataset = CALENDAR_DATASETS
-        .iter()
-        .find(|(dataset_year, _, _)| *dataset_year == year)
-        .map(|(_, file, json)| (*file, *json));
-    parse_calendar_response(year, MANIFEST_JSON, dataset)
+    EmbeddedChinaHolidayProvider.load_year(year)
 }
 
 fn parse_calendar_response(
@@ -221,6 +233,24 @@ fn dates_are_valid_and_unique(dates: &[String], year: i32) -> bool {
 mod tests {
     use super::*;
 
+    struct EstimatedOnlyProvider;
+
+    impl CalendarProvider for EstimatedOnlyProvider {
+        fn load_year(&self, year: i32) -> Result<CalendarDatasetResponse, String> {
+            Ok(estimated_response(year))
+        }
+    }
+
+    #[test]
+    fn calendar_provider_contract_is_replaceable_without_domain_changes() {
+        let provider = EstimatedOnlyProvider;
+        let dataset = provider.load_year(2030).unwrap();
+
+        assert_eq!(dataset.year, 2030);
+        assert_eq!(dataset.coverage.mode, CalendarCoverageMode::Estimated);
+        assert!(dataset.calendar.statutory_holidays.is_empty());
+    }
+
     fn double_rest_schedule() -> domain::SalarySchedule {
         domain::SalarySchedule {
             monthly_salary_minor: 1_000_000,
@@ -240,12 +270,12 @@ mod tests {
         let dataset = load_calendar_year(2026).expect("2026 dataset should load");
 
         assert_eq!(dataset.year, 2026);
+        assert_eq!(dataset.dataset_version.as_deref(), Some("cn-2025-2026-v1"));
         assert_eq!(
-            dataset.dataset_version.as_deref(),
-            Some("cn-2025-2026-v1")
-        );
-        assert_eq!(
-            dataset.source.as_ref().map(|source| source.publisher.as_str()),
+            dataset
+                .source
+                .as_ref()
+                .map(|source| source.publisher.as_str()),
             Some("国务院办公厅")
         );
         assert_eq!(dataset.coverage.mode, CalendarCoverageMode::Official);

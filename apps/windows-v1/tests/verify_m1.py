@@ -29,6 +29,7 @@ def main() -> int:
     window_contract = json.loads(read(ROOT / "contracts" / "window-contract.json"))
     visual_contract = json.loads(read(ROOT / "contracts" / "visual-contract.json"))
     app = read(ROOT / "src" / "App.tsx")
+    mini = read(ROOT / "src" / "features" / "mini" / "MiniWindow.tsx")
     components = read(ROOT / "src" / "components.tsx")
     styles = read(ROOT / "src" / "styles.css")
     rust = read(ROOT / "src-tauri" / "src" / "lib.rs")
@@ -49,7 +50,11 @@ def main() -> int:
     for label, (width, height) in expected_sizes.items():
         check(f'label: "{label}"' in rust, f"Rust 窗口注册表缺少 {label}")
         check(f'width: {width}.0' in rust and f'height: {height}.0' in rust, f"{label} 窗口尺寸不正确")
-        check(f'kind="{label}"' in app or label == "mini" and 'data-window="mini"' in app, f"React 缺少 {label} 窗口壳")
+        check(
+            f'kind="{label}"' in app
+            or label == "mini" and 'data-window="mini"' in mini,
+            f"React 缺少 {label} 窗口壳",
+        )
 
     contract_sizes = {item["id"]: tuple(item["default_size"]) for item in window_contract["windows"]}
     check(contract_sizes == expected_sizes, "窗口合同与 M1 实现尺寸不一致")
@@ -86,7 +91,7 @@ def main() -> int:
     check("--shadow-window" in styles and "--radius-window" in styles, "生产级窗口 token 未落地")
     check(visual_contract["motion"]["reduced_motion"] is True, "视觉合同没有要求 reduced motion")
 
-    searchable = "\n".join([app, components, styles, rust]).lower()
+    searchable = "\n".join([app, mini, components, styles, rust]).lower()
     forbidden = [r"\bpet\b", r"\bcat\b", "宠物", "桌宠", "pure_pet"]
     for term in forbidden:
         check(re.search(term, searchable) is None, f"M1 正式应用壳出现宠物能力：{term}")

@@ -31,3 +31,27 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
 也可以运行 `scripts\verify_v10.ps1` 执行聚合验证。
 
 v1.0.1、v1.0.2 与 v1.0.3 的增量验证入口位于仓库根目录 `scripts\verify_v101.ps1`、`scripts\verify_v102.ps1` 和 `scripts\verify_v103.ps1`。构建命令、依赖和当前发布身份以仓库根目录 `README.md`、`CONTRIBUTING.md` 与 `doc/current.md` 为准。
+
+## 架构行为验证
+
+安装锁定依赖后，可在本目录运行：
+
+```powershell
+npm ci
+npm test
+npm run build:web
+```
+
+`npm test` 会执行 Runtime Adapter、配置领域、桌面服务、时间与呈现纯函数测试，并检查前后端责任边界和工具解析。完整历史回归仍以仓库根目录的 `scripts\verify_v103.ps1` 为准。
+
+## Rust 工具链解析
+
+验证脚本优先使用仓库已批准的本地工具链；也支持由开发者或 CI 显式提供：
+
+```powershell
+$env:LMM_CARGO = "<cargo.exe 的绝对路径>"
+$env:LMM_CARGO_HOME = "<Cargo Home>"
+$env:LMM_RUSTUP_HOME = "<Rustup Home>"
+```
+
+未设置时会继续检查 `PATH`、`CARGO_HOME\bin\cargo.exe` 与用户目录下的 `.cargo\bin\cargo.exe`。仓库不要求使用某个开发者的固定本机路径。

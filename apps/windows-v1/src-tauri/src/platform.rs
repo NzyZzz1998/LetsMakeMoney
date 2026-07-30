@@ -50,7 +50,7 @@ pub fn webview2_runtime_available() -> bool {
     const CLIENT: &str =
         r"SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}";
     [
-        format!(r"HKLM\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}}"),
+        r"HKLM\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}".to_string(),
         format!(r"HKLM\{CLIENT}"),
         format!(r"HKCU\{CLIENT}"),
     ]

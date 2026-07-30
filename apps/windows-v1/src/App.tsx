@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import {
   Button,
   AppIcon,
@@ -10,6 +9,8 @@ import {
   SegmentedControl,
   Switch,
 } from "./components";
+import { WindowFrame } from "./components/WindowFrame";
+import { MiniWindow } from "./features/mini/MiniWindow";
 import {
   formatDuration,
   formatMoney,
@@ -33,13 +34,33 @@ import {
 } from "./dateOverrideState";
 import {
   boundaryPresentation,
+  calendarBusinessState,
   calendarCellContract,
   timelineRows,
   workbenchHeading,
-  type CalendarBusinessState,
 } from "./presentation";
-
-type WindowKind = "mini" | "workbench" | "settings" | "wizard";
+import {
+  formatLocalDate,
+  systemTime,
+} from "./runtime/timeService";
+import {
+  windowService,
+  type WindowKind,
+} from "./services/windowService";
+import {
+  supportService,
+  type PlatformCapabilities,
+} from "./services/supportService";
+import {
+  calendarLeadingBlankCount,
+  clockDifferenceSeconds,
+  formatFullDate,
+  formatLunchDuration,
+  formatReadableDuration,
+  formatShortDate,
+  parseLunchDuration,
+  shiftMonthKey,
+} from "./utils/presentationFormatters";
 
 const WINDOW_LABELS: Record<WindowKind, string> = {
   mini: "迷你收入视图",
@@ -56,7 +77,7 @@ function resolveWindowKind(): WindowKind {
 
 async function showWindow(label: WindowKind) {
   try {
-    await invoke("show_app_window", { label });
+    await windowService.show(label);
   } catch {
     window.location.search = `?window=${label}`;
   }
@@ -64,258 +85,10 @@ async function showWindow(label: WindowKind) {
 
 async function hideCurrentWindow() {
   try {
-    await invoke("hide_app_window", { label: resolveWindowKind() });
+    await windowService.hide(resolveWindowKind());
   } catch {
     // Browser preview intentionally has no native window to hide.
   }
-}
-
-const DRAG_THRESHOLD_PX = 5;
-const INTERACTIVE_DRAG_SELECTOR = "button, input, select, textarea, a, [role='switch'], [data-window-drag='false']";
-
-type WindowDragOrigin = {
-  x: number;
-  y: number;
-  scale_factor: number;
-};
-
-type WindowDragPointer = {
-  id: number;
-  startX: number;
-  startY: number;
-  currentX: number;
-  currentY: number;
-  origin: WindowDragOrigin | null;
-  dragging: boolean;
-  frame: number | null;
-  captureTarget: HTMLElement;
-};
-
-function useWindowDrag({ allowInteractiveStart = false }: { allowInteractiveStart?: boolean } = {}) {
-  const pointer = useRef<WindowDragPointer | null>(null);
-  const dragged = useRef(false);
-
-  const moveWindow = (current: NonNullable<typeof pointer.current>) => {
-    if (!current.origin) return;
-    const scale = current.origin.scale_factor;
-    void invoke("move_app_window", {
-      label: resolveWindowKind(),
-      x: Math.round(current.origin.x + (current.currentX - current.startX) * scale),
-      y: Math.round(current.origin.y + (current.currentY - current.startY) * scale),
-    });
-  };
-
-  const scheduleMove = (current: NonNullable<typeof pointer.current>) => {
-    if (current.frame !== null) return;
-    current.frame = window.requestAnimationFrame(() => {
-      current.frame = null;
-      if (pointer.current === current && current.dragging) moveWindow(current);
-    });
-  };
-
-  const cancel = (event?: React.PointerEvent<HTMLElement>, commit = false) => {
-    const current = pointer.current;
-    if (!current || (event && current.id !== event.pointerId)) return;
-    if (event) {
-      current.currentX = event.screenX;
-      current.currentY = event.screenY;
-    }
-    if (commit && current.dragging) moveWindow(current);
-    if (current.frame !== null) window.cancelAnimationFrame(current.frame);
-    if (current.captureTarget.hasPointerCapture(current.id)) {
-      current.captureTarget.releasePointerCapture(current.id);
-    }
-    pointer.current = null;
-  };
-
-  const handlers = {
-    onPointerDownCapture(event: React.PointerEvent<HTMLElement>) {
-      if (event.button !== 0 || !event.isPrimary) return;
-      const target = event.target as HTMLElement;
-      if (!allowInteractiveStart && target.closest(INTERACTIVE_DRAG_SELECTOR)) return;
-      dragged.current = false;
-      const captureTarget = event.currentTarget;
-      const current: WindowDragPointer = {
-        id: event.pointerId,
-        startX: event.screenX,
-        startY: event.screenY,
-        currentX: event.screenX,
-        currentY: event.screenY,
-        origin: null,
-        dragging: false,
-        frame: null,
-        captureTarget,
-      };
-      pointer.current = current;
-      void invoke<WindowDragOrigin>("window_drag_origin", { label: resolveWindowKind() })
-        .then(origin => {
-          if (pointer.current !== current) return;
-          current.origin = origin;
-          if (current.dragging) scheduleMove(current);
-        })
-        .catch(() => cancel());
-    },
-    onPointerMoveCapture(event: React.PointerEvent<HTMLElement>) {
-      const current = pointer.current;
-      if (!current || current.id !== event.pointerId) return;
-      if ((event.buttons & 1) === 0) {
-        cancel(event);
-        return;
-      }
-      current.currentX = event.screenX;
-      current.currentY = event.screenY;
-      const distance = Math.hypot(current.currentX - current.startX, current.currentY - current.startY);
-      if (distance < DRAG_THRESHOLD_PX) return;
-      if (!current.dragging) {
-        current.dragging = true;
-        dragged.current = true;
-        current.captureTarget.setPointerCapture(current.id);
-      }
-      event.preventDefault();
-      if (current.origin) scheduleMove(current);
-    },
-    onPointerUpCapture(event: React.PointerEvent<HTMLElement>) {
-      cancel(event, true);
-    },
-    onPointerCancelCapture(event: React.PointerEvent<HTMLElement>) {
-      cancel(event);
-    },
-  };
-
-  return {
-    handlers,
-    consumeDraggedClick() {
-      if (!dragged.current) return false;
-      dragged.current = false;
-      return true;
-    },
-  };
-}
-
-function WindowFrame({
-  kind,
-  title,
-  children,
-  className = "",
-  onClose = hideCurrentWindow,
-}: {
-  kind: WindowKind;
-  title: string;
-  children: React.ReactNode;
-  className?: string;
-  onClose?: () => void;
-}) {
-  const drag = useWindowDrag();
-
-  return (
-    <main
-      className={`window-frame ${className}`}
-      data-window={kind}
-      {...drag.handlers}
-    >
-      <header className="titlebar">
-        <div className="titlebar__identity">
-          <span className="coin-mark" aria-hidden="true">¥</span>
-          <strong>{title}</strong>
-        </div>
-        <IconButton label={`关闭${title}`} icon="close" data-window-drag="false" onClick={onClose} />
-      </header>
-      {children}
-    </main>
-  );
-}
-
-function MiniWindow() {
-  const { snapshot, refresh } = useDashboard();
-  const drag = useWindowDrag({ allowInteractiveStart: true });
-  const miniState = snapshot.state === "error" ? "error" : "normal";
-  useEffect(() => {
-    void invoke("set_mini_window_state", { state: miniState }).catch(() => {
-      // Browser preview and older native shells keep their current dimensions.
-    });
-  }, [miniState]);
-  if (snapshot.state === "loading") {
-    return <main className="mini-window mini-window--state" data-window="mini" {...drag.handlers}><span className="spinner" /><strong>正在计算今天的收入</strong></main>;
-  }
-  if (snapshot.state === "error") {
-    return (
-      <main className="mini-window mini-window--state mini-window--error" data-window="mini" {...drag.handlers}>
-        <div className="mini-window__error-copy">
-          <strong>{dashboardErrorTitle(snapshot.errorCode)}</strong>
-          <span>{snapshot.message}</span>
-        </div>
-        <div className="mini-window__error-actions">
-          <button type="button" data-window-drag="false" onClick={() => showWindow("settings")}>检查设置</button>
-          <button type="button" data-window-drag="false" onClick={refresh}>重试</button>
-        </div>
-      </main>
-    );
-  }
-  const isRestDay = snapshot.phase === "rest_day";
-  const isPaidRest = snapshot.phase === "paid_rest";
-  const isUnpaidRest = snapshot.phase === "unpaid_rest";
-  const isRestLike = isRestDay || isPaidRest || isUnpaidRest;
-  const stage = boundaryPresentation({
-    phase: snapshot.phase,
-    nextBoundaryKind: snapshot.nextBoundaryKind,
-    nextBoundarySeconds: snapshot.nextBoundarySeconds,
-  });
-  return (
-    <main className={`mini-window ${isRestLike ? "mini-window--rest" : ""}`} data-window="mini" {...drag.handlers}>
-      <button
-        className="mini-window__primary"
-        type="button"
-        onClick={() => {
-          if (!drag.consumeDraggedClick()) void showWindow("workbench");
-        }}
-        aria-label="打开今日工作台"
-      >
-        <span className="mini-window__status">
-          <span className="status-dot" />
-          {stage.stateLabel}
-        </span>
-        {isRestDay ? (
-          <>
-            <span className="mini-window__label">今天没有工作安排</span>
-            <strong className="mini-window__amount mini-window__amount--rest">安心休息</strong>
-            <span className="mini-window__rest-line" aria-hidden="true" />
-            <span className="mini-window__meta">
-              {snapshot.nextWorkDate ? `下一个工作日 ${formatShortDate(snapshot.nextWorkDate)} ${snapshot.workStartTime}` : "下一个工作日尚未确定"}
-            </span>
-          </>
-        ) : isPaidRest ? (
-          <>
-            <span className="mini-window__label">今日带薪金额</span>
-            <strong className="mini-window__amount">{formatMoney(snapshot.amount)}</strong>
-            <span className="mini-window__rest-line" aria-hidden="true" />
-            <span className="mini-window__meta">今天不计算有效工时</span>
-          </>
-        ) : isUnpaidRest ? (
-          <>
-            <span className="mini-window__label">今天不计算收入</span>
-            <strong className="mini-window__amount mini-window__amount--rest">不带薪休息</strong>
-            <span className="mini-window__rest-line" aria-hidden="true" />
-            <span className="mini-window__meta">本月预计应发 {formatMoney(snapshot.expectedMonthlyPay)}</span>
-          </>
-        ) : (
-          <>
-            <span className="mini-window__label">今日已赚</span>
-            <strong className="mini-window__amount">{formatMoney(snapshot.amount)}</strong>
-            <ProgressBar value={snapshot.progress} label="工作进度" compact />
-            <span className="mini-window__meta">
-              {stage.completeLabel
-                ?? (stage.countdownLabel && stage.countdownSeconds !== null
-                  ? `${stage.countdownLabel} ${formatDuration(stage.countdownSeconds)}`
-                  : snapshot.workState)}
-            </span>
-          </>
-        )}
-        {snapshot.syncState === "stale" && (
-          <span className="mini-window__sync">正在重新同步</span>
-        )}
-      </button>
-    </main>
-  );
 }
 
 function SyncNotice({ state }: { state: "synced" | "syncing" | "stale" }) {
@@ -497,7 +270,8 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
       </div>
     );
   }
-  const heading = workbenchHeading(snapshot.ownerDate, formatLocalDateKey(new Date()));
+  const todayKey = formatLocalDate(systemTime.now());
+  const heading = workbenchHeading(snapshot.ownerDate, todayKey);
   const stage = boundaryPresentation({
     phase: snapshot.phase,
     nextBoundaryKind: snapshot.nextBoundaryKind,
@@ -525,7 +299,7 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
         <div>
           <span className="eyebrow">{formatFullDate(snapshot.ownerDate)} · {ownerKindLabel}</span>
           <h1>{heading.title}</h1>
-          {snapshot.ownerDate !== formatLocalDateKey(new Date()) && <p>{heading.subtitle}</p>}
+          {snapshot.ownerDate !== todayKey && <p>{heading.subtitle}</p>}
         </div>
         <span className="status-pill status-pill--success">{stage.stateLabel}</span>
       </div>
@@ -579,8 +353,8 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
 }
 
 function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>["snapshot"] }) {
-  const owner = parseLocalDate(snapshot.ownerDate);
-  const [visibleMonth, setVisibleMonth] = useState(() => `${owner.getFullYear()}-${String(owner.getMonth() + 1).padStart(2, "0")}`);
+  const todayKey = formatLocalDate(systemTime.now());
+  const [visibleMonth, setVisibleMonth] = useState(() => snapshot.ownerDate.slice(0, 7));
   const calendarMonth = useCalendarMonth(
     visibleMonth,
     snapshot.calendarDays,
@@ -592,12 +366,11 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
   const days = calendarMonth.days;
   const monthLabel = `${visibleYear} 年 ${visibleMonthNumber} 月`;
   const displayMonthLabel = `${displayYear} 年 ${displayMonthNumber} 月`;
-  const leadingBlanks = Array.from({ length: new Date(displayYear, displayMonthNumber - 1, 1).getDay() });
+  const leadingBlanks = Array.from({ length: calendarLeadingBlankCount(displayMonth) });
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [overrideFeedback, setOverrideFeedback] = useState<string | null>(null);
   const moveMonth = (offset: number) => {
-    const next = new Date(visibleYear, visibleMonthNumber - 1 + offset, 1);
-    setVisibleMonth(`${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`);
+    setVisibleMonth(shiftMonthKey(visibleMonth, offset));
     setSelectedDate(null);
     setOverrideFeedback(null);
   };
@@ -656,7 +429,7 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
               {leadingBlanks.map((_, index) => <span key={`blank-${index}`} />)}
               {days.map(daySnapshot => {
                 const day = Number(daySnapshot.date.slice(-2));
-                const isToday = daySnapshot.date === formatLocalDateKey(new Date());
+                const isToday = daySnapshot.date === todayKey;
                 const isSelected = daySnapshot.date === selectedDate;
                 const businessState = calendarBusinessState(daySnapshot);
                 const contract = calendarCellContract({
@@ -708,7 +481,6 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
             setOverrideFeedback(message);
             setSelectedDate(null);
             calendarMonth.retry();
-            window.dispatchEvent(new Event("lmm:configuration-updated"));
           }}
           onClose={() => setSelectedDate(null)}
         />
@@ -832,64 +604,6 @@ function DateOverrideEditor({
   );
 }
 
-function parseLocalDate(value: string) {
-  const [year, month, day] = value.split("-").map(Number);
-  return new Date(year, month - 1, day);
-}
-
-function formatLocalDateKey(value: Date) {
-  return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`;
-}
-
-function calendarBusinessState(day: {
-  kind: "workday" | "rest_day";
-  source: string;
-  automatic_source: string;
-  override_kind: "workday" | "paid_rest" | "unpaid_rest" | null;
-}): CalendarBusinessState {
-  if (day.override_kind === "workday") return "manual_workday";
-  if (day.override_kind === "paid_rest") return "paid_rest";
-  if (day.override_kind === "unpaid_rest") return "unpaid_rest";
-  if (day.source === "adjusted_workday" || day.automatic_source === "adjusted_workday") {
-    return "adjusted_workday";
-  }
-  return day.kind === "rest_day" ? "rest_day" : "workday";
-}
-
-function formatFullDate(value: string) {
-  return new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "long" }).format(parseLocalDate(value));
-}
-
-function formatShortDate(value: string) {
-  return new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric" }).format(parseLocalDate(value));
-}
-
-function formatReadableDuration(seconds: number) {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  if (hours && minutes) return `${hours} 小时 ${minutes} 分钟`;
-  if (hours) return `${hours} 小时`;
-  return `${minutes} 分钟`;
-}
-
-function clockDifferenceSeconds(start: string, end: string) {
-  const [startHour, startMinute] = start.split(":").map(Number);
-  const [endHour, endMinute] = end.split(":").map(Number);
-  const startMinutes = startHour * 60 + startMinute;
-  const endMinutes = endHour * 60 + endMinute;
-  return (((endMinutes - startMinutes) % 1440) + 1440) % 1440 * 60;
-}
-
-function parseLunchDuration(value: string) {
-  if (!value.trim()) return null;
-  const parsed = Number(value.replace(",", "."));
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
-}
-
-function formatLunchDuration(value: number) {
-  return String(Math.round(value * 100) / 100);
-}
-
 function PageState({ title, detail, action }: { title: string; detail: string; action?: React.ReactNode }) {
   return <div className="page-state" role="status"><span className="state-symbol" aria-hidden="true">¥</span><h1>{title}</h1><p>{detail}</p>{action}</div>;
 }
@@ -907,7 +621,7 @@ function WizardWindow() {
   const refreshFirstRun = useCallback(async () => {
     const request = ++firstRunRequest.current;
     try {
-      const initialized = await invoke<boolean>("configuration_initialized");
+      const initialized = await windowService.configurationInitialized();
       if (request === firstRunRequest.current) setFirstRun(!initialized);
     } catch {
       if (request === firstRunRequest.current) setFirstRun(false);
@@ -1017,7 +731,10 @@ function WizardWindow() {
                       value={config.draft.alternating_anchor_week_type ?? ""}
                       onChange={value => {
                         config.update("alternating_anchor_week_type", value as WeekType);
-                        config.update("alternating_anchor_date", new Date().toISOString().slice(0, 10));
+                        config.update(
+                          "alternating_anchor_date",
+                          formatLocalDate(systemTime.now()),
+                        );
                       }}
                       options={[{ value: "big", label: "大周" }, { value: "small", label: "小周" }]}
                     />
@@ -1114,7 +831,7 @@ function WizardWindow() {
           onConfirm={() => {
             setConfirmClose(false);
             config.cancel();
-            if (firstRun) void invoke("exit_application");
+            if (firstRun) void windowService.exit();
             else void hideCurrentWindow();
           }}
         />
@@ -1278,17 +995,17 @@ function ConfirmDialog({ title, detail, confirmLabel, tone = "danger", onCancel,
 function SupportSettings() {
   const [feedback, setFeedback] = useState<{ tone: "success" | "warning" | "error"; message: string } | null>(null);
   const [checking, setChecking] = useState(false);
-  const [platform, setPlatform] = useState<{ webview2_available: boolean; tray_available: boolean; explorer_available: boolean } | null>(null);
+  const [platform, setPlatform] = useState<PlatformCapabilities | null>(null);
 
   useEffect(() => {
-    void invoke<{ webview2_available: boolean; tray_available: boolean; explorer_available: boolean }>("platform_capabilities")
+    void supportService.capabilities()
       .then(setPlatform)
       .catch(() => setPlatform(null));
   }, []);
 
   const record = async (event: string, detail: string) => {
     try {
-      await invoke("record_semantic_event", { event, detail });
+      await supportService.record(event, detail);
     } catch {
       // Browser preview has no native logger.
     }
@@ -1296,7 +1013,7 @@ function SupportSettings() {
 
   const openData = async () => {
     try {
-      await invoke<string>("open_data_directory");
+      await supportService.openDataDirectory();
       setFeedback({ tone: "success", message: "数据目录已打开。" });
     } catch (error) {
       setFeedback({ tone: "error", message: `无法打开数据目录：${String(error)}` });
@@ -1305,7 +1022,7 @@ function SupportSettings() {
 
   const copyDiagnostics = async () => {
     try {
-      const summary = await invoke<string>("diagnostic_summary");
+      const summary = await supportService.diagnosticSummary();
       await navigator.clipboard.writeText(summary);
       await record("support.diagnostic_copied", "result=success");
       setFeedback({ tone: "success", message: "诊断摘要已复制，内容不包含用户名和本机路径。" });
@@ -1323,18 +1040,13 @@ function SupportSettings() {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const body = await response.text();
-      const result = await invoke<{ status: "up_to_date" | "available" | "unavailable"; message: string }>(
-        "evaluate_update_response",
-        { currentVersion: "1.0.3", responseBody: body, failureReason: null },
-      );
+      const result = await supportService.evaluateUpdate("1.0.3", body, null);
       await record("update.checked", `status=${result.status}`);
       setFeedback({ tone: result.status === "unavailable" ? "warning" : "success", message: result.message });
     } catch (error) {
-      const result = await invoke<{ message: string }>("evaluate_update_response", {
-        currentVersion: "1.0.3",
-        responseBody: null,
-        failureReason: String(error),
-      }).catch(() => ({ message: `暂时无法检查更新：${String(error)}` }));
+      const result = await supportService
+        .evaluateUpdate("1.0.3", null, String(error))
+        .catch(() => ({ status: "unavailable" as const, message: `暂时无法检查更新：${String(error)}` }));
       await record("update.check_failed", `reason=${String(error)}`);
       setFeedback({ tone: "warning", message: `${result.message} 当前版本可继续正常使用。` });
     } finally {
@@ -1377,5 +1089,5 @@ export function App() {
   if (kind === "workbench") return <WorkbenchWindow />;
   if (kind === "settings") return <SettingsWindow />;
   if (kind === "wizard") return <WizardWindow />;
-  return <MiniWindow />;
+  return <MiniWindow onOpenWindow={label => { void showWindow(label); }} />;
 }
