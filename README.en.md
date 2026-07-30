@@ -6,7 +6,7 @@
   <a href="README.md">简体中文</a> ·
   <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">Download</a> ·
   <a href="doc/current.md">Current status</a> ·
-  <a href="doc/releases/v1.0.2/README.md">v1.0.2 docs</a>
+  <a href="doc/releases/v1.0.3/release-notes.md">v1.0.3 docs</a>
 </div>
 
 ## Know what today is worth
@@ -16,7 +16,7 @@ LetsMakeMoney is a local-first Windows earnings-progress utility. After you conf
 The compact earnings window is designed to stay on the desktop. Open the Today and Calendar workbench only when you need more detail. No account is required, and configuration and logs remain on the local device.
 
 <div align="center">
-  <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney v1.0.2 Today earnings workbench">
+  <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney v1.0.3 Today earnings workbench">
 </div>
 
 ## What it covers
@@ -30,15 +30,15 @@ The compact earnings window is designed to stay on the desktop. Open the Today a
 
 ## Current release status
 
-**v1.0.2 Stable** improves state communication, desktop-window polish, and light/dark themes on top of v1.0.1's reliable calculations.
+**v1.0.3 Stable** builds on v1.0.2's visual and state contracts with safer cross-year behavior, hidden-window lifecycle handling, and reliable recovery after system-time changes.
 
-- The current public release is [v1.0.2 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.2).
-- v1.0.2 has completed implementation, independent acceptance, a clean-source build, and GitHub Release publication.
-- Stage copy follows real boundaries: start of work, rest, return to work, or end of work.
-- Timeline alignment, overnight ownership, adjusted-workday sources, and compound calendar states share one presentation contract.
-- The compact window supports full-surface dragging and state-specific sizing for loading, errors, and work stages.
-- Light is the default theme; dark mode is stored locally and synchronized across app windows immediately.
-- v1.0.2 does not include pets, cloud sync, an installer, system-following themes, or custom themes.
+- The current public release is [v1.0.3 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.3).
+- v1.0.3 has completed implementation, independent acceptance, a clean-source build, required CI, and GitHub Release publication.
+- Years not covered by official calendar data use an explicitly labeled work-pattern estimate; the app never invents official holidays or adjusted workdays.
+- Hidden windows pause local ticks and authoritative synchronization, then recalibrate immediately when restored.
+- Windows sleep recovery, forward and backward system-time jumps, a real time-zone switch, and a continuous 120-minute run have been accepted.
+- Stage copy, timeline alignment, overnight ownership, adjusted-workday sources, compound calendar states, and light/dark themes retain the v1.0.2 contracts.
+- v1.0.3 does not include pets, cloud sync, an installer, system-following themes, or custom themes.
 - Users who need the desktop-pet experience can remain on v0.9 Beta, which is also the explicit rollback baseline.
 
 See the [current status source](doc/current.md) for the latest release identity and checksums.
@@ -65,15 +65,15 @@ npm run tauri dev
 
 ```powershell
 # Run from the repository root
-powershell -ExecutionPolicy Bypass -File .\scripts\package_v102.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v102_package.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\package_v103.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v103_package.ps1
 ```
 
-Local build outputs are written to `releases\v1.0.2\`. The build and verification flow must not depend on undeclared local paths or private files.
+Local build outputs are written to `releases\v1.0.3\`. The build and verification flow must not depend on undeclared local paths or private files.
 
 ## Data, privacy, and rollback
 
-v1.0.2 stores configuration and logs under:
+v1.0.3 stores configuration and logs under:
 
 ```text
 %APPDATA%\io.letsmakemoney.windows\
@@ -87,9 +87,9 @@ v1.0.2 stores configuration and logs under:
 ## Verification
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v102.ps1 -SkipReleaseBuild
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v103.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v102_package.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v103_package.ps1
 ```
 
 Automated checks cover earnings calculations, configuration transactions, window contracts, the tray bridge, documentation, and package integrity. Real notification-area, taskbar, DPI, and restart-recovery behavior remains part of Windows desktop acceptance.
@@ -101,7 +101,7 @@ apps/windows-v1/       Production v1.0 Tauri + React client
 shared/                Holiday and shared data
 scripts/               Verification, packaging, and compliance checks
 doc/current.md         Single internal source of current project truth
-doc/releases/v1.0.2/   v1.0.2 PRD, progress, acceptance, and release docs
+doc/releases/v1.0.3/   v1.0.3 PRD, progress, acceptance, and release docs
 ```
 
 ## Contributing

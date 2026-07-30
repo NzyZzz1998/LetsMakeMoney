@@ -6,7 +6,7 @@
   <a href="README.en.md">English</a> ·
   <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">下载</a> ·
   <a href="doc/current.md">当前状态</a> ·
-  <a href="doc/releases/v1.0.2/README.md">v1.0.2 文档</a>
+  <a href="doc/releases/v1.0.3/release-notes.md">v1.0.3 文档</a>
 </div>
 
 ## 一眼知道今天赚了多少
@@ -16,7 +16,7 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪
 迷你收入视图适合常驻桌面；需要更多信息时，再打开今日与日历工作台。无需账号，配置和日志都保存在本机。
 
 <div align="center">
-  <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney v1.0.2 今日收入工作台">
+  <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney v1.0.3 今日收入工作台">
 </div>
 
 ## 主要能力
@@ -30,15 +30,15 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪
 
 ## 当前版本
 
-**v1.0.2 Stable** 在 v1.0.1 的可靠计算基础上，优化状态表达、桌面窗口质感和浅色/深色双主题。
+**v1.0.3 Stable** 在 v1.0.2 的视觉与状态表达基础上，增强跨年度可用性、隐藏窗口生命周期和系统时间变化后的可靠收敛。
 
-- 当前公开版本为 [v1.0.2 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.2)。
-- v1.0.2 已完成实现、独立验收、干净提交构建和 GitHub Release 发布。
-- 阶段倒计时会按真实边界显示距离上班、休息、恢复工作或下班。
-- 今日安排、跨夜归属、调休来源和日历复合状态使用统一内容合同。
-- 迷你视图支持全窗口拖动，并针对加载、错误和不同工作阶段收敛尺寸。
-- 浅色为默认主题，深色主题可本地保存并即时同步到全部应用窗口。
-- v1.0.2 是无宠物的正式产品主线，暂不包含云同步、安装器、系统跟随主题或自定义主题。
+- 当前公开版本为 [v1.0.3 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.3)。
+- v1.0.3 已完成实现、独立验收、干净提交构建、必需 CI 和 GitHub Release 发布。
+- 官方日历未覆盖的年份会使用明确标注的休息模式估算，不伪造官方节假日或调休数据。
+- 隐藏窗口暂停本地计时与权威同步，恢复时立即重新校准，避免后台重复工作。
+- Windows 睡眠恢复、系统时间前后跳变、真实时区切换和连续 120 分钟运行已经过验收。
+- 阶段倒计时、今日安排、跨夜归属、调休来源、日历复合状态和浅色/深色双主题继续沿用 v1.0.2 合同。
+- v1.0.3 是无宠物的正式产品主线，暂不包含云同步、安装器、系统跟随主题或自定义主题。
 - 需要桌宠体验时，可以继续使用 `v0.9-beta` tag 对应的 v0.9 Beta；它也是 v1.0 的明确回退基线。
 
 最新事实与发布哈希以 [当前状态入口](doc/current.md) 为准。
@@ -65,15 +65,15 @@ npm run tauri dev
 
 ```powershell
 # 在仓库根目录执行
-powershell -ExecutionPolicy Bypass -File .\scripts\package_v102.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v102_package.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\package_v103.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v103_package.ps1
 ```
 
-本地构建产物位于 `releases\v1.0.2\`。构建和验证不应依赖未声明的本机路径或私有文件。
+本地构建产物位于 `releases\v1.0.3\`。构建和验证不应依赖未声明的本机路径或私有文件。
 
 ## 数据、隐私与回退
 
-v1.0.2 的配置与日志目录：
+v1.0.3 的配置与日志目录：
 
 ```text
 %APPDATA%\io.letsmakemoney.windows\
@@ -87,9 +87,9 @@ v1.0.2 的配置与日志目录：
 ## 验证
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v102.ps1 -SkipReleaseBuild
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v103.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v102_package.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v103_package.ps1
 ```
 
 自动测试覆盖工资计算、配置事务、窗口合同、托盘桥接、文档和包完整性。真实通知区、任务栏、DPI 与重启恢复仍以 Windows 桌面验收为准。
@@ -101,7 +101,7 @@ apps/windows-v1/       v1.0 Tauri + React 正式客户端
 shared/                节假日与共享数据
 scripts/               验证、打包和合规检查
 doc/current.md         当前唯一内部事实入口
-doc/releases/v1.0.2/   v1.0.2 PRD、进度、验收与发布文档
+doc/releases/v1.0.3/   v1.0.3 PRD、进度、验收与发布文档
 ```
 
 ## 参与项目

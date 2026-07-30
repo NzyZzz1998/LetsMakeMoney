@@ -1,6 +1,6 @@
 # LetsMakeMoney Windows Stable 工程
 
-这是 LetsMakeMoney 当前 Windows Stable 主线工程，技术栈为 Rust、Tauri、TypeScript 与 React。当前公开版本为 v1.0.2；v1.0.3 已进入开发验证阶段，尚未发布。
+这是 LetsMakeMoney 当前 Windows Stable 主线工程，技术栈为 Rust、Tauri、TypeScript 与 React。当前公开版本为 v1.0.3 Stable。
 
 ## 产品边界
 

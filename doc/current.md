@@ -6,12 +6,12 @@
 
 | 项目 | 状态 |
 | --- | --- |
-| 当前公开版本 | Windows v1.0.2 Stable |
-| 当前公开 tag | `v1.0.2` |
-| 当前开发版本 | Windows v1.0.3 发布源已合入 `main`，最终包已锁定 |
+| 当前公开版本 | Windows v1.0.3 Stable |
+| 当前公开 tag | `v1.0.3` |
+| 当前开发版本 | 暂无；v1.0.3 已完成发布 |
 | v1.0.1 阶段 | 已发布 |
 | v1.0.2 阶段 | 已发布 / 发布后观察 |
-| v1.0.3 阶段 | 发布收口进行中，待 tag 与 GitHub Release |
+| v1.0.3 阶段 | 已发布 / 发布后观察 |
 | 技术栈 | Rust + Tauri + TypeScript/React |
 | 产品形态 | 无宠物、本地优先的 Windows 收入进度工具 |
 | 发布阻塞 | 无 |
@@ -108,6 +108,9 @@ v1.0.3 的发布后 Review、Idea、性能技术 Spike、PRD、开发承接、�
 
 最终发布包从 PR #15 合并提交 `87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4` 重新构建，`source_tree_dirty=false`。Zip SHA256 为 `259CAE23D785FC7712CAC0EFD42991C8EE210C0BCEA1EB5C07FC171DFB993B28`，EXE SHA256 为 `41BB11FCBC95C3789AD283D0F85E67DB0E17D4BC769B133B317FDB1804607237`，WebView2Loader SHA256 为 `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。最终发布包已重新通过全量自动验证、包体验证和 Computer Use 全新解压启动冒烟，当前无发布阻塞。
 
+`v1.0.3` annotated tag 指向上述发布源提交，GitHub Stable Release 已发布：
+`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.3`。Release 仅包含便携 Zip 与 `SHA256SUMS.txt`；从 GitHub 重新下载的 Zip SHA256 与上述锁定值一致。
+
 ## 待人工补证
 
 当前无待人工补证的 v1.0.3 系统门禁。
@@ -162,4 +165,4 @@ v1.0.3 的发布后 Review、Idea、性能技术 Spike、PRD、开发承接、�
 
 ## 下一步
 
-发布源已经合入 `main`，最终便携 Zip 与 `SHA256SUMS.txt` 已锁定。下一步创建 `v1.0.3` annotated tag 和 GitHub Stable Release；Release 只允许上传这两个文件，不得上传本地解压目录或验收证据。
+v1.0.3 已完成发布。下一步只进行发布后观察；新问题需区分缺陷、候选需求和环境限制，不回写或替换既有 tag、Release 与发布产物。
