@@ -15,25 +15,26 @@
 | 项目 | 身份 |
 | --- | --- |
 | 分支 | `main` |
-| 发布候选源码提交 | `ebcd58844bc905874c2ddc9b267848ee1aec5b7b` |
+| 发布候选源码提交 | `87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4` |
 | Source tree dirty | `false` |
 | Zip | `releases/v1.0.3/LetsMakeMoney-v1.0.3-windows-x86_64.zip` |
-| Zip 大小 | 3,204,792 字节 |
-| Zip SHA256 | `E4FF7771B3ACD5658DD84EE2CC6E14B1DACA685EBD0D2D180FC318B7BB1F2183` |
+| Zip 大小 | 3,204,791 字节 |
+| Zip SHA256 | `259CAE23D785FC7712CAC0EFD42991C8EE210C0BCEA1EB5C07FC171DFB993B28` |
 | EXE 大小 | 9,997,312 字节 |
-| EXE SHA256 | `7DD45D6B35CE82A6241D359EFB2FE88A9A62B3ECD20703B19BAE82CEE98F5BBA` |
+| EXE SHA256 | `41BB11FCBC95C3789AD283D0F85E67DB0E17D4BC769B133B317FDB1804607237` |
 | WebView2Loader 大小 | 160,320 字节 |
 | WebView2Loader SHA256 | `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C` |
-| 最终候选解压目录 | `.tmp_acceptance/v1.0.3-clean-build-20260730-173416/candidate/LetsMakeMoney-v1.0.3-windows-x86_64/` |
-| 最终身份与冒烟证据 | `.tmp_acceptance/v1.0.3-clean-build-20260730-173416/evidence/` |
+| 最终候选解压目录 | `.tmp_acceptance/v1.0.3-release-20260730-181127/extracted/LetsMakeMoney-v1.0.3-windows-x86_64/` |
+| 最终身份与冒烟证据 | `.tmp_acceptance/v1.0.3-release-20260730-181127/evidence/` |
 | 深度 GUI 与系统证据 | `.tmp_acceptance/v1.0.3-final-20260730-014452/evidence/` |
 
 ### 证据继承边界
 
 - 深度 GUI、睡眠、系统时间、时区、托盘和 120 分钟稳定性证据来自修正版验收候选
   `91491B65F0CABFCA6889C18355AFD26E1BB22720DB8F61DB835F8CB86A4E0743`。
-- 该候选的实现内容完整进入提交 `ebcd58844bc905874c2ddc9b267848ee1aec5b7b`，没有在提交后修改业务实现。
-- 最终干净构建因构建身份变化获得新的 Zip 与 EXE 哈希；本轮对其重新执行全量自动验证、包体验证及新解压真实启动冒烟。
+- 该候选的业务实现完整进入提交 `ebcd58844bc905874c2ddc9b267848ee1aec5b7b`；之后到发布源 `87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4` 之间没有业务代码变化。
+- 发布源只增加发布文档收口和 CI 自包含修正：`scripts/verify_v103.ps1` 在 Rust `generate_context!()` 前先构建前端 `dist`。
+- 最终干净构建因发布源身份变化获得新的 Zip 与 EXE 哈希；本轮对其重新执行全量自动验证、包体验证及 Computer Use 全新解压真实启动冒烟。
 - 未将深度 GUI 项目描述为在新哈希上重复执行。
 
 ## 自动门禁
@@ -48,6 +49,7 @@
 | Rust 回归 | 通过 | 38/38 |
 | 历史版本回归 | 通过 | v1.0-v1.0.2 聚合门禁 |
 | 打包与包体验证 | 通过 | `scripts/package_v103.ps1`、`scripts/verify_v103_package.ps1` |
+| GitHub 必需 CI | 通过 | PR #15，Actions run `30532884561`，job `90839127198` |
 | 2025 年数据 SHA256 | 通过 | `3C7911EEEEC200FFCD4C7C20ED84C64B06F23EC81818AD50D9EAEE88081C1280` |
 | 2026 年数据 SHA256 | 通过 | `440169EAD0FCDA71C15CBAAE11EC557DC0846EECA103A988D267303D9C306042` |
 | 文档与差异检查 | 通过 | v1.0.3 相关 18 份文档严格 UTF-8、乱码和本地链接检查通过；`git diff --check` 通过 |
@@ -109,9 +111,9 @@
 
 - `scripts/verify_v103.ps1`：通过。
 - `scripts/verify_v103_package.ps1`：通过。
-- `BUILD-INFO.json`：`source_head=ebcd58844bc905874c2ddc9b267848ee1aec5b7b`、`source_tree_dirty=false`。
+- `BUILD-INFO.json`：`source_head=87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4`、`source_tree_dirty=false`。
 - 新解压候选真实启动并显示 Mini 工作状态；截图为
-  `.tmp_acceptance/v1.0.3-clean-build-20260730-173416/evidence/clean-candidate-mini-smoke.png`。
+  `.tmp_acceptance/v1.0.3-release-20260730-181127/evidence/clean-extract-launch.png`。
 - 启动进程路径、大小、哈希和退出结果见同目录 `launch-identity.json`；进程已停止。
 - stale/error 缺少真实 GUI 注入的边界继续如实保留，不冒充 GUI 通过。
 

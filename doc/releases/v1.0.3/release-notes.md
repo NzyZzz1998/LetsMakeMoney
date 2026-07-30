@@ -1,6 +1,6 @@
 # LetsMakeMoney Windows v1.0.3 发布说明
 
-状态：**最终验收通过，可进入发布收口。**
+状态：**Stable，最终验收通过。**
 
 v1.0.3 是 v1.0.2 Stable 之后的可靠性更新，重点解决跨年度日历可用性、隐藏窗口生命周期和系统时间环境变化后的状态收敛。本版不改变既有收入公式、日期调整事务和双主题口径。
 
@@ -31,16 +31,16 @@ v1.0.3 是 v1.0.2 Stable 之后的可靠性更新，重点解决跨年度日历�
 
 ## 最终候选身份
 
-- 源码提交：`ebcd58844bc905874c2ddc9b267848ee1aec5b7b`
+- 源码提交：`87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4`
 - `source_tree_dirty=false`
 - Zip：`LetsMakeMoney-v1.0.3-windows-x86_64.zip`
-- Zip SHA256：`E4FF7771B3ACD5658DD84EE2CC6E14B1DACA685EBD0D2D180FC318B7BB1F2183`
-- EXE SHA256：`7DD45D6B35CE82A6241D359EFB2FE88A9A62B3ECD20703B19BAE82CEE98F5BBA`
+- Zip SHA256：`259CAE23D785FC7712CAC0EFD42991C8EE210C0BCEA1EB5C07FC171DFB993B28`
+- EXE SHA256：`41BB11FCBC95C3789AD283D0F85E67DB0E17D4BC769B133B317FDB1804607237`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 
 ## 发布门禁
 
-真实 Windows 睡眠恢复、系统时间向前/向后跳变、通知区左键、120 分钟稳定运行、自动验证、包体验证和干净构建身份均已通过。当前无发布阻塞项；尚未执行 push、tag 或 GitHub Release。
+真实 Windows 睡眠恢复、系统时间向前/向后跳变、通知区左键、120 分钟稳定运行、自动验证、包体验证、GitHub 必需 CI 和干净构建身份均已通过。当前无发布阻塞项；公开附件仅包含便携 Zip 与 `SHA256SUMS.txt`。
 
 ## 回滚
 
