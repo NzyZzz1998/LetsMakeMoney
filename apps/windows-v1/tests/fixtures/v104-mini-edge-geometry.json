@@ -1,0 +1,90 @@
+{
+  "fixture_version": 1,
+  "contract": {
+    "dock_threshold_logical_px": 16,
+    "privacy_tab_logical_px": 10,
+    "undock_threshold_logical_px": 24,
+    "fallback_margin_logical_px": 12
+  },
+  "dock_cases": [
+    {
+      "id": "right-edge-100-taskbar-work-area",
+      "scale_factor": 1.0,
+      "work_area": { "x": 0, "y": 0, "width": 1920, "height": 1040 },
+      "window": { "x": 1564, "y": 900, "width": 344, "height": 108 },
+      "expected_side": "right",
+      "expected_expanded": { "x": 1576, "y": 900 },
+      "expected_retracted": { "x": 1910, "y": 900 }
+    },
+    {
+      "id": "left-edge-125-negative-monitor",
+      "scale_factor": 1.25,
+      "work_area": { "x": -1536, "y": 0, "width": 1536, "height": 824 },
+      "window": { "x": -1524, "y": 100, "width": 430, "height": 135 },
+      "expected_side": "left",
+      "expected_expanded": { "x": -1536, "y": 100 },
+      "expected_retracted": { "x": -1953, "y": 100 }
+    },
+    {
+      "id": "right-edge-150-taskbar-work-area",
+      "scale_factor": 1.5,
+      "work_area": { "x": 0, "y": 0, "width": 2560, "height": 1392 },
+      "window": { "x": 2030, "y": 1180, "width": 516, "height": 162 },
+      "expected_side": "right",
+      "expected_expanded": { "x": 2044, "y": 1180 },
+      "expected_retracted": { "x": 2545, "y": 1180 }
+    },
+    {
+      "id": "left-edge-error-height-100",
+      "scale_factor": 1.0,
+      "work_area": { "x": 0, "y": 0, "width": 1920, "height": 1040 },
+      "window": { "x": 8, "y": 850, "width": 344, "height": 120 },
+      "expected_side": "left",
+      "expected_expanded": { "x": 0, "y": 850 },
+      "expected_retracted": { "x": -334, "y": 850 }
+    },
+    {
+      "id": "center-does-not-dock",
+      "scale_factor": 1.0,
+      "work_area": { "x": 0, "y": 0, "width": 1920, "height": 1040 },
+      "window": { "x": 700, "y": 400, "width": 344, "height": 108 },
+      "expected_side": "none"
+    }
+  ],
+  "fallback_cases": [
+    {
+      "id": "missing-monitor-falls-back-to-primary-work-area",
+      "scale_factor": 1.0,
+      "primary_work_area": { "x": 0, "y": 0, "width": 1920, "height": 1040 },
+      "window": { "x": 3000, "y": -200, "width": 344, "height": 108 },
+      "expected_position": { "x": 1564, "y": 12 }
+    },
+    {
+      "id": "negative-primary-work-area-is-supported",
+      "scale_factor": 1.5,
+      "primary_work_area": { "x": -2560, "y": -120, "width": 2560, "height": 1392 },
+      "window": { "x": 900, "y": 1800, "width": 516, "height": 162 },
+      "expected_position": { "x": -534, "y": 1092 }
+    }
+  ],
+  "undock_cases": [
+    {
+      "id": "below-threshold-remains-docked",
+      "scale_factor": 1.25,
+      "inward_displacement_physical_px": 29,
+      "expected_undock": false
+    },
+    {
+      "id": "threshold-undocks",
+      "scale_factor": 1.25,
+      "inward_displacement_physical_px": 30,
+      "expected_undock": true
+    },
+    {
+      "id": "outward-motion-never-undocks",
+      "scale_factor": 1.0,
+      "inward_displacement_physical_px": -30,
+      "expected_undock": false
+    }
+  ]
+}

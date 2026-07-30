@@ -7,6 +7,7 @@ $RepoRoot = Split-Path -Parent $PSScriptRoot
 $AppRoot = Join-Path $RepoRoot "apps\windows-v1"
 . (Join-Path $PSScriptRoot "v10_tools.ps1")
 $Node = Get-V10Node
+$Python = Get-V10Python
 $NodeModules = Join-Path $AppRoot "node_modules"
 $BehaviorBundles = @()
 
@@ -21,8 +22,7 @@ try {
         }
     }
 
-    $python = "python"
-    & $python (Join-Path $RepoRoot "apps\windows-v1\tests\verify_v102.py")
+    & $Python (Join-Path $RepoRoot "apps\windows-v1\tests\verify_v102.py")
     if ($LASTEXITCODE -ne 0) {
         throw "v1.0.2 targeted verification failed."
     }

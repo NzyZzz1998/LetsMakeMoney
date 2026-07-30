@@ -1,0 +1,100 @@
+{
+  "branch": "main",
+  "environment": {
+    "windows_version": "Windows 11 Pro 10.0.26200",
+    "architecture": "x86_64",
+    "dpi": [
+      100
+    ],
+    "webview2_version": "150.0.4078.105"
+  },
+  "checks": [
+    {
+      "id": "V104-AUTO-FULL",
+      "method": "automatic",
+      "result": "passed",
+      "started_at": "2026-07-30T19:32:00Z",
+      "finished_at": "2026-07-30T19:56:15Z",
+      "evidence_ref": "repo:doc/releases/v1.0.4/verification.md"
+    },
+    {
+      "id": "V104-AUTO-PACKAGE",
+      "method": "automatic",
+      "result": "passed",
+      "started_at": "2026-07-30T19:56:15Z",
+      "finished_at": "2026-07-30T19:57:00Z",
+      "evidence_ref": "repo:doc/releases/v1.0.4/verification.md"
+    },
+    {
+      "id": "V104-GUI-MINI-EDGE",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T19:58:00Z",
+      "finished_at": "2026-07-30T20:13:43Z",
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
+    },
+    {
+      "id": "V104-GUI-CONFIG-REFRESH",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T20:00:00Z",
+      "finished_at": "2026-07-30T20:13:43Z",
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
+    },
+    {
+      "id": "V104-GUI-RESTART-PERSISTENCE",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T20:20:01Z",
+      "finished_at": "2026-07-30T20:25:38Z",
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
+    },
+    {
+      "id": "V104-GUI-DPI",
+      "method": "manual",
+      "result": "partial",
+      "started_at": "2026-07-30T19:58:00Z",
+      "finished_at": "2026-07-30T20:25:38Z",
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
+    },
+    {
+      "id": "V104-GUI-MULTI-MONITOR",
+      "method": "manual",
+      "result": "not_run",
+      "started_at": "2026-07-30T20:25:38Z",
+      "finished_at": "2026-07-30T20:25:38Z",
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
+    }
+  ],
+  "conclusion": "partial",
+  "limitations": [
+    "真实 Windows 仅完成 100% DPI；125% 与 150% DPI 仍待人工补证。",
+    "深色主题与减少动态效果下的真实贴边观感仍待人工补证。",
+    "当前环境未完成真实多显示器和负坐标工作区补证。",
+    "候选由脏工作树构建，只用于开发验收，不是正式发布候选。"
+  ],
+  "log_summary": {
+    "event_counts": {
+      "mini.edge_dock.detected": 12,
+      "mini.edge_dock.retracted": 7,
+      "mini.edge_dock.revealed": 5,
+      "mini.edge_dock.canceled": 2,
+      "settings.saved": 4,
+      "window.hidden": 7,
+      "window.shown": 17
+    },
+    "error_categories": [],
+    "truncated": false
+  },
+  "raw_archive": {
+    "schema_version": "1.0",
+    "archive_id": "LMM-V104-ACCEPTANCE-M6-001",
+    "archive_sha256": null,
+    "availability": "not_collected",
+    "custodian_role": "project-owner",
+    "contents": [],
+    "retention": "owner-managed",
+    "reason": "Computer Use 截图未作为持久原始归档保存；仓库仅保留脱敏摘要和日志语义计数。",
+    "updated_at": "2026-07-30T20:27:00Z"
+  }
+}

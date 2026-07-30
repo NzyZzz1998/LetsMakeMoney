@@ -8,14 +8,15 @@
 | --- | --- |
 | 当前公开版本 | Windows v1.0.3 Stable |
 | 当前公开 tag | `v1.0.3` |
-| 当前开发版本 | 暂无；v1.0.3 已完成发布 |
+| 当前开发版本 | Windows v1.0.4；开发实现完成，开发验收部分通过 |
 | v1.0.1 阶段 | 已发布 |
 | v1.0.2 阶段 | 已发布 / 发布后观察 |
 | v1.0.3 阶段 | 已发布 / 发布后观察 |
+| v1.0.4 阶段 | M0、M1、M4、M5 通过 / M2 6/8 / M3 7/8 / M6 13/14 / ACC 9/12 |
 | 技术栈 | Rust + Tauri + TypeScript/React |
 | 产品形态 | 无宠物、本地优先的 Windows 收入进度工具 |
-| 发布阻塞 | 无 |
-| 最后更新 | 2026-07-30 |
+| 发布阻塞 | v1.0.4 需从干净提交重建，并补齐 125%/150% DPI、深色/减少动态效果和真实多显示器证据 |
+| 最后更新 | 2026-07-31 |
 
 ## v1.0 公开基线
 
@@ -111,6 +112,44 @@ v1.0.3 的发布后 Review、Idea、性能技术 Spike、PRD、开发承接、�
 `v1.0.3` annotated tag 指向上述发布源提交，GitHub Stable Release 已发布：
 `https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.3`。Release 仅包含便携 Zip 与 `SHA256SUMS.txt`；从 GitHub 重新下载的 Zip SHA256 与上述锁定值一致。
 
+## v1.0.4 当前状态
+
+v1.0.4 定位为发布可信度、测试可信度、开发可复现性和局部可维护性优化，并新增一个边界严格受控的隐私能力：Mini 左右贴边自动隐藏。除该能力外，不改变收入、日历、主题或其他窗口行为。
+
+深度 Review、Idea 需求池、完整 PRD、需求追踪矩阵和高保真原型已完成。项目所有者已经确认推荐方案、四项治理决策、方案 A 的 Mini 隐私贴边能力及完整 PRD。PR #19 已将渐进式架构基线合入 `main`（`09f838d05c67efb5219437ec2208920e441f3f52`）。
+
+V104-M0 已完成 10/10：冻结 v1.0.3 Git/Release 身份，完成 stable/fixed Rust 对照、work-area 与三档 DPI 几何夹具、v1.0.3 配置兼容门禁、正常/收起位置合同、脱敏机器证据和 v1.0.4 聚合验证入口。配置决策为继续使用 config v8 可选字段，不引入 `window-state.json`；只持久化展开态正常位置。
+
+V104-M1 已完成 8/8：包专用双语离线 README、语义与负向验证、README/BUILD-INFO 哈希合同、原子打包与包体验证脚本、v1.0.3 Release 差异披露草案均已建立。远端正文未获独立授权，因此没有执行远端写操作。
+
+V104-M2 已完成 6/8，V104-M3 已完成 7/8，V104-M4 已完成 8/8，V104-M5 已完成 6/6。统一工具解析、固定 Rust/Node/Python、只读环境诊断和 CI 合同已经通过；高风险组合行为增加了生命周期代际保护、配置事务和可信快照失败收敛的直接证据，完整聚合连续运行 10 次无随机失败。历史资产矩阵已确认 iOS 同名文件仍有唯一差异，Spike、v0.9 Figma/宠物、用户手册和历史 release 均建立了迁移前签核与回滚门禁，本版没有移动或删除历史资产。新鲜 clone 的无 spike 完整打包与完整通知区冒烟仍留到最终 ACC。
+
+V104-M6 已完成实现和自动化门禁，并使用开发验收候选在真实 Windows 100% DPI 下完成左右贴边、隐私收起、悬停/点击展开、移开收回、Settings 跨窗口关闭和重启持久化复验。复验期间发现并修复了一个跨窗口配置刷新缺口：收起 Mini 从 Settings 关闭自动隐藏时，原生窗口已展开但前端仍显示隐私标签，形成空白全尺寸窗口；修复后立即恢复完整内容且重启持久化正常。
+
+当前开发验收 Zip SHA256 为 `C67E730BF81741D03BFAF6D14F3F16EB74FD8591D8B3AB76D45A980E854C249B`。该包由脏工作树构建，`source_tree_dirty=true`，只能用于开发验收，不是正式发布候选。125%/150% DPI、深色主题、减少动态效果和真实多显示器仍待补证；正式候选必须从干净提交重新构建并重新锁定全部哈希。
+
+架构基线已完成：
+
+1. `AppRuntime`、统一时间服务和配置、Dashboard、支持、窗口 Service。
+2. `WindowFrame`、`MiniWindow`、全窗口拖动 Hook。
+3. Rust 配置与收入链路的 Command/Service/Repository/Model 分层。
+4. Runtime、配置领域、Desktop Service、生命周期、权威同步、Presentation 和结构测试。
+
+这些内容在 v1.0.4 中只作为继承门禁，不重复开发，也不继续扩大模块拆分。
+
+正式范围包括：
+
+1. 便携包专用离线 README 与语义包验。
+2. 两层验收证据耐久合同。
+3. 既有架构基线上的高风险行为缺口补测与聚合门禁。
+4. 新解压包桌面启动与窗口找回冒烟。
+5. 剩余可复现开发环境、统一工具解析和正式脚本与 spike 目录解耦。
+6. Runtime/Service 与首轮局部切片的继承验证；本版不重复实现或扩大拆分。
+7. 历史资产所有权矩阵；本版不执行批量迁移或删除。
+8. Mini 隐私贴边自动隐藏：仅左右工作区边缘，收起态不显示工资信息，悬停或托盘找回时展开；不扩展为通用停靠系统。
+
+v1.0.3 GitHub Release 的 README 快照差异披露已进入需求范围，但属于远端文档写操作，实际执行前仍需独立授权。
+
 ## 待人工补证
 
 当前无待人工补证的 v1.0.3 系统门禁。
@@ -162,7 +201,21 @@ v1.0.3 的发布后 Review、Idea、性能技术 Spike、PRD、开发承接、�
 - [v1.0.3 人工补证](releases/v1.0.3/manual-verification.md)
 - [v1.0.3 发布检查](releases/v1.0.3/release-checklist.md)
 - [v1.0.3 开发日志](logs/dev_log_v1.0.3.md)
+- [v1.0.4 深度 Review](releases/v1.0.4/review.md)
+- [v1.0.4 发布后差距](releases/v1.0.4/v1.0.3-post-release-gap.md)
+- [v1.0.4 瘦身候选](releases/v1.0.4/slimming-candidates.md)
+- [v1.0.4 Idea 需求池](releases/v1.0.4/idea-pool.md)
+- [v1.0.4 完整 PRD](releases/v1.0.4/prd.md)
+- [v1.0.4 需求追踪矩阵](releases/v1.0.4/traceability.md)
+- [v1.0.4 开发计划](releases/v1.0.4/dev_plan_v1.0.4.md)
+- [v1.0.4 历史资产矩阵](releases/v1.0.4/historical-assets.md)
+- [v1.0.4 进度](releases/v1.0.4/progress_v1.0.4.md)
+- [v1.0.4 验证](releases/v1.0.4/verification.md)
+- [v1.0.4 人工验证](releases/v1.0.4/manual-verification.md)
+- [v1.0.4 发布检查](releases/v1.0.4/release-checklist.md)
+- [v1.0.4 发布说明草案](releases/v1.0.4/release-notes.md)
+- [v1.0.4 开发日志](logs/dev_log_v1.0.4.md)
 
 ## 下一步
 
-v1.0.3 已完成发布。下一步只进行发布后观察；新问题需区分缺陷、候选需求和环境限制，不回写或替换既有 tag、Release 与发布产物。
+下一步先完成文档和静态门禁，再从干净提交构建唯一 v1.0.4 正式候选。针对新哈希补齐 125%/150% DPI、深色主题、减少动态效果、真实多显示器、Wizard 与通知区找回证据后，才能再次判断是否进入发布收口。没有独立授权时不提交、不推送、不打 tag、不创建 Release，也不修改远端 Release 正文。

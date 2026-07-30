@@ -96,6 +96,48 @@ struct ExitState(AtomicBool);
 struct PositionSaveRevision(AtomicU64);
 struct PlatformRuntime(Mutex<PlatformCapabilities>);
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum MiniEdgeVisibility {
+    Expanded,
+    Retracted,
+}
+
+struct MiniEdgeWindowState {
+    dock: config::MiniEdgeDock,
+    visibility: MiniEdgeVisibility,
+    suppress_position_persistence: bool,
+}
+
+struct MiniEdgeRuntime {
+    state: Mutex<MiniEdgeWindowState>,
+    animation_revision: AtomicU64,
+}
+
+impl MiniEdgeRuntime {
+    fn new(config: &config::AppConfig) -> Self {
+        Self {
+            state: Mutex::new(MiniEdgeWindowState {
+                dock: if config.mini_edge_auto_hide {
+                    config.mini_edge_dock
+                } else {
+                    config::MiniEdgeDock::None
+                },
+                visibility: MiniEdgeVisibility::Expanded,
+                suppress_position_persistence: false,
+            }),
+            animation_revision: AtomicU64::new(0),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct MiniEdgeStatus {
+    auto_hide: bool,
+    dock: config::MiniEdgeDock,
+    visibility: &'static str,
+    notice: Option<&'static str>,
+}
+
 #[derive(Clone, Serialize)]
 struct PlatformCapabilities {
     webview2_available: bool,
@@ -153,8 +195,12 @@ fn save_configuration(
     app: AppHandle,
     state: tauri::State<'_, RuntimeConfig>,
     configuration_state: tauri::State<'_, ConfigurationState>,
-    draft: config::AppConfig,
+    mut draft: config::AppConfig,
 ) -> Result<config::SaveResult, String> {
+    if !draft.mini_edge_auto_hide {
+        draft.mini_edge_dock = config::MiniEdgeDock::None;
+    }
+    let requested_edge_auto_hide = draft.mini_edge_auto_hide;
     let data_dir = app
         .path()
         .app_data_dir()
@@ -197,6 +243,20 @@ fn save_configuration(
     }
     if result.status == config::SaveStatus::Saved {
         configuration_state.0.store(true, Ordering::SeqCst);
+    }
+    if !requested_edge_auto_hide
+        && matches!(
+            result.status,
+            config::SaveStatus::Saved | config::SaveStatus::Unchanged
+        )
+    {
+        if let Err(error) = disable_mini_edge_auto_hide_internal(&app) {
+            append_log(
+                &app,
+                "mini.edge_dock.failed",
+                &format!("stage=settings_disabled reason={error}"),
+            );
+        }
     }
     Ok(result)
 }
@@ -410,6 +470,9 @@ fn set_mini_window_state(app: AppHandle, state: String) -> Result<(), String> {
         "mini.window.size_applied",
         &format!("state={state} width=344 height={height:.0}"),
     );
+    if mini_edge_status_internal(&app)?.visibility == "retracted" {
+        set_mini_edge_retracted_internal(&app, true, "size_changed", true)?;
+    }
     Ok(())
 }
 
@@ -420,9 +483,595 @@ fn append_log(app: &AppHandle, event: &str, message: &str) {
     }
 }
 
+fn mini_window_rect(window: &WebviewWindow) -> Result<platform::Rect, String> {
+    let position = window.outer_position().map_err(|error| error.to_string())?;
+    let size = window.outer_size().map_err(|error| error.to_string())?;
+    Ok(platform::Rect {
+        x: position.x,
+        y: position.y,
+        width: size.width,
+        height: size.height,
+    })
+}
+
+fn mini_edge_side(dock: config::MiniEdgeDock) -> Option<platform::EdgeDockSide> {
+    match dock {
+        config::MiniEdgeDock::Left => Some(platform::EdgeDockSide::Left),
+        config::MiniEdgeDock::Right => Some(platform::EdgeDockSide::Right),
+        config::MiniEdgeDock::None => None,
+    }
+}
+
+fn mini_edge_dock(side: platform::EdgeDockSide) -> config::MiniEdgeDock {
+    match side {
+        platform::EdgeDockSide::Left => config::MiniEdgeDock::Left,
+        platform::EdgeDockSide::Right => config::MiniEdgeDock::Right,
+    }
+}
+
+fn mini_edge_label(dock: config::MiniEdgeDock) -> &'static str {
+    match dock {
+        config::MiniEdgeDock::Left => "left",
+        config::MiniEdgeDock::Right => "right",
+        config::MiniEdgeDock::None => "none",
+    }
+}
+
+fn mini_edge_source(source: &str) -> &'static str {
+    match source {
+        "pointer_enter" => "pointer_enter",
+        "pointer_leave" => "pointer_leave",
+        "focus_inside" => "focus_inside",
+        "menu_open" => "menu_open",
+        "modal_open" => "modal_open",
+        "drag_start" => "drag_start",
+        "tray_restore" => "tray_restore",
+        "window_shown" => "window_shown",
+        "size_changed" => "size_changed",
+        "settings_disabled" => "settings_disabled",
+        _ => "unknown",
+    }
+}
+
+fn mini_edge_status_internal(app: &AppHandle) -> Result<MiniEdgeStatus, String> {
+    let auto_hide = app
+        .state::<RuntimeConfig>()
+        .0
+        .lock()
+        .map(|config| config.mini_edge_auto_hide)
+        .map_err(|_| "config_lock_failed".to_string())?;
+    let mini_edge_runtime = app.state::<MiniEdgeRuntime>();
+    let state = mini_edge_runtime
+        .state
+        .lock()
+        .map_err(|_| "mini_edge_state_lock_failed".to_string())?;
+    let dock = if auto_hide {
+        state.dock
+    } else {
+        config::MiniEdgeDock::None
+    };
+    Ok(MiniEdgeStatus {
+        auto_hide,
+        dock,
+        visibility: match state.visibility {
+            MiniEdgeVisibility::Expanded => "expanded",
+            MiniEdgeVisibility::Retracted => "retracted",
+        },
+        notice: None,
+    })
+}
+
+fn mini_edge_position_persistence_suppressed(app: &AppHandle) -> bool {
+    app.state::<MiniEdgeRuntime>()
+        .state
+        .lock()
+        .map(|state| {
+            state.suppress_position_persistence || state.visibility == MiniEdgeVisibility::Retracted
+        })
+        .unwrap_or(true)
+}
+
+fn update_runtime_mini_edge_config(
+    app: &AppHandle,
+    dock: config::MiniEdgeDock,
+    position: Option<(i32, i32)>,
+) -> Result<(), String> {
+    let runtime_config = app.state::<RuntimeConfig>();
+    let mut runtime = runtime_config
+        .0
+        .lock()
+        .map_err(|_| "config_lock_failed".to_string())?;
+    runtime.mini_edge_dock = dock;
+    if let Some((x, y)) = position {
+        runtime.mini_window_position = Some(config::WindowPosition {
+            x: f64::from(x),
+            y: f64::from(y),
+        });
+    }
+    Ok(())
+}
+
+fn set_mini_edge_runtime_state(
+    app: &AppHandle,
+    dock: config::MiniEdgeDock,
+    visibility: MiniEdgeVisibility,
+    suppress_position_persistence: bool,
+) -> Result<(), String> {
+    let mini_edge_runtime = app.state::<MiniEdgeRuntime>();
+    let mut state = mini_edge_runtime
+        .state
+        .lock()
+        .map_err(|_| "mini_edge_state_lock_failed".to_string())?;
+    state.dock = dock;
+    state.visibility = visibility;
+    state.suppress_position_persistence = suppress_position_persistence;
+    Ok(())
+}
+
+fn mini_saved_window_rect(
+    app: &AppHandle,
+    window: &WebviewWindow,
+) -> Result<platform::Rect, String> {
+    let mut rect = mini_window_rect(window)?;
+    let position = app
+        .state::<RuntimeConfig>()
+        .0
+        .lock()
+        .map_err(|_| "config_lock_failed".to_string())?
+        .mini_window_position
+        .clone();
+    if let Some(position) = position {
+        rect.x = position.x.round() as i32;
+        rect.y = position.y.round() as i32;
+    }
+    Ok(rect)
+}
+
+fn mini_saved_center_is_on_available_monitor(
+    app: &AppHandle,
+    window: &WebviewWindow,
+) -> Result<bool, String> {
+    let rect = mini_saved_window_rect(app, window)?;
+    mini_rect_center_is_on_available_monitor(window, rect)
+}
+
+fn mini_rect_center_is_on_available_monitor(
+    window: &WebviewWindow,
+    rect: platform::Rect,
+) -> Result<bool, String> {
+    let center_x = rect.x.saturating_add((rect.width / 2) as i32);
+    let center_y = rect.y.saturating_add((rect.height / 2) as i32);
+    let monitors = window
+        .available_monitors()
+        .map_err(|error| error.to_string())?;
+    Ok(monitors.iter().any(|monitor| {
+        let origin = monitor.position();
+        let size = monitor.size();
+        platform::point_in_rect(
+            center_x,
+            center_y,
+            platform::Rect {
+                x: origin.x,
+                y: origin.y,
+                width: size.width,
+                height: size.height,
+            },
+        )
+    }))
+}
+
+fn animate_mini_position(
+    app: &AppHandle,
+    window: &WebviewWindow,
+    target: (i32, i32),
+    reduced_motion: bool,
+) -> Result<(), String> {
+    let origin = window.outer_position().map_err(|error| error.to_string())?;
+    let revision = app
+        .state::<MiniEdgeRuntime>()
+        .animation_revision
+        .fetch_add(1, Ordering::SeqCst)
+        + 1;
+    if reduced_motion || (origin.x == target.0 && origin.y == target.1) {
+        return window
+            .set_position(Position::Physical(PhysicalPosition::new(
+                target.0, target.1,
+            )))
+            .map_err(|_| "mini_edge_move_failed".to_string());
+    }
+    const STEPS: u64 = 6;
+    for step in 1..=STEPS {
+        if app
+            .state::<MiniEdgeRuntime>()
+            .animation_revision
+            .load(Ordering::SeqCst)
+            != revision
+        {
+            return Ok(());
+        }
+        let progress = step as f64 / STEPS as f64;
+        let eased = 1.0 - (1.0 - progress).powi(3);
+        let x = f64::from(origin.x) + f64::from(target.0 - origin.x) * eased;
+        let y = f64::from(origin.y) + f64::from(target.1 - origin.y) * eased;
+        window
+            .set_position(Position::Physical(PhysicalPosition::new(
+                x.round() as i32,
+                y.round() as i32,
+            )))
+            .map_err(|_| "mini_edge_move_failed".to_string())?;
+        if step < STEPS {
+            thread::sleep(Duration::from_millis(
+                platform::MINI_EDGE_TRANSITION_MS / STEPS,
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn mini_primary_work_area(
+    window: &WebviewWindow,
+    rect: platform::Rect,
+) -> Result<platform::Rect, String> {
+    let primary = window
+        .primary_monitor()
+        .map_err(|error| error.to_string())?
+        .ok_or_else(|| "primary_monitor_unavailable".to_string())?;
+    let origin = primary.position();
+    let size = primary.size();
+    platform::work_area_for_rect(platform::Rect {
+        x: origin.x,
+        y: origin.y,
+        width: size.width.max(rect.width),
+        height: size.height.max(rect.height),
+    })
+}
+
+fn persist_mini_edge_snapshot(app: &AppHandle) {
+    if let Err(error) = persist_runtime_mini_position(app) {
+        append_log(
+            app,
+            "mini.edge_dock.failed",
+            &format!("stage=persist reason={error}"),
+        );
+    }
+}
+
+fn restore_mini_edge_fallback(
+    app: &AppHandle,
+    window: &WebviewWindow,
+    reason: &str,
+) -> Result<MiniEdgeStatus, String> {
+    let rect = mini_window_rect(window)?;
+    let scale = window.scale_factor().map_err(|error| error.to_string())?;
+    let work_area = mini_primary_work_area(window, rect)
+        .or_else(|_| platform::work_area_for_rect(rect))
+        .map_err(|error| {
+            append_log(
+                app,
+                "mini.edge_dock.failed",
+                &format!("stage=fallback_work_area reason={error}"),
+            );
+            error
+        })?;
+    let target = platform::fallback_to_work_area(
+        rect,
+        work_area,
+        scale,
+        platform::MINI_EDGE_FALLBACK_MARGIN_LOGICAL_PX,
+    );
+    set_mini_edge_runtime_state(
+        app,
+        config::MiniEdgeDock::None,
+        MiniEdgeVisibility::Expanded,
+        true,
+    )?;
+    window
+        .set_position(Position::Physical(PhysicalPosition::new(
+            target.0, target.1,
+        )))
+        .map_err(|error| error.to_string())?;
+    update_runtime_mini_edge_config(app, config::MiniEdgeDock::None, Some(target))?;
+    set_mini_edge_runtime_state(
+        app,
+        config::MiniEdgeDock::None,
+        MiniEdgeVisibility::Expanded,
+        false,
+    )?;
+    append_log(
+        app,
+        "mini.edge_dock.restore_fallback",
+        &format!("reason={}", mini_edge_source(reason)),
+    );
+    persist_mini_edge_snapshot(app);
+    let mut status = mini_edge_status_internal(app)?;
+    status.notice = Some("fallback");
+    Ok(status)
+}
+
+fn set_mini_edge_retracted_internal(
+    app: &AppHandle,
+    retracted: bool,
+    source: &str,
+    reduced_motion: bool,
+) -> Result<MiniEdgeStatus, String> {
+    let status = mini_edge_status_internal(app)?;
+    if !status.auto_hide || status.dock == config::MiniEdgeDock::None {
+        return Ok(status);
+    }
+    let window = ensure_window(app, "mini")?;
+    if !mini_saved_center_is_on_available_monitor(app, &window).unwrap_or(false) {
+        return restore_mini_edge_fallback(app, &window, source);
+    }
+    let rect = mini_window_rect(&window)?;
+    let scale = window.scale_factor().map_err(|error| error.to_string())?;
+    let work_area = match platform::work_area_for_rect(rect) {
+        Ok(value) => value,
+        Err(_) => return restore_mini_edge_fallback(app, &window, source),
+    };
+    let side = mini_edge_side(status.dock).ok_or_else(|| "mini_edge_side_missing".to_string())?;
+    let positions = platform::edge_dock_positions(
+        rect,
+        work_area,
+        side,
+        scale,
+        platform::MINI_EDGE_PRIVACY_TAB_LOGICAL_PX,
+    );
+    let visibility = if retracted {
+        MiniEdgeVisibility::Retracted
+    } else {
+        MiniEdgeVisibility::Expanded
+    };
+    set_mini_edge_runtime_state(app, status.dock, visibility, true)?;
+    let target = if retracted {
+        positions.retracted
+    } else {
+        positions.expanded
+    };
+    if let Err(error) = animate_mini_position(app, &window, target, reduced_motion) {
+        append_log(
+            app,
+            "mini.edge_dock.failed",
+            &format!(
+                "stage={} side={} reason={error}",
+                if retracted { "retract" } else { "reveal" },
+                mini_edge_label(status.dock)
+            ),
+        );
+        return restore_mini_edge_fallback(app, &window, source);
+    }
+    set_mini_edge_runtime_state(app, status.dock, visibility, false)?;
+    if !retracted {
+        update_runtime_mini_edge_config(app, status.dock, Some(positions.expanded))?;
+    }
+    append_log(
+        app,
+        if retracted {
+            "mini.edge_dock.retracted"
+        } else {
+            "mini.edge_dock.revealed"
+        },
+        &format!(
+            "side={} source={}",
+            mini_edge_label(status.dock),
+            mini_edge_source(source)
+        ),
+    );
+    mini_edge_status_internal(app)
+}
+
+fn complete_mini_drag_internal(
+    app: &AppHandle,
+    reduced_motion: bool,
+) -> Result<MiniEdgeStatus, String> {
+    let window = ensure_window(app, "mini")?;
+    let rect = mini_window_rect(&window)?;
+    let scale = window.scale_factor().map_err(|error| error.to_string())?;
+    let auto_hide = app
+        .state::<RuntimeConfig>()
+        .0
+        .lock()
+        .map(|config| config.mini_edge_auto_hide)
+        .map_err(|_| "config_lock_failed".to_string())?;
+    let current_dock = app
+        .state::<MiniEdgeRuntime>()
+        .state
+        .lock()
+        .map(|state| state.dock)
+        .map_err(|_| "mini_edge_state_lock_failed".to_string())?;
+
+    if !auto_hide {
+        update_runtime_mini_edge_config(app, config::MiniEdgeDock::None, Some((rect.x, rect.y)))?;
+        set_mini_edge_runtime_state(
+            app,
+            config::MiniEdgeDock::None,
+            MiniEdgeVisibility::Expanded,
+            false,
+        )?;
+        persist_mini_edge_snapshot(app);
+        return mini_edge_status_internal(app);
+    }
+
+    let work_area = match platform::work_area_for_rect(rect) {
+        Ok(value) => value,
+        Err(_) => return restore_mini_edge_fallback(app, &window, "drag_start"),
+    };
+    let detected = platform::detect_edge_dock_with_preference(
+        rect,
+        work_area,
+        scale,
+        platform::MINI_EDGE_DOCK_THRESHOLD_LOGICAL_PX,
+        mini_edge_side(current_dock),
+    );
+    let retained = if detected.is_none() {
+        mini_edge_side(current_dock).filter(|side| {
+            let work_right = work_area.x.saturating_add(work_area.width as i32);
+            let window_right = rect.x.saturating_add(rect.width as i32);
+            let inward = match side {
+                platform::EdgeDockSide::Left => rect.x.saturating_sub(work_area.x),
+                platform::EdgeDockSide::Right => work_right.saturating_sub(window_right),
+            };
+            !platform::should_undock(
+                inward,
+                scale,
+                platform::MINI_EDGE_UNDOCK_THRESHOLD_LOGICAL_PX,
+            )
+        })
+    } else {
+        None
+    };
+    let chosen = detected.or(retained);
+
+    if let Some(side) = chosen {
+        let dock = mini_edge_dock(side);
+        let positions = platform::edge_dock_positions(
+            rect,
+            work_area,
+            side,
+            scale,
+            platform::MINI_EDGE_PRIVACY_TAB_LOGICAL_PX,
+        );
+        set_mini_edge_runtime_state(app, dock, MiniEdgeVisibility::Expanded, true)?;
+        if let Err(error) = animate_mini_position(app, &window, positions.expanded, reduced_motion)
+        {
+            append_log(
+                app,
+                "mini.edge_dock.failed",
+                &format!(
+                    "stage=drag_dock side={} reason={error}",
+                    mini_edge_label(dock)
+                ),
+            );
+            return restore_mini_edge_fallback(app, &window, "drag_start");
+        }
+        if let Err(error) = update_runtime_mini_edge_config(app, dock, Some(positions.expanded)) {
+            append_log(
+                app,
+                "mini.edge_dock.failed",
+                &format!(
+                    "stage=drag_state side={} reason={error}",
+                    mini_edge_label(dock)
+                ),
+            );
+            return restore_mini_edge_fallback(app, &window, "drag_start");
+        }
+        set_mini_edge_runtime_state(app, dock, MiniEdgeVisibility::Expanded, false)?;
+        append_log(
+            app,
+            "mini.edge_dock.detected",
+            &format!("side={}", mini_edge_label(dock)),
+        );
+    } else {
+        if let Err(error) = safe_window_position(&window) {
+            append_log(
+                app,
+                "mini.edge_dock.failed",
+                &format!("stage=drag_float reason={error}"),
+            );
+            return restore_mini_edge_fallback(app, &window, "drag_start");
+        }
+        let position = window.outer_position().map_err(|error| error.to_string())?;
+        update_runtime_mini_edge_config(
+            app,
+            config::MiniEdgeDock::None,
+            Some((position.x, position.y)),
+        )?;
+        set_mini_edge_runtime_state(
+            app,
+            config::MiniEdgeDock::None,
+            MiniEdgeVisibility::Expanded,
+            false,
+        )?;
+        if current_dock != config::MiniEdgeDock::None {
+            append_log(
+                app,
+                "mini.edge_dock.canceled",
+                &format!("previous_side={}", mini_edge_label(current_dock)),
+            );
+        }
+    }
+    persist_mini_edge_snapshot(app);
+    mini_edge_status_internal(app)
+}
+
+fn disable_mini_edge_auto_hide_internal(app: &AppHandle) -> Result<(), String> {
+    let dock = app
+        .state::<MiniEdgeRuntime>()
+        .state
+        .lock()
+        .map(|state| state.dock)
+        .map_err(|_| "mini_edge_state_lock_failed".to_string())?;
+    let window = ensure_window(app, "mini")?;
+    if dock != config::MiniEdgeDock::None {
+        if !mini_saved_center_is_on_available_monitor(app, &window).unwrap_or(false) {
+            restore_mini_edge_fallback(app, &window, "settings_disabled")?;
+            return Ok(());
+        }
+        let result = (|| -> Result<(), String> {
+            let rect = mini_saved_window_rect(app, &window)?;
+            let side = mini_edge_side(dock).ok_or_else(|| "mini_edge_side_missing".to_string())?;
+            let work_area = platform::work_area_for_rect(rect)?;
+            let scale = window.scale_factor().map_err(|error| error.to_string())?;
+            let positions = platform::edge_dock_positions(
+                rect,
+                work_area,
+                side,
+                scale,
+                platform::MINI_EDGE_PRIVACY_TAB_LOGICAL_PX,
+            );
+            set_mini_edge_runtime_state(app, dock, MiniEdgeVisibility::Expanded, true)?;
+            animate_mini_position(app, &window, positions.expanded, true)?;
+            update_runtime_mini_edge_config(
+                app,
+                config::MiniEdgeDock::None,
+                Some(positions.expanded),
+            )?;
+            Ok(())
+        })();
+        if let Err(error) = result {
+            append_log(
+                app,
+                "mini.edge_dock.failed",
+                &format!("stage=settings_disabled reason={error}"),
+            );
+            restore_mini_edge_fallback(app, &window, "settings_disabled")?;
+            return Ok(());
+        }
+    }
+    set_mini_edge_runtime_state(
+        app,
+        config::MiniEdgeDock::None,
+        MiniEdgeVisibility::Expanded,
+        false,
+    )?;
+    append_log(app, "mini.edge_dock.canceled", "reason=settings_disabled");
+    persist_mini_edge_snapshot(app);
+    Ok(())
+}
+
 fn safe_window_position(window: &WebviewWindow) -> Result<(), String> {
     let position = window.outer_position().map_err(|error| error.to_string())?;
     let size = window.outer_size().map_err(|error| error.to_string())?;
+    let window_rect = platform::Rect {
+        x: position.x,
+        y: position.y,
+        width: size.width,
+        height: size.height,
+    };
+    if let Ok(work_area) = platform::work_area_for_rect(window_rect) {
+        let scale = window.scale_factor().map_err(|error| error.to_string())?;
+        let (x, y) = platform::fallback_to_work_area(
+            window_rect,
+            work_area,
+            scale,
+            platform::MINI_EDGE_FALLBACK_MARGIN_LOGICAL_PX,
+        );
+        if x != position.x || y != position.y {
+            window
+                .set_position(Position::Physical(PhysicalPosition::new(x, y)))
+                .map_err(|error| error.to_string())?;
+        }
+        return Ok(());
+    }
     let monitors = window
         .available_monitors()
         .map_err(|error| error.to_string())?;
@@ -454,12 +1103,7 @@ fn safe_window_position(window: &WebviewWindow) -> Result<(), String> {
     let origin = monitor.position();
     let monitor_size = monitor.size();
     let (x, y) = platform::clamp_window_to_monitor(
-        platform::Rect {
-            x: position.x,
-            y: position.y,
-            width: size.width,
-            height: size.height,
-        },
+        window_rect,
         platform::Rect {
             x: origin.x,
             y: origin.y,
@@ -507,13 +1151,79 @@ fn apply_window_policy(app: &AppHandle, window: &WebviewWindow, label: &str) -> 
         } else {
             position_new_window(window, label)?;
         }
+        let saved_monitor_available =
+            mini_saved_center_is_on_available_monitor(app, window).unwrap_or(false);
+        if !saved_monitor_available {
+            restore_mini_edge_fallback(app, window, "window_shown")?;
+        } else {
+            let restore_result = (|| -> Result<(), String> {
+                safe_window_position(window)?;
+                if config.mini_edge_auto_hide && config.mini_edge_dock != config::MiniEdgeDock::None
+                {
+                    let rect = mini_saved_window_rect(app, window)?;
+                    let scale = window.scale_factor().map_err(|error| error.to_string())?;
+                    let work_area = platform::work_area_for_rect(rect)
+                        .map_err(|_| "mini_edge_work_area_unavailable".to_string())?;
+                    let side = mini_edge_side(config.mini_edge_dock)
+                        .ok_or_else(|| "mini_edge_side_missing".to_string())?;
+                    let positions = platform::edge_dock_positions(
+                        rect,
+                        work_area,
+                        side,
+                        scale,
+                        platform::MINI_EDGE_PRIVACY_TAB_LOGICAL_PX,
+                    );
+                    set_mini_edge_runtime_state(
+                        app,
+                        config.mini_edge_dock,
+                        MiniEdgeVisibility::Expanded,
+                        true,
+                    )?;
+                    window
+                        .set_position(Position::Physical(PhysicalPosition::new(
+                            positions.expanded.0,
+                            positions.expanded.1,
+                        )))
+                        .map_err(|error| error.to_string())?;
+                    update_runtime_mini_edge_config(
+                        app,
+                        config.mini_edge_dock,
+                        Some(positions.expanded),
+                    )?;
+                    set_mini_edge_runtime_state(
+                        app,
+                        config.mini_edge_dock,
+                        MiniEdgeVisibility::Expanded,
+                        false,
+                    )?;
+                } else {
+                    set_mini_edge_runtime_state(
+                        app,
+                        config::MiniEdgeDock::None,
+                        MiniEdgeVisibility::Expanded,
+                        false,
+                    )?;
+                }
+                Ok(())
+            })();
+            if let Err(error) = restore_result {
+                append_log(
+                    app,
+                    "mini.edge_dock.failed",
+                    &format!("stage=window_shown reason={error}"),
+                );
+                restore_mini_edge_fallback(app, window, "window_shown")?;
+            }
+        }
     }
     append_log(
         app,
         "window.position_started",
         &format!("label={label} source=safe_area"),
     );
-    safe_window_position(window)?;
+    if label != "mini" {
+        safe_window_position(window)?;
+    }
     append_log(
         app,
         "window.position_completed",
@@ -709,6 +1419,11 @@ fn hide_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
 fn toggle_mini_window(app: &AppHandle) -> Result<(), String> {
     let window = ensure_window(app, "mini")?;
     if window.is_visible().map_err(|error| error.to_string())? {
+        if mini_edge_status_internal(app)?.visibility == "retracted" {
+            set_mini_edge_retracted_internal(app, false, "tray_restore", true)?;
+            window.set_focus().map_err(|error| error.to_string())?;
+            return Ok(());
+        }
         hide_window_internal(app, "mini")
     } else {
         show_window_internal(app, "mini")
@@ -852,7 +1567,7 @@ fn build_tray(app: &AppHandle) -> Result<(), String> {
 
 #[tauri::command]
 fn implementation_phase() -> &'static str {
-    "M5"
+    "M6"
 }
 
 #[tauri::command]
@@ -896,6 +1611,26 @@ fn window_drag_origin(app: AppHandle, label: String) -> Result<WindowDragOrigin,
     })
 }
 
+#[tauri::command]
+fn mini_edge_status(app: AppHandle) -> Result<MiniEdgeStatus, String> {
+    mini_edge_status_internal(&app)
+}
+
+#[tauri::command]
+fn complete_mini_drag(app: AppHandle, reduced_motion: bool) -> Result<MiniEdgeStatus, String> {
+    complete_mini_drag_internal(&app, reduced_motion)
+}
+
+#[tauri::command]
+fn set_mini_edge_retracted(
+    app: AppHandle,
+    retracted: bool,
+    source: String,
+    reduced_motion: bool,
+) -> Result<MiniEdgeStatus, String> {
+    set_mini_edge_retracted_internal(&app, retracted, &source, reduced_motion)
+}
+
 fn persist_runtime_mini_position(app: &AppHandle) -> Result<(), String> {
     let data_dir = app
         .path()
@@ -910,12 +1645,8 @@ fn persist_runtime_mini_position(app: &AppHandle) -> Result<(), String> {
     )?;
     match outcome.result.status {
         config::SaveStatus::Saved | config::SaveStatus::Unchanged => {
-            if let Some(position) = outcome.mini_window_position {
-                append_log(
-                    app,
-                    "window.position_saved",
-                    &format!("label=mini x={} y={}", position.x, position.y),
-                );
+            if outcome.mini_window_position.is_some() {
+                append_log(app, "window.position_saved", "label=mini result=success");
             }
             Ok(())
         }
@@ -924,6 +1655,9 @@ fn persist_runtime_mini_position(app: &AppHandle) -> Result<(), String> {
 }
 
 fn schedule_mini_position_save(app: &AppHandle, position: PhysicalPosition<i32>) {
+    if mini_edge_position_persistence_suppressed(app) {
+        return;
+    }
     if let Ok(mut config) = app.state::<RuntimeConfig>().0.lock() {
         config.mini_window_position = Some(config::WindowPosition {
             x: position.x as f64,
@@ -939,6 +1673,9 @@ fn schedule_mini_position_save(app: &AppHandle, position: PhysicalPosition<i32>)
     thread::spawn(move || {
         thread::sleep(Duration::from_millis(300));
         if app.state::<PositionSaveRevision>().0.load(Ordering::SeqCst) == revision {
+            if mini_edge_position_persistence_suppressed(&app) {
+                return;
+            }
             if let Err(error) = persist_runtime_mini_position(&app) {
                 append_log(
                     &app,
@@ -1081,7 +1818,9 @@ pub fn run() {
             let config_result = config::load_or_migrate(&config_path);
             let configuration_initialized = config_path.is_file() && config_result.is_ok();
             let config = config_result.unwrap_or_else(|_| config::AppConfig::default());
+            let mini_edge_runtime = MiniEdgeRuntime::new(&config);
             app.manage(RuntimeConfig(Mutex::new(config)));
+            app.manage(mini_edge_runtime);
             app.manage(ConfigurationState(AtomicBool::new(
                 configuration_initialized,
             )));
@@ -1187,6 +1926,9 @@ pub fn run() {
             set_mini_window_state,
             move_app_window,
             window_drag_origin,
+            mini_edge_status,
+            complete_mini_drag,
+            set_mini_edge_retracted,
             window_snapshot,
             platform_capabilities,
             open_data_directory,

@@ -25,6 +25,20 @@ pub enum ThemeMode {
     Dark,
 }
 
+fn default_true() -> bool {
+    true
+}
+
+#[derive(Clone, Copy, Debug, Default, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum MiniEdgeDock {
+    Left,
+    Right,
+    #[default]
+    #[serde(other)]
+    None,
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct AppConfig {
     pub config_version: u32,
@@ -43,6 +57,10 @@ pub struct AppConfig {
     pub mini_window_position: Option<WindowPosition>,
     pub mini_window_visible: bool,
     pub mini_window_always_on_top: bool,
+    #[serde(default = "default_true")]
+    pub mini_edge_auto_hide: bool,
+    #[serde(default)]
+    pub mini_edge_dock: MiniEdgeDock,
     pub minimize_to_tray: bool,
     pub auto_start: bool,
     pub check_updates_on_start: bool,
@@ -529,6 +547,32 @@ pub fn stored_theme_requires_fallback(config_path: &Path) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde::Deserialize;
+
+    #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+    struct LegacyV103Config {
+        config_version: u32,
+        theme_mode: ThemeMode,
+        monthly_salary: f64,
+        rest_mode: RestMode,
+        alternating_anchor_date: Option<String>,
+        alternating_anchor_week_type: Option<WeekType>,
+        work_hours_per_day: f64,
+        work_start_time: String,
+        work_end_time: String,
+        lunch_start_time: String,
+        lunch_end_time: String,
+        calendar_dataset_version: String,
+        date_overrides: Vec<DateOverride>,
+        mini_window_position: Option<WindowPosition>,
+        mini_window_visible: bool,
+        mini_window_always_on_top: bool,
+        minimize_to_tray: bool,
+        auto_start: bool,
+        check_updates_on_start: bool,
+        update_channel: String,
+        log_level: String,
+    }
 
     #[test]
     fn configuration_version_contract_has_one_current_target() {
@@ -773,5 +817,81 @@ mod tests {
         assert!(!stored_theme_requires_fallback(&path));
         let persisted: AppConfig = serde_json::from_slice(&fs::read(path).unwrap()).unwrap();
         assert_eq!(persisted.theme_mode, ThemeMode::Light);
+    }
+
+    #[test]
+    fn v103_reader_and_writer_safely_drop_v104_optional_window_fields() {
+        let fixture: Value = serde_json::from_str(include_str!(
+            "../../tests/fixtures/v104-config-compatibility.json"
+        ))
+        .expect("v1.0.4 compatibility fixture must parse");
+        let source = fixture
+            .get("config")
+            .cloned()
+            .expect("fixture config must exist");
+        let legacy: LegacyV103Config = serde_json::from_value(source.clone())
+            .expect("v1.0.3 reader must accept v1.0.4 fields");
+
+        assert_eq!(legacy.config_version, 8);
+        assert_eq!(legacy.theme_mode, ThemeMode::Dark);
+        assert_eq!(legacy.monthly_salary, 12_345.67);
+        assert_eq!(legacy.work_start_time, "09:00");
+        assert_eq!(legacy.work_end_time, "18:00");
+        assert_eq!(
+            legacy.mini_window_position,
+            Some(WindowPosition { x: 640.5, y: 88.25 })
+        );
+
+        let saved = serde_json::to_value(&legacy).expect("v1.0.3 writer must serialize");
+        assert!(saved.get("mini_edge_auto_hide").is_none());
+        assert!(saved.get("mini_edge_dock").is_none());
+        for key in [
+            "config_version",
+            "theme_mode",
+            "monthly_salary",
+            "work_start_time",
+            "work_end_time",
+            "mini_window_position",
+        ] {
+            assert_eq!(saved.get(key), source.get(key), "legacy field drift: {key}");
+        }
+
+        let decision = fixture
+            .get("decision")
+            .expect("fixture decision must exist");
+        assert_eq!(
+            decision.get("storage").and_then(Value::as_str),
+            Some("config_v8_optional_fields")
+        );
+        assert_eq!(
+            decision
+                .get("window_state_json_required")
+                .and_then(Value::as_bool),
+            Some(false)
+        );
+    }
+
+    #[test]
+    fn v104_missing_edge_fields_use_privacy_safe_defaults() {
+        let mut source = serde_json::to_value(AppConfig::default()).unwrap();
+        let object = source.as_object_mut().unwrap();
+        object.remove("mini_edge_auto_hide");
+        object.remove("mini_edge_dock");
+
+        let loaded: AppConfig = serde_json::from_value(source).unwrap();
+        assert!(loaded.mini_edge_auto_hide);
+        assert_eq!(loaded.mini_edge_dock, MiniEdgeDock::None);
+    }
+
+    #[test]
+    fn v104_unknown_edge_side_falls_back_to_none() {
+        let mut source = serde_json::to_value(AppConfig::default()).unwrap();
+        source
+            .as_object_mut()
+            .unwrap()
+            .insert("mini_edge_dock".into(), Value::from("top"));
+
+        let loaded: AppConfig = serde_json::from_value(source).unwrap();
+        assert_eq!(loaded.mini_edge_dock, MiniEdgeDock::None);
     }
 }

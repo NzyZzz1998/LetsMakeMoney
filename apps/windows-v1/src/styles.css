@@ -178,6 +178,53 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .mini-window__rest-line { grid-area: progress; height: 1px; margin: 8px 0 4px; background: var(--line); }
 .mini-window--rest .mini-window__status { color: var(--rest-ink); }
 .mini-window--rest .status-dot { box-shadow: 0 0 0 4px var(--rest-fill); }
+.mini-window--privacy-tab {
+  padding: 0;
+  border-color: var(--line-strong);
+  border-radius: 0;
+  background: var(--subtle);
+  box-shadow: none;
+}
+.mini-window__privacy-hit {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  padding: 0;
+  border: 0;
+  background: var(--subtle);
+  cursor: pointer;
+}
+.mini-window__privacy-hit::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 3px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--accent);
+  transform: translateY(-50%);
+}
+.mini-window--dock-left .mini-window__privacy-hit { right: 0; }
+.mini-window--dock-left .mini-window__privacy-hit::after { right: 3px; }
+.mini-window--dock-right .mini-window__privacy-hit { left: 0; }
+.mini-window--dock-right .mini-window__privacy-hit::after { left: 3px; }
+.mini-window__edge-feedback {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  left: 10px;
+  z-index: 3;
+  padding: 5px 8px;
+  border: 1px solid var(--warning-border);
+  border-radius: 6px;
+  background: var(--warning-surface);
+  color: var(--warning-ink);
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: center;
+  pointer-events: none;
+}
 .progress { display: grid; gap: 7px; margin-top: 16px; }
 .progress--compact { grid-area: progress; gap: 0; margin: 6px 0 2px; }
 .progress__track { display: block; height: 6px; overflow: hidden; border-radius: 999px; background: var(--progress-track); }

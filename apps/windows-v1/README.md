@@ -44,14 +44,22 @@ npm run build:web
 
 `npm test` 会执行 Runtime Adapter、配置领域、桌面服务、时间与呈现纯函数测试，并检查前后端责任边界和工具解析。完整历史回归仍以仓库根目录的 `scripts\verify_v103.ps1` 为准。
 
-## Rust 工具链解析
+## 统一工具链解析
 
-验证脚本优先使用仓库已批准的本地工具链；也支持由开发者或 CI 显式提供：
+正式验证和打包脚本按固定顺序解析 Node、Python 和 Cargo：
+
+1. 显式环境变量。
+2. `PATH`。
+3. 仓库根目录 `.toolchains` 缓存。
+4. 全部缺失时给出可操作错误并停止。
 
 ```powershell
+$env:LMM_NODE = "<node.exe 的绝对路径>"
+$env:LMM_PYTHON = "<python.exe 的绝对路径>"
 $env:LMM_CARGO = "<cargo.exe 的绝对路径>"
 $env:LMM_CARGO_HOME = "<Cargo Home>"
 $env:LMM_RUSTUP_HOME = "<Rustup Home>"
 ```
 
-未设置时会继续检查 `PATH`、`CARGO_HOME\bin\cargo.exe` 与用户目录下的 `.cargo\bin\cargo.exe`。仓库不要求使用某个开发者的固定本机路径。
+仓库缓存位置分别为 `.toolchains\node\node.exe`、`.toolchains\python\python.exe`
+和 `.toolchains\cargo\bin\cargo.exe`。正式入口不依赖 `spikes/`、Codex 私有运行时或某个开发者的用户目录。

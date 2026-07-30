@@ -1,0 +1,260 @@
+import type { MiniEdgeDock } from "../../domain/configuration";
+import type {
+  MiniEdgeStatus as WindowMiniEdgeStatus,
+  MiniEdgeVisibility,
+} from "../../services/windowService";
+
+export const MINI_EDGE_RETRACT_DELAY_MS = 600;
+export const MINI_EDGE_TRANSITION_MS = 180;
+
+export type MiniEdgeNativeStatus = WindowMiniEdgeStatus;
+export type MiniEdgePhase =
+  | "expanded"
+  | "retract_pending"
+  | "retracted";
+export type MiniEdgeInteractionLock =
+  | "dragging"
+  | "focus_inside"
+  | "menu_open"
+  | "modal_open";
+
+export interface MiniEdgeSnapshot {
+  autoHide: boolean;
+  dock: MiniEdgeDock;
+  phase: MiniEdgePhase;
+  pointerInside: boolean;
+  locks: Record<MiniEdgeInteractionLock, boolean>;
+}
+
+export interface MiniEdgeTimerScheduler {
+  set(callback: () => void, delayMs: number): number;
+  clear(id: number): void;
+}
+
+interface ControllerDependencies {
+  scheduler?: MiniEdgeTimerScheduler;
+  retractDelayMs?: number;
+  readStatus(): Promise<MiniEdgeNativeStatus>;
+  setRetracted(
+    retracted: boolean,
+    source: string,
+  ): Promise<MiniEdgeNativeStatus>;
+  completeDrag(): Promise<MiniEdgeNativeStatus>;
+  onChange?(snapshot: MiniEdgeSnapshot): void;
+  onError?(error: unknown): void;
+}
+
+export interface MiniEdgeAutoHideController {
+  snapshot(): MiniEdgeSnapshot;
+  initialize(): Promise<void>;
+  refresh(): Promise<void>;
+  pointerEntered(): void;
+  pointerLeft(): void;
+  setLock(lock: MiniEdgeInteractionLock, active: boolean): void;
+  dragStarted(): Promise<void>;
+  dragCompleted(): Promise<void>;
+  reveal(source: string): Promise<void>;
+  dispose(): void;
+}
+
+function browserScheduler(): MiniEdgeTimerScheduler {
+  return {
+    set: (callback, delayMs) => window.setTimeout(callback, delayMs),
+    clear: id => window.clearTimeout(id),
+  };
+}
+
+function emptyLocks(): Record<MiniEdgeInteractionLock, boolean> {
+  return {
+    dragging: false,
+    focus_inside: false,
+    menu_open: false,
+    modal_open: false,
+  };
+}
+
+export function createMiniEdgeAutoHideController(
+  dependencies: ControllerDependencies,
+): MiniEdgeAutoHideController {
+  const scheduler = dependencies.scheduler ?? browserScheduler();
+  const delay = dependencies.retractDelayMs ?? MINI_EDGE_RETRACT_DELAY_MS;
+  let state: MiniEdgeSnapshot = {
+    autoHide: true,
+    dock: "none",
+    phase: "expanded",
+    pointerInside: false,
+    locks: emptyLocks(),
+  };
+  let timer: number | null = null;
+  let generation = 0;
+  let disposed = false;
+
+  const publish = () => {
+    dependencies.onChange?.({
+      ...state,
+      locks: { ...state.locks },
+    });
+  };
+
+  const clearTimer = () => {
+    generation += 1;
+    if (timer !== null) {
+      scheduler.clear(timer);
+      timer = null;
+    }
+  };
+
+  const hasLock = () => Object.values(state.locks).some(Boolean);
+  const eligible = () =>
+    !disposed
+    && state.autoHide
+    && state.dock !== "none"
+    && !state.pointerInside
+    && !hasLock();
+
+  const applyNative = (status: MiniEdgeNativeStatus) => {
+    clearTimer();
+    state = {
+      ...state,
+      autoHide: status.auto_hide,
+      dock: status.dock,
+      phase: status.visibility,
+    };
+    publish();
+    if (status.notice === "fallback") {
+      dependencies.onError?.(new Error("mini_edge_fallback"));
+    }
+  };
+
+  const scheduleRetract = () => {
+    clearTimer();
+    if (!eligible()) {
+      if (state.phase === "retract_pending") {
+        state = { ...state, phase: "expanded" };
+        publish();
+      }
+      return;
+    }
+    const expectedGeneration = generation;
+    state = { ...state, phase: "retract_pending" };
+    publish();
+    timer = scheduler.set(() => {
+      timer = null;
+      if (
+        disposed
+        || expectedGeneration !== generation
+        || !eligible()
+      ) {
+        return;
+      }
+      state = { ...state, phase: "retracted" };
+      publish();
+      void dependencies
+        .setRetracted(true, "pointer_leave")
+        .then(status => {
+          if (disposed || expectedGeneration !== generation) return;
+          applyNative(status);
+        })
+        .catch(error => {
+          if (disposed || expectedGeneration !== generation) return;
+          state = { ...state, phase: "expanded" };
+          publish();
+          dependencies.onError?.(error);
+        });
+    }, delay);
+  };
+
+  const reveal = async (source: string) => {
+    clearTimer();
+    if (state.phase === "expanded" || state.phase === "retract_pending") {
+      if (state.phase !== "expanded") {
+        state = { ...state, phase: "expanded" };
+        publish();
+      }
+      return;
+    }
+    state = { ...state, phase: "expanded" };
+    publish();
+    try {
+      const status = await dependencies.setRetracted(false, source);
+      if (!disposed) applyNative(status);
+    } catch (error) {
+      dependencies.onError?.(error);
+    }
+  };
+
+  const refresh = async () => {
+    try {
+      const status = await dependencies.readStatus();
+      if (disposed) return;
+      applyNative(status);
+      if (status.visibility === "expanded") scheduleRetract();
+    } catch (error) {
+      if (!disposed) dependencies.onError?.(error);
+    }
+  };
+
+  const setLock = (lock: MiniEdgeInteractionLock, active: boolean) => {
+    if (state.locks[lock] === active) return;
+    state = {
+      ...state,
+      locks: { ...state.locks, [lock]: active },
+    };
+    publish();
+    if (active) {
+      void reveal(lock);
+    } else {
+      scheduleRetract();
+    }
+  };
+
+  return {
+    snapshot: () => ({
+      ...state,
+      locks: { ...state.locks },
+    }),
+    initialize: refresh,
+    refresh,
+    pointerEntered() {
+      state = { ...state, pointerInside: true };
+      publish();
+      void reveal("pointer_enter");
+    },
+    pointerLeft() {
+      state = { ...state, pointerInside: false };
+      publish();
+      scheduleRetract();
+    },
+    setLock,
+    async dragStarted() {
+      setLock("dragging", true);
+      await reveal("drag_start");
+    },
+    async dragCompleted() {
+      clearTimer();
+      try {
+        const status = await dependencies.completeDrag();
+        if (disposed) return;
+        state = {
+          ...state,
+          locks: { ...state.locks, dragging: false },
+        };
+        applyNative(status);
+        scheduleRetract();
+      } catch (error) {
+        state = {
+          ...state,
+          locks: { ...state.locks, dragging: false },
+          phase: "expanded",
+        };
+        publish();
+        dependencies.onError?.(error);
+      }
+    },
+    reveal,
+    dispose() {
+      disposed = true;
+      clearTimer();
+    },
+  };
+}

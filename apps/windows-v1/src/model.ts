@@ -20,7 +20,6 @@ import {
   classifyTimeEnvironmentChange,
   createTimeEnvironmentSample,
   needsAuthoritativeCorrection,
-  shouldApplyAuthoritativeSnapshot,
   shouldRetryInitialSync,
   syncFailureDisposition,
   type TimeEnvironmentSample,
@@ -28,10 +27,18 @@ import {
 } from "./authoritativeSync";
 import {
   createDashboardLifecycle,
+  shouldApplyDashboardRequest,
   transitionDashboardLifecycle,
   type DashboardLifecycleEffect,
   type DashboardLifecycleEvent,
 } from "./dashboardLifecycle";
+import {
+  applyDashboardSyncFailure,
+  createBrowserDashboardProjection,
+  createTauriDashboardProjection,
+  type DashboardState,
+  type WorkPhase,
+} from "./dashboardProjection";
 import type { BoundaryKind } from "./presentation";
 import {
   formatLocalDate as localDateKey,
@@ -46,15 +53,7 @@ import {
 } from "./services/dashboardService";
 import { supportService } from "./services/supportService";
 
-export type DashboardState = "loading" | "ready" | "setup" | "error";
-export type WorkPhase =
-  | "working"
-  | "lunch"
-  | "before_work"
-  | "after_work"
-  | "rest_day"
-  | "paid_rest"
-  | "unpaid_rest";
+export type { DashboardState, WorkPhase } from "./dashboardProjection";
 export type CalendarDayKind = "workday" | "rest_day";
 
 export interface CalendarDaySnapshot {
@@ -344,6 +343,7 @@ function fallbackSnapshot(now: Date): DashboardSnapshot {
   }[phase];
   const nextWorkDate = calendarDays.find(day => day.date > ownerDate && day.kind === "workday")?.date ?? null;
   const priorWorkdays = calendarDays.filter(day => day.date < ownerDate && day.kind === "workday").length;
+  const workdays = calendarDays.filter(day => day.kind === "workday").length;
   const [nextBoundarySeconds, nextBoundaryKind]: [number | null, BoundaryKind] = isRestDay
     ? [null, null]
     : phase === "before_work"
@@ -355,24 +355,24 @@ function fallbackSnapshot(now: Date): DashboardSnapshot {
           : phase === "working"
             ? [Math.max(0, end - second), "work_end"]
             : [null, null];
-  return {
-    state: "ready",
+  const projection = createBrowserDashboardProjection({
     phase,
-    workState,
     ownerDate,
     amount: isRestDay ? 0 : 500 * progress,
     dailySalary: 500,
     hourlySalary: 62.5,
-    progress: Math.round(progress * 100),
+    progressPercent: progress * 100,
     completedSeconds: completed,
-    remainingSeconds: isRestDay ? 0 : Math.max(0, 8 * 3600 - completed),
+    effectiveSeconds: 8 * 3600,
     monthTotal: priorWorkdays * 500 + (isRestDay ? 0 : 500 * progress),
     expectedMonthlyPay: 10_000,
-    workdays: calendarDays.filter(day => day.kind === "workday").length,
-    salarySlotCount: calendarDays.filter(day => day.kind === "workday").length,
-    syncState: "synced",
+    workdays,
+    salarySlotCount: workdays,
     algorithmVersion: "browser-preview",
-    effectiveSeconds: 8 * 3600,
+  });
+  return {
+    ...projection,
+    workState,
     nextBoundarySeconds,
     nextBoundaryKind,
     workStartTime: "08:00",
@@ -392,7 +392,6 @@ export function useDashboard() {
   });
   const lastErrorCode = useRef<string | null>(null);
   const requestSequence = useRef(0);
-  const appliedSequence = useRef(0);
   const authority = useRef<TickAuthority | null>(null);
   const boundarySyncPending = useRef(false);
   const consecutiveSyncFailures = useRef(0);
@@ -405,10 +404,11 @@ export function useDashboard() {
   const timeRecoveryInFlight = useRef(false);
 
   const refreshAuthority = useCallback(async function refreshAuthorityRequest(reason: string) {
-    if (!lifecycle.current.visible && reason !== "window_shown") {
+    if (!lifecycle.current.visible || !lifecycle.current.mounted) {
       return;
     }
     const sequence = ++requestSequence.current;
+    const requestGeneration = lifecycle.current.generation;
     const now = systemTime.now();
     if (!dashboardService.isDesktop) {
       setSnapshot(fallbackSnapshot(now));
@@ -479,16 +479,35 @@ export function useDashboard() {
       const nextWorkDate = ["rest_day", "paid_rest", "unpaid_rest"].includes(phase)
         ? await dashboardService.resolveNextWorkday(ownerDate, schedule, calendar)
         : null;
-      if (!shouldApplyAuthoritativeSnapshot(requestSequence.current, sequence)) {
+      if (!shouldApplyDashboardRequest(
+        lifecycle.current,
+        requestGeneration,
+        requestSequence.current,
+        sequence,
+      )) {
         recordSemanticEvent(
           "earnings.authoritative_sync.ignored",
-          `sequence=${sequence} current=${appliedSequence.current}`,
+          `sequence=${sequence} generation=${requestGeneration} current_generation=${lifecycle.current.generation}`,
         );
         return;
       }
-      const nextSnapshot: DashboardSnapshot = {
-        state: "ready",
+      const projection = createTauriDashboardProjection({
         phase,
+        ownerDate: today.schedule_owner_date,
+        earnedMinor: today.earned_minor,
+        dailyTargetMinor: today.daily_target_minor,
+        hourlySalaryMinor: today.hourly_salary_minor,
+        progressRatio: today.progress,
+        completedSeconds: today.completed_work_seconds,
+        effectiveSeconds: today.effective_work_seconds,
+        monthEarnedMinor: today.month_earned_minor,
+        payableSalaryMinor: today.payable_salary_minor,
+        workdays: month.workdays,
+        salarySlotCount: month.salary_slot_count,
+        algorithmVersion: today.algorithm_version,
+      });
+      const nextSnapshot: DashboardSnapshot = {
+        ...projection,
         workState: {
           working: "工作中",
           lunch: "休息中",
@@ -498,22 +517,6 @@ export function useDashboard() {
           paid_rest: "带薪休息",
           unpaid_rest: "不带薪休息",
         }[today.state] ?? today.state,
-        ownerDate: today.schedule_owner_date,
-        amount: today.earned_minor / 100,
-        dailySalary: today.daily_target_minor / 100,
-        hourlySalary: today.hourly_salary_minor / 100,
-        progress: Math.round(today.progress * 100),
-        completedSeconds: today.completed_work_seconds,
-        remainingSeconds: ["rest_day", "paid_rest", "unpaid_rest"].includes(phase)
-          ? 0
-          : Math.max(0, today.effective_work_seconds - today.completed_work_seconds),
-        monthTotal: today.month_earned_minor / 100,
-        expectedMonthlyPay: today.payable_salary_minor / 100,
-        workdays: month.workdays,
-        salarySlotCount: month.salary_slot_count,
-        syncState: "synced",
-        algorithmVersion: today.algorithm_version,
-        effectiveSeconds: today.effective_work_seconds,
         nextBoundarySeconds: today.next_boundary_seconds,
         nextBoundaryKind: today.next_boundary_kind,
         workStartTime: config.work_start_time,
@@ -538,7 +541,6 @@ export function useDashboard() {
         monthEarnedMinor: today.month_earned_minor,
         nextBoundarySeconds: today.next_boundary_seconds,
       };
-      appliedSequence.current = sequence;
       authority.current = nextAuthority;
       boundarySyncPending.current = false;
       setSnapshot(current => {
@@ -571,7 +573,12 @@ export function useDashboard() {
       lastErrorCode.current = null;
       consecutiveSyncFailures.current = 0;
     } catch (error) {
-      if (!shouldApplyAuthoritativeSnapshot(requestSequence.current, sequence)) return;
+      if (!shouldApplyDashboardRequest(
+        lifecycle.current,
+        requestGeneration,
+        requestSequence.current,
+        sequence,
+      )) return;
       const { code, message } = describeDashboardError(error);
       consecutiveSyncFailures.current += 1;
       if (
@@ -602,40 +609,19 @@ export function useDashboard() {
           `sequence=${sequence} reason=${code}`,
         );
       }
+      const blocked = syncFailureDisposition(
+        consecutiveSyncFailures.current,
+        boundarySyncPending.current,
+      ) === "blocked";
       setSnapshot(current => {
-        const crossedBoundaryWithoutAuthority =
-          current.state === "ready"
-          && syncFailureDisposition(
-            consecutiveSyncFailures.current,
-            boundarySyncPending.current,
-          ) === "blocked";
+        const crossedBoundaryWithoutAuthority = current.state === "ready" && blocked;
         if (crossedBoundaryWithoutAuthority) {
           recordSemanticEvent(
             "earnings.local_tick.paused",
             `owner_date=${current.ownerDate} reason=boundary_sync_failed`,
           );
-          return {
-            ...current,
-            state: "error" as const,
-            syncState: "stale" as const,
-            message: "时间边界后的结果尚未同步成功，请重试。",
-            errorCode: code,
-          };
         }
-        return {
-          ...current,
-          ...(current.state === "ready"
-            ? {
-                syncState: "stale" as const,
-                message: "正在重新同步，当前显示最近一次可信结果。",
-                errorCode: code,
-              }
-            : {
-                state: "error" as const,
-                message,
-                errorCode: code,
-              }),
-        };
+        return applyDashboardSyncFailure(current, { code, message, blocked });
       });
     }
   }, []);

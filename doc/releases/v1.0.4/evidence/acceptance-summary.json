@@ -1,0 +1,148 @@
+{
+  "artifacts": [
+    {
+      "name": "LetsMakeMoney-v1.0.4-windows-x86_64.zip",
+      "sha256": "C67E730BF81741D03BFAF6D14F3F16EB74FD8591D8B3AB76D45A980E854C249B",
+      "size": 3228960
+    },
+    {
+      "name": "LetsMakeMoney.exe",
+      "sha256": "B2A1831D0F7832C77033582871C12A2148CC8F3279753A5B812C293869ED1C66",
+      "size": 10108416
+    },
+    {
+      "name": "WebView2Loader.dll",
+      "sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C",
+      "size": 160320
+    },
+    {
+      "name": "README.md",
+      "sha256": "70DEAA1D916B6C5694F927B10D280D3E829F6F0954DF0E5F8B2C75104DB0C030",
+      "size": 2140
+    },
+    {
+      "name": "README.en.md",
+      "sha256": "B91FA03E155CEEF7B9D9BF690EB3F85948DA6A469DA5D73614BC0C5A951D035D",
+      "size": 2399
+    },
+    {
+      "name": "BUILD-INFO.json",
+      "sha256": "8CBE58AA5761C797B10741196A80C6BF0270F902D20FF560C8B24D5E3C9B5721",
+      "size": 1782
+    }
+  ],
+  "branch": "main",
+  "channel": "stable-candidate",
+  "checks": [
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/verification.md",
+      "finished_at": "2026-07-30T19:56:15Z",
+      "id": "V104-AUTO-FULL",
+      "method": "automatic",
+      "result": "passed",
+      "started_at": "2026-07-30T19:32:00Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/verification.md",
+      "finished_at": "2026-07-30T19:57:00Z",
+      "id": "V104-AUTO-PACKAGE",
+      "method": "automatic",
+      "result": "passed",
+      "started_at": "2026-07-30T19:56:15Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-30T20:13:43Z",
+      "id": "V104-GUI-MINI-EDGE",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T19:58:00Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-30T20:13:43Z",
+      "id": "V104-GUI-CONFIG-REFRESH",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T20:00:00Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-30T20:25:38Z",
+      "id": "V104-GUI-RESTART-PERSISTENCE",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T20:20:01Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-30T20:25:38Z",
+      "id": "V104-GUI-DPI",
+      "method": "manual",
+      "result": "partial",
+      "started_at": "2026-07-30T19:58:00Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-30T20:25:38Z",
+      "id": "V104-GUI-MULTI-MONITOR",
+      "method": "manual",
+      "result": "not_run",
+      "started_at": "2026-07-30T20:25:38Z"
+    }
+  ],
+  "commit": "09f838d05c67efb5219437ec2208920e441f3f52",
+  "conclusion": "partial",
+  "environment": {
+    "architecture": "x86_64",
+    "dpi": [
+      100
+    ],
+    "webview2_version": "150.0.4078.105",
+    "windows_version": "Windows 11 Pro 10.0.26200"
+  },
+  "generated_at": "2026-07-30T20:27:00Z",
+  "limitations": [
+    "真实 Windows 仅完成 100% DPI；125% 与 150% DPI 仍待人工补证。",
+    "深色主题与减少动态效果下的真实贴边观感仍待人工补证。",
+    "当前环境未完成真实多显示器和负坐标工作区补证。",
+    "候选由脏工作树构建，只用于开发验收，不是正式发布候选。"
+  ],
+  "log_summary": {
+    "error_categories": [],
+    "event_counts": {
+      "mini.edge_dock.canceled": 2,
+      "mini.edge_dock.detected": 12,
+      "mini.edge_dock.retracted": 7,
+      "mini.edge_dock.revealed": 5,
+      "settings.saved": 4,
+      "window.hidden": 7,
+      "window.shown": 17
+    },
+    "truncated": false
+  },
+  "raw_archive": {
+    "archive_id": "LMM-V104-ACCEPTANCE-M6-001",
+    "archive_sha256": null,
+    "availability": "not_collected",
+    "contents": [],
+    "custodian_role": "project-owner",
+    "reason": "Computer Use 截图未作为持久原始归档保存；仓库仅保留脱敏摘要和日志语义计数。",
+    "retention": "owner-managed",
+    "schema_version": "1.0",
+    "updated_at": "2026-07-30T20:27:00Z"
+  },
+  "redaction": {
+    "policy_version": "v1",
+    "removed_fields": [
+      "user_paths",
+      "personal_configuration",
+      "salary_values",
+      "raw_log_lines",
+      "secrets"
+    ]
+  },
+  "release_version": "1.0.4",
+  "schema_version": "1.0",
+  "source_tree_dirty": true
+}

@@ -92,13 +92,15 @@ def verify_runtime_scheduler_and_logs() -> None:
 
 def verify_feedback_states() -> None:
     app = read(APP_ROOT / "src" / "App.tsx")
+    projection = read(APP_ROOT / "src" / "dashboardProjection.ts")
+    model = read(APP_ROOT / "src" / "model.ts")
     styles = read(APP_ROOT / "src" / "styles.css")
+    source = app + model + projection
     for copy in [
         "正在重新同步，当前显示最近一次可信结果。",
         "正在同步最新结果",
         "时间边界后的结果尚未同步成功",
     ]:
-        source = app + read(APP_ROOT / "src" / "model.ts")
         require(copy in source, f"Sync feedback is missing: {copy}")
     require("sync-notice" in styles, "Sync notice style is missing")
     require("mini-window__sync" in styles, "Mini sync feedback style is missing")

@@ -2,6 +2,8 @@ export interface DashboardLifecycleState {
   visible: boolean;
   timersRunning: boolean;
   configurationDirty: boolean;
+  mounted: boolean;
+  generation: number;
 }
 
 export type DashboardLifecycleEvent =
@@ -27,7 +29,23 @@ export function createDashboardLifecycle(): DashboardLifecycleState {
     visible: true,
     timersRunning: true,
     configurationDirty: false,
+    mounted: true,
+    generation: 0,
   };
+}
+
+export function shouldApplyDashboardRequest(
+  state: DashboardLifecycleState,
+  requestGeneration: number,
+  latestSequence: number,
+  incomingSequence: number,
+) {
+  return (
+    state.mounted
+    && state.visible
+    && state.generation === requestGeneration
+    && incomingSequence >= latestSequence
+  );
 }
 
 export function transitionDashboardLifecycle(
@@ -37,18 +55,26 @@ export function transitionDashboardLifecycle(
   if (event.type === "hidden") {
     if (!state.visible && !state.timersRunning) return { state, effects: [] };
     return {
-      state: { ...state, visible: false, timersRunning: false },
+      state: {
+        ...state,
+        visible: false,
+        timersRunning: false,
+        generation: state.generation + 1,
+      },
       effects: state.timersRunning ? ["stop_timers"] : [],
     };
   }
 
   if (event.type === "shown") {
+    if (!state.mounted) return { state, effects: [] };
     if (state.visible && state.timersRunning) return { state, effects: [] };
     return {
       state: {
         visible: true,
         timersRunning: true,
         configurationDirty: false,
+        mounted: true,
+        generation: state.generation + 1,
       },
       effects: ["reset_time_sample", "start_timers", "sync_window_shown"],
     };
@@ -67,14 +93,28 @@ export function transitionDashboardLifecycle(
     };
   }
 
+  if (!state.mounted) {
+    return { state, effects: [] };
+  }
   if (!state.timersRunning) {
     return {
-      state: { ...state, visible: false },
+      state: {
+        ...state,
+        visible: false,
+        mounted: false,
+        generation: state.generation + 1,
+      },
       effects: [],
     };
   }
   return {
-    state: { ...state, visible: false, timersRunning: false },
+    state: {
+      ...state,
+      visible: false,
+      timersRunning: false,
+      mounted: false,
+      generation: state.generation + 1,
+    },
     effects: ["stop_timers"],
   };
 }

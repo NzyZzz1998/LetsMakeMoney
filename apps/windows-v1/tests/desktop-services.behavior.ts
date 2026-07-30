@@ -18,6 +18,24 @@ const bridge: DesktopBridge = {
       read_configuration: { ...defaultConfig, monthly_salary: 12_000 },
       save_configuration: { status: "saved", message: "设置已保存" },
       window_drag_origin: { x: 12, y: 34, scale_factor: 1.25 },
+      mini_edge_status: {
+        auto_hide: true,
+        dock: "right",
+        visibility: "expanded",
+        notice: null,
+      },
+      complete_mini_drag: {
+        auto_hide: true,
+        dock: "right",
+        visibility: "expanded",
+        notice: null,
+      },
+      set_mini_edge_retracted: {
+        auto_hide: true,
+        dock: "right",
+        visibility: "retracted",
+        notice: null,
+      },
       configuration_initialized: true,
       platform_capabilities: {
         webview2_available: true,
@@ -61,6 +79,34 @@ assert(
   "desktop configuration updates must not duplicate the native broadcast locally",
 );
 
+let desktopConfigurationUpdates = 0;
+let desktopConfigurationUnlistened = false;
+const listeningConfiguration = createConfigurationService(createAppRuntime({
+  ...bridge,
+  listen: async <T>(event: string, handler: (payload: T) => void) => {
+    assert(
+      event === "lmm://configuration-updated",
+      "configuration listeners use the shared cross-window event",
+    );
+    handler({ source: "settings" } as T);
+    return () => {
+      desktopConfigurationUnlistened = true;
+    };
+  },
+}));
+const unlistenConfiguration = await listeningConfiguration.listenUpdated(() => {
+  desktopConfigurationUpdates += 1;
+});
+assert(
+  desktopConfigurationUpdates === 1,
+  "desktop configuration listeners receive cross-window updates",
+);
+unlistenConfiguration();
+assert(
+  desktopConfigurationUnlistened,
+  "desktop configuration listeners expose their native disposer",
+);
+
 let browserLocalNotifications = 0;
 const browserConfiguration = createConfigurationService(createAppRuntime(), {
   events: {
@@ -74,6 +120,26 @@ await browserConfiguration.publishUpdated("settings");
 assert(
   browserLocalNotifications === 1,
   "browser preview configuration updates must use the local event fallback",
+);
+
+const browserEvents = new EventTarget();
+const listeningBrowserConfiguration = createConfigurationService(createAppRuntime(), {
+  events: browserEvents,
+});
+let browserConfigurationUpdates = 0;
+const unlistenBrowserConfiguration = await listeningBrowserConfiguration.listenUpdated(() => {
+  browserConfigurationUpdates += 1;
+});
+browserEvents.dispatchEvent(new Event("lmm:configuration-updated"));
+assert(
+  browserConfigurationUpdates === 1,
+  "browser preview configuration listeners receive local updates",
+);
+unlistenBrowserConfiguration();
+browserEvents.dispatchEvent(new Event("lmm:configuration-updated"));
+assert(
+  browserConfigurationUpdates === 1,
+  "browser preview configuration listeners are removable",
 );
 
 let failedDesktopLocalNotifications = 0;
@@ -103,6 +169,12 @@ await windows.move("mini", 120, 240);
 const origin = await windows.dragOrigin("workbench");
 assert(origin.scale_factor === 1.25, "window service returns native DPI drag origin");
 await windows.setMiniState("expanded");
+const edgeStatus = await windows.miniEdgeStatus();
+assert(edgeStatus.dock === "right", "window service exposes the typed Mini edge status");
+const dragStatus = await windows.completeMiniDrag(true);
+assert(dragStatus.visibility === "expanded", "drag completion returns the native dock result");
+const retracted = await windows.setMiniEdgeRetracted(true, "pointer_leave", false);
+assert(retracted.visibility === "retracted", "retraction uses the dedicated native command");
 assert(await windows.configurationInitialized(), "window service exposes initialization state");
 await windows.exit();
 
@@ -146,6 +218,7 @@ assert(
   commandSequence
     === "read_configuration,save_configuration,show_app_window,hide_app_window,"
       + "move_app_window,window_drag_origin,set_mini_window_state,"
+      + "mini_edge_status,complete_mini_drag,set_mini_edge_retracted,"
       + "configuration_initialized,exit_application,platform_capabilities,"
       + "open_data_directory,diagnostic_summary,evaluate_update_response,"
       + "record_semantic_event,load_calendar_year,calculate_month_salary,"
@@ -156,6 +229,19 @@ assert(
 assert(
   calls.find(call => call.command === "move_app_window")?.args?.x === 120,
   "window service must not alter physical coordinates",
+);
+assert(
+  calls.find(call => call.command === "set_mini_edge_retracted")?.args?.source
+    === "pointer_leave",
+  "Mini edge logs must receive a semantic source instead of physical coordinates",
+);
+assert(
+  calls.find(call => call.command === "complete_mini_drag")?.args?.reducedMotion === true,
+  "drag completion must forward the current reduced-motion preference",
+);
+assert(
+  calls.find(call => call.command === "set_mini_edge_retracted")?.args?.reducedMotion === false,
+  "privacy transitions must forward the current reduced-motion preference",
 );
 assert(
   calls.find(call => call.command === "save_configuration")?.args?.draft !== undefined,
@@ -186,4 +272,4 @@ assert(
   "desktop settings updates must emit exactly one native notification",
 );
 
-console.log("desktop services behavior: 21/21 passed");
+console.log("desktop services behavior: 27/27 passed");

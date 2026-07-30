@@ -103,6 +103,9 @@ temp/**/*.import
 /apps/windows-v1/src-tauri/target/
 /apps/windows-v1/src-tauri/gen/
 /.tmp_m*.png
+/.toolchains/
+/.tmp_v104_desktop_smoke/
+/releases/v1.0.4/
 
 # Figma plugin PNGs are documentation assets, not Godot runtime textures
 doc/prototypes/v0.9-polished/figma-plugin/generated-assets/*.png.import

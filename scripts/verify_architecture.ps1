@@ -16,9 +16,17 @@ if (-not $esbuild) {
 
 $behaviorTests = @(
     "architecture-runtime.behavior.ts",
+    "authoritative-sync.behavior.ts",
+    "calendar-state.behavior.ts",
     "configuration-domain.behavior.ts",
+    "dashboard-lifecycle.behavior.ts",
+    "date-override-state.behavior.ts",
     "desktop-services.behavior.ts",
-    "presentation-utils.behavior.ts"
+    "high-risk-combinations.behavior.ts",
+    "mini-edge-auto-hide.behavior.ts",
+    "presentation.behavior.ts",
+    "presentation-utils.behavior.ts",
+    "theme.behavior.ts"
 )
 
 foreach ($test in $behaviorTests) {
@@ -42,6 +50,11 @@ foreach ($test in $behaviorTests) {
 & $python (Join-Path $app "tests\verify_architecture_structure.py")
 if ($LASTEXITCODE -ne 0) {
     throw "Architecture structure verification failed."
+}
+
+& $python (Join-Path $app "tests\verify_v104_m6.py")
+if ($LASTEXITCODE -ne 0) {
+    throw "v1.0.4 Mini edge auto-hide contract verification failed."
 }
 
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $app "tests\verify_tool_resolution.ps1")
