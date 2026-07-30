@@ -47,8 +47,9 @@
 - [x] Release 附件清单只包含便携 Zip 与 `SHA256SUMS.txt`；本地解压目录仅用于验证，不得上传。
 - [x] 发布源通过 PR #15 和必需 CI 合入 `main`。
 - [x] 从合并后的发布源重新构建、验证并锁定最终哈希。
-- [ ] 创建并推送 `v1.0.3` annotated tag。
-- [ ] 创建 GitHub Stable Release，并只上传便携 Zip 与 `SHA256SUMS.txt`。
+- [x] 创建并推送 `v1.0.3` annotated tag，目标为发布源 `87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4`。
+- [x] 创建 GitHub Stable Release，并只上传便携 Zip 与 `SHA256SUMS.txt`。
+- [x] 从 GitHub 重新下载便携 Zip，SHA256 与最终锁定值一致。
 
 ## 发布停止条件
 

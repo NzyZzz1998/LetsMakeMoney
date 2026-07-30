@@ -123,3 +123,16 @@
 - 时区为 `China Standard Time`；真实系统时间前拨、后拨后均已恢复，辅助脚本最终偏差不超过 `5ms`。
 - LetsMakeMoney 候选进程数为 `0`。
 - 证据：`.tmp_acceptance/v1.0.3-final-20260730-014452/evidence/V103-ENVIRONMENT-RESTORE-RESULT.json`。
+
+## 发布后核对
+
+- `v1.0.3` annotated tag 已推送，解引用目标为发布源提交
+  `87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4`。
+- GitHub Stable Release：
+  `https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.3`。
+- Release 状态：非 draft、非 prerelease，并标记为 latest。
+- Release 附件恰好为：
+  - `LetsMakeMoney-v1.0.3-windows-x86_64.zip`
+  - `SHA256SUMS.txt`
+- 从 GitHub 重新下载的 Zip SHA256 为
+  `259CAE23D785FC7712CAC0EFD42991C8EE210C0BCEA1EB5C07FC171DFB993B28`，与最终锁定值一致。

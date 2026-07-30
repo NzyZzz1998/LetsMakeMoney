@@ -2,9 +2,9 @@
 
 ## 追踪信息
 
-- 当前状态：发布源已合入 `main`，最终包已锁定，待 tag 与 GitHub Release
+- 当前状态：已发布 / 发布后观察
 - 目标版本：Windows v1.0.3 Stable
-- 当前公开版本：Windows v1.0.2 Stable
+- 当前公开版本：Windows v1.0.3 Stable
 - 上游来源：`prd.md`
 - 对应实施计划：`dev_plan_v1.0.3.md`
 - 对应追踪矩阵：`traceability.md`
@@ -127,7 +127,7 @@
 
 - 开发阻塞：无。
 - 发布阻塞：无。
-- 当前停止点：PR #15 已通过必需 CI 并合入 `main`；最终包已重新构建和验证，尚未创建 tag 或 GitHub Release。
+- 当前停止点：`v1.0.3` annotated tag 与 GitHub Stable Release 已发布；只进入发布后观察，不替换既有产物。
 - 2027 官方数据尚未发布不是开发阻塞；本版必须使用明确标记的估算降级，禁止伪造 official 数据。
 
 ## 最近验证
@@ -159,10 +159,13 @@
 - 最终 EXE 为 `9,997,312` 字节，SHA256 为 `41BB11FCBC95C3789AD283D0F85E67DB0E17D4BC769B133B317FDB1804607237`。
 - 最终 WebView2Loader 为 `160,320` 字节，SHA256 为 `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
 - 最终候选完成 v1.0.3 全量自动验证、包体验证和 Computer Use 全新解压启动冒烟；证据位于 `.tmp_acceptance/v1.0.3-release-20260730-181127/evidence/`。
+- `v1.0.3` annotated tag 指向发布源 `87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4`。
+- GitHub Stable Release 已发布：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.3`。
+- Release 仅包含便携 Zip 与 `SHA256SUMS.txt`；从 GitHub 重新下载的 Zip SHA256 为 `259CAE23D785FC7712CAC0EFD42991C8EE210C0BCEA1EB5C07FC171DFB993B28`。
 
 ## 下一步
 
-创建并推送 `v1.0.3` annotated tag，创建 GitHub Stable Release。发布附件只允许使用上述最终 Zip 和 `SHA256SUMS.txt`，不得上传本地解压目录或验收证据。
+进入发布后观察。发现问题时保留真实版本身份，按缺陷、候选需求或环境限制分别记录，不修改已发布 tag、Release 或附件。
 
 ## 记录边界
 
