@@ -8,10 +8,10 @@
 | --- | --- |
 | 当前公开版本 | Windows v1.0.2 Stable |
 | 当前公开 tag | `v1.0.2` |
-| 当前开发版本 | Windows v1.0.3 最终验收通过，待发布收口 |
+| 当前开发版本 | Windows v1.0.3 发布源已合入 `main`，最终包已锁定 |
 | v1.0.1 阶段 | 已发布 |
 | v1.0.2 阶段 | 已发布 / 发布后观察 |
-| v1.0.3 阶段 | 最终验收通过，可进入发布收口 |
+| v1.0.3 阶段 | 发布收口进行中，待 tag 与 GitHub Release |
 | 技术栈 | Rust + Tauri + TypeScript/React |
 | 产品形态 | 无宠物、本地优先的 Windows 收入进度工具 |
 | 发布阻塞 | 无 |
@@ -94,7 +94,7 @@ v1.0.1 只处理收入、日历、状态和用户信任链，不扩展产品范�
 
 ## v1.0.3 当前状态
 
-v1.0.3 的发布后 Review、Idea、性能技术 Spike、PRD、开发承接、业务实现和最终验收已经完成。聚合自动验证、年度数据验证、权威同步、窗口生命周期、Rust 回归、打包及包体验证通过；当前可进入发布收口。
+v1.0.3 的发布后 Review、Idea、性能技术 Spike、PRD、开发承接、业务实现和最终验收已经完成。发布源已经通过 PR #15 和必需 CI 合入 `main`；聚合自动验证、年度数据验证、权威同步、窗口生命周期、Rust 回归、打包及包体验证均通过。
 
 已确认范围方向：
 
@@ -106,7 +106,7 @@ v1.0.3 的发布后 Review、Idea、性能技术 Spike、PRD、开发承接、�
 
 当前完成度为 `62/62`。官方/估算日历、日期调整、Settings、首次启动 Wizard、隐藏恢复、连续 10 次显隐、真实时区切换、真实系统时间前后跳变、通知区真实鼠标左键、两条真实 S3 睡眠跨边界路径和修正版候选 120 分钟稳定运行均已取得证据。原候选的稳定性采样发现隐藏 Workbench 后持续高 CPU，已定位为原生 WebView2 未挂起；修正版连续运行 `7201.27` 秒并通过 CPU、内存、日志与同步频率门禁，`V103-BUG-001` 已关闭。
 
-最终候选从干净提交 `ebcd58844bc905874c2ddc9b267848ee1aec5b7b` 重新构建，`source_tree_dirty=false`。Zip SHA256 为 `E4FF7771B3ACD5658DD84EE2CC6E14B1DACA685EBD0D2D180FC318B7BB1F2183`，EXE SHA256 为 `7DD45D6B35CE82A6241D359EFB2FE88A9A62B3ECD20703B19BAE82CEE98F5BBA`，WebView2Loader SHA256 为 `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。最终候选已重新通过全量自动验证、包体验证和新解压启动冒烟，当前无发布阻塞。
+最终发布包从 PR #15 合并提交 `87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4` 重新构建，`source_tree_dirty=false`。Zip SHA256 为 `259CAE23D785FC7712CAC0EFD42991C8EE210C0BCEA1EB5C07FC171DFB993B28`，EXE SHA256 为 `41BB11FCBC95C3789AD283D0F85E67DB0E17D4BC769B133B317FDB1804607237`，WebView2Loader SHA256 为 `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。最终发布包已重新通过全量自动验证、包体验证和 Computer Use 全新解压启动冒烟，当前无发布阻塞。
 
 ## 待人工补证
 
@@ -162,4 +162,4 @@ v1.0.3 的发布后 Review、Idea、性能技术 Spike、PRD、开发承接、�
 
 ## 下一步
 
-等待项目所有者确认发布动作。发布收口应推送 `main`、创建 `v1.0.3` annotated tag，并只上传最终便携 Zip 与 `SHA256SUMS.txt`；本轮尚未执行这些远端动作。
+发布源已经合入 `main`，最终便携 Zip 与 `SHA256SUMS.txt` 已锁定。下一步创建 `v1.0.3` annotated tag 和 GitHub Stable Release；Release 只允许上传这两个文件，不得上传本地解压目录或验收证据。

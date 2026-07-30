@@ -14,8 +14,8 @@
 
 修复前候选已完成一次 120 分钟采样，但因隐藏 Workbench 造成连续高 CPU 而未通过。该失败已进入 `doc/logs/v1.0.3-bugfix-log.md`；修正版深度验收候选使用新的候选哈希重新采样并通过，未沿用失败候选证据。
 
-最终发布身份来自干净源码提交 `ebcd58844bc905874c2ddc9b267848ee1aec5b7b`。该提交保持上述已验收实现不变，并重新通过全量自动验证、包体验证和新解压启动冒烟；最终 Zip SHA256 为
-`E4FF7771B3ACD5658DD84EE2CC6E14B1DACA685EBD0D2D180FC318B7BB1F2183`。本清单不会把旧候选上的真实系统操作改写成在最终哈希上重复执行。
+最终发布身份来自 PR #15 合并提交 `87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4`。该提交保持上述已验收业务实现不变，并重新通过全量自动验证、包体验证和 Computer Use 全新解压启动冒烟；最终 Zip SHA256 为
+`259CAE23D785FC7712CAC0EFD42991C8EE210C0BCEA1EB5C07FC171DFB993B28`。本清单不会把旧候选上的真实系统操作改写成在最终哈希上重复执行。
 
 剩余门禁的权限、Computer Use 边界与睡眠能力证据：
 `.tmp_acceptance/v1.0.3-final-20260730-014452/evidence/remaining-gates/V103-REMAINING-GATES-CAPABILITY.json`。

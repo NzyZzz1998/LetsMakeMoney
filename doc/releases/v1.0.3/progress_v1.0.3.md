@@ -2,7 +2,7 @@
 
 ## 追踪信息
 
-- 当前状态：最终验收通过，可进入发布收口
+- 当前状态：发布源已合入 `main`，最终包已锁定，待 tag 与 GitHub Release
 - 目标版本：Windows v1.0.3 Stable
 - 当前公开版本：Windows v1.0.2 Stable
 - 上游来源：`prd.md`
@@ -12,7 +12,7 @@
 - 下游承接：后续 verification、manual verification、release checklist 与独立 Acceptance
 - 当前事实源：本文
 - 开发基线：`main` / `27dc11421daa8289caf06d92c2f397d64c64c5df`
-- 发布候选源码：`main` / `ebcd58844bc905874c2ddc9b267848ee1aec5b7b` / `source_tree_dirty=false`
+- 发布候选源码：`main` / `87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4` / `source_tree_dirty=false`
 - 最后更新：2026-07-30
 
 ## 版本目标
@@ -127,7 +127,7 @@
 
 - 开发阻塞：无。
 - 发布阻塞：无。
-- 当前停止点：最终验收已通过，可进入发布收口；尚未执行 push、tag 或 GitHub Release。
+- 当前停止点：PR #15 已通过必需 CI 并合入 `main`；最终包已重新构建和验证，尚未创建 tag 或 GitHub Release。
 - 2027 官方数据尚未发布不是开发阻塞；本版必须使用明确标记的估算降级，禁止伪造 official 数据。
 
 ## 最近验证
@@ -153,15 +153,16 @@
 - 休息阶段真实进入 S3 睡眠约 `262.28` 秒并跨过恢复工作边界；唤醒后界面收敛为“工作中 / 距离下班”，金额继续增长，日志仅出现一次 `sleep_resume` 并收敛为 `phase=working`，无同步失败、崩溃或重复 timer。证据为 `evidence/remaining-gates/sleep-rest-to-work-20260730-171642/`。
 - 聚合验证、包体验证、18 份文档严格 UTF-8/乱码/本地链接检查和 `git diff --check` 通过。
 - 睡眠恢复两条跨边界路径均已闭合。
-- 干净源码提交 `ebcd58844bc905874c2ddc9b267848ee1aec5b7b` 已创建，`BUILD-INFO.json` 确认 `source_tree_dirty=false`。
-- 最终 Zip 为 `3,204,792` 字节，SHA256 为 `E4FF7771B3ACD5658DD84EE2CC6E14B1DACA685EBD0D2D180FC318B7BB1F2183`。
-- 最终 EXE 为 `9,997,312` 字节，SHA256 为 `7DD45D6B35CE82A6241D359EFB2FE88A9A62B3ECD20703B19BAE82CEE98F5BBA`。
+- PR #15 合并提交 `87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4` 已成为发布源，`BUILD-INFO.json` 确认 `source_tree_dirty=false`。
+- 必需 GitHub Actions 检查通过：run `30532884561`，job `90839127198`。
+- 最终 Zip 为 `3,204,791` 字节，SHA256 为 `259CAE23D785FC7712CAC0EFD42991C8EE210C0BCEA1EB5C07FC171DFB993B28`。
+- 最终 EXE 为 `9,997,312` 字节，SHA256 为 `41BB11FCBC95C3789AD283D0F85E67DB0E17D4BC769B133B317FDB1804607237`。
 - 最终 WebView2Loader 为 `160,320` 字节，SHA256 为 `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
-- 最终候选完成 v1.0.3 全量自动验证、包体验证和新解压启动冒烟；证据位于 `.tmp_acceptance/v1.0.3-clean-build-20260730-173416/evidence/`。
+- 最终候选完成 v1.0.3 全量自动验证、包体验证和 Computer Use 全新解压启动冒烟；证据位于 `.tmp_acceptance/v1.0.3-release-20260730-181127/evidence/`。
 
 ## 下一步
 
-等待项目所有者确认发布动作；发布收口只允许使用上述最终 Zip 和 `SHA256SUMS.txt`，不得上传本地解压目录或验收证据。
+创建并推送 `v1.0.3` annotated tag，创建 GitHub Stable Release。发布附件只允许使用上述最终 Zip 和 `SHA256SUMS.txt`，不得上传本地解压目录或验收证据。
 
 ## 记录边界
 

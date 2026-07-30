@@ -45,7 +45,10 @@
 - [x] `doc/current.md` 已更新为当前验收结论。
 - [x] 文档状态、UTF-8、乱码、本地链接与 `git diff --check` 通过。
 - [x] Release 附件清单只包含便携 Zip 与 `SHA256SUMS.txt`；本地解压目录仅用于验证，不得上传。
-- [x] 已创建本地发布候选提交；尚未执行 push、tag 或 GitHub Release。
+- [x] 发布源通过 PR #15 和必需 CI 合入 `main`。
+- [x] 从合并后的发布源重新构建、验证并锁定最终哈希。
+- [ ] 创建并推送 `v1.0.3` annotated tag。
+- [ ] 创建 GitHub Stable Release，并只上传便携 Zip 与 `SHA256SUMS.txt`。
 
 ## 发布停止条件
 
