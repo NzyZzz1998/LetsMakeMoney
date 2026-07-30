@@ -45,6 +45,21 @@ foreach ($test in $behaviorTests) {
 }
 
 if (-not $SkipRust) {
+    Push-Location $app
+    try {
+        & $node (Join-Path $nodeModules "typescript\bin\tsc")
+        if ($LASTEXITCODE -ne 0) {
+            throw "TypeScript verification failed."
+        }
+        & $node (Join-Path $nodeModules "vite\bin\vite.js") build
+        if ($LASTEXITCODE -ne 0) {
+            throw "Frontend build failed."
+        }
+    }
+    finally {
+        Pop-Location
+    }
+
     $cargo = Get-V10Cargo -RepoRoot $root
     & $cargo "+stable-x86_64-pc-windows-msvc" test --manifest-path (Join-Path $app "src-tauri\Cargo.toml")
     if ($LASTEXITCODE -ne 0) {
