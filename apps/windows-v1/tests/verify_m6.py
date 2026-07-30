@@ -48,6 +48,10 @@ def check_source_tree() -> None:
                 "package_v10.ps1",
                 "package_v101.ps1",
                 "package_v102.ps1",
+                "package_v103.ps1",
+                "collect_v103_stability.ps1",
+                "verify_calendar_data_v103.py",
+                "verify_calendar_data_v103.ps1",
                 "v10_tools.ps1",
             }
         )

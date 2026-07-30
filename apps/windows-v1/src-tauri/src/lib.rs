@@ -12,6 +12,12 @@ use tauri::{
     AppHandle, LogicalSize, Manager, PhysicalPosition, Position, Size, WebviewUrl, WebviewWindow,
     WebviewWindowBuilder, WindowEvent,
 };
+#[cfg(target_os = "windows")]
+use webview2_com::{
+    Microsoft::Web::WebView2::Win32::ICoreWebView2_3, TrySuspendCompletedHandler,
+};
+#[cfg(target_os = "windows")]
+use windows_core::Interface;
 
 #[derive(Clone, Copy)]
 struct WindowSpec {
@@ -117,17 +123,27 @@ fn load_calendar_year(
 ) -> Result<calendar_data::CalendarDatasetResponse, String> {
     match calendar_data::load_calendar_year(year) {
         Ok(dataset) => {
-            append_log(
-                &app,
-                "calendar.dataset.loaded",
-                &format!("year={year} version={}", dataset.dataset_version),
-            );
+            match dataset.coverage.mode {
+                calendar_data::CalendarCoverageMode::Official => append_log(
+                    &app,
+                    "calendar.coverage.resolved",
+                    &format!(
+                        "year={year} mode=official version={}",
+                        dataset.dataset_version.as_deref().unwrap_or("unknown")
+                    ),
+                ),
+                calendar_data::CalendarCoverageMode::Estimated => append_log(
+                    &app,
+                    "calendar.coverage.estimated",
+                    &format!("year={year} mode=estimated"),
+                ),
+            }
             Ok(dataset)
         }
         Err(error) => {
             append_log(
                 &app,
-                "calendar.dataset.failed",
+                "calendar.coverage.integrity_failed",
                 &format!("year={year} reason={error}"),
             );
             Err(error)
@@ -612,6 +628,135 @@ fn window_show_error(app: &AppHandle, label: &str, stage: &str, error: String) -
     error
 }
 
+#[cfg(target_os = "windows")]
+fn suspend_webview_internal(app: &AppHandle, window: &WebviewWindow, label: &str) {
+    append_log(
+        app,
+        "window.webview_suspend_requested",
+        &format!("label={label}"),
+    );
+    let callback_app = app.clone();
+    let callback_label = label.to_string();
+    if let Err(error) = window.with_webview(move |webview| {
+        let controller = webview.controller();
+        if let Err(error) = unsafe { controller.SetIsVisible(false) } {
+            append_log(
+                &callback_app,
+                "window.webview_suspend_failed",
+                &format!(
+                    "label={} stage=visibility reason={error}",
+                    callback_label
+                ),
+            );
+            return;
+        }
+        let core = unsafe {
+            controller
+                .CoreWebView2()
+                .and_then(|core| core.cast::<ICoreWebView2_3>())
+        };
+        let core = match core {
+            Ok(core) => core,
+            Err(error) => {
+                append_log(
+                    &callback_app,
+                    "window.webview_suspend_failed",
+                    &format!(
+                        "label={} stage=controller reason={error}",
+                        callback_label
+                    ),
+                );
+                return;
+            }
+        };
+
+        let completion_app = callback_app.clone();
+        let completion_label = callback_label.clone();
+        let handler = TrySuspendCompletedHandler::create(Box::new(move |result, suspended| {
+            match result {
+                Ok(()) => append_log(
+                    &completion_app,
+                    "window.webview_suspend_completed",
+                    &format!("label={completion_label} suspended={suspended}"),
+                ),
+                Err(error) => append_log(
+                    &completion_app,
+                    "window.webview_suspend_failed",
+                    &format!("label={completion_label} stage=completion reason={error}"),
+                ),
+            }
+            Ok(())
+        }));
+
+        if let Err(error) = unsafe { core.TrySuspend(&handler) } {
+            append_log(
+                &callback_app,
+                "window.webview_suspend_failed",
+                &format!(
+                    "label={} stage=request reason={error}",
+                    callback_label
+                ),
+            );
+        }
+    }) {
+        append_log(
+            app,
+            "window.webview_suspend_failed",
+            &format!("label={label} stage=dispatch reason={error}"),
+        );
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+fn suspend_webview_internal(_app: &AppHandle, _window: &WebviewWindow, _label: &str) {}
+
+#[cfg(target_os = "windows")]
+fn resume_webview_internal(app: &AppHandle, window: &WebviewWindow, label: &str) {
+    append_log(
+        app,
+        "window.webview_resume_requested",
+        &format!("label={label}"),
+    );
+    let callback_app = app.clone();
+    let callback_label = label.to_string();
+    if let Err(error) = window.with_webview(move |webview| {
+        let controller = webview.controller();
+        let resume_result = unsafe {
+            controller
+                .CoreWebView2()
+                .and_then(|core| core.cast::<ICoreWebView2_3>())
+                .and_then(|core| core.Resume())
+        };
+        let visibility_result = unsafe { controller.SetIsVisible(true) };
+        match (resume_result, visibility_result) {
+            (Ok(()), Ok(())) => append_log(
+                &callback_app,
+                "window.webview_resume_completed",
+                &format!("label={callback_label}"),
+            ),
+            (Err(error), _) => append_log(
+                &callback_app,
+                "window.webview_resume_failed",
+                &format!("label={callback_label} stage=resume reason={error}"),
+            ),
+            (Ok(()), Err(error)) => append_log(
+                &callback_app,
+                "window.webview_resume_failed",
+                &format!("label={callback_label} stage=visibility reason={error}"),
+            ),
+        }
+    }) {
+        append_log(
+            app,
+            "window.webview_resume_failed",
+            &format!("label={label} stage=dispatch reason={error}"),
+        );
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+fn resume_webview_internal(_app: &AppHandle, _window: &WebviewWindow, _label: &str) {}
+
 fn show_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
     append_log(app, "window.show_requested", &format!("label={label}"));
     let window = ensure_window(app, label)
@@ -619,7 +764,7 @@ fn show_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
     append_log(app, "window.ensure_completed", &format!("label={label}"));
     apply_window_policy(app, &window, label)
         .map_err(|error| window_show_error(app, label, "policy", error))?;
-    let _ = window.eval("window.dispatchEvent(new CustomEvent('lmm:window-shown'))");
+    resume_webview_internal(app, &window, label);
     window
         .show()
         .map_err(|error| window_show_error(app, label, "show", error.to_string()))?;
@@ -636,14 +781,33 @@ fn show_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
         window_show_error(app, label, "focus", error.to_string())
     })?;
     append_log(app, "window.focused", &format!("label={label}"));
+    if let Err(error) =
+        window.eval("window.dispatchEvent(new CustomEvent('lmm:window-shown'))")
+    {
+        append_log(
+            app,
+            "window.lifecycle_event_failed",
+            &format!("label={label} event=shown reason={error}"),
+        );
+    }
     append_log(app, "window.shown", &format!("label={label}"));
     Ok(())
 }
 
 fn hide_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
     let window = ensure_window(app, label)?;
+    if let Err(error) =
+        window.eval("window.dispatchEvent(new CustomEvent('lmm:window-hidden'))")
+    {
+        append_log(
+            app,
+            "window.lifecycle_event_failed",
+            &format!("label={label} event=hidden reason={error}"),
+        );
+    }
     window.hide().map_err(|error| error.to_string())?;
     append_log(app, "window.hidden", &format!("label={label}"));
+    suspend_webview_internal(app, &window, label);
     Ok(())
 }
 
@@ -1091,8 +1255,8 @@ pub fn run() {
                 }
             }
             if !configuration_initialized {
-                if let Some(mini) = app.get_webview_window("mini") {
-                    let _ = mini.hide();
+                if app.get_webview_window("mini").is_some() {
+                    let _ = hide_window_internal(app.handle(), "mini");
                 }
                 show_window_internal(app.handle(), "wizard")?;
                 append_log(
@@ -1115,12 +1279,13 @@ pub fn run() {
                     .load(Ordering::SeqCst);
                 if !exiting {
                     api.prevent_close();
-                    let _ = window.hide();
-                    append_log(
-                        window.app_handle(),
-                        "window.close_hidden",
-                        &format!("label={}", window.label()),
-                    );
+                    if hide_window_internal(window.app_handle(), window.label()).is_ok() {
+                        append_log(
+                            window.app_handle(),
+                            "window.close_hidden",
+                            &format!("label={}", window.label()),
+                        );
+                    }
                 }
             }
             _ => {}

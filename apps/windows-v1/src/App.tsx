@@ -327,6 +327,42 @@ function SyncNotice({ state }: { state: "synced" | "syncing" | "stale" }) {
   );
 }
 
+function CalendarCoverageNotice({
+  coverage,
+}: {
+  coverage: ReturnType<typeof useDashboard>["snapshot"]["calendarCoverage"];
+}) {
+  const content = coverage.mode === "official"
+    ? {
+        title: "官方日历",
+        detail: `${coverage.year} 年数据随应用离线提供`,
+        tone: "official",
+      }
+    : coverage.mode === "estimated"
+      ? {
+          title: "估算日历",
+          detail: `${coverage.year} 年尚无内置官方数据，当前按休息模式推算，不代表法定放假安排`,
+          tone: "estimated",
+        }
+      : coverage.mode === "stale"
+        ? {
+            title: "数据过期",
+            detail: "当前显示同一月份的上次有效数据，日期调整暂不可用",
+            tone: "stale",
+          }
+        : {
+            title: "日历加载失败",
+            detail: "数据完整性校验未通过，未使用估算结果替代",
+            tone: "error",
+          };
+  return (
+    <div className={`calendar-coverage calendar-coverage--${content.tone}`} role="status">
+      <strong>{content.title}</strong>
+      <span>{content.detail}</span>
+    </div>
+  );
+}
+
 function WorkbenchWindow() {
   const [tab, setTab] = useState("today");
   const dashboard = useDashboard();
@@ -372,6 +408,7 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
     return (
       <div className="page-stack" aria-label="今日休息">
         <SyncNotice state={snapshot.syncState} />
+        <CalendarCoverageNotice coverage={snapshot.calendarCoverage} />
         <div className="page-heading">
           <div>
             <span className="eyebrow">{formatFullDate(snapshot.ownerDate)} · 休息日</span>
@@ -415,6 +452,7 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
     return (
       <div className="page-stack" aria-label={paid ? "今日带薪休息" : "今日不带薪休息"}>
         <SyncNotice state={snapshot.syncState} />
+        <CalendarCoverageNotice coverage={snapshot.calendarCoverage} />
         <div className="page-heading">
           <div>
             <span className="eyebrow">{formatFullDate(snapshot.ownerDate)} · {paid ? "带薪休息" : "不带薪休息"}</span>
@@ -482,6 +520,7 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
   return (
     <div className="page-stack" aria-label="今日">
       <SyncNotice state={snapshot.syncState} />
+      <CalendarCoverageNotice coverage={snapshot.calendarCoverage} />
       <div className="page-heading">
         <div>
           <span className="eyebrow">{formatFullDate(snapshot.ownerDate)} · {ownerKindLabel}</span>
@@ -542,7 +581,11 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
 function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>["snapshot"] }) {
   const owner = parseLocalDate(snapshot.ownerDate);
   const [visibleMonth, setVisibleMonth] = useState(() => `${owner.getFullYear()}-${String(owner.getMonth() + 1).padStart(2, "0")}`);
-  const calendarMonth = useCalendarMonth(visibleMonth, snapshot.calendarDays);
+  const calendarMonth = useCalendarMonth(
+    visibleMonth,
+    snapshot.calendarDays,
+    snapshot.calendarCoverage,
+  );
   const [visibleYear, visibleMonthNumber] = visibleMonth.split("-").map(Number);
   const displayMonth = calendarMonth.dataMonth ?? visibleMonth;
   const [displayYear, displayMonthNumber] = displayMonth.split("-").map(Number);
@@ -568,7 +611,11 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
           onClick={() => setSelectedDate(
             days.find(day => day.date === snapshot.ownerDate)?.date ?? days[0]?.date ?? null,
           )}
-          disabled={!days.length || calendarMonth.state === "stale"}
+          disabled={
+            !days.length
+            || calendarMonth.state === "stale"
+            || calendarMonth.coverage?.can_adjust_date === false
+          }
         >
           调整日期
         </Button>
@@ -583,11 +630,7 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
         {calendarMonth.state === "loading" && (
           <div className="calendar__status" role="status">正在读取 {monthLabel} 的日历…</div>
         )}
-        {calendarMonth.state === "unsupported" && (
-          <div className="calendar__status calendar__status--warning" role="status">
-            <span>当前仅支持 2025—2026 年日历。</span>
-          </div>
-        )}
+        {calendarMonth.coverage && <CalendarCoverageNotice coverage={calendarMonth.coverage} />}
         {calendarMonth.state === "error" && (
           <div className="calendar__status calendar__status--warning" role="alert">
             <span>日历暂时无法加载，未展示可能错误的日期。</span>
@@ -630,7 +673,10 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
                     aria-pressed={isSelected}
                     aria-label={`${displayMonthNumber}月${day}日，${contract.ariaLabel}`}
                     className={contract.classNames.join(" ")}
-                    disabled={calendarMonth.state === "stale"}
+                    disabled={
+                      calendarMonth.state === "stale"
+                      || calendarMonth.coverage?.can_adjust_date === false
+                    }
                     onClick={() => setSelectedDate(daySnapshot.date)}
                   >
                     <span className="calendar-day__number">{day}</span>
@@ -652,7 +698,9 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
           </>
         )}
       </section>
-      {selectedDate !== null && calendarMonth.days.find(day => day.date === selectedDate) && (
+      {selectedDate !== null
+        && calendarMonth.coverage?.can_adjust_date !== false
+        && calendarMonth.days.find(day => day.date === selectedDate) && (
         <DateOverrideEditor
           key={selectedDate}
           day={calendarMonth.days.find(day => day.date === selectedDate)!}
@@ -1277,13 +1325,13 @@ function SupportSettings() {
       const body = await response.text();
       const result = await invoke<{ status: "up_to_date" | "available" | "unavailable"; message: string }>(
         "evaluate_update_response",
-        { currentVersion: "1.0.2", responseBody: body, failureReason: null },
+        { currentVersion: "1.0.3", responseBody: body, failureReason: null },
       );
       await record("update.checked", `status=${result.status}`);
       setFeedback({ tone: result.status === "unavailable" ? "warning" : "success", message: result.message });
     } catch (error) {
       const result = await invoke<{ message: string }>("evaluate_update_response", {
-        currentVersion: "1.0.2",
+        currentVersion: "1.0.3",
         responseBody: null,
         failureReason: String(error),
       }).catch(() => ({ message: `暂时无法检查更新：${String(error)}` }));
@@ -1308,7 +1356,7 @@ function SupportSettings() {
       <section>
         <h2>关于</h2>
         <dl className="summary-list">
-          <div><dt>版本</dt><dd>1.0.2</dd></div>
+          <div><dt>版本</dt><dd>1.0.3</dd></div>
           <div><dt>数据</dt><dd>仅保存在本机</dd></div>
           <div><dt>运行环境</dt><dd>Windows · WebView2</dd></div>
           {platform && <div><dt>原生能力</dt><dd>{platform.tray_available && platform.explorer_available ? "可用" : "部分不可用，主功能不受影响"}</dd></div>}

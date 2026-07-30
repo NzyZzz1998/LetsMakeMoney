@@ -14,7 +14,7 @@ const state = {
   dialogAction: null,
   calendarYear: 2026,
   calendarMonth: 6,
-  calendarMode: "ready",
+  calendarMode: "official",
   naturalToday: "2026-07-27",
   selectedDate: "2026-07-27",
   calendarOverrides: new Map([
@@ -499,23 +499,42 @@ function getAutomaticDayKind(year, month, day) {
 function updateCalendarStatus(mode) {
   state.calendarMode = mode;
   calendarStatus.className = `calendar-status is-${mode}`;
-  calendarStatus.hidden = mode === "ready";
+  calendarStatus.hidden = false;
   const retryButton = document.querySelector("#calendar-retry");
   const adjustButton = document.querySelector("#calendar-adjust");
-  adjustButton.disabled = ["loading", "error"].includes(mode);
-  if (mode === "ready") {
-    retryButton.hidden = true;
-    return;
-  }
+  adjustButton.disabled = ["loading", "stale", "error"].includes(mode);
   const statusCopy = {
+    official: ["官方日历", "2025—2026 · 数据随应用离线提供"],
+    estimated: ["估算日历", "当前年份尚无内置官方数据，按休息模式推算；不代表法定放假安排"],
     loading: ["正在加载日历", "当前页面保持稳定，完成后自动刷新"],
-    stale: ["本次加载失败，正在使用上次成功数据", "旧日历仍可查看和调整；重试成功前不会覆盖"],
-    error: ["日历暂时不可用", "没有可安全保留的旧数据，请重试"],
-    unsupported: ["当前年份不在官方数据范围内", "仅支持 2025—2026；将按休息模式判断，不猜测节假日"],
+    stale: ["本次加载失败，正在使用上次成功数据", "旧日历仍可查看；恢复成功前暂停新的日期调整"],
+    error: ["日历加载失败", "没有可安全保留的旧数据，请重试"],
   }[mode];
   calendarStatus.querySelector("span").textContent = statusCopy[0];
   calendarStatus.querySelector("small").textContent = statusCopy[1];
   retryButton.hidden = !["stale", "error"].includes(mode);
+  const coverageCopy = {
+    official: ["官方日历", "is-official"],
+    estimated: ["估算日历", "is-estimated"],
+    loading: ["正在加载", "is-loading"],
+    stale: ["数据过期", "is-stale"],
+    error: ["加载失败", "is-error"],
+  }[mode];
+  document.querySelectorAll("[data-calendar-coverage]").forEach((node) => {
+    node.textContent = coverageCopy[0];
+    node.className = `coverage-badge ${coverageCopy[1]}`;
+  });
+  const shortCopy = {
+    official: "官方",
+    estimated: "估算",
+    loading: "读取中",
+    stale: "过期",
+    error: "失败",
+  }[mode];
+  document.querySelectorAll("[data-calendar-coverage-short]").forEach((node) => {
+    node.textContent = shortCopy;
+    node.className = `mini-source ${coverageCopy[1]}`;
+  });
 }
 
 function buildCalendar() {
@@ -602,6 +621,7 @@ function buildCalendar() {
 
   if (state.calendarMode === "loading") root.classList.add("is-loading");
   if (state.calendarMode === "stale") root.classList.add("is-stale");
+  if (state.calendarMode === "estimated") root.classList.add("is-estimated");
 }
 
 function setCalendarMode(mode) {
@@ -619,13 +639,13 @@ function moveCalendarMonth(offset) {
   state.calendarMonth = date.getMonth();
   state.selectedDate = formatDateKey(state.calendarYear, state.calendarMonth, 1);
   const supported = state.calendarYear === 2025 || state.calendarYear === 2026;
-  setCalendarMode(supported ? "loading" : "unsupported");
+  setCalendarMode(supported ? "loading" : "estimated");
   if (!supported) return;
-  window.setTimeout(() => setCalendarMode("ready"), 420);
+  window.setTimeout(() => setCalendarMode("official"), 420);
 }
 
 function openCalendarOverride() {
-  if (state.calendarMode === "error" || state.calendarMode === "loading") {
+  if (["error", "loading", "stale"].includes(state.calendarMode)) {
     showToast("当前日历不可调整，请先恢复可用数据。", true);
     return;
   }
@@ -637,9 +657,11 @@ function openCalendarOverride() {
   document.querySelector("#override-date-title").textContent = `${year} 年 ${month} 月 ${day} 日`;
   document.querySelector(`input[name="override-kind"][value="${currentOverride}"]`).checked = true;
   document.querySelector("#override-auto-source").textContent =
-    automaticKind === "restday"
-      ? "当前来源：休息模式"
-      : "当前来源：官方日历或休息模式";
+    state.calendarMode === "estimated"
+      ? "当前来源：休息模式估算"
+      : automaticKind === "restday"
+        ? "当前来源：休息模式"
+        : "当前来源：官方日历";
   document.querySelectorAll('input[name="override-kind"][value="paid_rest"], input[name="override-kind"][value="unpaid_rest"]').forEach((control) => {
     control.disabled = !canSetLeave;
     control.closest("label").classList.toggle("is-disabled", !canSetLeave);
@@ -820,11 +842,11 @@ document.querySelector("#business-state").addEventListener("change", (event) => 
 });
 document.querySelector("#calendar-state").addEventListener("change", (event) => {
   const nextMode = event.target.value;
-  if (nextMode === "unsupported" && (state.calendarYear === 2025 || state.calendarYear === 2026)) {
+  if (nextMode === "estimated" && (state.calendarYear === 2025 || state.calendarYear === 2026)) {
     state.calendarYear = 2027;
     state.calendarMonth = 0;
     state.selectedDate = "2027-01-01";
-  } else if (nextMode !== "unsupported" && state.calendarYear !== 2025 && state.calendarYear !== 2026) {
+  } else if (nextMode !== "estimated" && state.calendarYear !== 2025 && state.calendarYear !== 2026) {
     state.calendarYear = 2026;
     state.calendarMonth = 6;
     state.selectedDate = "2026-07-23";
@@ -862,7 +884,7 @@ document.querySelector("#adjust-today").addEventListener("click", () => {
   state.calendarYear = 2026;
   state.calendarMonth = 6;
   state.selectedDate = state.businessState === "overnight" ? "2026-07-22" : state.naturalToday;
-  setCalendarMode("ready");
+  setCalendarMode("official");
   showWindow("workbench");
   document.querySelectorAll(".nav-item[data-view]").forEach((item) => {
     item.classList.toggle("is-active", item.dataset.view === "calendar");
@@ -876,9 +898,14 @@ document.querySelector("#calendar-retry").addEventListener("click", () => {
   document.querySelector("#calendar-state").value = "loading";
   setCalendarMode("loading");
   window.setTimeout(() => {
-    document.querySelector("#calendar-state").value = "ready";
-    setCalendarMode("ready");
-    showToast("日历已重新加载，上次成功数据已安全替换。");
+    const restoredMode = state.calendarYear === 2025 || state.calendarYear === 2026
+      ? "official"
+      : "estimated";
+    document.querySelector("#calendar-state").value = restoredMode;
+    setCalendarMode(restoredMode);
+    showToast(restoredMode === "official"
+      ? "官方日历已重新加载，上次成功数据已安全替换。"
+      : "已恢复休息模式估算，现有配置保持不变。");
   }, 520);
 });
 document.querySelectorAll('input[name="override-kind"]').forEach((control) => {
@@ -995,7 +1022,7 @@ document.querySelector("#dialog-confirm").addEventListener("click", () => {
 state.persistedTheme = normalizeTheme(window.localStorage.getItem("lmm-v102-prototype-theme"));
 applyTheme(state.persistedTheme);
 document.documentElement.dataset.dpi = "100";
-setCalendarMode("ready");
+setCalendarMode("official");
 setBusinessState("working_after_rest");
 showSettingsPanel("income");
 syncAlternatingWeekChoice();

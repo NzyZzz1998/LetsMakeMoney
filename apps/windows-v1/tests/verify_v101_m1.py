@@ -66,7 +66,7 @@ def verify_native_loader() -> None:
     required_loader_tokens = [
         "include_str!",
         "Sha256::digest",
-        "calendar_year_unsupported",
+        "CalendarCoverageMode::Estimated",
         "calendar_hash_mismatch",
         "calendar_dataset_invalid",
         "https://www.gov.cn/",
@@ -74,18 +74,22 @@ def verify_native_loader() -> None:
     for token in required_loader_tokens:
         require(token in source, f"Native calendar loader is missing: {token}")
     require("fn load_calendar_year(" in lib, "Tauri calendar command is missing")
-    require("calendar.dataset.loaded" in lib, "Calendar success log is missing")
-    require("calendar.dataset.failed" in lib, "Calendar failure log is missing")
+    require("calendar.coverage.resolved" in lib, "Calendar official success log is missing")
+    require("calendar.coverage.estimated" in lib, "Calendar estimate log is missing")
+    require("calendar.coverage.integrity_failed" in lib, "Calendar integrity failure log is missing")
     require("load_calendar_year," in lib, "Calendar command is not registered")
 
 
 def verify_frontend_state_machine() -> None:
     state = read(APP_ROOT / "src" / "calendarState.ts")
+    coverage = read(APP_ROOT / "src" / "calendarCoverage.ts")
     model = read(APP_ROOT / "src" / "model.ts")
     app = read(APP_ROOT / "src" / "App.tsx")
-    for status in ["loading", "ready", "empty", "stale", "error", "unsupported"]:
+    for status in ["loading", "ready", "empty", "stale", "error"]:
         require(f'"{status}"' in state, f"Calendar state is missing: {status}")
-    for token in ["requestId", "action.requestId !== state.requestId", 'state.data ? "stale"']:
+    for mode in ["official", "estimated", "stale", "integrity_error"]:
+        require(f'"{mode}"' in coverage, f"Calendar coverage mode is missing: {mode}")
+    for token in ["requestId", "action.requestId !== state.requestId", 'sameTargetData ? "stale"']:
         require(token in state, f"Calendar request ordering contract is missing: {token}")
     for token in [
         "calendar.request.ignored",
@@ -98,7 +102,8 @@ def verify_frontend_state_machine() -> None:
         "正在读取",
         "没有可用日期数据",
         "重试",
-        "当前仅支持 2025—2026 年日历",
+        "估算日历",
+        "数据完整性校验未通过",
         "上次有效数据",
     ]:
         require(copy in app, f"Calendar user feedback is missing: {copy}")

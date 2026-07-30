@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LetsMakeMoney v1.0.2 高保真产品原型</title>
+  <title>LetsMakeMoney v1.0.3 高保真产品原型</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="lab-brand">
       <span class="lab-mark" aria-hidden="true">¥</span>
       <div>
-        <strong>v1.0.2 视觉事实源</strong>
-        <span>阶段呈现 · 复合日历 · 浅色 / 深色</span>
+        <strong>v1.0.3 状态事实源</strong>
+        <span>年度覆盖 · 安全降级 · 浅色 / 深色</span>
       </div>
     </div>
 
@@ -57,11 +57,11 @@
       <label class="lab-select">
         <span>日历状态</span>
         <select id="calendar-state">
-          <option value="ready">数据可用</option>
+          <option value="official">官方日历</option>
+          <option value="estimated">估算日历</option>
           <option value="loading">加载中</option>
           <option value="stale">使用旧数据</option>
-          <option value="error">首次加载失败</option>
-          <option value="unsupported">年份不支持</option>
+          <option value="error">加载失败</option>
         </select>
       </label>
       <label class="toggle-line">
@@ -91,7 +91,10 @@
         <div class="mini-copy">
           <div class="eyebrow-row">
             <span data-income-label>今日已赚</span>
-            <span class="status-text" data-status>工作中</span>
+            <span class="mini-state">
+              <span class="mini-source is-official" data-calendar-coverage-short>官方</span>
+              <span class="status-text" data-status>工作中</span>
+            </span>
           </div>
           <strong class="amount" data-amount>¥ 186.42</strong>
           <div class="progress-track" aria-label="工作进度 56%">
@@ -145,7 +148,10 @@
                 <h1 id="today-title">今天的收入进度</h1>
                 <p id="today-subtitle">2026 年 7 月 23 日 · 周四</p>
               </div>
-              <span class="status-badge" data-status>工作中</span>
+              <div class="heading-status">
+                <span class="coverage-badge is-official" data-calendar-coverage>官方日历</span>
+                <span class="status-badge" data-status>工作中</span>
+              </div>
             </header>
 
             <div class="today-grid">
@@ -213,7 +219,7 @@
               </div>
               <button class="secondary-button" id="calendar-adjust">调整所选日期</button>
             </header>
-            <div class="calendar-status is-ready" id="calendar-status" role="status" aria-live="polite" hidden>
+            <div class="calendar-status is-official" id="calendar-status" role="status" aria-live="polite">
               <span></span>
               <small></small>
               <button class="text-button" id="calendar-retry" hidden>重试</button>

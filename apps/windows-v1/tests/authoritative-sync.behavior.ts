@@ -1,5 +1,7 @@
 import {
   calculateLocalTick,
+  classifyTimeEnvironmentChange,
+  createTimeEnvironmentSample,
   needsAuthoritativeCorrection,
   shouldApplyAuthoritativeSnapshot,
   shouldRetryInitialSync,
@@ -90,4 +92,46 @@ assert(
   "an established authority must retain the existing stale-result policy",
 );
 
-console.log("authoritative sync behavior: 20/20 passed");
+const baseEnvironment = createTimeEnvironmentSample(
+  1_000,
+  10_000,
+  "Asia/Shanghai",
+  -480,
+);
+assert(
+  classifyTimeEnvironmentChange(
+    baseEnvironment,
+    createTimeEnvironmentSample(2_000, 11_000, "Asia/Shanghai", -480),
+  ) === "none",
+  "normal time progression must not trigger recovery",
+);
+assert(
+  classifyTimeEnvironmentChange(
+    baseEnvironment,
+    createTimeEnvironmentSample(8_000, 11_000, "Asia/Shanghai", -480),
+  ) === "wall_clock",
+  "a forward wall-clock jump must trigger recovery",
+);
+assert(
+  classifyTimeEnvironmentChange(
+    baseEnvironment,
+    createTimeEnvironmentSample(-5_000, 11_000, "Asia/Shanghai", -480),
+  ) === "wall_clock",
+  "a backward wall-clock jump must trigger recovery",
+);
+assert(
+  classifyTimeEnvironmentChange(
+    baseEnvironment,
+    createTimeEnvironmentSample(9_000, 18_000, "Asia/Shanghai", -480),
+  ) === "sleep_resume",
+  "a long suspended interval with matching clocks must be treated as resume",
+);
+assert(
+  classifyTimeEnvironmentChange(
+    baseEnvironment,
+    createTimeEnvironmentSample(2_000, 11_000, "America/Los_Angeles", 420),
+  ) === "timezone",
+  "a timezone identifier or offset change must trigger recovery",
+);
+
+console.log("authoritative sync behavior: 25/25 passed");

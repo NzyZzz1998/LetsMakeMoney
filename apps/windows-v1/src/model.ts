@@ -7,19 +7,33 @@ import {
   type DateOverrideKind,
 } from "./configModel";
 import {
+  classifyCalendarLoadFailure,
+  createEstimatedCoverage,
+  type CalendarCoverage,
+  type CalendarSource,
+} from "./calendarCoverage";
+import {
   createCalendarState,
   reduceCalendarState,
   type CalendarLoadStatus,
 } from "./calendarState";
 import {
   calculateLocalTick,
+  classifyTimeEnvironmentChange,
+  createTimeEnvironmentSample,
   needsAuthoritativeCorrection,
   shouldApplyAuthoritativeSnapshot,
   shouldRetryInitialSync,
   syncFailureDisposition,
-  wallClockJumped,
+  type TimeEnvironmentSample,
   type TickAuthority,
 } from "./authoritativeSync";
+import {
+  createDashboardLifecycle,
+  transitionDashboardLifecycle,
+  type DashboardLifecycleEffect,
+  type DashboardLifecycleEvent,
+} from "./dashboardLifecycle";
 import type { BoundaryKind } from "./presentation";
 
 export type DashboardState = "loading" | "ready" | "setup" | "error";
@@ -50,14 +64,9 @@ interface CalendarPayload {
 
 interface CalendarDatasetResponse {
   year: number;
-  dataset_version: string;
-  source: {
-    publisher: string;
-    title: string;
-    document_no: string;
-    published_at: string;
-    url: string;
-  };
+  dataset_version: string | null;
+  source: CalendarSource | null;
+  coverage: CalendarCoverage;
   calendar: Omit<CalendarPayload, "date_overrides"> & {
     date_overrides: AppConfig["date_overrides"];
   };
@@ -91,6 +100,7 @@ export interface DashboardSnapshot {
   workEndTime: string;
   nextWorkDate: string | null;
   calendarDays: CalendarDaySnapshot[];
+  calendarCoverage: CalendarCoverage;
   message?: string;
   errorCode?: string;
 }
@@ -205,10 +215,29 @@ async function loadCalendarForYear(year: number, config: AppConfig) {
     dataset = await pending;
   } catch (error) {
     calendarDatasetCache.delete(year);
+    const errorCode = calendarErrorCode(error);
+    if (classifyCalendarLoadFailure(errorCode, year) === "unsupported") {
+      const coverage = createEstimatedCoverage(year, config.rest_mode);
+      return {
+        datasetVersion: null,
+        coverage,
+        calendar: withCalendarOverrides(
+          { statutory_holidays: [], adjusted_workdays: [] },
+          config,
+        ),
+      };
+    }
     throw error;
   }
+  const coverage = dataset.coverage.mode === "estimated"
+    ? {
+        ...dataset.coverage,
+        estimate_basis: config.rest_mode,
+      }
+    : dataset.coverage;
   return {
     datasetVersion: dataset.dataset_version,
+    coverage,
     calendar: withCalendarOverrides(dataset.calendar, config),
   };
 }
@@ -345,6 +374,7 @@ function fallbackSnapshot(now: Date): DashboardSnapshot {
     workEndTime: "18:00",
     nextWorkDate,
     calendarDays,
+    calendarCoverage: createEstimatedCoverage(now.getFullYear(), "double"),
   };
 }
 
@@ -360,10 +390,17 @@ export function useDashboard() {
   const boundarySyncPending = useRef(false);
   const consecutiveSyncFailures = useRef(0);
   const lastOwnerDate = useRef<string | null>(null);
-  const clockSample = useRef({ wall: Date.now(), monotonic: performance.now() });
+  const clockSample = useRef<TimeEnvironmentSample>(createTimeEnvironmentSample());
   const initialRetryTimer = useRef<number | null>(null);
+  const localTimer = useRef<number | null>(null);
+  const authorityTimer = useRef<number | null>(null);
+  const lifecycle = useRef(createDashboardLifecycle());
+  const timeRecoveryInFlight = useRef(false);
 
   const refreshAuthority = useCallback(async function refreshAuthorityRequest(reason: string) {
+    if (!lifecycle.current.visible && reason !== "window_shown") {
+      return;
+    }
     const sequence = ++requestSequence.current;
     const now = new Date();
     if (!isTauri()) {
@@ -399,7 +436,7 @@ export function useDashboard() {
       }
       const ownerYear = Number(ownerDate.slice(0, 4));
       const currentMonth = ownerDate.slice(0, 7);
-      const { calendar } = await loadCalendarForYear(ownerYear, config);
+      const { calendar, coverage } = await loadCalendarForYear(ownerYear, config);
       const month = await invoke<MonthSalaryResult>("calculate_month_salary", {
         month: currentMonth,
         schedule,
@@ -488,6 +525,7 @@ export function useDashboard() {
         workEndTime: config.work_end_time,
         nextWorkDate,
         calendarDays,
+        calendarCoverage: coverage,
       };
       const nextAuthority: TickAuthority = {
         sequence,
@@ -517,10 +555,10 @@ export function useDashboard() {
             current.phase !== nextSnapshot.phase ? "phase" : null,
           ].filter(Boolean);
           if (correctionReasons.length > 0) {
-          recordSemanticEvent(
-            "earnings.authoritative_sync.drift_corrected",
+            recordSemanticEvent(
+              "earnings.authoritative_sync.drift_corrected",
               `sequence=${sequence} reasons=${correctionReasons.join(",")} drift_minor=${Math.abs(Math.round(current.amount * 100) - today.earned_minor)}`,
-          );
+            );
           }
         }
         return nextSnapshot;
@@ -540,7 +578,8 @@ export function useDashboard() {
       const { code, message } = describeDashboardError(error);
       consecutiveSyncFailures.current += 1;
       if (
-        shouldRetryInitialSync(
+        lifecycle.current.visible
+        && shouldRetryInitialSync(
           authority.current !== null,
           code,
           consecutiveSyncFailures.current,
@@ -605,25 +644,54 @@ export function useDashboard() {
   }, []);
 
   useEffect(() => {
-    void refreshAuthority("startup");
-    const localTimer = window.setInterval(() => {
-      if (document.visibilityState === "hidden") return;
-      const wallNow = Date.now();
-      const monotonicNow = performance.now();
-      if (wallClockJumped(
-        clockSample.current.wall,
-        clockSample.current.monotonic,
-        wallNow,
-        monotonicNow,
-      )) {
-        clockSample.current = { wall: wallNow, monotonic: monotonicNow };
-        recordSemanticEvent("schedule.wall_clock_changed", "action=authoritative_sync");
-        void refreshAuthority("wall_clock_changed");
-        return;
+    const stopTimers = () => {
+      if (localTimer.current !== null) {
+        window.clearInterval(localTimer.current);
+        localTimer.current = null;
       }
-      clockSample.current = { wall: wallNow, monotonic: monotonicNow };
+      if (authorityTimer.current !== null) {
+        window.clearInterval(authorityTimer.current);
+        authorityTimer.current = null;
+      }
+      if (initialRetryTimer.current !== null) {
+        window.clearTimeout(initialRetryTimer.current);
+        initialRetryTimer.current = null;
+      }
+      recordSemanticEvent("dashboard.lifecycle.paused", "timers=local,authority,retry");
+    };
+
+    const requestTimeRecovery = (
+      change: Exclude<ReturnType<typeof classifyTimeEnvironmentChange>, "none">,
+    ) => {
+      if (timeRecoveryInFlight.current) return;
+      timeRecoveryInFlight.current = true;
+      const event = {
+        wall_clock: "schedule.wall_clock_changed",
+        timezone: "schedule.timezone_changed",
+        sleep_resume: "schedule.sleep_resumed",
+      }[change];
+      recordSemanticEvent(event, "action=authoritative_sync");
+      void refreshAuthority(change).finally(() => {
+        timeRecoveryInFlight.current = false;
+      });
+    };
+
+    const detectTimeEnvironmentChange = () => {
+      const next = createTimeEnvironmentSample();
+      const change = classifyTimeEnvironmentChange(clockSample.current, next);
+      clockSample.current = next;
+      if (change !== "none") {
+        requestTimeRecovery(change);
+        return true;
+      }
+      return false;
+    };
+
+    const runLocalTick = () => {
+      if (!lifecycle.current.visible || detectTimeEnvironmentChange()) return;
       const currentAuthority = authority.current;
       if (!currentAuthority) return;
+      const wallNow = Date.now();
       const tick = calculateLocalTick(currentAuthority, wallNow);
       setSnapshot(current => {
         if (
@@ -653,21 +721,64 @@ export function useDashboard() {
         );
         void refreshAuthority("business_boundary");
       }
-    }, 1000);
-    const authorityTimer = window.setInterval(() => {
-      if (document.visibilityState !== "hidden") {
-        void refreshAuthority("interval_30s");
+    };
+
+    const startTimers = () => {
+      if (localTimer.current === null) {
+        localTimer.current = window.setInterval(runLocalTick, 1000);
       }
-    }, 30_000);
-    const handleConfigurationUpdate = () => void refreshAuthority("configuration_updated");
-    const handleFocus = () => void refreshAuthority("window_focus");
-    const handleVisibility = () => {
-      if (document.visibilityState === "visible") {
-        clockSample.current = { wall: Date.now(), monotonic: performance.now() };
-        void refreshAuthority("window_visible");
+      if (authorityTimer.current === null) {
+        authorityTimer.current = window.setInterval(() => {
+          if (lifecycle.current.visible) {
+            void refreshAuthority("interval_30s");
+          }
+        }, 30_000);
+      }
+      recordSemanticEvent("dashboard.lifecycle.resumed", "timers=local,authority");
+    };
+
+    const applyEffects = (effects: DashboardLifecycleEffect[]) => {
+      for (const effect of effects) {
+        if (effect === "stop_timers") stopTimers();
+        if (effect === "reset_time_sample") {
+          clockSample.current = createTimeEnvironmentSample();
+          timeRecoveryInFlight.current = false;
+        }
+        if (effect === "start_timers") startTimers();
+        if (effect === "sync_window_shown") void refreshAuthority("window_shown");
+        if (effect === "sync_configuration_updated") {
+          void refreshAuthority("configuration_updated");
+        }
       }
     };
+
+    const transitionLifecycle = (event: DashboardLifecycleEvent) => {
+      const transition = transitionDashboardLifecycle(lifecycle.current, event);
+      lifecycle.current = transition.state;
+      applyEffects(transition.effects);
+    };
+
+    const handleConfigurationUpdate = () => {
+      transitionLifecycle({ type: "configuration_updated" });
+    };
+    const handleFocus = () => {
+      if (lifecycle.current.visible && !detectTimeEnvironmentChange()) {
+        void refreshAuthority("window_focus");
+      }
+    };
+    const handleVisibility = () => {
+      transitionLifecycle({
+        type: document.visibilityState === "visible" ? "shown" : "hidden",
+      });
+    };
+    const handleWindowHidden = () => transitionLifecycle({ type: "hidden" });
+    const handleWindowShown = () => transitionLifecycle({ type: "shown" });
+
+    startTimers();
+    void refreshAuthority("startup");
     window.addEventListener("lmm:configuration-updated", handleConfigurationUpdate);
+    window.addEventListener("lmm:window-hidden", handleWindowHidden);
+    window.addEventListener("lmm:window-shown", handleWindowShown);
     window.addEventListener("focus", handleFocus);
     document.addEventListener("visibilitychange", handleVisibility);
     let unlistenConfiguration: (() => void) | null = null;
@@ -677,13 +788,10 @@ export function useDashboard() {
       });
     }
     return () => {
-      window.clearInterval(localTimer);
-      window.clearInterval(authorityTimer);
-      if (initialRetryTimer.current !== null) {
-        window.clearTimeout(initialRetryTimer.current);
-        initialRetryTimer.current = null;
-      }
+      transitionLifecycle({ type: "unmounted" });
       window.removeEventListener("lmm:configuration-updated", handleConfigurationUpdate);
+      window.removeEventListener("lmm:window-hidden", handleWindowHidden);
+      window.removeEventListener("lmm:window-shown", handleWindowShown);
       window.removeEventListener("focus", handleFocus);
       document.removeEventListener("visibilitychange", handleVisibility);
       unlistenConfiguration?.();
@@ -754,7 +862,11 @@ export function formatDuration(seconds: number) {
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(remaining).padStart(2, "0")}`;
 }
 
-export function useCalendarMonth(month: string, currentMonthDays: CalendarDaySnapshot[]) {
+export function useCalendarMonth(
+  month: string,
+  currentMonthDays: CalendarDaySnapshot[],
+  currentCoverage: CalendarCoverage,
+) {
   const initialMonth = currentMonthDays[0]?.date.slice(0, 7);
   const lastValidMonth = useRef(initialMonth);
   const [calendarState, dispatch] = useReducer(
@@ -764,7 +876,8 @@ export function useCalendarMonth(month: string, currentMonthDays: CalendarDaySna
         ? {
             month: initialMonth,
             days: currentMonthDays,
-            datasetVersion: "dashboard",
+            datasetVersion: currentCoverage.dataset_version,
+            coverage: currentCoverage,
           }
         : undefined,
     ),
@@ -787,13 +900,18 @@ export function useCalendarMonth(month: string, currentMonthDays: CalendarDaySna
             type: "resolved",
             requestId: activeRequestId,
             targetMonth: month,
-            data: { month, days: result, datasetVersion: "browser-preview" },
+            data: {
+              month,
+              days: result,
+              datasetVersion: null,
+              coverage: createEstimatedCoverage(year, "double"),
+            },
           });
           return;
         }
         const config = await invoke<AppConfig>("read_configuration");
         const year = Number(month.slice(0, 4));
-        const { calendar, datasetVersion } = await loadCalendarForYear(year, config);
+        const { calendar, datasetVersion, coverage } = await loadCalendarForYear(year, config);
         const result = await invoke<CalendarDaySnapshot[]>("resolve_calendar_month", {
           month,
           schedule: toSchedule(config),
@@ -811,7 +929,7 @@ export function useCalendarMonth(month: string, currentMonthDays: CalendarDaySna
           type: "resolved",
           requestId: activeRequestId,
           targetMonth: month,
-          data: { month, days: result, datasetVersion },
+          data: { month, days: result, datasetVersion, coverage },
         });
       } catch (error) {
         if (requestId.current !== activeRequestId) {
@@ -848,6 +966,7 @@ export function useCalendarMonth(month: string, currentMonthDays: CalendarDaySna
     state: calendarState.status as CalendarLoadStatus,
     dataMonth: canDisplayData ? calendarState.data?.month : undefined,
     datasetVersion: canDisplayData ? calendarState.data?.datasetVersion : undefined,
+    coverage: canDisplayData ? calendarState.data?.coverage : undefined,
     errorCode: calendarState.errorCode,
     retry: () => setRetryRevision(value => value + 1),
   };
@@ -898,6 +1017,8 @@ function calendarErrorCode(error: unknown) {
     "calendar_manifest_invalid",
     "calendar_hash_mismatch:",
     "calendar_dataset_invalid:",
+    "calendar_dataset_missing:",
+    "calendar_source_invalid:",
   ].find(code => raw.includes(code));
   if (!known) return "calendar_load_failed";
   if (known.endsWith(":")) {

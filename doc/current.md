@@ -8,13 +8,14 @@
 | --- | --- |
 | 当前公开版本 | Windows v1.0.2 Stable |
 | 当前公开 tag | `v1.0.2` |
-| 当前开发版本 | Windows v1.0.2 发布后观察 |
+| 当前开发版本 | Windows v1.0.3 最终验收通过，待发布收口 |
 | v1.0.1 阶段 | 已发布 |
 | v1.0.2 阶段 | 已发布 / 发布后观察 |
+| v1.0.3 阶段 | 最终验收通过，可进入发布收口 |
 | 技术栈 | Rust + Tauri + TypeScript/React |
 | 产品形态 | 无宠物、本地优先的 Windows 收入进度工具 |
 | 发布阻塞 | 无 |
-| 最后更新 | 2026-07-28 |
+| 最后更新 | 2026-07-30 |
 
 ## v1.0 公开基线
 
@@ -91,14 +92,27 @@ v1.0.1 只处理收入、日历、状态和用户信任链，不扩展产品范�
 
 发布提交经 PR #12 和必需 CI 检查合入 `main`，随后从干净提交重新构建。`v1.0.2` annotated tag 与 GitHub Stable Release 已发布；Release 只包含便携 Zip 和 `SHA256SUMS.txt`，远端下载包哈希与本地最终产物一致。v1.0.1 继续作为直接回滚基线。
 
+## v1.0.3 当前状态
+
+v1.0.3 的发布后 Review、Idea、性能技术 Spike、PRD、开发承接、业务实现和最终验收已经完成。聚合自动验证、年度数据验证、权威同步、窗口生命周期、Rust 回归、打包及包体验证通过；当前可进入发布收口。
+
+已确认范围方向：
+
+1. 在 2027 官方日历数据尚未发布时，按休息模式与手动日期调整继续计算，并明确标记为非官方估算。
+2. 建立官方年度日历数据的导入、验证、打包和回滚合同，不预置虚假 2027 数据。
+3. Mini 与 Workbench 仍各自维护可见窗口同步；隐藏窗口已经暂停本地 tick 与权威同步，恢复后执行一次即时同步并恢复唯一 timer。
+4. 共享快照或单一同步所有权未过收益门槛，不进入本版。
+5. 睡眠恢复和系统时间跳变为发布阻塞；时区变化需要真实人工证据；由于 timer 生命周期将变化，两小时稳定运行成为发布阻塞。
+
+当前完成度为 `62/62`。官方/估算日历、日期调整、Settings、首次启动 Wizard、隐藏恢复、连续 10 次显隐、真实时区切换、真实系统时间前后跳变、通知区真实鼠标左键、两条真实 S3 睡眠跨边界路径和修正版候选 120 分钟稳定运行均已取得证据。原候选的稳定性采样发现隐藏 Workbench 后持续高 CPU，已定位为原生 WebView2 未挂起；修正版连续运行 `7201.27` 秒并通过 CPU、内存、日志与同步频率门禁，`V103-BUG-001` 已关闭。
+
+最终候选从干净提交 `ebcd58844bc905874c2ddc9b267848ee1aec5b7b` 重新构建，`source_tree_dirty=false`。Zip SHA256 为 `E4FF7771B3ACD5658DD84EE2CC6E14B1DACA685EBD0D2D180FC318B7BB1F2183`，EXE SHA256 为 `7DD45D6B35CE82A6241D359EFB2FE88A9A62B3ECD20703B19BAE82CEE98F5BBA`，WebView2Loader SHA256 为 `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。最终候选已重新通过全量自动验证、包体验证和新解压启动冒烟，当前无发布阻塞。
+
 ## 待人工补证
 
-以下项目没有写为通过：
+当前无待人工补证的 v1.0.3 系统门禁。
 
-- 真实 Windows 睡眠与恢复后的权威同步
-- 手动修改系统时间或时区后的即时校正
-- 连续两小时桌面稳定运行
-以上项目未写为通过，继续作为非阻塞环境补证项。配置后 Wizard 托盘入口复用已经项目所有者人工补证通过，不再列入待人工补证。
+真实 Windows 时区切换至 Tokyo 并恢复 `China Standard Time`、系统时间前拨/后拨及恢复、通知区真实鼠标左键隐藏与恢复、连续两小时桌面稳定运行，以及两条真实 S3 睡眠跨边界恢复均已通过。
 
 ## 范围边界
 
@@ -133,7 +147,19 @@ v1.0.1 只处理收入、日历、状态和用户信任链，不扩展产品范�
 - [v1.0.2 发布检查](releases/v1.0.2/release-checklist.md)
 - [v1.0.2 高保真原型说明](prototypes/v1.0/README.md)
 - [v1.0.2 原型验证证据](prototypes/v1.0/evidence/v1.0.2/README.md)
+- [v1.0.3 深度 Review](releases/v1.0.3/review.md)
+- [v1.0.3 候选分流](releases/v1.0.3/candidate-routing.md)
+- [v1.0.3 Idea 需求池](releases/v1.0.3/idea-pool.md)
+- [v1.0.3 多窗口性能 Spike](releases/v1.0.3/performance-spike.md)
+- [v1.0.3 完整 PRD](releases/v1.0.3/prd.md)
+- [v1.0.3 需求追踪矩阵](releases/v1.0.3/traceability.md)
+- [v1.0.3 开发计划](releases/v1.0.3/dev_plan_v1.0.3.md)
+- [v1.0.3 进度](releases/v1.0.3/progress_v1.0.3.md)
+- [v1.0.3 验证](releases/v1.0.3/verification.md)
+- [v1.0.3 人工补证](releases/v1.0.3/manual-verification.md)
+- [v1.0.3 发布检查](releases/v1.0.3/release-checklist.md)
+- [v1.0.3 开发日志](logs/dev_log_v1.0.3.md)
 
 ## 下一步
 
-进入 v1.0.2 发布后观察：核对 GitHub 下载包、首次启动、旧配置兼容、日历、日期调整、跨夜班次、秒级收益、托盘和更新检查。只记录真实问题，不扩展当前版本范围。
+等待项目所有者确认发布动作。发布收口应推送 `main`、创建 `v1.0.3` annotated tag，并只上传最终便携 Zip 与 `SHA256SUMS.txt`；本轮尚未执行这些远端动作。
