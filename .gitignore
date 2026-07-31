@@ -105,6 +105,7 @@ temp/**/*.import
 /.tmp_m*.png
 /.toolchains/
 /.tmp_v104_desktop_smoke/
+/.tmp_v104_*/
 /releases/v1.0.4/
 
 # Figma plugin PNGs are documentation assets, not Godot runtime textures

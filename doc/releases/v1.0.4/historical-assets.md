@@ -31,7 +31,7 @@
 | V104-HIST-001 | `spikes/v1.0-ui/` | v1.0 技术栈 Spike、UI 试验和历史构建缓存入口 | 当前实现以 `apps/windows-v1/` 为准；Spike 不是产品事实源 | Windows 主仓库 | v1.0.4 正式验证和打包已不依赖该路径；`package_v10.ps1`、`package_v101.ps1`、`package_v102.ps1` 和 `verify_v10_m1.ps1` 仍引用它，且 46 个文件保留技术选型过程 | 以仓库第三方声明和锁文件为准；不得把本机缓存或工具链一并归档 | **必须保留**；旧版脚本迁移后才可成为归档候选 | 参数化历史脚本；在无 Spike 新鲜 clone 中复验 v1.0-v1.0.2 历史合同；确认归档后链接可达 | 迁移前待项目所有者签核 |
 | V104-HIST-002 | `doc/prototypes/v0.9-polished/` | v0.9 高保真原型、窗口质量稿、动画 1→N 合同和宠物预览 | v0.9 历史事实以 `doc/releases/v0.9/` 与 `v0.9-beta` tag 为准 | Windows 主仓库 | `doc/prototypes/prototype-spec.md`、`doc/prototypes/index.html`、v0.9 开发日志仍有直接链接；目录含 51 个跟踪文件 | Classic/多多等宠物关键帧属于历史受限角色素材；不得按 MIT 代码许可处理 | **待归档候选**；本版必须保留 | 建立历史索引；重写所有链接；从 `v0.9-beta` 验证可恢复；逐项保留素材许可和来源 | 归档前待项目所有者签核 |
 | V104-HIST-003 | `doc/prototypes/v0.9-polished/figma-plugin/` | LMM Figma Development Plugin、可编辑设计合同和静态关键帧 | 当前产品 UI 事实以 Windows v1 代码和 `doc/prototypes/v1.0/` 为准 | Windows 主仓库 | 14 个文件、317,573 字节；插件生成资产 manifest 记录 6 张 Classic/多多关键帧及 SHA-256；属于 v0.9 设计链的一部分 | 关键帧是产品宠物素材，不是运行截图；继续受历史受限素材许可约束 | **待归档候选**；不得单独删除插件而留下断链说明 | 先验证页面所有权、插件幂等性和静态资产哈希；与 V104-HIST-002 同批归档或保留 | 归档前待项目所有者签核 |
-| V104-HIST-004 | `doc/prototypes/ios-v0.1/` | iOS v0.1 高保真原型与规范 | iOS 当前事实以独立 `E:\codex\LetsMakeMoney-ios` 仓库为准 | 计划转交 iOS 独立仓库；当前仍由两个仓库共同承载历史 | 两个同名文件均存在但 SHA-256 不同：`index.html` 有 192 条行级差异，`prototype-spec.md` 有 32 条；Windows 版本仍被 iOS PRD、计划、进度和 v0.9 差距文档引用 | 未发现凭据；迁移时仍需复核截图、品牌和素材许可 | **待接管**；当前不得删除 | 对每个同名文件做语义 diff；将 Windows 独有内容合入 iOS 仓库；更新全部 Windows 历史链接；证明新位置可恢复 | 接管前需 Windows 与 iOS 所有者双重签核 |
+| V104-HIST-004 | `doc/prototypes/ios-v0.1/` | iOS v0.1 高保真原型与规范 | iOS 当前事实以独立 `LetsMakeMoney-ios` 仓库为准 | 计划转交 iOS 独立仓库；当前仍由两个仓库共同承载历史 | 两个同名文件均存在但 SHA-256 不同：`index.html` 有 192 条行级差异，`prototype-spec.md` 有 32 条；Windows 版本仍被 iOS PRD、计划、进度和 v0.9 差距文档引用 | 未发现凭据；迁移时仍需复核截图、品牌和素材许可 | **待接管**；当前不得删除 | 对每个同名文件做语义 diff；将 Windows 独有内容合入 iOS 仓库；更新全部 Windows 历史链接；证明新位置可恢复 | 接管前需 Windows 与 iOS 所有者双重签核 |
 | V104-HIST-005 | `doc/releases/ios-v0.1/`、`doc/logs/dev_log_ios-v0.1.md` | iOS PRD、计划、进度、追踪和开发日志 | iOS 当前事实以独立 iOS 仓库为准 | 计划转交 iOS 独立仓库 | Windows 仓库中的 5 份核心文件在 iOS 仓库均有同名文件，但全部内容不同，证明尚未完成无损接管 | 过程文档可能含本机路径；迁移前必须做隐私和绝对路径扫描 | **待接管**；当前不得删除 | 逐文件语义合并、引用扫描、隐私扫描、Git 历史定位和接管后链接验证 | 接管前需 Windows 与 iOS 所有者双重签核 |
 | V104-HIST-006 | `doc/user-guide/v1.0/` | 用户手册、真实截图和控件/计算覆盖证据 | 当前使用说明以 README、`doc/current.md` 和最新版本文档为准 | Windows 主仓库 | 49 个文件、5,056,596 字节；仍是唯一完整的 Windows v1 全链路用户手册 | 截图和文档应保持脱敏；不得公开真实用户配置、日志或路径 | **必须保留**，后续更新适用版本 | 新手册达到同等页面和控件覆盖率；旧手册标明适用版本；图片链接和隐私检查通过 | 替换或归档前待项目所有者签核 |
 | V104-HIST-007 | `doc/releases/v0.4/` 至 `doc/releases/v1.0.3/` | 历史 Review、PRD、计划、验收、发布说明和发布身份 | 每个版本目录只对其版本历史负责；当前状态以 `doc/current.md` 为准 | Windows 主仓库 | 共 159 个跟踪文件；版本 Review、回滚和 Release 身份核对持续引用这些记录 | 公开前已做历史清洗；后续新增内容仍需路径、隐私和秘密扫描 | **必须保留** | 不适用；如未来压缩，必须保留版本索引、最终结论、哈希和 Git 可恢复性 | 不允许批量删除 |
@@ -43,7 +43,7 @@
 
 独立仓库状态：
 
-- 路径：`E:\codex\LetsMakeMoney-ios`
+- 路径：独立 `LetsMakeMoney-ios` 仓库（本地位置不作为公开事实）
 - 分支：`ios-main`
 - HEAD：`8d848c7f317166ad9cedfd03ce30325d0b609c79`
 - 独立仓库已包含 iOS 原型、PRD、设备验证、调试和交接文档。

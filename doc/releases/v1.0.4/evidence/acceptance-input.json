@@ -4,7 +4,9 @@
     "windows_version": "Windows 11 Pro 10.0.26200",
     "architecture": "x86_64",
     "dpi": [
-      100
+      100,
+      125,
+      150
     ],
     "webview2_version": "150.0.4078.105"
   },
@@ -13,48 +15,80 @@
       "id": "V104-AUTO-FULL",
       "method": "automatic",
       "result": "passed",
-      "started_at": "2026-07-30T19:32:00Z",
-      "finished_at": "2026-07-30T19:56:15Z",
+      "started_at": "2026-07-30T20:59:36Z",
+      "finished_at": "2026-07-30T20:59:36Z",
       "evidence_ref": "repo:doc/releases/v1.0.4/verification.md"
     },
     {
       "id": "V104-AUTO-PACKAGE",
       "method": "automatic",
       "result": "passed",
-      "started_at": "2026-07-30T19:56:15Z",
-      "finished_at": "2026-07-30T19:57:00Z",
+      "started_at": "2026-07-30T20:59:36Z",
+      "finished_at": "2026-07-30T20:59:36Z",
       "evidence_ref": "repo:doc/releases/v1.0.4/verification.md"
     },
     {
       "id": "V104-GUI-MINI-EDGE",
       "method": "computer_use",
       "result": "passed",
-      "started_at": "2026-07-30T19:58:00Z",
-      "finished_at": "2026-07-30T20:13:43Z",
+      "started_at": "2026-07-30T21:00:00Z",
+      "finished_at": "2026-07-30T21:54:09Z",
       "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
     },
     {
       "id": "V104-GUI-CONFIG-REFRESH",
       "method": "computer_use",
       "result": "passed",
-      "started_at": "2026-07-30T20:00:00Z",
-      "finished_at": "2026-07-30T20:13:43Z",
+      "started_at": "2026-07-30T21:00:00Z",
+      "finished_at": "2026-07-30T21:54:09Z",
       "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
     },
     {
       "id": "V104-GUI-RESTART-PERSISTENCE",
       "method": "computer_use",
       "result": "passed",
-      "started_at": "2026-07-30T20:20:01Z",
-      "finished_at": "2026-07-30T20:25:38Z",
+      "started_at": "2026-07-30T21:00:00Z",
+      "finished_at": "2026-07-30T21:54:09Z",
       "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
     },
     {
       "id": "V104-GUI-DPI",
       "method": "manual",
-      "result": "partial",
-      "started_at": "2026-07-30T19:58:00Z",
-      "finished_at": "2026-07-30T20:25:38Z",
+      "result": "passed",
+      "started_at": "2026-07-30T21:00:00Z",
+      "finished_at": "2026-07-30T21:54:09Z",
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
+    },
+    {
+      "id": "V104-GUI-DARK-THEME",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T21:00:00Z",
+      "finished_at": "2026-07-30T21:54:09Z",
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
+    },
+    {
+      "id": "V104-GUI-REDUCED-MOTION",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T21:00:00Z",
+      "finished_at": "2026-07-30T21:54:09Z",
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
+    },
+    {
+      "id": "V104-GUI-WIZARD",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T21:00:00Z",
+      "finished_at": "2026-07-30T21:54:09Z",
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
+    },
+    {
+      "id": "V104-GUI-CALENDAR",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T21:00:00Z",
+      "finished_at": "2026-07-30T21:54:09Z",
       "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
     },
     {
@@ -62,26 +96,36 @@
       "method": "manual",
       "result": "not_run",
       "started_at": "2026-07-30T20:25:38Z",
-      "finished_at": "2026-07-30T20:25:38Z",
+      "finished_at": "2026-07-30T21:54:09Z",
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
+    },
+    {
+      "id": "V104-GUI-TRAY",
+      "method": "manual",
+      "result": "passed",
+      "started_at": "2026-07-31T05:43:25Z",
+      "finished_at": "2026-07-31T05:47:06Z",
       "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md"
     }
   ],
-  "conclusion": "partial",
+  "conclusion": "passed",
   "limitations": [
-    "真实 Windows 仅完成 100% DPI；125% 与 150% DPI 仍待人工补证。",
-    "深色主题与减少动态效果下的真实贴边观感仍待人工补证。",
-    "当前环境未完成真实多显示器和负坐标工作区补证。",
-    "候选由脏工作树构建，只用于开发验收，不是正式发布候选。"
+    "当前环境只有一台显示器；项目所有者于 2026-07-31 批准将真实多显示器、负坐标工作区和显示器移除回落延期验证，不阻塞 v1.0.4。",
+    "减少动态效果下的真实收起已通过；3px 隐私唤回条无法由 Computer Use 独立稳定命中，正常动态下的唤回已通过。",
+    "当前候选来自隔离干净提交，但该提交尚不是最终发布提交；发布源发生变化时必须重新构建并锁定哈希。"
   ],
   "log_summary": {
     "event_counts": {
-      "mini.edge_dock.detected": 12,
-      "mini.edge_dock.retracted": 7,
-      "mini.edge_dock.revealed": 5,
-      "mini.edge_dock.canceled": 2,
-      "settings.saved": 4,
-      "window.hidden": 7,
-      "window.shown": 17
+      "mini.edge_dock.detected": 15,
+      "mini.edge_dock.retracted": 13,
+      "mini.edge_dock.revealed": 9,
+      "mini.edge_dock.canceled": 7,
+      "settings.saved": 9,
+      "tray.left_click": 2,
+      "window.hidden": 11,
+      "window.shown": 31,
+      "calendar.override.opened": 1,
+      "calendar.override.cancelled": 1
     },
     "error_categories": [],
     "truncated": false
@@ -95,6 +139,6 @@
     "contents": [],
     "retention": "owner-managed",
     "reason": "Computer Use 截图未作为持久原始归档保存；仓库仅保留脱敏摘要和日志语义计数。",
-    "updated_at": "2026-07-30T20:27:00Z"
+    "updated_at": "2026-07-30T21:55:01Z"
   }
 }
