@@ -1,6 +1,6 @@
-# LetsMakeMoney Windows v1.0.4 发布说明草案
+# LetsMakeMoney Windows v1.0.4 发布说明
 
-> 状态：独立验收通过，可进入发布收口。本文件不是 GitHub Release 正文，当前候选也不是最终发布产物。
+> 状态：已发布。GitHub Release：<https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.4>
 
 ## 本版重点
 
@@ -29,15 +29,21 @@
 - v1.0.3 可以读取和保存 v1.0.4 配置，未知新字段会被安全丢弃，不损坏旧字段。
 - 收入、日历、主题和既有窗口主链路保持 v1.0.3 口径。
 
-## 当前独立验收身份
+## 最终发布身份
 
-- 构建基线：`661b0f748798e28f7999eac23532aa7ed7510640`
+- 发布源提交：`4d06dc73dbc5c27d7a97462d8262a553dd97d5b6`
+- annotated tag：`v1.0.4`
+- tag object：`2e4fec17520524ac1e53a4e1bc993448d9255981`
 - `source_tree_dirty=false`
-- Zip SHA256：`2BBC5B79F9A615F31CFDFFC27C55450C660363A643DE5EB33A6E7B3A1B049340`
-- EXE SHA256：`EB0FA82F5506B775F03774E429A12DB66F838E705B608F4A7664D6F9243830DF`
+- Zip 大小：`3,228,929` 字节
+- Zip SHA256：`C4F28892831891A4266C4D9B12D432CD5C970BB3C9B36A6B8DB21FA2566DE50E`
+- EXE 大小：`10,107,904` 字节
+- EXE SHA256：`E0C9C603703FC2632619AFBC84F63B1B1D403273CD01D29AA0A308A95243E107`
+- WebView2Loader 大小：`160,320` 字节
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
-
-该 Zip 来自隔离干净提交，但该提交尚不是最终发布提交。发布源发生变化后必须重新构建，并替换本节全部身份。
+- 构建时间（UTC）：`2026-07-31T06:53:13.2838601Z`
+- Release 附件：`LetsMakeMoney-v1.0.4-windows-x86_64.zip`、`SHA256SUMS.txt`
+- 回下载验证：通过；远端 Zip SHA256 与上述锁定值一致。
 
 ## 已通过
 
@@ -53,11 +59,13 @@
 - Windows 通知区真实鼠标左键隐藏、恢复和窗口找回。
 - 主验收结束时普通与隔离用户环境哈希恢复一致；通知区补证未保存配置，最终无残留进程。
 
-## 发布前仍需完成
+## 发布结果
 
-1. 发布提交确定后重新构建，并重新锁定 Zip、EXE、DLL、README、BUILD-INFO 和 SHA256SUMS。
-2. 按最终源码变化重新执行受影响门禁。
-3. 获得独立发布授权后，才允许提交、推送、打 tag 或创建 Release。
+1. 发布改动通过 PR #20 和必需 CI 合入 `main`。
+2. 最终产物从干净发布源提交重新构建，并通过完整验证、打包和包体验证。
+3. `v1.0.4` annotated tag 已推送。
+4. GitHub Stable Release 已创建，只上传便携 Zip 与 `SHA256SUMS.txt`。
+5. Release 附件已回下载并重新计算 SHA256，结果一致。
 
 ## 暂不验证
 
