@@ -6,16 +6,16 @@
 
 | 项目 | 状态 |
 | --- | --- |
-| 当前公开版本 | Windows v1.0.3 Stable |
-| 当前公开 tag | `v1.0.3` |
-| 当前开发版本 | Windows v1.0.4；独立验收通过，可进入发布收口 |
+| 当前公开版本 | Windows v1.0.4 Stable |
+| 当前公开 tag | `v1.0.4` |
+| 当前开发版本 | Windows v1.0.4；已发布 / 发布后观察 |
 | v1.0.1 阶段 | 已发布 |
 | v1.0.2 阶段 | 已发布 / 发布后观察 |
 | v1.0.3 阶段 | 已发布 / 发布后观察 |
-| v1.0.4 阶段 | M0 至 M6、ACC 全部完成，74/74 |
+| v1.0.4 阶段 | M0 至 M6、ACC 全部完成，74/74；已发布 |
 | 技术栈 | Rust + Tauri + TypeScript/React |
 | 产品形态 | 无宠物、本地优先的 Windows 收入进度工具 |
-| 发布阻塞 | 无产品验收阻塞；发布收口仍需从最终提交重建并重新锁定哈希，远端操作等待独立授权 |
+| 发布阻塞 | 无；真实多显示器、负坐标工作区与显示器移除回落延期补证，不阻塞本版 |
 | 最后更新 | 2026-07-31 |
 
 ## v1.0 公开基线
@@ -126,7 +126,9 @@ V104-M2 已完成 8/8，V104-M3 已完成 8/8，V104-M4 已完成 8/8，V104-M5 
 
 V104-M6 已完成实现和自动化门禁，并使用隔离干净提交候选在真实 Windows 100%/125%/150% DPI 下完成主要窗口清晰度、左右贴边、隐私收起、悬停/点击展开、移开收回、深色主题、减少动态效果、Settings 跨窗口关闭和重启持久化复验。复验期间发现并修复了一个跨窗口配置刷新缺口：收起 Mini 从 Settings 关闭自动隐藏时，原生窗口已展开但前端仍显示隐私标签，形成空白全尺寸窗口；修复后立即恢复完整内容且重启持久化正常。
 
-当前独立验收候选来自隔离干净提交 `661b0f748798e28f7999eac23532aa7ed7510640`，`source_tree_dirty=false`。Zip SHA256 为 `2BBC5B79F9A615F31CFDFFC27C55450C660363A643DE5EB33A6E7B3A1B049340`，EXE SHA256 为 `EB0FA82F5506B775F03774E429A12DB66F838E705B608F4A7664D6F9243830DF`，WebView2Loader SHA256 为 `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。首次启动 Wizard、日历跨月、日期调整取消事务及通知区真实鼠标找回均已通过。真实多显示器、负坐标与显示器移除回落由项目所有者批准延期，明确记录为暂不验证且不阻塞本版。该提交尚不是最终发布提交，发布源变化后必须重新构建并锁定哈希。
+v1.0.4 发布源提交为 `4d06dc73dbc5c27d7a97462d8262a553dd97d5b6`，最终产物从该干净提交重新构建，`source_tree_dirty=false`。Zip SHA256 为 `C4F28892831891A4266C4D9B12D432CD5C970BB3C9B36A6B8DB21FA2566DE50E`，EXE SHA256 为 `E0C9C603703FC2632619AFBC84F63B1B1D403273CD01D29AA0A308A95243E107`，WebView2Loader SHA256 为 `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。`v1.0.4` annotated tag 指向该发布源，GitHub Stable Release 已发布且仅包含便携 Zip 与 `SHA256SUMS.txt`；从 GitHub 回下载的 Zip 哈希与锁定值一致。首次启动 Wizard、日历跨月、日期调整取消事务及通知区真实鼠标找回均已通过。真实多显示器、负坐标与显示器移除回落由项目所有者批准延期，明确记录为暂不验证且不阻塞本版。
+
+GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.4`
 
 架构基线已完成：
 
@@ -213,9 +215,9 @@ v1.0.3 GitHub Release 的 README 快照差异披露已进入需求范围，但�
 - [v1.0.4 验证](releases/v1.0.4/verification.md)
 - [v1.0.4 人工验证](releases/v1.0.4/manual-verification.md)
 - [v1.0.4 发布检查](releases/v1.0.4/release-checklist.md)
-- [v1.0.4 发布说明草案](releases/v1.0.4/release-notes.md)
+- [v1.0.4 发布说明](releases/v1.0.4/release-notes.md)
 - [v1.0.4 开发日志](logs/dev_log_v1.0.4.md)
 
 ## 下一步
 
-下一步进入发布收口：确定最终发布源提交，从干净提交重新构建并锁定全部哈希，再按变更影响复核门禁。没有独立授权时不提交、不推送、不打 tag、不创建 Release，也不修改远端 Release 正文。
+进入 v1.0.4 发布后观察：只记录真实发布问题，不修改 `v1.0.4` tag、Release 附件或既有哈希；后续需求另行进入 Review。

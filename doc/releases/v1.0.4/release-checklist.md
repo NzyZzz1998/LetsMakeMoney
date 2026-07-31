@@ -2,21 +2,24 @@
 
 ## 当前判断
 
-状态：**独立验收通过，可进入发布收口。**
+状态：**已通过并发布。**
 
 Mini 隐私贴边核心行为、全部自动门禁、隔离干净提交构建、真实 100%/125%/150% DPI、深色主题、减少动态效果、首次配置、日历事务和 Windows 通知区真实鼠标找回已通过。真实多显示器场景由项目所有者批准延期并明确标记“暂不验证”。
 
-## 测试候选身份
+## 最终发布身份
 
 - [x] 版本统一为 `1.0.4`。
 - [x] Zip、EXE、WebView2Loader、README 和 BUILD-INFO 身份已记录。
-- [x] `SHA256SUMS.txt` 与当前测试 Zip 一致。
-- [x] 独立验收候选来自干净提交，且 `source_tree_dirty=false`。
-- [x] 独立验收候选身份已经锁定并完成复验。
+- [x] `SHA256SUMS.txt` 与最终发布 Zip 一致。
+- [x] 最终发布产物来自发布源提交 `4d06dc73dbc5c27d7a97462d8262a553dd97d5b6`，且 `source_tree_dirty=false`。
+- [x] 最终发布身份已经锁定并完成复验。
+- [x] `v1.0.4` annotated tag 指向最终发布源提交。
+- [x] GitHub Stable Release 仅包含便携 Zip 与 `SHA256SUMS.txt`。
+- [x] 从 GitHub 回下载的附件身份和 SHA256 已复核。
 
-当前测试 Zip SHA256：
+最终发布 Zip SHA256：
 
-`2BBC5B79F9A615F31CFDFFC27C55450C660363A643DE5EB33A6E7B3A1B049340`
+`C4F28892831891A4266C4D9B12D432CD5C970BB3C9B36A6B8DB21FA2566DE50E`
 
 ## 自动门禁
 
@@ -60,11 +63,13 @@ Mini 隐私贴边核心行为、全部自动门禁、隔离干净提交构建、
 
 ## 文档与远端
 
-- [x] verification、manual verification、release notes、progress、current 和本检查表使用“通过 / 可进入发布收口”口径。
+- [x] verification、manual verification、release notes、progress、current 和本检查表使用“通过 / 已发布”口径。
 - [x] 未把暂不验证的多显示器场景写成通过。
-- [x] 未提交、推送、打 tag、创建 Release 或修改远端 Release 正文。
-- [ ] 最终候选通过后更新 release notes 与最终哈希。
-- [ ] 获得独立发布授权。
+- [x] 已获得独立发布授权。
+- [x] 发布提交已通过 PR #20 合入 `main`。
+- [x] 最终候选通过后已更新 release notes 与最终哈希。
+- [x] `v1.0.4` tag 与 GitHub Stable Release 已创建。
+- [x] Release 附件数量、名称、大小和回下载哈希已验证。
 
 ## 发布停止条件
 
