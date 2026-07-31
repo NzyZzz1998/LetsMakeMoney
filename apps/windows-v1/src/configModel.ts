@@ -6,6 +6,10 @@ import {
   validateConfiguration,
   type AppConfig,
 } from "./domain/configuration";
+import {
+  executeConfigurationSave,
+  type SaveFeedback,
+} from "./configurationTransaction";
 import { configurationService } from "./services/configurationService";
 import {
   applyTheme,
@@ -23,11 +27,12 @@ export {
 export type {
   AppConfig,
   DateOverrideKind,
+  MiniEdgeDock,
   RestMode,
   WeekType,
 } from "./domain/configuration";
 
-export type SaveFeedback = "idle" | "saved" | "unchanged" | "failed";
+export type { SaveFeedback } from "./configurationTransaction";
 
 export function useConfigDraft(seed?: Partial<AppConfig>) {
   const seedKey = JSON.stringify(seed ?? {});
@@ -85,34 +90,21 @@ export function useConfigDraft(seed?: Partial<AppConfig>) {
   }, []);
 
   const save = useCallback(async () => {
-    const validation = validateConfiguration(draft);
-    if (Object.keys(validation).length) {
-      setFeedback("failed");
-      setMessage(Object.values(validation)[0]);
-      void broadcastTheme(persisted.theme_mode, "validation_failed");
-      return false;
-    }
-    if (!dirty) {
-      setFeedback("unchanged");
-      setMessage("没有需要保存的更改");
-      return true;
-    }
-    try {
-      const result = await configurationService.save(draft);
-      if (result.status === "failed") throw new Error(result.message);
-      setPersisted(draft);
-      void broadcastTheme(draft.theme_mode, result.status);
+    const outcome = await executeConfigurationSave({
+      persisted,
+      draft,
+      service: configurationService,
+    });
+    setPersisted(outcome.persisted);
+    setDraft(outcome.draft);
+    setFeedback(outcome.feedback);
+    setMessage(outcome.message);
+    void broadcastTheme(outcome.themeMode, outcome.themeReason);
+    if (outcome.publishUpdated) {
       void configurationService.publishUpdated("settings");
-      setFeedback(result.status === "unchanged" ? "unchanged" : "saved");
-      setMessage(result.message);
-      return true;
-    } catch (error) {
-      setFeedback("failed");
-      setMessage(`保存失败：${error instanceof Error ? error.message : String(error)}`);
-      void broadcastTheme(persisted.theme_mode, "save_failed");
-      return false;
     }
-  }, [dirty, draft, persisted.theme_mode]);
+    return outcome.ok;
+  }, [draft, persisted]);
 
   const reset = useCallback(() => {
     setDraft(defaultConfig);

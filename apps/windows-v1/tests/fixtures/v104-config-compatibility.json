@@ -1,0 +1,51 @@
+{
+  "fixture_version": 1,
+  "source_version": "v1.0.4-proposed",
+  "reader_writer_version": "v1.0.3",
+  "config": {
+    "config_version": 8,
+    "theme_mode": "dark",
+    "monthly_salary": 12345.67,
+    "rest_mode": "double",
+    "alternating_anchor_date": null,
+    "alternating_anchor_week_type": null,
+    "work_hours_per_day": 8.0,
+    "work_start_time": "09:00",
+    "work_end_time": "18:00",
+    "lunch_start_time": "12:00",
+    "lunch_end_time": "13:00",
+    "calendar_dataset_version": "cn-2025-2026-v1",
+    "date_overrides": [],
+    "mini_window_position": { "x": 640.5, "y": 88.25 },
+    "mini_window_visible": true,
+    "mini_window_always_on_top": true,
+    "mini_edge_auto_hide": false,
+    "mini_edge_dock": "left",
+    "minimize_to_tray": true,
+    "auto_start": false,
+    "check_updates_on_start": true,
+    "update_channel": "stable",
+    "log_level": "info"
+  },
+  "expected_legacy_behavior": {
+    "read_succeeds": true,
+    "save_succeeds": true,
+    "unknown_fields_are_dropped": [
+      "mini_edge_auto_hide",
+      "mini_edge_dock"
+    ],
+    "preserved_fields": {
+      "config_version": 8,
+      "theme_mode": "dark",
+      "monthly_salary": 12345.67,
+      "work_start_time": "09:00",
+      "work_end_time": "18:00",
+      "mini_window_position": { "x": 640.5, "y": 88.25 }
+    }
+  },
+  "decision": {
+    "storage": "config_v8_optional_fields",
+    "rollback_behavior": "v1.0.3 drops unknown fields; v1.0.4 restores safe defaults",
+    "window_state_json_required": false
+  }
+}

@@ -14,6 +14,7 @@ import {
   type WindowKind,
 } from "../../services/windowService";
 import { formatShortDate } from "../../utils/presentationFormatters";
+import { useMiniEdgeAutoHide } from "./useMiniEdgeAutoHide";
 
 interface MiniWindowProps {
   onOpenWindow(label: WindowKind): void;
@@ -21,7 +22,12 @@ interface MiniWindowProps {
 
 export function MiniWindow({ onOpenWindow }: MiniWindowProps) {
   const { snapshot, refresh } = useDashboard();
-  const drag = useWindowDrag("mini", { allowInteractiveStart: true });
+  const edge = useMiniEdgeAutoHide();
+  const drag = useWindowDrag("mini", {
+    allowInteractiveStart: true,
+    onDragStart: edge.dragStarted,
+    onDragEnd: edge.dragCompleted,
+  });
   const miniState = snapshot.state === "error" ? "error" : "normal";
   const activateClick = (action: () => void) => {
     if (!drag.consumeDraggedClick()) action();
@@ -33,11 +39,38 @@ export function MiniWindow({ onOpenWindow }: MiniWindowProps) {
     });
   }, [miniState]);
 
+  if (edge.snapshot.phase === "retracted") {
+    return (
+      <main
+        className={`mini-window mini-window--privacy-tab mini-window--dock-${edge.snapshot.dock}`}
+        data-window="mini"
+        {...edge.handlers}
+        {...drag.handlers}
+      >
+        <button
+          className="mini-window__privacy-hit"
+          type="button"
+          data-window-drag="false"
+          aria-label="展开迷你收入视图"
+          onClick={() => activateClick(() => {
+            void edge.reveal("pointer_enter");
+          })}
+        />
+      </main>
+    );
+  }
+
   if (snapshot.state === "loading") {
     return (
-      <main className="mini-window mini-window--state" data-window="mini" {...drag.handlers}>
+      <main
+        className="mini-window mini-window--state"
+        data-window="mini"
+        {...edge.handlers}
+        {...drag.handlers}
+      >
         <span className="spinner" />
         <strong>正在计算今天的收入</strong>
+        {edge.feedback && <span className="mini-window__edge-feedback" role="status">{edge.feedback}</span>}
       </main>
     );
   }
@@ -47,6 +80,7 @@ export function MiniWindow({ onOpenWindow }: MiniWindowProps) {
       <main
         className="mini-window mini-window--state mini-window--error"
         data-window="mini"
+        {...edge.handlers}
         {...drag.handlers}
       >
         <div className="mini-window__error-copy">
@@ -69,6 +103,7 @@ export function MiniWindow({ onOpenWindow }: MiniWindowProps) {
             重试
           </button>
         </div>
+        {edge.feedback && <span className="mini-window__edge-feedback" role="status">{edge.feedback}</span>}
       </main>
     );
   }
@@ -87,6 +122,7 @@ export function MiniWindow({ onOpenWindow }: MiniWindowProps) {
     <main
       className={`mini-window ${isRestLike ? "mini-window--rest" : ""}`}
       data-window="mini"
+      {...edge.handlers}
       {...drag.handlers}
     >
       <button
@@ -143,6 +179,7 @@ export function MiniWindow({ onOpenWindow }: MiniWindowProps) {
           <span className="mini-window__sync">正在重新同步</span>
         )}
       </button>
+      {edge.feedback && <span className="mini-window__edge-feedback" role="status">{edge.feedback}</span>}
     </main>
   );
 }

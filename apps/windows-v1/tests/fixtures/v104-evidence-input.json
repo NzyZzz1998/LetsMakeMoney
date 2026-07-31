@@ -1,0 +1,53 @@
+{
+  "environment": {
+    "windows_version": "Windows 11 24H2",
+    "architecture": "x86_64",
+    "dpi": [
+      100,
+      125,
+      150
+    ],
+    "webview2_version": "150.0.4078.105"
+  },
+  "checks": [
+    {
+      "id": "V104-AUTO-PACKAGE",
+      "method": "automatic",
+      "result": "passed",
+      "started_at": "2026-07-31T00:00:00Z",
+      "finished_at": "2026-07-31T00:01:00Z",
+      "evidence_ref": "repo:doc/releases/v1.0.4/evidence/package-verification.json"
+    },
+    {
+      "id": "V104-GUI-MINI-EDGE",
+      "method": "computer_use",
+      "result": "pending",
+      "started_at": "2026-07-31T00:02:00Z",
+      "finished_at": "2026-07-31T00:02:00Z",
+      "evidence_ref": "archive:LMM-V104-ACCEPTANCE-001"
+    }
+  ],
+  "conclusion": "pending",
+  "limitations": [
+    "真实多显示器观感等待独立验收。"
+  ],
+  "log_summary": {
+    "event_counts": {
+      "app.started": 1,
+      "window.shown": 1
+    },
+    "error_categories": [],
+    "truncated": false
+  },
+  "raw_archive": {
+    "schema_version": "1.0",
+    "archive_id": "LMM-V104-ACCEPTANCE-001",
+    "archive_sha256": null,
+    "availability": "not_collected",
+    "custodian_role": "project-owner",
+    "contents": [],
+    "retention": "owner-managed",
+    "reason": "最终候选尚未生成。",
+    "updated_at": "2026-07-31T00:02:00Z"
+  }
+}

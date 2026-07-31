@@ -21,17 +21,27 @@ interface WindowDragPointer {
   captureTarget: HTMLElement;
 }
 
+interface WindowDragOptions {
+  allowInteractiveStart?: boolean;
+  onDragStart?(): void | Promise<void>;
+  onDragEnd?(): void | Promise<void>;
+}
+
 export function useWindowDrag(
   kind: WindowKind,
-  { allowInteractiveStart = false }: { allowInteractiveStart?: boolean } = {},
+  {
+    allowInteractiveStart = false,
+    onDragStart,
+    onDragEnd,
+  }: WindowDragOptions = {},
 ) {
   const pointer = useRef<WindowDragPointer | null>(null);
   const dragged = useRef(false);
 
-  const moveWindow = (current: NonNullable<typeof pointer.current>) => {
-    if (!current.origin) return;
+  const moveWindow = (current: NonNullable<typeof pointer.current>): Promise<void> => {
+    if (!current.origin) return Promise.resolve();
     const scale = current.origin.scale_factor;
-    void windowService.move(
+    return windowService.move(
       kind,
       Math.round(current.origin.x + (current.currentX - current.startX) * scale),
       Math.round(current.origin.y + (current.currentY - current.startY) * scale),
@@ -42,7 +52,7 @@ export function useWindowDrag(
     if (current.frame !== null) return;
     current.frame = window.requestAnimationFrame(() => {
       current.frame = null;
-      if (pointer.current === current && current.dragging) moveWindow(current);
+      if (pointer.current === current && current.dragging) void moveWindow(current);
     });
   };
 
@@ -53,12 +63,20 @@ export function useWindowDrag(
       current.currentX = event.screenX;
       current.currentY = event.screenY;
     }
-    if (commit && current.dragging) moveWindow(current);
     if (current.frame !== null) window.cancelAnimationFrame(current.frame);
     if (current.captureTarget.hasPointerCapture(current.id)) {
       current.captureTarget.releasePointerCapture(current.id);
     }
     pointer.current = null;
+    if (current.dragging) {
+      if (commit) {
+        void moveWindow(current).finally(() => {
+          void onDragEnd?.();
+        });
+      } else {
+        void onDragEnd?.();
+      }
+    }
   };
 
   const handlers = {
@@ -92,7 +110,7 @@ export function useWindowDrag(
       const current = pointer.current;
       if (!current || current.id !== event.pointerId) return;
       if ((event.buttons & 1) === 0) {
-        cancel(event);
+        cancel(event, true);
         return;
       }
       current.currentX = event.screenX;
@@ -106,6 +124,7 @@ export function useWindowDrag(
         current.dragging = true;
         dragged.current = true;
         current.captureTarget.setPointerCapture(current.id);
+        void onDragStart?.();
       }
       event.preventDefault();
       if (current.origin) scheduleMove(current);

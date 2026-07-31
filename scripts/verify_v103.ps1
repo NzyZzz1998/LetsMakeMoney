@@ -8,6 +8,8 @@ $app = Join-Path $root "apps\windows-v1"
 $nodeModules = Join-Path $app "node_modules"
 . (Join-Path $PSScriptRoot "v10_tools.ps1")
 $node = Get-V10Node
+$python = Get-V10Python
+$rustToolchain = Get-V10RustToolchain
 $esbuild = Get-ChildItem -LiteralPath $nodeModules -Filter "esbuild.exe" -File -Recurse |
     Select-Object -First 1 -ExpandProperty FullName
 
@@ -26,7 +28,7 @@ if ($LASTEXITCODE -ne 0) {
     throw "v1.0.3 calendar data verification failed."
 }
 
-& python (Join-Path $app "tests\verify_webview_suspend_v103.py")
+& $python (Join-Path $app "tests\verify_webview_suspend_v103.py")
 if ($LASTEXITCODE -ne 0) {
     throw "v1.0.3 native WebView2 suspend contract failed."
 }
@@ -61,7 +63,7 @@ if (-not $SkipRust) {
     }
 
     $cargo = Get-V10Cargo -RepoRoot $root
-    & $cargo "+stable-x86_64-pc-windows-msvc" test --manifest-path (Join-Path $app "src-tauri\Cargo.toml")
+    & $cargo "+$rustToolchain" test --manifest-path (Join-Path $app "src-tauri\Cargo.toml")
     if ($LASTEXITCODE -ne 0) {
         throw "Rust tests failed."
     }

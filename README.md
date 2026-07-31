@@ -49,8 +49,17 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪
 
 - Windows 10/11 x86_64
 - Node.js 22+
-- Rust stable MSVC 工具链
+- Python 3.12
+- Rust 1.97.1 MSVC 工具链
+- Visual Studio 2022 Build Tools（Desktop development with C++）
+- Windows SDK（Windows 10/11）
 - Microsoft Edge WebView2 Runtime
+
+从仓库根目录运行只读环境诊断；默认不会输出本机绝对路径：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\diagnose_v104_environment.ps1
+```
 
 ### 启动
 

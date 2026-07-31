@@ -12,7 +12,8 @@ export interface SaveConfigurationResult {
 interface BrowserConfigurationEnvironment {
   localStorage?: Pick<Storage, "getItem" | "setItem">;
   sessionStorage?: Pick<Storage, "getItem">;
-  events?: Pick<EventTarget, "dispatchEvent">;
+  events?: Pick<EventTarget, "dispatchEvent">
+    & Partial<Pick<EventTarget, "addEventListener" | "removeEventListener">>;
 }
 
 export interface ConfigurationService {
@@ -20,6 +21,7 @@ export interface ConfigurationService {
   read(fallback: AppConfig): Promise<AppConfig>;
   save(draft: AppConfig): Promise<SaveConfigurationResult>;
   publishUpdated(source: string): Promise<void>;
+  listenUpdated(handler: () => void): Promise<() => void>;
 }
 
 function browserEnvironment(): BrowserConfigurationEnvironment {
@@ -65,6 +67,20 @@ export function createConfigurationService(
         }
       }
       environment.events?.dispatchEvent(new Event("lmm:configuration-updated"));
+    },
+    listenUpdated(handler) {
+      if (runtime.isDesktop) {
+        return runtime.listen("lmm://configuration-updated", handler);
+      }
+      const events = environment.events;
+      if (!events?.addEventListener || !events.removeEventListener) {
+        return Promise.resolve(() => undefined);
+      }
+      const listener = () => handler();
+      events.addEventListener("lmm:configuration-updated", listener);
+      return Promise.resolve(() => {
+        events.removeEventListener?.("lmm:configuration-updated", listener);
+      });
     },
   };
 }
