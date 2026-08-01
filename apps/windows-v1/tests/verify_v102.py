@@ -87,7 +87,7 @@ def main() -> int:
 
     require("nextBoundarySeconds" in presentation, "stage copy must consume authoritative boundaries")
     require("timelineRows" in presentation, "timeline presentation selector is missing")
-    require("11/11 passed" in presentation_behavior, "presentation behavior count is stale")
+    require("17/17 passed" in presentation_behavior, "presentation behavior count is stale")
     require(
         'type ThemeMode = "light" | "dark"' in theme_domain,
         "theme mode contract is missing",
