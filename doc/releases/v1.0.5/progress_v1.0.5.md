@@ -175,3 +175,14 @@
 ## 记录边界
 
 本文只记录状态、checklist、阻塞、最近验证和证据入口。实施流水、技术 Spike 和异常处理写入 `doc/logs/dev_log_v1.0.5.md`；已确认缺陷的复现和修复写入后续 bugfix log。
+
+## 最终合并后重建候选
+
+- 候选 ID：`V105-20260801T075629Z-ffc431af-clean`。
+- 源码 HEAD：`ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`；源码状态 `clean`，`source_tree_dirty=false`。
+- Zip SHA256：`019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`。
+- EXE SHA256：`68FA8FC443B12A2BA8BD757F532EC6B90E09E3DA7E1027255267150C4DAEC37A`。
+- WebView2Loader.dll SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
+- 最近状态：最终合并后干净重建、M6 聚合和非交互启动冒烟已完成；tag、Release、published 模式和回下载核验待本轮发布收口逐项完成。
+- 当前候选在最终发布门禁关闭前仍**不可发布**；旧验收候选及 `ACC-20260801-105930-retest` 继续作为历史证据保留。
+- 启动冒烟 ID：`LMM-V105-SMOKE-20260801080945`；结果 `partial`（仅非交互启动范围），环境精确恢复且残留进程为 0。

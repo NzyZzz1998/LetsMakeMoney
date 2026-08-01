@@ -67,3 +67,14 @@
 - v1.0.4 核心回归与用户环境恢复：通过。
 - 多显示器：项目所有者批准延期；Windows 10：环境待补证。
 - 当前发布判断：**通过，发布收口已授权并开始执行**；尚未生成最终发布提交、tag 或 Release。
+
+## 最终合并后重建候选
+
+- 候选 ID：`V105-20260801T075629Z-ffc431af-clean`。
+- 源码 HEAD：`ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`。
+- 源码状态：`clean`，`source_tree_dirty=false`。
+- Zip SHA256：`019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`。
+- EXE SHA256：`68FA8FC443B12A2BA8BD757F532EC6B90E09E3DA7E1027255267150C4DAEC37A`。
+- WebView2Loader.dll SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
+- 该候选由最终合并提交重新构建；业务代码相对已通过独立验收的候选无变化，历史验收记录继续保留。
+- 在 M6、受控桌面冒烟、tag、Release、published 模式和 GitHub 回下载核验完成前，本候选仍**不可发布**。

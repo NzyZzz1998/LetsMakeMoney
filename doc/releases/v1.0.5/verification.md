@@ -385,3 +385,17 @@ M2 聚合入口继承 M0/M1 门禁，并新增：
 - Windows 10 因无设备或 VM 保持环境待补证，不以 Windows 11 推断通过。
 - 原始截图、完整日志和用户配置只保存在 Git 忽略的本地验收目录；仓库只跟踪脱敏摘要。
 - 最终结论：**通过，发布收口已获授权并开始执行**。最终发布身份仍待合并后干净重建、published 模式和 GitHub 回下载核验锁定。
+
+## 17. 最终合并后重建候选
+
+- 候选 ID：`V105-20260801T075629Z-ffc431af-clean`。
+- 源码 HEAD：`ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`。
+- 源码状态：`clean`，`source_tree_dirty=false`。
+- 构建时间：`2026-08-01T07:57:44.7606083Z`。
+- Zip：`LetsMakeMoney-v1.0.5-windows-x86_64.zip`，3,231,663 字节；SHA256 `019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`。
+- EXE：10,110,464 字节；SHA256 `68FA8FC443B12A2BA8BD757F532EC6B90E09E3DA7E1027255267150C4DAEC37A`。
+- WebView2Loader.dll：160,320 字节；SHA256 `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
+- 最终合并提交相对通过 `ACC-20260801-105930-retest` 的业务源码只增加文档与历史验证器合同修正；旧候选及其真实 Windows 验收记录继续保留，不被本节覆盖。
+- 当前候选在 annotated tag、GitHub Release、published 模式和 GitHub 回下载核验完成前仍**不可发布**；通过上述门禁后才能成为正式附件。
+- 最终候选 M6 聚合：通过；包含行为级测试、TypeScript strict、Vite production build、54 个 Rust 测试、cargo fmt、clippy 和 release build。
+- 受控启动冒烟：`LMM-V105-SMOKE-20260801080945`；新解压 EXE 成功显示 Mini，Zip 与 EXE 哈希匹配，用户环境精确恢复且残留进程为 0。脚本结果为 `partial`，因为本轮只执行非交互启动范围；完整 GUI 结论继续引用独立验收 `ACC-20260801-105930-retest`。

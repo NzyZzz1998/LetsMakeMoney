@@ -261,3 +261,5 @@ v1.0.3 GitHub Release 的 README 快照差异披露已进入需求范围，但�
 ## 下一步
 
 v1.0.5 修复后独立 ACC 已通过，V105-BUG-001 已关闭，项目所有者已授权发布收口。下一步生成发布提交，经受保护的 PR 合入 `main`，从最终干净提交重建，执行 published 模式验证、推送 tag 并创建 GitHub Release。旧失败候选及其哈希不得用于发布。
+
+最终合并后候选 `V105-20260801T075629Z-ffc431af-clean` 已从提交 `ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf` 干净重建，Zip SHA256 为 `019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`。在 M6、受控桌面冒烟、annotated tag、GitHub Release、published 模式和回下载核验完成前，该候选仍**不可发布**；之前的验收候选和失败候选继续保留为历史证据。
