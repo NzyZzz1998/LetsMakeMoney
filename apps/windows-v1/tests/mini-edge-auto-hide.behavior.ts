@@ -83,10 +83,15 @@ assert(nativeCalls.at(-1) === "retract:pointer_leave", "retraction records a sem
 controller.setLock("focus_inside", true);
 await Promise.resolve();
 await Promise.resolve();
-assert(controller.snapshot().phase === "expanded", "focus immediately reveals the Mini");
-assert(nativeCalls.at(-1) === "reveal:focus_inside", "focus reveal is distinguishable in logs");
+assert(controller.snapshot().phase === "retracted", "ordinary focus must not reveal a retracted Mini");
+assert(nativeCalls.at(-1) === "retract:pointer_leave", "ordinary focus does not call native reveal");
+assert(!controller.snapshot().locks.focus_inside, "ordinary focus cannot strand a lock on the privacy tab");
 
 controller.setLock("focus_inside", false);
+assert(scheduler.pendingCount() === 0, "a retracted Mini never schedules a second retract timer");
+await controller.reveal("window_shown");
+assert(controller.snapshot().phase === "expanded", "an explicit shown event reveals the Mini");
+assert(nativeCalls.at(-1) === "reveal:window_shown", "explicit reveal retains its semantic source");
 controller.setLock("menu_open", true);
 controller.pointerLeft();
 assert(scheduler.pendingCount() === 0, "an open menu blocks privacy retraction");
@@ -105,6 +110,35 @@ status = {
 await controller.dragCompleted();
 assert(controller.snapshot().dock === "none", "dragging inward can return to floating");
 assert(controller.snapshot().phase === "expanded", "floating Mini remains fully visible");
+
+status = {
+  auto_hide: true,
+  dock: "left",
+  visibility: "expanded",
+  notice: null,
+};
+controller.pointerEntered();
+await controller.dragStarted();
+await controller.dragCompleted();
+assert(!controller.snapshot().pointerInside, "drag completion discards stale pre-drag pointer intent");
+assert(scheduler.pendingCount() === 1, "first edge docking schedules retract without pointerleave");
+const dragTimer = scheduler.firstId();
+assert(dragTimer !== null, "drag completion exposes one cancellable timer");
+if (dragTimer !== null) scheduler.fire(dragTimer);
+await Promise.resolve();
+await Promise.resolve();
+const callsAfterDragRetract = nativeCalls.length;
+controller.pointerEntered();
+await Promise.resolve();
+assert(
+  controller.snapshot().phase === "retracted" && nativeCalls.length === callsAfterDragRetract,
+  "the stationary post-drag pointer cannot immediately reveal the moved privacy tab",
+);
+controller.pointerLeft();
+controller.pointerEntered();
+await Promise.resolve();
+await Promise.resolve();
+assert(controller.snapshot().phase === "expanded", "a fresh leave-enter sequence reveals the privacy tab");
 
 status = {
   auto_hide: false,
@@ -152,4 +186,59 @@ assert(
 );
 fallbackController.dispose();
 
-console.log("mini edge auto-hide behavior: 22/22 passed");
+const lateScheduler = new FakeScheduler();
+let resolveLateRetract: ((status: MiniEdgeNativeStatus) => void) | null = null;
+const lateController = createMiniEdgeAutoHideController({
+  scheduler: lateScheduler,
+  retractDelayMs: 600,
+  readStatus: async () => ({
+    auto_hide: true,
+    dock: "right",
+    visibility: "expanded",
+    notice: null,
+  }),
+  setRetracted: async retracted => {
+    if (!retracted) {
+      return {
+        auto_hide: true,
+        dock: "right",
+        visibility: "expanded",
+        notice: null,
+      };
+    }
+    return await new Promise<MiniEdgeNativeStatus>(resolve => {
+      resolveLateRetract = resolve;
+    });
+  },
+  completeDrag: async () => ({
+    auto_hide: true,
+    dock: "right",
+    visibility: "expanded",
+    notice: null,
+  }),
+});
+await lateController.initialize();
+const lateTimer = lateScheduler.firstId();
+assert(lateTimer !== null, "the late-result fixture schedules one retract timer");
+if (lateTimer !== null) lateScheduler.fire(lateTimer);
+await Promise.resolve();
+assert(lateController.snapshot().phase === "retracted", "the native retract starts optimistically");
+lateController.pointerEntered();
+await Promise.resolve();
+await Promise.resolve();
+assert(lateController.snapshot().phase === "expanded", "pointer entry reveals during an in-flight retract");
+resolveLateRetract?.({
+  auto_hide: true,
+  dock: "right",
+  visibility: "retracted",
+  notice: null,
+});
+await Promise.resolve();
+await Promise.resolve();
+assert(
+  lateController.snapshot().phase === "expanded",
+  "a stale native retract result cannot overwrite the newer reveal",
+);
+lateController.dispose();
+
+console.log("mini edge auto-hide behavior: 37/37 passed");

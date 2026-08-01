@@ -107,6 +107,13 @@ temp/**/*.import
 /.tmp_v104_desktop_smoke/
 /.tmp_v104_*/
 /releases/v1.0.4/
+/releases/v1.0.5/
+
+# v1.0.5 artifact ownership: local candidates, raw acceptance evidence,
+# and GitHub-downloaded published caches must never become repository evidence.
+/.artifacts/candidates/
+/.artifacts/acceptance/
+/.artifacts/published/
 
 # Figma plugin PNGs are documentation assets, not Godot runtime textures
 doc/prototypes/v0.9-polished/figma-plugin/generated-assets/*.png.import

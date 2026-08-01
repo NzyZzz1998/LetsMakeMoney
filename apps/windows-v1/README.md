@@ -1,6 +1,6 @@
 # LetsMakeMoney Windows Stable 工程
 
-这是 LetsMakeMoney 当前 Windows Stable 主线工程，技术栈为 Rust、Tauri、TypeScript 与 React。当前公开版本为 v1.0.3 Stable。
+这是 LetsMakeMoney 当前 Windows Stable 主线工程，技术栈为 Rust、Tauri、TypeScript 与 React。当前公开版本为 v1.0.4 Stable，当前开发目标为 v1.0.5；v1.0.5 尚未完成独立验收或发布。
 
 ## 产品边界
 
@@ -30,7 +30,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
 
 也可以运行 `scripts\verify_v10.ps1` 执行聚合验证。
 
-v1.0.1、v1.0.2 与 v1.0.3 的增量验证入口位于仓库根目录 `scripts\verify_v101.ps1`、`scripts\verify_v102.ps1` 和 `scripts\verify_v103.ps1`。构建命令、依赖和当前发布身份以仓库根目录 `README.md`、`CONTRIBUTING.md` 与 `doc/current.md` 为准。
+v1.0.1 至 v1.0.4 的历史增量验证入口位于仓库根目录。当前 v1.0.5 聚合入口为 `scripts\verify_v105.ps1`，隔离打包入口为 `scripts\package_v105.ps1`；构建命令、依赖和当前发布身份以仓库根目录 `README.md`、`CONTRIBUTING.md` 与 `doc/current.md` 为准。
 
 ## 架构行为验证
 
@@ -42,7 +42,7 @@ npm test
 npm run build:web
 ```
 
-`npm test` 会执行 Runtime Adapter、配置领域、桌面服务、时间与呈现纯函数测试，并检查前后端责任边界和工具解析。完整历史回归仍以仓库根目录的 `scripts\verify_v103.ps1` 为准。
+`npm test` 会执行 Runtime Adapter、配置领域、桌面服务、时间与呈现纯函数测试，并检查前后端责任边界和工具解析。当前完整开发回归以仓库根目录的 `scripts\verify_v105.ps1` 为准；公开版本复核继续使用 v1.0.4 的锁定身份。
 
 ## 统一工具链解析
 

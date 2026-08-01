@@ -6,7 +6,7 @@
   <a href="README.md">简体中文</a> ·
   <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">Download</a> ·
   <a href="doc/current.md">Current status</a> ·
-  <a href="doc/releases/v1.0.3/release-notes.md">v1.0.3 docs</a>
+  <a href="doc/releases/v1.0.5/progress_v1.0.5.md">v1.0.5 development status</a>
 </div>
 
 ## Know what today is worth
@@ -16,7 +16,7 @@ LetsMakeMoney is a local-first Windows earnings-progress utility. After you conf
 The compact earnings window is designed to stay on the desktop. Open the Today and Calendar workbench only when you need more detail. No account is required, and configuration and logs remain on the local device.
 
 <div align="center">
-  <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney v1.0.3 Today earnings workbench">
+  <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney Windows Today earnings workbench">
 </div>
 
 ## What it covers
@@ -30,15 +30,17 @@ The compact earnings window is designed to stay on the desktop. Open the Today a
 
 ## Current release status
 
-**v1.0.3 Stable** builds on v1.0.2's visual and state contracts with safer cross-year behavior, hidden-window lifecycle handling, and reliable recovery after system-time changes.
+The current public release remains **v1.0.4 Stable**. The repository is developing **v1.0.5**, a privacy and visual-maintenance release that has not completed independent acceptance and is not yet published.
 
-- The current public release is [v1.0.3 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.3).
-- v1.0.3 has completed implementation, independent acceptance, a clean-source build, required CI, and GitHub Release publication.
+- The current public release is [v1.0.4 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.4).
+- v1.0.4 has completed implementation, independent acceptance, a clean-source build, required CI, and GitHub Release publication.
+- The v1.0.5 development candidate adds a readable non-financial privacy tab, compound “today” calendar treatment, and single-surface calibration for the three main windows. See the [v1.0.5 progress source](doc/releases/v1.0.5/progress_v1.0.5.md) for its actual status.
+- The Mini window can retract salary details at the left or right work-area edge and can be revealed by hover or the system tray while retaining its normal saved position.
 - Years not covered by official calendar data use an explicitly labeled work-pattern estimate; the app never invents official holidays or adjusted workdays.
 - Hidden windows pause local ticks and authoritative synchronization, then recalibrate immediately when restored.
 - Windows sleep recovery, forward and backward system-time jumps, a real time-zone switch, and a continuous 120-minute run have been accepted.
 - Stage copy, timeline alignment, overnight ownership, adjusted-workday sources, compound calendar states, and light/dark themes retain the v1.0.2 contracts.
-- v1.0.3 does not include pets, cloud sync, an installer, system-following themes, or custom themes.
+- v1.0.4 does not include pets, cloud sync, an installer, system-following themes, or custom themes.
 - Users who need the desktop-pet experience can remain on v0.9 Beta, which is also the explicit rollback baseline.
 
 See the [current status source](doc/current.md) for the latest release identity and checksums.
@@ -65,15 +67,14 @@ npm run tauri dev
 
 ```powershell
 # Run from the repository root
-powershell -ExecutionPolicy Bypass -File .\scripts\package_v103.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v103_package.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\package_v105.ps1
 ```
 
-Local build outputs are written to `releases\v1.0.3\`. The build and verification flow must not depend on undeclared local paths or private files.
+v1.0.5 development candidates are written only to `.artifacts\candidates\v1.0.5\<candidate-id>\`; they do not overwrite `releases\` or a GitHub-downloaded cache. The flow must not depend on undeclared local paths or private files, and a same-named local file does not establish GitHub Release identity.
 
 ## Data, privacy, and rollback
 
-v1.0.3 stores configuration and logs under:
+The v1.0 Windows line stores configuration and logs under:
 
 ```text
 %APPDATA%\io.letsmakemoney.windows\
@@ -87,9 +88,12 @@ v1.0.3 stores configuration and logs under:
 ## Verification
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v103.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v105.ps1 -Milestone M5
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v103_package.ps1
+# After packaging, pass the emitted candidate Zip path to the M6 gate
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v105.ps1 -Milestone M6 -CandidatePath <candidate Zip path>
+# Verify a controlled candidate independently; published mode additionally requires the tag, Release URL, and downloaded checksum file
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v105_package.ps1 -Mode candidate -PackagePath <candidate Zip path> -ExpectedSourceHead <40-character commit> -ExpectedZipSha256 <SHA256>
 ```
 
 Automated checks cover earnings calculations, configuration transactions, window contracts, the tray bridge, documentation, and package integrity. Real notification-area, taskbar, DPI, and restart-recovery behavior remains part of Windows desktop acceptance.
@@ -101,7 +105,7 @@ apps/windows-v1/       Production v1.0 Tauri + React client
 shared/                Holiday and shared data
 scripts/               Verification, packaging, and compliance checks
 doc/current.md         Single internal source of current project truth
-doc/releases/v1.0.3/   v1.0.3 PRD, progress, acceptance, and release docs
+doc/releases/v1.0.5/   v1.0.5 PRD, progress, verification, and candidate release docs
 ```
 
 ## Contributing

@@ -160,7 +160,7 @@ def render_package_readmes(
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Render and verify v1.0.4 portable README files.")
+    parser = argparse.ArgumentParser(description="Render and verify LetsMakeMoney portable README files.")
     parser.add_argument("--mode", choices=("render", "verify"), required=True)
     parser.add_argument("--package-root", type=Path, required=True)
     parser.add_argument("--template-root", type=Path, default=Path(__file__).resolve().parent)

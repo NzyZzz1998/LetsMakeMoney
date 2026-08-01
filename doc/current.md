@@ -8,15 +8,16 @@
 | --- | --- |
 | 当前公开版本 | Windows v1.0.4 Stable |
 | 当前公开 tag | `v1.0.4` |
-| 当前开发版本 | Windows v1.0.4；已发布 / 发布后观察 |
+| 当前开发版本 | Windows v1.0.5；V105-M6 部分完成，9/10 |
+| 下一版本候选 | Windows v1.0.5；受控 dirty M6 候选聚合通过，尚未形成干净提交候选 |
 | v1.0.1 阶段 | 已发布 |
 | v1.0.2 阶段 | 已发布 / 发布后观察 |
 | v1.0.3 阶段 | 已发布 / 发布后观察 |
 | v1.0.4 阶段 | M0 至 M6、ACC 全部完成，74/74；已发布 |
 | 技术栈 | Rust + Tauri + TypeScript/React |
 | 产品形态 | 无宠物、本地优先的 Windows 收入进度工具 |
-| 发布阻塞 | 无；真实多显示器、负坐标工作区与显示器移除回落延期补证，不阻塞本版 |
-| 最后更新 | 2026-07-31 |
+| 发布阻塞 | v1.0.4 无；v1.0.5 的受控候选来自 dirty 工作树，干净提交候选与独立验收尚未完成，当前不可发布 |
+| 最后更新 | 2026-08-01 |
 
 ## v1.0 公开基线
 
@@ -130,6 +131,30 @@ v1.0.4 发布源提交为 `4d06dc73dbc5c27d7a97462d8262a553dd97d5b6`，最终产
 
 GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.4`
 
+## v1.0.5 候选观察
+
+项目所有者在 v1.0.4 Stable 真实发布包中记录了日历正常态提示、今天标记、Mini 首次贴边收起、隐私竖条、关闭今日工作台后的非预期界面，以及窗口边界“框中框”观感等六项反馈。深度 Review、Idea、推荐方案 PRD、需求追踪矩阵与高保真交互原型已经完成并确认；开发计划、进度看板与开发日志已经建立。V105-M0 至 M5 已完成 52/52；M6 已完成 9/10：README、candidate/published 身份、目录与证据门禁已落盘；FR-003 首次贴边与 FR-004 Workbench 关闭异常已按最小边界修复；28px 无金额隐私竖条已覆盖 10 种业务状态；日历正常态与复合状态已收敛；三窗单一表面通过真实 Windows 11 和三档 DPI 门禁并保留候选；受控 dirty 候选通过完整自动聚合。当前对象仍不是干净提交候选，不构成正式候选验收或发布判断：
+
+- `doc/releases/v1.0.5/issue-pool.md`
+- `doc/releases/v1.0.5/review.md`
+- `doc/releases/v1.0.5/slimming-candidates.md`
+- `doc/releases/v1.0.5/idea-pool.md`
+- `doc/releases/v1.0.5/prd.md`
+- `doc/releases/v1.0.5/traceability.md`
+- `doc/releases/v1.0.5/dev_plan_v1.0.5.md`
+- `doc/releases/v1.0.5/progress_v1.0.5.md`
+- `doc/releases/v1.0.5/m0-baseline.md`
+- `doc/releases/v1.0.5/fr004-reproduction-contract.md`
+- `doc/releases/v1.0.5/evidence-matrix.md`
+- `doc/releases/v1.0.5/artifact-and-evidence-contract.md`
+- `doc/releases/v1.0.5/verification.md`
+- `doc/releases/v1.0.5/window-surface-spike.md`
+- `doc/logs/dev_log_v1.0.5.md`
+- `doc/logs/v1.0.5-bugfix-log.md`
+- `doc/prototypes/v1.0/index.html`
+
+### v1.0.4 继承架构与范围基线
+
 架构基线已完成：
 
 1. `AppRuntime`、统一时间服务和配置、Dashboard、支持、窗口 Service。
@@ -139,7 +164,7 @@ GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.
 
 这些内容在 v1.0.4 中只作为继承门禁，不重复开发，也不继续扩大模块拆分。
 
-正式范围包括：
+v1.0.4 已完成范围包括：
 
 1. 便携包专用离线 README 与语义包验。
 2. 两层验收证据耐久合同。
@@ -217,7 +242,16 @@ v1.0.3 GitHub Release 的 README 快照差异披露已进入需求范围，但�
 - [v1.0.4 发布检查](releases/v1.0.4/release-checklist.md)
 - [v1.0.4 发布说明](releases/v1.0.4/release-notes.md)
 - [v1.0.4 开发日志](logs/dev_log_v1.0.4.md)
+- [v1.0.5 深度 Review](releases/v1.0.5/review.md)
+- [v1.0.5 候选问题池](releases/v1.0.5/issue-pool.md)
+- [v1.0.5 瘦身候选](releases/v1.0.5/slimming-candidates.md)
+- [v1.0.5 Idea 需求池](releases/v1.0.5/idea-pool.md)
+- [v1.0.5 完整 PRD](releases/v1.0.5/prd.md)
+- [v1.0.5 需求追踪矩阵](releases/v1.0.5/traceability.md)
+- [v1.0.5 开发计划](releases/v1.0.5/dev_plan_v1.0.5.md)
+- [v1.0.5 进度看板](releases/v1.0.5/progress_v1.0.5.md)
+- [v1.0.5 开发日志](logs/dev_log_v1.0.5.md)
 
 ## 下一步
 
-进入 v1.0.4 发布后观察：只记录真实发布问题，不修改 `v1.0.4` tag、Release 附件或既有哈希；后续需求另行进入 Review。
+v1.0.5 PRD 已确认，今天标记采用方案 A（左上角“今”角标）。V105-M0 至 M5 已完成 52/52，M6 已完成 9/10：FR-003、FR-004 已修复，FR-005 隐私竖条已实现，FR-006 与 FR-007 日历呈现已完成；FR-008 单一窗口表面通过真实 Windows 11、浅/深主题与 100%/125%/150% DPI 门禁并保留候选；受控 dirty M6 候选完整聚合通过。下一步必须先获得候选提交授权，从干净提交重新构建并锁定哈希，再进入独立 ACC。Windows 10、多显示器、键盘、通知区显式找回和受控故障回退仍由 ACC 准确补证；当前不可发布。

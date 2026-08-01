@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NzyZzz1998/LetsMakeMoney/schemas/v105-published-cache-index.schema.json",
+  "title": "LetsMakeMoney v1.0.5 published cache index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "version",
+    "tag",
+    "tag_target_commit",
+    "release_url",
+    "downloaded_at",
+    "source",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "version": { "const": "1.0.5" },
+    "tag": { "const": "v1.0.5" },
+    "tag_target_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "release_url": { "const": "https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5" },
+    "downloaded_at": { "type": "string", "format": "date-time" },
+    "source": { "const": "github-release-download" },
+    "artifacts": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "size", "sha256"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[^\\\\/:]+$" },
+          "size": { "type": "integer", "minimum": 1 },
+          "sha256": { "type": "string", "pattern": "^[A-F0-9]{64}$" }
+        }
+      }
+    }
+  }
+}

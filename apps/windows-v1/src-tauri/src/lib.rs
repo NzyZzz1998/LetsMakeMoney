@@ -525,6 +525,10 @@ fn mini_edge_source(source: &str) -> &'static str {
         "menu_open" => "menu_open",
         "modal_open" => "modal_open",
         "drag_start" => "drag_start",
+        "drag_complete" => "drag_complete",
+        "lock_released" => "lock_released",
+        "refresh" => "refresh",
+        "privacy_activate" => "privacy_activate",
         "tray_restore" => "tray_restore",
         "window_shown" => "window_shown",
         "size_changed" => "size_changed",
@@ -1422,6 +1426,15 @@ fn toggle_mini_window(app: &AppHandle) -> Result<(), String> {
         if mini_edge_status_internal(app)?.visibility == "retracted" {
             set_mini_edge_retracted_internal(app, false, "tray_restore", true)?;
             window.set_focus().map_err(|error| error.to_string())?;
+            if let Err(error) =
+                window.eval("window.dispatchEvent(new CustomEvent('lmm:window-shown'))")
+            {
+                append_log(
+                    app,
+                    "window.lifecycle_event_failed",
+                    &format!("label=mini event=shown reason={error}"),
+                );
+            }
             return Ok(());
         }
         hide_window_internal(app, "mini")

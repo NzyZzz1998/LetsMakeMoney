@@ -25,6 +25,13 @@ const state = {
   businessState: "working_after_rest",
   persistedTheme: "light",
   previewTheme: "light",
+  persistedEdgeAutoHide: true,
+  previewEdgeAutoHide: true,
+  miniDock: "floating",
+  miniDockRetracted: false,
+  lastDockBeforeDisabled: null,
+  todayVariant: "corner",
+  surfaceMode: "single",
   longContent: false,
 };
 
@@ -41,6 +48,11 @@ const calendarStatus = document.querySelector("#calendar-status");
 const themeModeControl = document.querySelector("#theme-mode");
 const dpiModeControl = document.querySelector("#dpi-mode");
 const themePreviewNote = document.querySelector("#theme-preview-note");
+const edgeAutoHideControl = document.querySelector("#edge-auto-hide");
+const miniWindow = windows.mini;
+const privacyEdgeTab = document.querySelector("#privacy-edge-tab");
+const privacyEdgeCopy = document.querySelector("#privacy-edge-copy");
+let miniDockTimer = null;
 
 function normalizeTheme(value) {
   return value === "dark" ? "dark" : "light";
@@ -84,8 +96,155 @@ function revertThemeDraft(message = "主题预览已撤销，恢复上次保存�
   applyTheme(state.persistedTheme, { syncControls: false, message });
 }
 
+function normalizeMiniDock(value) {
+  return value === "left" || value === "right" ? value : "floating";
+}
+
+function clearMiniDockTimer() {
+  if (miniDockTimer !== null) {
+    window.clearTimeout(miniDockTimer);
+    miniDockTimer = null;
+  }
+}
+
+function updateMiniDockControls() {
+  document.querySelectorAll("[data-mini-dock]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.miniDock === state.miniDock);
+  });
+}
+
+function getPrivacyEdgePresentation() {
+  const presentations = {
+    loading: ["正在同步", "正在同步收入状态，展开迷你收入视图"],
+    error: ["点击查看", "收入状态暂时无法计算，展开迷你收入视图查看详情"],
+    before_work: ["距离上班 38分", "距离上班还有三十八分钟，展开迷你收入视图"],
+    working_before_rest: ["距离休息 38分", "距离休息还有三十八分钟，展开迷你收入视图"],
+    rest: ["距离复工 38分", "距离恢复工作还有三十八分钟，展开迷你收入视图"],
+    working_after_rest: ["距离下班 4时38分", "距离下班还有四小时三十八分钟，展开迷你收入视图"],
+    after_work: ["今日工作结束", "今日工作已经结束，展开迷你收入视图"],
+    rest_day: ["今日休息", "今天是休息日，展开迷你收入视图"],
+    paid_rest: ["今日休息", "今天是休息日，展开迷你收入视图"],
+    unpaid_rest: ["今日休息", "今天是休息日，展开迷你收入视图"],
+    overnight: ["距离下班 4时38分", "本次夜班距离下班还有四小时三十八分钟，展开迷你收入视图"],
+  };
+  return presentations[state.businessState] || presentations.working_after_rest;
+}
+
+function applyMiniDockVisual() {
+  const docked = state.previewEdgeAutoHide && state.miniDock !== "floating";
+  const [edgeCopy, edgeLabel] = getPrivacyEdgePresentation();
+  miniWindow.classList.toggle("is-docked-left", docked && state.miniDock === "left");
+  miniWindow.classList.toggle("is-docked-right", docked && state.miniDock === "right");
+  miniWindow.classList.toggle("is-retracted", docked && state.miniDockRetracted);
+  miniWindow.dataset.dock = docked ? state.miniDock : "floating";
+  miniWindow.setAttribute(
+    "aria-label",
+    docked && state.miniDockRetracted
+      ? `迷你收入视图，已在屏幕${state.miniDock === "left" ? "左" : "右"}侧收起`
+      : "迷你收入视图",
+  );
+  privacyEdgeTab.hidden = !docked;
+  privacyEdgeTab.tabIndex = docked ? 0 : -1;
+  privacyEdgeCopy.textContent = edgeCopy;
+  privacyEdgeTab.setAttribute("aria-label", `${edgeLabel}；当前停靠在屏幕${state.miniDock === "left" ? "左" : "右"}侧`);
+  updateMiniDockControls();
+}
+
+function setTodayVariant(value, { rebuild = true } = {}) {
+  state.todayVariant = value === "label" ? "label" : "corner";
+  document.documentElement.dataset.todayVariant = state.todayVariant;
+  document.querySelectorAll("[data-today-variant]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.todayVariant === state.todayVariant);
+  });
+  if (rebuild) buildCalendar();
+}
+
+function setSurfaceMode(value) {
+  state.surfaceMode = value === "legacy" ? "legacy" : "single";
+  document.documentElement.dataset.surfaceMode = state.surfaceMode;
+  document.querySelectorAll("[data-surface-mode]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.surfaceMode === state.surfaceMode);
+  });
+}
+
+function setMiniDock(value, { retracted = value !== "floating" } = {}) {
+  clearMiniDockTimer();
+  const normalized = normalizeMiniDock(value);
+  if (!state.previewEdgeAutoHide && normalized !== "floating") {
+    state.lastDockBeforeDisabled = normalized;
+    state.miniDock = "floating";
+    state.miniDockRetracted = false;
+    applyMiniDockVisual();
+    return false;
+  }
+  state.miniDock = normalized;
+  state.miniDockRetracted = normalized !== "floating" && retracted;
+  applyMiniDockVisual();
+  return true;
+}
+
+function revealMiniDock() {
+  clearMiniDockTimer();
+  if (!state.previewEdgeAutoHide || state.miniDock === "floating") return;
+  state.miniDockRetracted = false;
+  applyMiniDockVisual();
+}
+
+function retractMiniDock() {
+  if (
+    !state.previewEdgeAutoHide
+    || state.miniDock === "floating"
+    || state.currentWindow !== "mini"
+    || miniWindow.matches(":hover")
+    || miniWindow.contains(document.activeElement)
+    || document.querySelector("dialog[open]")
+  ) {
+    return;
+  }
+  state.miniDockRetracted = true;
+  applyMiniDockVisual();
+}
+
+function queueMiniDockRetract() {
+  clearMiniDockTimer();
+  if (!state.previewEdgeAutoHide || state.miniDock === "floating") return;
+  miniDockTimer = window.setTimeout(() => {
+    miniDockTimer = null;
+    retractMiniDock();
+  }, 600);
+}
+
+function applyEdgeAutoHidePreview(enabled, { syncControl = true, restoreDock = true } = {}) {
+  state.previewEdgeAutoHide = Boolean(enabled);
+  if (syncControl && edgeAutoHideControl) edgeAutoHideControl.checked = state.previewEdgeAutoHide;
+  if (!state.previewEdgeAutoHide) {
+    if (state.miniDock !== "floating") state.lastDockBeforeDisabled = state.miniDock;
+    setMiniDock("floating", { retracted: false });
+    return;
+  }
+  if (restoreDock && state.lastDockBeforeDisabled) {
+    const previousDock = state.lastDockBeforeDisabled;
+    state.lastDockBeforeDisabled = null;
+    setMiniDock(previousDock, { retracted: true });
+    return;
+  }
+  applyMiniDockVisual();
+}
+
+function commitEdgeAutoHide(enabled) {
+  state.persistedEdgeAutoHide = Boolean(enabled);
+  window.localStorage.setItem("lmm-v104-prototype-edge-hide", String(state.persistedEdgeAutoHide));
+  applyEdgeAutoHidePreview(state.persistedEdgeAutoHide, { syncControl: true });
+  if (!state.persistedEdgeAutoHide) state.lastDockBeforeDisabled = null;
+}
+
+function revertEdgeAutoHideDraft({ syncControl = false } = {}) {
+  applyEdgeAutoHidePreview(state.persistedEdgeAutoHide, { syncControl, restoreDock: true });
+}
+
 function showWindow(name) {
   if (!windows[name]) return;
+  clearMiniDockTimer();
   const previous = state.currentWindow;
   Object.entries(windows).forEach(([key, element]) => {
     element.classList.toggle("is-visible", key === name);
@@ -96,9 +255,14 @@ function showWindow(name) {
   state.previousWindow = previous;
   state.currentWindow = name;
   traySimulation.hidden = true;
+  if (name === "mini") {
+    revealMiniDock();
+    queueMiniDockRetract();
+  }
 }
 
 function hideToTray() {
+  clearMiniDockTimer();
   Object.values(windows).forEach((element) => element.classList.remove("is-visible"));
   state.previousWindow = state.currentWindow;
   traySimulation.hidden = false;
@@ -484,6 +648,7 @@ function setBusinessState(value) {
     node.style.width = presentation.width;
   });
   renderTimeline(presentation.timeline);
+  applyMiniDockVisual();
 }
 
 function formatDateKey(year, month, day) {
@@ -499,7 +664,7 @@ function getAutomaticDayKind(year, month, day) {
 function updateCalendarStatus(mode) {
   state.calendarMode = mode;
   calendarStatus.className = `calendar-status is-${mode}`;
-  calendarStatus.hidden = false;
+  calendarStatus.hidden = mode === "official";
   const retryButton = document.querySelector("#calendar-retry");
   const adjustButton = document.querySelector("#calendar-adjust");
   adjustButton.disabled = ["loading", "stale", "error"].includes(mode);
@@ -523,6 +688,7 @@ function updateCalendarStatus(mode) {
   document.querySelectorAll("[data-calendar-coverage]").forEach((node) => {
     node.textContent = coverageCopy[0];
     node.className = `coverage-badge ${coverageCopy[1]}`;
+    node.hidden = mode === "official";
   });
   const shortCopy = {
     official: "官方",
@@ -534,6 +700,7 @@ function updateCalendarStatus(mode) {
   document.querySelectorAll("[data-calendar-coverage-short]").forEach((node) => {
     node.textContent = shortCopy;
     node.className = `mini-source ${coverageCopy[1]}`;
+    node.hidden = mode === "official";
   });
 }
 
@@ -582,6 +749,13 @@ function buildCalendar() {
     number.className = "calendar-number";
     number.textContent = String(day);
     cell.append(number);
+    if (dateKey === state.naturalToday) {
+      const todayCue = document.createElement("span");
+      todayCue.className = "calendar-today-cue";
+      todayCue.textContent = state.todayVariant === "label" ? "今天" : "今";
+      todayCue.setAttribute("aria-hidden", "true");
+      cell.append(todayCue);
+    }
     cell.type = "button";
     let businessCopy = {
       workday: "工作日",
@@ -774,6 +948,7 @@ function restoreDefaults() {
   document.querySelector("#lunch-duration").value = "2 小时";
   document.querySelector("#lunch-start").value = "12:00";
   applyTheme("light");
+  applyEdgeAutoHidePreview(true);
   state.dirty = true;
   syncSettingsWeekChoice();
   setFeedback("已恢复默认值，保存后生效");
@@ -782,6 +957,33 @@ function restoreDefaults() {
 document.querySelectorAll("[data-window]").forEach((button) => {
   button.addEventListener("click", () => showWindow(button.dataset.window));
 });
+
+document.querySelectorAll("[data-mini-dock]").forEach((button) => {
+  button.addEventListener("click", () => {
+    showWindow("mini");
+    const nextDock = normalizeMiniDock(button.dataset.miniDock);
+    if (!state.previewEdgeAutoHide && nextDock !== "floating") {
+      showToast("请先在“窗口与启动”中开启贴边自动隐藏。", true);
+      updateMiniDockControls();
+      return;
+    }
+    setMiniDock(nextDock, { retracted: nextDock !== "floating" });
+  });
+});
+
+document.querySelectorAll("[data-today-variant]").forEach((button) => {
+  button.addEventListener("click", () => setTodayVariant(button.dataset.todayVariant));
+});
+
+document.querySelectorAll("[data-surface-mode]").forEach((button) => {
+  button.addEventListener("click", () => setSurfaceMode(button.dataset.surfaceMode));
+});
+
+miniWindow.addEventListener("pointerenter", revealMiniDock);
+miniWindow.addEventListener("pointerleave", queueMiniDockRetract);
+miniWindow.addEventListener("focusin", revealMiniDock);
+miniWindow.addEventListener("focusout", queueMiniDockRetract);
+privacyEdgeTab.addEventListener("click", revealMiniDock);
 
 document.querySelector("#open-workbench").addEventListener("click", () => showWindow("workbench"));
 document.querySelector("#workbench-settings").addEventListener("click", () => showWindow("settings"));
@@ -797,6 +999,7 @@ document.querySelector("#settings-close").addEventListener("click", () => {
         state.dirty = false;
         revertThemeDraft();
         updateThemeControls(state.persistedTheme);
+        revertEdgeAutoHideDraft({ syncControl: true });
         showWindow("mini");
       },
     });
@@ -929,6 +1132,16 @@ document.querySelectorAll('input[name="settings-theme"]').forEach((control) => {
   });
 });
 
+edgeAutoHideControl.addEventListener("change", () => {
+  applyEdgeAutoHidePreview(edgeAutoHideControl.checked, { syncControl: false });
+  state.dirty = true;
+  setFeedback(
+    edgeAutoHideControl.checked
+      ? "正在预览贴边自动隐藏；保存后生效"
+      : "贴边自动隐藏已在预览中关闭；保存后清除停靠",
+  );
+});
+
 document.querySelectorAll("#settings-form input, #settings-form select").forEach((control) => {
   control.addEventListener("input", () => {
     state.dirty = true;
@@ -972,11 +1185,13 @@ document.querySelector("#settings-form").addEventListener("submit", (event) => {
     saveButton.textContent = "保存";
     if (document.querySelector("#failure-mode").checked) {
       revertThemeDraft("保存失败，全部窗口已恢复上次保存的主题；所选主题仍保留，可重试。");
+      revertEdgeAutoHideDraft({ syncControl: false });
       setFeedback("保存失败：无法写入测试配置。输入已保留，请检查数据目录权限后重试。", "error");
       showToast("保存失败，输入已保留。", true);
       return;
     }
     commitTheme(document.querySelector('input[name="settings-theme"]:checked')?.value);
+    commitEdgeAutoHide(edgeAutoHideControl.checked);
     state.dirty = false;
     setFeedback("已保存到本机", "success");
     showToast("设置已保存。");
@@ -1002,7 +1217,7 @@ document.querySelector("#check-update").addEventListener("click", () => {
   }
   openDialog({
     title: "已经是最新版本",
-    message: "当前版本 v1.0.2，没有可用更新。",
+    message: "当前版本 v1.0.4，没有可用更新。",
     confirm: "完成",
     cancel: "",
   });
@@ -1021,8 +1236,14 @@ document.querySelector("#dialog-confirm").addEventListener("click", () => {
 
 state.persistedTheme = normalizeTheme(window.localStorage.getItem("lmm-v102-prototype-theme"));
 applyTheme(state.persistedTheme);
+state.persistedEdgeAutoHide = window.localStorage.getItem("lmm-v104-prototype-edge-hide") !== "false";
+state.previewEdgeAutoHide = state.persistedEdgeAutoHide;
+edgeAutoHideControl.checked = state.persistedEdgeAutoHide;
+applyEdgeAutoHidePreview(state.persistedEdgeAutoHide);
 document.documentElement.dataset.dpi = "100";
 setCalendarMode("official");
+setTodayVariant("corner");
+setSurfaceMode("single");
 setBusinessState("working_after_rest");
 showSettingsPanel("income");
 syncAlternatingWeekChoice();

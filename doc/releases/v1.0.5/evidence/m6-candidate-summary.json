@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "milestone": "V105-M6",
+  "candidate": {
+    "candidate_id": "V105-20260731T204214Z-8a63da78-dirty",
+    "source_head": "8a63da7836fb24c3b7f8ff12f896ac40571adeb7",
+    "source_tree_dirty": true,
+    "build_timestamp_utc": "2026-07-31T20:42:44.7742907Z"
+  },
+  "artifacts": {
+    "zip": {
+      "name": "LetsMakeMoney-v1.0.5-windows-x86_64.zip",
+      "size": 3231538,
+      "sha256": "ED69EEB4E58A98CF336C31C781AADD905C9E025D4C7376FBA91B4F2EAB355BD5"
+    },
+    "executable": {
+      "name": "LetsMakeMoney.exe",
+      "size": 10110976,
+      "sha256": "1CD25830AE3465E6FBE62CA346DB2B59475E4D8C00C202AB17291797682311F2"
+    },
+    "webview2_loader": {
+      "name": "WebView2Loader.dll",
+      "size": 160320,
+      "sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
+    },
+    "readme": {
+      "sha256": "904D79C7FE4B28F320AF2FA91732E90587B11BFF593EE2A57A4926E1FB5AFA39"
+    },
+    "readme_en": {
+      "sha256": "2991F36F5FA307B99364D9CAEE068C3848629725E7CEBE29EC349B5A615539B0"
+    }
+  },
+  "verification": {
+    "m0_to_m5": "passed",
+    "candidate_package_contract": "passed",
+    "m6_aggregate": "passed"
+  },
+  "completion": {
+    "completed_tasks": 9,
+    "total_tasks": 10,
+    "clean_candidate": false
+  },
+  "publication": {
+    "allowed": false,
+    "blockers": [
+      "source tree is dirty",
+      "independent acceptance is not complete"
+    ]
+  },
+  "evidence": {
+    "candidate_identity": ".artifacts/candidates/v1.0.5/V105-20260731T204214Z-8a63da78-dirty/candidate-identity.json",
+    "package_log": ".artifacts/acceptance/v1.0.5/m6-package-output.txt",
+    "aggregate_log": ".artifacts/acceptance/v1.0.5/m6-aggregate-output.txt"
+  }
+}

@@ -1,6 +1,7 @@
 import {
   boundaryPresentation,
   calendarCellContract,
+  calendarCoveragePresentation,
   timelineRows,
   workbenchHeading,
 } from "../src/presentation";
@@ -89,5 +90,16 @@ assert(calendar.classNames.includes("calendar-day--paid_rest"), "business state 
 assert(calendar.classNames.includes("is-today"), "today must be an independent layer");
 assert(calendar.classNames.includes("is-selected"), "selection must be an independent layer");
 assert(calendar.ariaLabel.includes("带薪休息"), "calendar aria text must name the business state");
+assert(calendar.todayCue === "今", "today must expose the approved corner cue");
 
-console.log("v1.0.2 presentation behavior: 11/11 passed");
+const officialCoverage = calendarCoveragePresentation({ mode: "official", year: 2026 });
+assert(!officialCoverage.isVisible, "normal official coverage must stay quiet");
+const estimatedCoverage = calendarCoveragePresentation({ mode: "estimated", year: 2027 });
+assert(estimatedCoverage.isVisible, "estimated coverage must remain visible");
+assert(estimatedCoverage.detail.includes("不代表法定放假安排"), "estimated coverage must disclose its boundary");
+const staleCoverage = calendarCoveragePresentation({ mode: "stale", year: 2026 });
+assert(staleCoverage.title.includes("可能已过期"), "stale coverage must disclose trust risk");
+const errorCoverage = calendarCoveragePresentation({ mode: "integrity_error", year: 2026 });
+assert(errorCoverage.isVisible && errorCoverage.tone === "error", "error coverage must remain visible");
+
+console.log("v1.0.5 presentation behavior: 17/17 passed");
