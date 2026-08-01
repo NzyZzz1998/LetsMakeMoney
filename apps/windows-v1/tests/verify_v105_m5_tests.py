@@ -145,6 +145,14 @@ def verify_document_routing_contract() -> None:
     validate_document_routing(*post_acc)
     print("PASS accepts blocked post-ACC candidate rebuild status")
 
+    accepted = list(fixture)
+    accepted[2] = (
+        "V105-M0 至 M6 已完成；修复后独立 ACC 已通过，"
+        "当前无发布阻塞，可进入发布收口。"
+    )
+    validate_document_routing(*accepted)
+    print("PASS accepts completed post-ACC release closure status")
+
     for name, index, replacement in [
         ("incomplete M5 row", 0, fixture[0].replace("8/8", "7/8")),
         ("unchecked M5 task", 0, fixture[0].replace("- [x] `V105-M5-008`", "- [ ] `V105-M5-008`")),
@@ -153,6 +161,11 @@ def verify_document_routing_contract() -> None:
             "post-ACC route missing publication block",
             2,
             "V105-M0 至 M6 已完成；V105-BUG-001 等待新 clean 候选。",
+        ),
+        (
+            "post-ACC pass missing release closure",
+            2,
+            "V105-M0 至 M6 已完成；修复后独立 ACC 已通过。",
         ),
     ]:
         values = list(fixture)

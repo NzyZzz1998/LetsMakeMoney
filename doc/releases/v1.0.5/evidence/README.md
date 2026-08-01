@@ -12,6 +12,8 @@
 | `m3-mini-privacy-summary.json` | M3 Mini 首次收起、焦点分离、隐私竖条与环境恢复摘要 | 不含金额、精确坐标、完整日志、截图、用户名或绝对路径 |
 | `m4-calendar-presentation-summary.json` | M4 日历可信度、复合状态、候选身份与环境恢复摘要 | 不含用户配置正文、截图、完整日志或绝对路径 |
 | `m5-window-surface-summary.json` | M5 三窗表面职责、真实 DPI、候选决策与环境恢复摘要 | 只含公开对象哈希、相对索引和脱敏系统状态 |
+| `m6-candidate-summary.json` | 修复后 clean 候选身份、哈希与 M6 聚合结果 | 不含用户配置、原始截图、完整日志或绝对路径 |
+| `acc-retest-summary.json` | 修复后独立 ACC 结果、真实链路索引、延期项与环境恢复摘要 | 只记录证据文件名和脱敏结论，不跟踪原始用户数据 |
 
 后续候选证据使用 `doc/releases/v1.0.5/evidence/<candidate-id>/`，并分别遵循 acceptance summary 与 raw evidence index schema。
 

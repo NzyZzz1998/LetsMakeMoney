@@ -177,9 +177,14 @@ def validate_document_routing(progress: str, verification: str, current: str, tr
         token in current
         for token in ("V105-BUG-001", "新 clean 候选", "不可发布")
     )
+    routed_to_release_closure = all(
+        token in current
+        for token in ("修复后独立 ACC 已通过", "当前无发布阻塞", "可进入发布收口")
+    )
     require(
-        m5_completion_recorded and (routed_to_m6 or routed_to_post_acc_candidate),
-        "current status did not route to M6 or a blocked post-ACC candidate rebuild",
+        m5_completion_recorded
+        and (routed_to_m6 or routed_to_post_acc_candidate or routed_to_release_closure),
+        "current status did not route to M6, a blocked post-ACC rebuild, or release closure",
     )
     require("M5 已通过" in traceability, "FR-008 traceability did not close M5")
     require("保留单一表面候选" in spike and "Windows 10" in spike, "M5 Spike decision missing")
