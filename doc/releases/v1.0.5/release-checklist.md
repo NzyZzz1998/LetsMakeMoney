@@ -62,3 +62,18 @@ M0 至 M6 和修复后独立 ACC 已完成。修复后 clean 候选通过左右�
 - [x] M6 聚合复核通过。
 - [x] 用户配置、日志、注册表状态恢复，结束后进程数为 0。
 - 状态：**发布收口执行中**；published 模式、GitHub 回下载和 Release 附件核验在最终干净构建发布后执行。
+
+## 最终合并后重建候选
+
+- [x] 候选 ID：`V105-20260801T075629Z-ffc431af-clean`。
+- [x] 源码 HEAD：`ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`。
+- [x] 源码状态：`clean`，`source_tree_dirty=false`。
+- [x] Zip SHA256：`019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`。
+- [x] EXE SHA256：`68FA8FC443B12A2BA8BD757F532EC6B90E09E3DA7E1027255267150C4DAEC37A`。
+- [x] WebView2Loader.dll SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
+- [x] 最终候选 M6 聚合通过。
+- [x] 最终候选受控桌面启动冒烟完成：`LMM-V105-SMOKE-20260801080945`，非交互启动范围为 `partial`，Mini 出现、环境精确恢复且无残留进程；完整 GUI 结论继承独立 ACC。
+- [ ] annotated tag `v1.0.5` 已推送并指向发布源码 HEAD。
+- [ ] GitHub Release 仅上传便携 Zip 与 `SHA256SUMS.txt`。
+- [ ] GitHub 回下载 SHA256 与本节锁定值一致，published 模式通过。
+- 状态：上述未完成项关闭前，本候选仍**不可发布**。

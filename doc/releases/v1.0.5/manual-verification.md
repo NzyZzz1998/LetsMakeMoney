@@ -112,3 +112,14 @@
 ## 最终判断
 
 当前候选独立验收结论为：**通过，可进入发布收口**。项目所有者已在验收完成后单独授权远端发布操作；验收证据本身不替代最终干净构建与 published 验证。
+
+## 最终合并后重建候选
+
+- 候选 ID：`V105-20260801T075629Z-ffc431af-clean`。
+- 源码 HEAD：`ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`；源码状态 `clean`，`source_tree_dirty=false`。
+- Zip SHA256：`019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`。
+- EXE SHA256：`68FA8FC443B12A2BA8BD757F532EC6B90E09E3DA7E1027255267150C4DAEC37A`。
+- WebView2Loader.dll SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
+- 从已通过独立验收的业务提交到最终合并提交，产品业务代码无变化；最终候选仍需执行 M6 和受控桌面启动冒烟，原独立验收结论按证据失效规则继承。
+- 在 tag、Release、published 模式与 GitHub 回下载完成前，本候选仍**不可发布**，不得以本节替代旧候选的真实操作记录。
+- 最终候选已执行非交互 FirstRun 启动冒烟 `LMM-V105-SMOKE-20260801080945`：新解压 Mini 成功出现，哈希与候选身份一致，环境精确恢复、残留进程为 0。该脚本按合同记录为 `partial`，仅证明最终二进制可启动；业务 GUI 通过结论仍来自 `ACC-20260801-105930-retest`。
