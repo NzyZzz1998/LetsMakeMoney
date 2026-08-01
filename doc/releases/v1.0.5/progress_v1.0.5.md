@@ -2,7 +2,7 @@
 
 ## 追踪信息
 
-- 当前状态：V105-M6 部分完成，9/10；受控 dirty 候选聚合门禁通过，当前不可发布
+- 当前状态：V105-M6 已完成，10/10；唯一 clean 候选已锁定，等待独立 ACC，当前不可发布
 - 目标版本：Windows v1.0.5 Stable
 - 来源 PRD：`doc/releases/v1.0.5/prd.md`
 - 对应实施计划：`doc/releases/v1.0.5/dev_plan_v1.0.5.md`
@@ -11,7 +11,7 @@
 - 高保真原型：`doc/prototypes/v1.0/index.html`
 - 下游承接：独立 `/acceptance` 与发布收口
 - 当前事实源：本文
-- 代码开发基线：`main` / `8a63da7836fb24c3b7f8ff12f896ac40571adeb7`
+- 候选源码基线：`277b121bbc68958382d06f4b29de3bd7685650f4`
 - 当前公开版本：Windows v1.0.4 Stable
 - 最后更新：2026-08-01
 
@@ -29,10 +29,10 @@
 | V105-M3 | Mini 首次收起与隐私竖条 | 已完成 | 10/10 | FR-003、004、005、009 |
 | V105-M4 | 日历内容与复合导航方案 A | 已完成 | 8/8 | FR-006、007、009 |
 | V105-M5 | 三窗单一表面真实壳 Spike | 已完成（Windows 10 待环境补证） | 8/8 | FR-008、009 |
-| V105-M6 | 聚合门禁与候选准备 | 部分完成（干净提交候选受授权边界阻塞） | 9/10 | FR-001 至 FR-010 |
+| V105-M6 | 聚合门禁与候选准备 | 已完成 | 10/10 | FR-001 至 FR-010 |
 | V105-ACC | 独立候选验收与状态收口 | 未开始 | 0/12 | FR-001 至 FR-010 |
 
-总体：`61/74`；M6 自动聚合已通过，干净提交候选与独立 ACC 尚未完成。
+总体：`62/74`；M6 与唯一 clean 候选已完成，独立 ACC 尚未开始。
 
 ## Checklist
 
@@ -116,7 +116,7 @@
 - [x] `V105-M6-006` 通过 TypeScript、行为测试和生产构建。
 - [x] `V105-M6-007` 通过 Rust test、fmt、clippy 和 release build。
 - [x] `V105-M6-008` 通过编码、链接、敏感路径、隐私和 diff 检查。
-- [ ] `V105-M6-009` 从干净提交构建唯一候选并锁定全部哈希。
+- [x] `V105-M6-009` 从干净提交构建唯一候选并锁定全部哈希。
 - [x] `V105-M6-010` 更新候选 verification、manual verification 和发布文档。
 
 ### V105-ACC 独立候选验收与状态收口
@@ -141,29 +141,29 @@
 - FR-008 允许 Spike 失败后回退 v1.0.4 表面；不阻塞其他确定范围。
 - FR-008 的 M5 真实壳门禁已通过并保留候选；Windows 10 因当前没有对应设备或 VM，准确标记为环境待补证。
 - dirty v1.0.4 candidate 删除未授权，不得执行。
-- M6 受控候选 `V105-20260731T204214Z-8a63da78-dirty` 来自 `dirty` 工作树，Zip SHA256 为 `ED69EEB4E58A98CF336C31C781AADD905C9E025D4C7376FBA91B4F2EAB355BD5`；它只用于开发验证，**不可发布**。
-- `V105-M6-009` 必须从干净提交构建唯一候选；当前“不提交”边界使该项尚不成立，不得用 dirty 候选替代。
+- 旧 M6 受控候选 `V105-20260731T204214Z-8a63da78-dirty` 继续作为开发历史证据保留，不得用于独立验收或发布。
+- 唯一 clean 候选 `V105-20260801T002456Z-277b121b-clean` 来自 `277b121bbc68958382d06f4b29de3bd7685650f4`，Zip SHA256 为 `BE2E1004427859AD30A4A4B23B12C00CF8A5EBD69F7A2442F345813F28CA521C`；它只允许进入独立 ACC，当前仍**不可发布**。
 - 通知区真实鼠标显式找回、键盘找回、深色隐私竖条、故障回退、日历 125%/150% 真实 DPI 和多显示器仍需在独立 ACC 补证；不得把开发里程碑自动合同写成最终候选验收通过。
 
 ## 最近验证
 
 - 验证时间：2026-08-01
 - 验证命令：`powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\verify_v105.ps1 -Milestone M6 -CandidatePath <受控候选 Zip>`
-- 验证对象：M0 至 M5 继承门禁、版本身份、candidate/published 包合同、受控 dirty M6 候选、TypeScript/Vite、Rust、文档与隐私门禁
+- 验证对象：M0 至 M5 继承门禁、版本身份、candidate/published 包合同、唯一 clean M6 候选、TypeScript/Vite、Rust、文档与隐私门禁
 - 结果：
   - M0 至 M5 继承门禁、前端行为与结构门禁、candidate/published 包身份正负向合同全部通过。
   - TypeScript strict、Vite production build（1,826 个模块）、Rust `54/54`、fmt、clippy 和 release build 通过。
   - 文档状态、94 份文档 UTF-8/乱码/链接、敏感路径、隐私文本及 `git diff --check` 通过。
-  - 受控候选 `V105-20260731T204214Z-8a63da78-dirty` 的 Zip、EXE、DLL、README、BUILD-INFO 和 `SHA256SUMS.txt` 交叉验证通过。
+  - 唯一候选 `V105-20260801T002456Z-277b121b-clean` 的 Zip、EXE、DLL、README、BUILD-INFO 和 `SHA256SUMS.txt` 交叉验证通过。
   - M5 文档路由与 M6 应用版本门禁各发现一处过时断言；修正后新增负向测试并完成全聚合复跑。
 - 证据入口：`evidence/m6-candidate-summary.json`、`.artifacts/acceptance/v1.0.5/m6-aggregate-output.txt`、`verification.md`
-- 证据状态：自动聚合已通过；候选仍来自 dirty 工作树，不能替代干净提交候选或独立 ACC
+- 证据状态：自动聚合与 clean 候选身份已通过；独立 ACC 与发布授权尚未完成
 - 失效条件：源码、版本身份、候选任一文件或哈希、候选目录、文档状态、M0 至 M5 继承合同发生变化
 
 ## 下一步
 
-- M6 已完成 9/10；唯一未完成项是 `V105-M6-009` 的干净提交候选。
-- 下一步需先获得创建候选提交的明确授权，从该干净提交重新构建并锁定哈希，随后才能启动独立 `/acceptance`；当前不得用 dirty 候选代替。
+- M6 已完成 10/10；唯一 clean 候选已经锁定。
+- 下一步仅对该候选执行独立 `/acceptance`，完成前不可发布；不得换用旧 dirty 候选或重新构建后沿用本候选证据。
 
 ## 记录边界
 

@@ -1,6 +1,6 @@
 # LetsMakeMoney Windows v1.0.5 发布说明草案
 
-> 状态：**开发候选，不可发布。** 本文不是 GitHub Release 说明；最终内容必须由干净提交候选和独立验收锁定。
+> 状态：**独立验收候选，不可发布。** 本文不是 GitHub Release 说明；最终内容必须由独立验收和项目所有者发布授权锁定。
 
 ## 本版重点
 
@@ -31,16 +31,15 @@
 
 ## M6 受控候选
 
-- 候选 ID：`V105-20260731T204214Z-8a63da78-dirty`
-- 源码状态：`dirty`
-- Zip SHA256：`ED69EEB4E58A98CF336C31C781AADD905C9E025D4C7376FBA91B4F2EAB355BD5`
-- EXE SHA256：`1CD25830AE3465E6FBE62CA346DB2B59475E4D8C00C202AB17291797682311F2`
+- 候选 ID：`V105-20260801T002456Z-277b121b-clean`
+- 源码状态：`clean`，`source_tree_dirty=false`
+- Zip SHA256：`BE2E1004427859AD30A4A4B23B12C00CF8A5EBD69F7A2442F345813F28CA521C`
+- EXE SHA256：`0B650A0DF85A315104BDDA0B5E0E0B1E0D97DA21A5B96D72C26217FC3206A25A`
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 - 发布状态：**不可发布**。
 
 ## 发布前仍需完成
 
-1. 从干净提交重新构建唯一候选。
-2. 从干净提交重新构建并锁定唯一候选身份与哈希。
-3. 对干净候选执行独立验收并恢复用户环境。
-4. 获得项目所有者单独的 commit、push、tag 与 Release 授权。
+1. 对唯一 clean 候选执行独立验收并恢复用户环境。
+2. 关闭验收发现的发布阻塞，或明确记录待补证边界。
+3. 获得项目所有者单独的 push、tag 与 Release 授权。

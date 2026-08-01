@@ -2,21 +2,21 @@
   "schema_version": "1.0",
   "milestone": "V105-M6",
   "candidate": {
-    "candidate_id": "V105-20260731T204214Z-8a63da78-dirty",
-    "source_head": "8a63da7836fb24c3b7f8ff12f896ac40571adeb7",
-    "source_tree_dirty": true,
-    "build_timestamp_utc": "2026-07-31T20:42:44.7742907Z"
+    "candidate_id": "V105-20260801T002456Z-277b121b-clean",
+    "source_head": "277b121bbc68958382d06f4b29de3bd7685650f4",
+    "source_tree_dirty": false,
+    "build_timestamp_utc": "2026-08-01T00:25:26.8090922Z"
   },
   "artifacts": {
     "zip": {
       "name": "LetsMakeMoney-v1.0.5-windows-x86_64.zip",
-      "size": 3231538,
-      "sha256": "ED69EEB4E58A98CF336C31C781AADD905C9E025D4C7376FBA91B4F2EAB355BD5"
+      "size": 3231540,
+      "sha256": "BE2E1004427859AD30A4A4B23B12C00CF8A5EBD69F7A2442F345813F28CA521C"
     },
     "executable": {
       "name": "LetsMakeMoney.exe",
       "size": 10110976,
-      "sha256": "1CD25830AE3465E6FBE62CA346DB2B59475E4D8C00C202AB17291797682311F2"
+      "sha256": "0B650A0DF85A315104BDDA0B5E0E0B1E0D97DA21A5B96D72C26217FC3206A25A"
     },
     "webview2_loader": {
       "name": "WebView2Loader.dll",
@@ -36,19 +36,19 @@
     "m6_aggregate": "passed"
   },
   "completion": {
-    "completed_tasks": 9,
+    "completed_tasks": 10,
     "total_tasks": 10,
-    "clean_candidate": false
+    "clean_candidate": true
   },
   "publication": {
     "allowed": false,
     "blockers": [
-      "source tree is dirty",
-      "independent acceptance is not complete"
+      "independent acceptance is not complete",
+      "release authorization is not granted"
     ]
   },
   "evidence": {
-    "candidate_identity": ".artifacts/candidates/v1.0.5/V105-20260731T204214Z-8a63da78-dirty/candidate-identity.json",
+    "candidate_identity": ".artifacts/candidates/v1.0.5/V105-20260801T002456Z-277b121b-clean/candidate-identity.json",
     "package_log": ".artifacts/acceptance/v1.0.5/m6-package-output.txt",
     "aggregate_log": ".artifacts/acceptance/v1.0.5/m6-aggregate-output.txt"
   }
