@@ -42,6 +42,7 @@ interface ControllerDependencies {
   completeDrag(): Promise<MiniEdgeNativeStatus>;
   onChange?(snapshot: MiniEdgeSnapshot): void;
   onError?(error: unknown): void;
+  onEvent?(event: string, detail: string): void;
 }
 
 export interface MiniEdgeAutoHideController {
@@ -88,6 +89,7 @@ export function createMiniEdgeAutoHideController(
   let timer: number | null = null;
   let generation = 0;
   let disposed = false;
+  let pointerEntryArmed = true;
 
   const publish = () => {
     dependencies.onChange?.({
@@ -96,11 +98,19 @@ export function createMiniEdgeAutoHideController(
     });
   };
 
-  const clearTimer = () => {
+  const emit = (event: string, source: string) => {
+    dependencies.onEvent?.(
+      event,
+      `side=${state.dock} phase=${state.phase} source=${source} generation=${generation}`,
+    );
+  };
+
+  const clearTimer = (source: string) => {
     generation += 1;
     if (timer !== null) {
       scheduler.clear(timer);
       timer = null;
+      emit("mini.edge.retract.cancelled", source);
     }
   };
 
@@ -109,11 +119,12 @@ export function createMiniEdgeAutoHideController(
     !disposed
     && state.autoHide
     && state.dock !== "none"
+    && state.phase !== "retracted"
     && !state.pointerInside
     && !hasLock();
 
   const applyNative = (status: MiniEdgeNativeStatus) => {
-    clearTimer();
+    clearTimer("native_status");
     state = {
       ...state,
       autoHide: status.auto_hide,
@@ -122,12 +133,13 @@ export function createMiniEdgeAutoHideController(
     };
     publish();
     if (status.notice === "fallback") {
+      emit("mini.edge.fallback", "native_status");
       dependencies.onError?.(new Error("mini_edge_fallback"));
     }
   };
 
-  const scheduleRetract = () => {
-    clearTimer();
+  const scheduleRetract = (source: string) => {
+    clearTimer(source);
     if (!eligible()) {
       if (state.phase === "retract_pending") {
         state = { ...state, phase: "expanded" };
@@ -138,6 +150,7 @@ export function createMiniEdgeAutoHideController(
     const expectedGeneration = generation;
     state = { ...state, phase: "retract_pending" };
     publish();
+    emit("mini.edge.retract.scheduled", source);
     timer = scheduler.set(() => {
       timer = null;
       if (
@@ -147,54 +160,67 @@ export function createMiniEdgeAutoHideController(
       ) {
         return;
       }
+      generation += 1;
+      const transitionGeneration = generation;
       state = { ...state, phase: "retracted" };
       publish();
       void dependencies
-        .setRetracted(true, "pointer_leave")
+        .setRetracted(true, source)
         .then(status => {
-          if (disposed || expectedGeneration !== generation) return;
+          if (disposed || transitionGeneration !== generation) return;
           applyNative(status);
+          emit("mini.edge.retract.completed", source);
         })
         .catch(error => {
-          if (disposed || expectedGeneration !== generation) return;
+          if (disposed || transitionGeneration !== generation) return;
           state = { ...state, phase: "expanded" };
           publish();
+          emit("mini.edge.fallback", source);
           dependencies.onError?.(error);
         });
     }, delay);
   };
 
   const reveal = async (source: string) => {
-    clearTimer();
+    clearTimer(source);
+    const expectedGeneration = generation;
+    emit("mini.edge.reveal.requested", source);
     if (state.phase === "expanded" || state.phase === "retract_pending") {
       if (state.phase !== "expanded") {
         state = { ...state, phase: "expanded" };
         publish();
       }
+      emit("mini.edge.reveal.completed", source);
       return;
     }
     state = { ...state, phase: "expanded" };
     publish();
     try {
       const status = await dependencies.setRetracted(false, source);
-      if (!disposed) applyNative(status);
+      if (disposed || expectedGeneration !== generation) return;
+      applyNative(status);
+      emit("mini.edge.reveal.completed", source);
     } catch (error) {
+      if (disposed || expectedGeneration !== generation) return;
+      emit("mini.edge.fallback", source);
       dependencies.onError?.(error);
     }
   };
 
   const refresh = async () => {
+    const expectedGeneration = generation;
     try {
       const status = await dependencies.readStatus();
-      if (disposed) return;
+      if (disposed || expectedGeneration !== generation) return;
       applyNative(status);
-      if (status.visibility === "expanded") scheduleRetract();
+      if (status.visibility === "expanded") scheduleRetract("refresh");
     } catch (error) {
       if (!disposed) dependencies.onError?.(error);
     }
   };
 
   const setLock = (lock: MiniEdgeInteractionLock, active: boolean) => {
+    if (lock === "focus_inside" && active && state.phase === "retracted") return;
     if (state.locks[lock] === active) return;
     state = {
       ...state,
@@ -202,9 +228,13 @@ export function createMiniEdgeAutoHideController(
     };
     publish();
     if (active) {
-      void reveal(lock);
+      clearTimer(lock);
+      if (state.phase === "retract_pending") {
+        state = { ...state, phase: "expanded" };
+        publish();
+      }
     } else {
-      scheduleRetract();
+      scheduleRetract("lock_released");
     }
   };
 
@@ -216,14 +246,17 @@ export function createMiniEdgeAutoHideController(
     initialize: refresh,
     refresh,
     pointerEntered() {
+      if (!pointerEntryArmed) return;
+      pointerEntryArmed = false;
       state = { ...state, pointerInside: true };
       publish();
       void reveal("pointer_enter");
     },
     pointerLeft() {
+      pointerEntryArmed = true;
       state = { ...state, pointerInside: false };
       publish();
-      scheduleRetract();
+      scheduleRetract("pointer_leave");
     },
     setLock,
     async dragStarted() {
@@ -231,7 +264,8 @@ export function createMiniEdgeAutoHideController(
       await reveal("drag_start");
     },
     async dragCompleted() {
-      clearTimer();
+      clearTimer("drag_complete");
+      const expectedGeneration = generation;
       try {
         const status = await dependencies.completeDrag();
         if (disposed) return;
@@ -239,8 +273,24 @@ export function createMiniEdgeAutoHideController(
           ...state,
           locks: { ...state.locks, dragging: false },
         };
+        if (expectedGeneration !== generation) {
+          publish();
+          return;
+        }
+        const docked = status.auto_hide && status.dock !== "none";
+        if (docked) {
+          pointerEntryArmed = false;
+          // Pointer capture leaves the dragged WebView focused after release.
+          // Once native docking succeeds, that focus belongs to the completed
+          // drag and must not block the first privacy retraction.
+          state = {
+            ...state,
+            pointerInside: false,
+            locks: { ...state.locks, focus_inside: false },
+          };
+        }
         applyNative(status);
-        scheduleRetract();
+        if (status.visibility === "expanded") scheduleRetract("drag_complete");
       } catch (error) {
         state = {
           ...state,
@@ -248,13 +298,14 @@ export function createMiniEdgeAutoHideController(
           phase: "expanded",
         };
         publish();
+        emit("mini.edge.fallback", "drag_complete");
         dependencies.onError?.(error);
       }
     },
     reveal,
     dispose() {
       disposed = true;
-      clearTimer();
+      clearTimer("dispose");
     },
   };
 }

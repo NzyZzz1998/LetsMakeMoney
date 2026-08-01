@@ -8,15 +8,18 @@
 | --- | --- |
 | 当前公开版本 | Windows v1.0.4 Stable |
 | 当前公开 tag | `v1.0.4` |
-| 当前开发版本 | Windows v1.0.4；已发布 / 发布后观察 |
+| 当前开发版本 | Windows v1.0.5；V105-M0 至 M6 与修复后独立 ACC 已完成，通过并可进入发布收口 |
+| 下一版本候选 | Windows v1.0.5；`V105-20260801T013259Z-6c9f010a-clean` |
 | v1.0.1 阶段 | 已发布 |
 | v1.0.2 阶段 | 已发布 / 发布后观察 |
 | v1.0.3 阶段 | 已发布 / 发布后观察 |
 | v1.0.4 阶段 | M0 至 M6、ACC 全部完成，74/74；已发布 |
 | 技术栈 | Rust + Tauri + TypeScript/React |
 | 产品形态 | 无宠物、本地优先的 Windows 收入进度工具 |
-| 发布阻塞 | 无；真实多显示器、负坐标工作区与显示器移除回落延期补证，不阻塞本版 |
-| 最后更新 | 2026-07-31 |
+| 发布阻塞 | v1.0.4 无；v1.0.5 当前无发布阻塞，发布收口已获项目所有者授权 |
+| 最后更新 | 2026-08-01 |
+
+v1.0.5 candidate 已通过验收，项目所有者已授权执行发布收口；验收 candidate 本身不可发布，仅作为证据输入，正式附件必须从最终合并后的干净发布提交重新构建。
 
 ## v1.0 公开基线
 
@@ -130,6 +133,34 @@ v1.0.4 发布源提交为 `4d06dc73dbc5c27d7a97462d8262a553dd97d5b6`，最终产
 
 GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.4`
 
+## v1.0.5 候选观察
+
+项目所有者在 v1.0.4 Stable 真实发布包中记录了日历正常态提示、今天标记、Mini 首次贴边收起、隐私竖条、关闭今日工作台后的非预期界面，以及窗口边界“框中框”观感等六项反馈。深度 Review、Idea、推荐方案 PRD、需求追踪矩阵与高保真交互原型已经完成并确认；V105-M0 至 M6 已完成。唯一 clean 候选 `V105-20260801T002456Z-277b121b-clean` 从源码提交 `277b121bbc68958382d06f4b29de3bd7685650f4` 构建并通过完整自动聚合，Zip SHA256 为 `BE2E1004427859AD30A4A4B23B12C00CF8A5EBD69F7A2442F345813F28CA521C`。
+
+首个独立 ACC 在 Windows 11、100% DPI、单显示器环境发现 Mini 保持焦点时首次贴边不收起，复开 V105-BUG-001；该旧候选及其哈希继续作为历史失败证据保留。最小修复完成后，新 clean 候选 `V105-20260801T013259Z-6c9f010a-clean` 从提交 `6c9f010a164fb2b73c9068bd4fdcb6e863bd5100` 构建，Zip SHA256 为 `0FED6256E1E979D4BEC41E64C4290EF1917A6A6AB2B04D9A6EF47F1DD3C48826`。
+
+修复后独立验收 `ACC-20260801-105930-retest` 已通过：左右首次贴边收起、悬停/移开、点击/键盘找回、深色 working 隐私竖条、关闭 Workbench 后保持收起，以及真实 Windows 通知区左键隐藏/恢复均有真实证据；M6 聚合、核心回归和用户环境恢复通过。V105-BUG-001 已关闭，当前无发布阻塞。多显示器由项目所有者批准延期，Windows 10 因无设备或 VM 保持环境待补证；项目所有者已授权执行 commit、push、tag 与 Release 发布收口：
+
+- `doc/releases/v1.0.5/issue-pool.md`
+- `doc/releases/v1.0.5/review.md`
+- `doc/releases/v1.0.5/slimming-candidates.md`
+- `doc/releases/v1.0.5/idea-pool.md`
+- `doc/releases/v1.0.5/prd.md`
+- `doc/releases/v1.0.5/traceability.md`
+- `doc/releases/v1.0.5/dev_plan_v1.0.5.md`
+- `doc/releases/v1.0.5/progress_v1.0.5.md`
+- `doc/releases/v1.0.5/m0-baseline.md`
+- `doc/releases/v1.0.5/fr004-reproduction-contract.md`
+- `doc/releases/v1.0.5/evidence-matrix.md`
+- `doc/releases/v1.0.5/artifact-and-evidence-contract.md`
+- `doc/releases/v1.0.5/verification.md`
+- `doc/releases/v1.0.5/window-surface-spike.md`
+- `doc/logs/dev_log_v1.0.5.md`
+- `doc/logs/v1.0.5-bugfix-log.md`
+- `doc/prototypes/v1.0/index.html`
+
+### v1.0.4 继承架构与范围基线
+
 架构基线已完成：
 
 1. `AppRuntime`、统一时间服务和配置、Dashboard、支持、窗口 Service。
@@ -139,7 +170,7 @@ GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.
 
 这些内容在 v1.0.4 中只作为继承门禁，不重复开发，也不继续扩大模块拆分。
 
-正式范围包括：
+v1.0.4 已完成范围包括：
 
 1. 便携包专用离线 README 与语义包验。
 2. 两层验收证据耐久合同。
@@ -217,7 +248,16 @@ v1.0.3 GitHub Release 的 README 快照差异披露已进入需求范围，但�
 - [v1.0.4 发布检查](releases/v1.0.4/release-checklist.md)
 - [v1.0.4 发布说明](releases/v1.0.4/release-notes.md)
 - [v1.0.4 开发日志](logs/dev_log_v1.0.4.md)
+- [v1.0.5 深度 Review](releases/v1.0.5/review.md)
+- [v1.0.5 候选问题池](releases/v1.0.5/issue-pool.md)
+- [v1.0.5 瘦身候选](releases/v1.0.5/slimming-candidates.md)
+- [v1.0.5 Idea 需求池](releases/v1.0.5/idea-pool.md)
+- [v1.0.5 完整 PRD](releases/v1.0.5/prd.md)
+- [v1.0.5 需求追踪矩阵](releases/v1.0.5/traceability.md)
+- [v1.0.5 开发计划](releases/v1.0.5/dev_plan_v1.0.5.md)
+- [v1.0.5 进度看板](releases/v1.0.5/progress_v1.0.5.md)
+- [v1.0.5 开发日志](logs/dev_log_v1.0.5.md)
 
 ## 下一步
 
-进入 v1.0.4 发布后观察：只记录真实发布问题，不修改 `v1.0.4` tag、Release 附件或既有哈希；后续需求另行进入 Review。
+v1.0.5 修复后独立 ACC 已通过，V105-BUG-001 已关闭，项目所有者已授权发布收口。下一步生成发布提交，经受保护的 PR 合入 `main`，从最终干净提交重建，执行 published 模式验证、推送 tag 并创建 GitHub Release。旧失败候选及其哈希不得用于发布。

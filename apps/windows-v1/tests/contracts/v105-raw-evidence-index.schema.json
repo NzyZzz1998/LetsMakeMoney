@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NzyZzz1998/LetsMakeMoney/schemas/v105-raw-evidence-index.schema.json",
+  "title": "LetsMakeMoney v1.0.5 external raw evidence index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "archive_id",
+    "archive_sha256",
+    "availability",
+    "custodian_role",
+    "contents",
+    "retention",
+    "unique_copy",
+    "reason",
+    "updated_at"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "archive_id": { "type": "string", "pattern": "^LMM-V105-[A-Z0-9-]{6,64}$" },
+    "archive_sha256": { "type": ["string", "null"], "pattern": "^[A-F0-9]{64}$" },
+    "availability": { "enum": ["available", "restricted", "missing", "not_collected"] },
+    "custodian_role": { "enum": ["project-owner", "release-maintainer"] },
+    "contents": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "enum": ["screenshots", "recordings", "full_logs", "resource_curves", "system_operations"] }
+    },
+    "retention": { "const": "owner-managed" },
+    "unique_copy": { "type": "boolean" },
+    "reason": { "type": ["string", "null"] },
+    "updated_at": { "type": "string", "format": "date-time" }
+  }
+}

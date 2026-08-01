@@ -36,6 +36,7 @@ import {
   boundaryPresentation,
   calendarBusinessState,
   calendarCellContract,
+  calendarCoveragePresentation,
   timelineRows,
   workbenchHeading,
 } from "./presentation";
@@ -105,29 +106,8 @@ function CalendarCoverageNotice({
 }: {
   coverage: ReturnType<typeof useDashboard>["snapshot"]["calendarCoverage"];
 }) {
-  const content = coverage.mode === "official"
-    ? {
-        title: "官方日历",
-        detail: `${coverage.year} 年数据随应用离线提供`,
-        tone: "official",
-      }
-    : coverage.mode === "estimated"
-      ? {
-          title: "估算日历",
-          detail: `${coverage.year} 年尚无内置官方数据，当前按休息模式推算，不代表法定放假安排`,
-          tone: "estimated",
-        }
-      : coverage.mode === "stale"
-        ? {
-            title: "数据过期",
-            detail: "当前显示同一月份的上次有效数据，日期调整暂不可用",
-            tone: "stale",
-          }
-        : {
-            title: "日历加载失败",
-            detail: "数据完整性校验未通过，未使用估算结果替代",
-            tone: "error",
-          };
+  const content = calendarCoveragePresentation(coverage);
+  if (!content.isVisible || content.tone === null) return null;
   return (
     <div className={`calendar-coverage calendar-coverage--${content.tone}`} role="status">
       <strong>{content.title}</strong>
@@ -452,6 +432,9 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
                     }
                     onClick={() => setSelectedDate(daySnapshot.date)}
                   >
+                    {contract.todayCue && (
+                      <span className="calendar-day__today" aria-hidden="true">{contract.todayCue}</span>
+                    )}
                     <span className="calendar-day__number">{day}</span>
                     <span className="calendar-day__marker" aria-hidden="true" />
                   </button>
@@ -465,7 +448,7 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
               <span><i className="legend-dot legend-dot--manual" />手动工作</span>
               <span><i className="legend-dot legend-dot--paid" />带薪休息</span>
               <span><i className="legend-dot legend-dot--unpaid" />不带薪休息</span>
-              <span><i className="legend-ring" />今天</span>
+              <span><i className="legend-today">今</i>今天</span>
               <span><i className="legend-selected" />已选日期</span>
             </div>
           </>
@@ -1044,12 +1027,12 @@ function SupportSettings() {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const body = await response.text();
-      const result = await supportService.evaluateUpdate("1.0.4", body, null);
+      const result = await supportService.evaluateUpdate("1.0.5", body, null);
       await record("update.checked", `status=${result.status}`);
       setFeedback({ tone: result.status === "unavailable" ? "warning" : "success", message: result.message });
     } catch (error) {
       const result = await supportService
-        .evaluateUpdate("1.0.4", null, String(error))
+        .evaluateUpdate("1.0.5", null, String(error))
         .catch(() => ({ status: "unavailable" as const, message: `暂时无法检查更新：${String(error)}` }));
       await record("update.check_failed", `reason=${String(error)}`);
       setFeedback({ tone: "warning", message: `${result.message} 当前版本可继续正常使用。` });
@@ -1072,7 +1055,7 @@ function SupportSettings() {
       <section>
         <h2>关于</h2>
         <dl className="summary-list">
-          <div><dt>版本</dt><dd>1.0.4</dd></div>
+          <div><dt>版本</dt><dd>1.0.5</dd></div>
           <div><dt>数据</dt><dd>仅保存在本机</dd></div>
           <div><dt>运行环境</dt><dd>Windows · WebView2</dd></div>
           {platform && <div><dt>原生能力</dt><dd>{platform.tray_available && platform.explorer_available ? "可用" : "部分不可用，主功能不受影响"}</dd></div>}

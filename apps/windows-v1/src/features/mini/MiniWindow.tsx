@@ -15,6 +15,7 @@ import {
 } from "../../services/windowService";
 import { formatShortDate } from "../../utils/presentationFormatters";
 import { useMiniEdgeAutoHide } from "./useMiniEdgeAutoHide";
+import { privacyTabPresentation } from "./privacyTabPresentation";
 
 interface MiniWindowProps {
   onOpenWindow(label: WindowKind): void;
@@ -39,6 +40,22 @@ export function MiniWindow({ onOpenWindow }: MiniWindowProps) {
     });
   }, [miniState]);
 
+  const privacy = privacyTabPresentation({
+    state: snapshot.state,
+    phase: snapshot.phase,
+    nextBoundaryKind: snapshot.nextBoundaryKind,
+    nextBoundarySeconds: snapshot.nextBoundarySeconds,
+  });
+
+  const revealFromPrivacyControl = () => {
+    if (drag.consumeDraggedClick()) return;
+    void Promise.resolve(edge.reveal("privacy_activate")).then(() => {
+      window.requestAnimationFrame(() => {
+        document.querySelector<HTMLElement>("[data-mini-primary-action]")?.focus();
+      });
+    });
+  };
+
   if (edge.snapshot.phase === "retracted") {
     return (
       <main
@@ -46,16 +63,17 @@ export function MiniWindow({ onOpenWindow }: MiniWindowProps) {
         data-window="mini"
         {...edge.handlers}
         {...drag.handlers}
+        data-privacy-surface="true"
       >
         <button
           className="mini-window__privacy-hit"
           type="button"
           data-window-drag="false"
-          aria-label="展开迷你收入视图"
-          onClick={() => activateClick(() => {
-            void edge.reveal("pointer_enter");
-          })}
-        />
+          aria-label={privacy.ariaLabel}
+          onClick={revealFromPrivacyControl}
+        >
+          <span aria-hidden="true" data-privacy-copy="true">{privacy.visibleText}</span>
+        </button>
       </main>
     );
   }
@@ -91,6 +109,7 @@ export function MiniWindow({ onOpenWindow }: MiniWindowProps) {
           <button
             type="button"
             data-window-drag="false"
+            data-mini-primary-action="true"
             onClick={() => activateClick(() => onOpenWindow("settings"))}
           >
             检查设置
@@ -128,6 +147,7 @@ export function MiniWindow({ onOpenWindow }: MiniWindowProps) {
       <button
         className="mini-window__primary"
         type="button"
+        data-mini-primary-action="true"
         onClick={() => activateClick(() => onOpenWindow("workbench"))}
         aria-label="打开今日工作台"
       >

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "milestone": "V105-M2",
+  "states": [
+    {
+      "id": "docked-expanded-idle",
+      "pointer_inside": false,
+      "dock": "right",
+      "locks": [],
+      "expected_timer": "scheduled"
+    },
+    {
+      "id": "drag-release-at-edge-without-pointerleave",
+      "pointer_inside": true,
+      "dock": "right",
+      "locks": [],
+      "expected_timer": "missing-currently"
+    },
+    {
+      "id": "drag-back-to-floating",
+      "pointer_inside": true,
+      "dock": "none",
+      "locks": [],
+      "expected_timer": "not-eligible"
+    },
+    {
+      "id": "menu-open",
+      "pointer_inside": false,
+      "dock": "left",
+      "locks": ["menu_open"],
+      "expected_timer": "blocked"
+    },
+    {
+      "id": "modal-open",
+      "pointer_inside": false,
+      "dock": "left",
+      "locks": ["modal_open"],
+      "expected_timer": "blocked"
+    },
+    {
+      "id": "focus-inside",
+      "pointer_inside": false,
+      "dock": "right",
+      "locks": ["focus_inside"],
+      "expected_timer": "blocked"
+    },
+    {
+      "id": "ordinary-window-focus",
+      "pointer_inside": false,
+      "dock": "right",
+      "locks": [],
+      "event_source": "focus",
+      "current_reveal_source": "window_shown"
+    },
+    {
+      "id": "explicit-native-shown",
+      "pointer_inside": false,
+      "dock": "right",
+      "locks": [],
+      "event_source": "lmm:window-shown",
+      "current_reveal_source": "window_shown"
+    }
+  ]
+}

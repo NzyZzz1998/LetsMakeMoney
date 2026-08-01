@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NzyZzz1998/LetsMakeMoney/schemas/v105-acceptance-summary.schema.json",
+  "title": "LetsMakeMoney v1.0.5 redacted acceptance summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "release_version",
+    "candidate_id",
+    "branch",
+    "commit",
+    "source_tree_dirty",
+    "artifacts",
+    "environment",
+    "checks",
+    "conclusion",
+    "limitations",
+    "log_summary",
+    "redaction",
+    "raw_evidence_index_id",
+    "generated_at"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "release_version": { "const": "1.0.5" },
+    "candidate_id": { "type": "string", "pattern": "^V105-[A-Z0-9._-]{6,80}$" },
+    "branch": { "type": "string", "minLength": 1 },
+    "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "source_tree_dirty": { "type": "boolean" },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/artifact" }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["windows_version", "dpi", "display_count"],
+      "properties": {
+        "windows_version": { "type": "string", "minLength": 1 },
+        "dpi": { "type": "array", "items": { "enum": [100, 125, 150] }, "uniqueItems": true },
+        "display_count": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "result", "evidence"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^V105-(?:M[0-6]|ACC)-[0-9]{3}$" },
+          "result": { "enum": ["passed", "partial", "failed", "manual_pending", "not_tested"] },
+          "evidence": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "conclusion": { "enum": ["passed", "partial", "failed"] },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "log_summary": { "type": "string" },
+    "redaction": { "const": "paths-users-secrets-and-user-data-removed" },
+    "raw_evidence_index_id": { "type": ["string", "null"], "pattern": "^LMM-V105-[A-Z0-9-]{6,64}$" },
+    "generated_at": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "size", "sha256"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[^\\\\/:]+$" },
+        "size": { "type": "integer", "minimum": 1 },
+        "sha256": { "type": "string", "pattern": "^[A-F0-9]{64}$" }
+      }
+    }
+  }
+}

@@ -27,12 +27,14 @@ LOADER_SHA256 = "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1
 DOCUMENTS = [
     ROOT / "README.md",
     ROOT / "README.en.md",
+    ROOT / "apps" / "windows-v1" / "README.md",
     ROOT / "doc" / "current.md",
     *sorted((ROOT / "doc" / "releases" / "v1.0").glob("*.md")),
     *sorted((ROOT / "doc" / "releases" / "v1.0.1").glob("*.md")),
     *sorted((ROOT / "doc" / "releases" / "v1.0.2").glob("*.md")),
     *sorted((ROOT / "doc" / "releases" / "v1.0.3").glob("*.md")),
     *sorted((ROOT / "doc" / "releases" / "v1.0.4").glob("*.md")),
+    *sorted((ROOT / "doc" / "releases" / "v1.0.5").glob("*.md")),
 ]
 
 
@@ -146,6 +148,49 @@ def check_release_identity() -> None:
                 fail(f"{path.relative_to(ROOT)} 缺少 v1.0.4 {label}")
 
 
+def check_current_readmes() -> None:
+    root_zh = read_utf8(ROOT / "README.md")
+    root_en = read_utf8(ROOT / "README.en.md")
+    app_readme = read_utf8(ROOT / "apps" / "windows-v1" / "README.md")
+    release_url = "https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.4"
+
+    for label, text in (("README.md", root_zh), ("README.en.md", root_en)):
+        required = (
+            "v1.0.4 Stable",
+            release_url,
+            "v1.0.5",
+            "package_v105.ps1",
+            "verify_v105_package.ps1",
+            "verify_v105.ps1",
+        )
+        for marker in required:
+            if marker not in text:
+                fail(f"{label} missing current release marker: {marker}")
+        for stale in ("package_v103.ps1", "verify_v103_package.ps1"):
+            if stale in text:
+                fail(f"{label} still uses stale default command: {stale}")
+
+    if "当前公开版本为 v1.0.4 Stable" not in app_readme:
+        fail("apps/windows-v1/README.md current public version drift")
+    if "当前开发目标为 v1.0.5" not in app_readme:
+        fail("apps/windows-v1/README.md current development version drift")
+    if "scripts\\verify_v105.ps1" not in app_readme:
+        fail("apps/windows-v1/README.md missing current aggregate verification command")
+    if "scripts\\package_v105.ps1" not in app_readme:
+        fail("apps/windows-v1/README.md missing current isolated packaging command")
+
+    for path, text in (
+        (ROOT / "README.md", root_zh),
+        (ROOT / "README.en.md", root_en),
+        (ROOT / "apps" / "windows-v1" / "README.md", app_readme),
+    ):
+        for script in re.findall(r"scripts[\\/]+([A-Za-z0-9_.-]+\.ps1)", text):
+            if not (ROOT / "scripts" / script).is_file():
+                fail(f"{path.relative_to(ROOT)} references missing script: {script}")
+        if "\ufffd" in text or "锟斤拷" in text:
+            fail(f"{path.relative_to(ROOT)} contains replacement or mojibake text")
+
+
 def main() -> int:
     required = {
         ROOT / "doc" / "current.md",
@@ -183,6 +228,15 @@ def main() -> int:
         ROOT / "doc" / "releases" / "v1.0.4" / "manual-verification.md",
         ROOT / "doc" / "releases" / "v1.0.4" / "release-checklist.md",
         ROOT / "doc" / "releases" / "v1.0.4" / "release-notes.md",
+        ROOT / "doc" / "releases" / "v1.0.5" / "README.md",
+        ROOT / "doc" / "releases" / "v1.0.5" / "prd.md",
+        ROOT / "doc" / "releases" / "v1.0.5" / "dev_plan_v1.0.5.md",
+        ROOT / "doc" / "releases" / "v1.0.5" / "progress_v1.0.5.md",
+        ROOT / "doc" / "releases" / "v1.0.5" / "verification.md",
+        ROOT / "doc" / "releases" / "v1.0.5" / "manual-verification.md",
+        ROOT / "doc" / "releases" / "v1.0.5" / "release-checklist.md",
+        ROOT / "doc" / "releases" / "v1.0.5" / "release-notes.md",
+        ROOT / "doc" / "releases" / "v1.0.5" / "traceability.md",
     }
     for path in required:
         if not path.exists():
@@ -195,6 +249,7 @@ def main() -> int:
         check_local_links(path, text)
 
     check_release_identity()
+    check_current_readmes()
 
     current = read_utf8(ROOT / "doc" / "current.md")
     if "当前公开版本 | Windows v1.0.4 Stable" not in current:
@@ -222,9 +277,9 @@ def main() -> int:
             print(f"- {item}")
         return 1
 
-    print("v1.0/v1.0.1/v1.0.2/v1.0.3/v1.0.4 文档检查通过")
+    print("v1.0/v1.0.1/v1.0.2/v1.0.3/v1.0.4 与 v1.0.5 开发文档检查通过")
     print(f"- UTF-8 与乱码：{len(DOCUMENTS)} 份文档")
-    print("- v1.0、v1.0.1、v1.0.2、v1.0.3 与 v1.0.4 必需事实源及本地链接完整")
+    print("- v1.0 至 v1.0.4 发布事实源、v1.0.5 开发文档及本地链接完整")
     print("- current、release notes、verification 的历史与当前发布哈希一致")
     return 0
 

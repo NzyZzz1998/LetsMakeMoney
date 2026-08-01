@@ -17,6 +17,7 @@ if (-not $esbuild) {
 $behaviorTests = @(
     "architecture-runtime.behavior.ts",
     "authoritative-sync.behavior.ts",
+    "calendar-v105-presentation.behavior.ts",
     "calendar-state.behavior.ts",
     "configuration-domain.behavior.ts",
     "dashboard-lifecycle.behavior.ts",
@@ -24,9 +25,11 @@ $behaviorTests = @(
     "desktop-services.behavior.ts",
     "high-risk-combinations.behavior.ts",
     "mini-edge-auto-hide.behavior.ts",
+    "privacy-tab-presentation.behavior.ts",
     "presentation.behavior.ts",
     "presentation-utils.behavior.ts",
-    "theme.behavior.ts"
+    "theme.behavior.ts",
+    "window-surface-v105.behavior.ts"
 )
 
 foreach ($test in $behaviorTests) {

@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "milestone": "V105-M1",
+  "release_version": "1.0.5",
+  "public_baseline": {
+    "version": "1.0.4",
+    "tag": "v1.0.4",
+    "zip_sha256": "C4F28892831891A4266C4D9B12D432CD5C970BB3C9B36A6B8DB21FA2566DE50E"
+  },
+  "directories": [
+    {
+      "path": ".artifacts/candidates/v1.0.5/<candidate-id>/",
+      "owner": "build-task",
+      "tracked": false,
+      "kind": "candidate"
+    },
+    {
+      "path": ".artifacts/acceptance/v1.0.5/<candidate-id>/",
+      "owner": "acceptance-task",
+      "tracked": false,
+      "kind": "raw-evidence"
+    },
+    {
+      "path": "doc/releases/v1.0.5/evidence/<candidate-id>/",
+      "owner": "documentation-task",
+      "tracked": true,
+      "kind": "redacted-summary"
+    },
+    {
+      "path": ".artifacts/published/v1.0.5/<tag>/<downloaded-at>/",
+      "owner": "release-verification-task",
+      "tracked": false,
+      "kind": "published-cache"
+    },
+    {
+      "path": "releases/v1.0.5/",
+      "owner": "release-closing-task",
+      "tracked": false,
+      "kind": "staging"
+    }
+  ],
+  "schemas": [
+    "apps/windows-v1/tests/contracts/v105-build-info.schema.json",
+    "apps/windows-v1/tests/contracts/v105-acceptance-summary.schema.json",
+    "apps/windows-v1/tests/contracts/v105-raw-evidence-index.schema.json",
+    "apps/windows-v1/tests/contracts/v105-published-cache-index.schema.json"
+  ],
+  "candidate_contract": {
+    "allows_dirty": true,
+    "requires_source_head": true,
+    "requires_payload_hashes": true,
+    "can_claim_published": false
+  },
+  "published_contract": {
+    "allows_dirty": false,
+    "requires_tag_target_match": true,
+    "requires_release_url_match": true,
+    "requires_downloaded_zip_sha256": true,
+    "requires_checksums_match": true
+  },
+  "evidence_contract": {
+    "repository_content": "redacted-summary-and-index-only",
+    "raw_content": "external-owner-managed",
+    "unique_copy_deletion_allowed": false,
+    "replacement_evidence_can_overwrite_history": false
+  },
+  "dirty_v104_candidate": {
+    "zip_sha256": "C67E730BF81741D03BFAF6D14F3F16EB74FD8591D8B3AB76D45A980E854C249B",
+    "deleted": false,
+    "deletion_authorized": false,
+    "published_cache_reverified": false,
+    "disposition": "retained_pending_separate_authorization"
+  },
+  "business_code_modified": false,
+  "build_or_package_executed": false
+}

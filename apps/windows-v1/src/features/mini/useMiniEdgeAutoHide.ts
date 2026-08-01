@@ -9,6 +9,7 @@ import {
 import { createDeferredDisposer } from "../../runtime/appRuntime";
 import { configurationService } from "../../services/configurationService";
 import { windowService } from "../../services/windowService";
+import { recordSemanticEvent } from "../../model";
 import {
   createMiniEdgeAutoHideController,
   type MiniEdgeAutoHideController,
@@ -54,18 +55,25 @@ export function useMiniEdgeAutoHide() {
       completeDrag: () => windowService.completeMiniDrag(reducedMotion()),
       onChange: setSnapshot,
       onError: reportError,
+      onEvent: recordSemanticEvent,
     });
     controller.current = current;
     void current.initialize();
 
+    const handleFocus = () => {
+      current.setLock("focus_inside", true);
+    };
+    const handleBlur = () => {
+      current.setLock("focus_inside", false);
+    };
     const handleShown = () => {
       void current.reveal("window_shown");
-      void current.refresh();
     };
     const handleConfigurationUpdated = () => {
       void current.refresh();
     };
-    window.addEventListener("focus", handleShown);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("blur", handleBlur);
     window.addEventListener("lmm:window-shown", handleShown);
     window.addEventListener(
       "lmm:configuration-updated",
@@ -79,7 +87,8 @@ export function useMiniEdgeAutoHide() {
         .catch(reportError);
     }
     return () => {
-      window.removeEventListener("focus", handleShown);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("blur", handleBlur);
       window.removeEventListener("lmm:window-shown", handleShown);
       window.removeEventListener(
         "lmm:configuration-updated",

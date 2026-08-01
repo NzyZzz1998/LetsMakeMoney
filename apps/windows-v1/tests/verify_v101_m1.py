@@ -85,6 +85,7 @@ def verify_frontend_state_machine() -> None:
     coverage = read(APP_ROOT / "src" / "calendarCoverage.ts")
     model = read(APP_ROOT / "src" / "model.ts")
     app = read(APP_ROOT / "src" / "App.tsx")
+    presentation = read(APP_ROOT / "src" / "presentation.ts")
     for status in ["loading", "ready", "empty", "stale", "error"]:
         require(f'"{status}"' in state, f"Calendar state is missing: {status}")
     for mode in ["official", "estimated", "stale", "integrity_error"]:
@@ -102,11 +103,14 @@ def verify_frontend_state_machine() -> None:
         "正在读取",
         "没有可用日期数据",
         "重试",
-        "估算日历",
-        "数据完整性校验未通过",
         "上次有效数据",
     ]:
         require(copy in app, f"Calendar user feedback is missing: {copy}")
+    for copy in [
+        "估算日历",
+        "数据完整性校验未通过",
+    ]:
+        require(copy in presentation, f"Calendar coverage feedback is missing: {copy}")
 
 
 def verify_no_secret_or_absolute_path() -> None:

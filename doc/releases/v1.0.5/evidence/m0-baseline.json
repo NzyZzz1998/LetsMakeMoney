@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "milestone": "V105-M0",
+  "captured_at": "2026-08-01T00:02:34+08:00",
+  "git": {
+    "branch": "main",
+    "development_head": "8a63da7836fb24c3b7f8ff12f896ac40571adeb7",
+    "remote": "origin",
+    "remote_url": "git@github.com:NzyZzz1998/LetsMakeMoney.git",
+    "remote_main": "8a63da7836fb24c3b7f8ff12f896ac40571adeb7",
+    "remote_main_protected": true,
+    "worktree": "intentional_v105_prd_prototype_and_handoff_changes",
+    "business_code_modified": false,
+    "release_tag": "v1.0.4",
+    "release_tag_object": "2e4fec17520524ac1e53a4e1bc993448d9255981",
+    "release_commit": "4d06dc73dbc5c27d7a97462d8262a553dd97d5b6",
+    "tag_signature": "unsigned"
+  },
+  "official_release": {
+    "name": "LetsMakeMoney v1.0.4",
+    "url": "https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.4",
+    "published_at": "2026-07-31T06:56:39Z",
+    "draft": false,
+    "prerelease": false,
+    "zip": {
+      "name": "LetsMakeMoney-v1.0.4-windows-x86_64.zip",
+      "asset_id": 496358926,
+      "size": 3228929,
+      "sha256": "C4F28892831891A4266C4D9B12D432CD5C970BB3C9B36A6B8DB21FA2566DE50E"
+    },
+    "checksums": {
+      "name": "SHA256SUMS.txt",
+      "asset_id": 496358927,
+      "size": 107,
+      "sha256": "62886BD5359ABD12FDF3468447D114FACFEF97AD88FEA8CA1616CA1218F97ED6"
+    },
+    "build_info": {
+      "sha256": "04D1593BC740419EA6D508ABE1CAA9C4DEC391624CD42149B51FD12CB33F4E50",
+      "version": "1.0.4",
+      "channel": "stable-candidate",
+      "source_head": "4d06dc73dbc5c27d7a97462d8262a553dd97d5b6",
+      "source_tree_dirty": false,
+      "built_at_utc": "2026-07-31T06:53:13.2838601Z"
+    },
+    "executable": {
+      "size": 10107904,
+      "sha256": "E0C9C603703FC2632619AFBC84F63B1B1D403273CD01D29AA0A308A95243E107"
+    },
+    "webview2_loader": {
+      "size": 160320,
+      "sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
+    }
+  },
+  "local_dirty_candidate": {
+    "path": "releases/v1.0.4/LetsMakeMoney-v1.0.4-windows-x86_64.zip",
+    "disposition": "retained_pending_separate_authorization",
+    "deleted": false,
+    "zip": {
+      "size": 3228960,
+      "sha256": "C67E730BF81741D03BFAF6D14F3F16EB74FD8591D8B3AB76D45A980E854C249B"
+    },
+    "checksums": {
+      "path": "releases/v1.0.4/SHA256SUMS.txt",
+      "size": 107,
+      "sha256": "AF4777F3C2D96315E069F4C1B0B377315D4249D503B5F2EA9E60CB76EC7D24E2"
+    },
+    "build_info": {
+      "sha256": "8CBE58AA5761C797B10741196A80C6BF0270F902D20FF560C8B24D5E3C9B5721",
+      "version": "1.0.4",
+      "channel": "stable-candidate",
+      "source_head": "09f838d05c67efb5219437ec2208920e441f3f52",
+      "source_tree_dirty": true,
+      "built_at_utc": "2026-07-30T19:56:15.1598203Z"
+    },
+    "executable": {
+      "size": 10108416,
+      "sha256": "B2A1831D0F7832C77033582871C12A2148CC8F3279753A5B812C293869ED1C66"
+    },
+    "webview2_loader": {
+      "size": 160320,
+      "sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
+    }
+  },
+  "decisions": {
+    "prd_confirmed": true,
+    "calendar_today_scheme": "A_top_left_today_badge_and_bold_date",
+    "fr004_reproduction_runs": 20,
+    "fr004_zero_reproduction_outcome": "do_not_implement_keep_observation",
+    "fr008_surface_gate": "real_tauri_shell_required",
+    "fr008_failure_outcome": "retain_v1.0.4_surface",
+    "dirty_candidate_deletion_authorized": false
+  },
+  "mini_baseline": {
+    "phases": [
+      "expanded",
+      "retract_pending",
+      "retracted"
+    ],
+    "interaction_locks": [
+      "dragging",
+      "focus_inside",
+      "menu_open",
+      "modal_open"
+    ],
+    "retract_delay_ms": 600,
+    "transition_ms": 180,
+    "dock_threshold_logical_px": 16,
+    "privacy_tab_logical_px": 10,
+    "undock_threshold_logical_px": 24,
+    "fallback_margin_logical_px": 12,
+    "config_version": 8,
+    "config_fields": [
+      "mini_edge_auto_hide",
+      "mini_edge_dock"
+    ],
+    "normal_position_persistence": "expanded_only",
+    "retracted_position_persistence": "never",
+    "confirmed_gaps": [
+      "drag completion does not provide release-time pointer intent",
+      "drag completion retains stale pointerInside",
+      "browser focus and explicit lmm:window-shown share reveal handling"
+    ]
+  },
+  "fr_baseline": {
+    "FR-001": "readmes_exist_version_gate_requires_v105_extension",
+    "FR-002": "v104_build_info_exists_candidate_published_modes_missing",
+    "FR-003": "v104_controller_exists_no_pointerleave_failure_test_missing",
+    "FR-004": "focus_and_explicit_shown_not_separated_reproduction_pending",
+    "FR-005": "blank_10px_hit_target_exists_28px_content_tab_missing",
+    "FR-006": "coverage_notice_exists_normal_official_suppression_pending",
+    "FR-007": "scheme_A_confirmed_production_implementation_pending",
+    "FR-008": "browser_prototype_exists_real_shell_spike_pending",
+    "FR-009": "v104_gates_inherited_v105_aggregate_skeleton_created",
+    "FR-010": "v104_summary_rules_exist_v105_directory_contract_pending"
+  },
+  "evidence_contract": {
+    "mini_matrix_count": 24,
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "dpi": [
+      100,
+      125,
+      150
+    ],
+    "edges": [
+      "left",
+      "right"
+    ],
+    "multi_display_required": true,
+    "allowed_results": [
+      "通过",
+      "部分通过",
+      "未通过",
+      "待人工补证",
+      "暂不验证"
+    ]
+  },
+  "inherited_evidence": {
+    "v104_release_identity": {
+      "status": "locked",
+      "invalidated_by": [
+        "remote tag rewrite",
+        "remote asset replacement",
+        "downloaded SHA mismatch"
+      ]
+    },
+    "v104_mini_state_and_geometry": {
+      "status": "baseline_only",
+      "invalidated_by": [
+        "mini controller or hook change",
+        "drag or native geometry change",
+        "configuration schema or persistence change"
+      ]
+    },
+    "v105_candidate_evidence": {
+      "status": "not_created",
+      "invalidated_by": [
+        "source HEAD change",
+        "dirty state change",
+        "Zip EXE DLL README or BUILD-INFO hash change"
+      ]
+    }
+  },
+  "verification": {
+    "m0_tasks": "8/8",
+    "business_code_changes": "0",
+    "build": "not_run_by_scope",
+    "package": "not_run_by_scope",
+    "fr004_real_runs": "0/20_contract_only",
+    "real_dpi_and_multi_display": "not_run_matrix_only"
+  }
+}

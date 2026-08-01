@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LetsMakeMoney v1.0.3 高保真产品原型</title>
+  <title>LetsMakeMoney v1.0.5 高保真产品原型</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="lab-brand">
       <span class="lab-mark" aria-hidden="true">¥</span>
       <div>
-        <strong>v1.0.3 状态事实源</strong>
-        <span>年度覆盖 · 安全降级 · 浅色 / 深色</span>
+        <strong>v1.0.5 开发前方案评审</strong>
+        <span>隐私竖条 · 日历导航 · 单一窗口表面</span>
       </div>
     </div>
 
@@ -22,6 +22,19 @@
         <button class="segment" data-window="workbench">今日工作台</button>
         <button class="segment" data-window="wizard">首次配置</button>
         <button class="segment" data-window="settings">设置</button>
+      </div>
+      <div class="segmented dock-preview-control" role="group" aria-label="Mini 隐私停靠">
+        <button class="segment is-active" data-mini-dock="floating">悬浮</button>
+        <button class="segment" data-mini-dock="left">左侧收起</button>
+        <button class="segment" data-mini-dock="right">右侧收起</button>
+      </div>
+      <div class="segmented" role="group" aria-label="今天标记方案">
+        <button class="segment is-active" data-today-variant="corner">今天 A</button>
+        <button class="segment" data-today-variant="label">今天 B</button>
+      </div>
+      <div class="segmented" role="group" aria-label="窗口表面方案">
+        <button class="segment is-active" data-surface-mode="single">单一表面</button>
+        <button class="segment" data-surface-mode="legacy">旧边界</button>
       </div>
       <label class="lab-select">
         <span>业务状态</span>
@@ -84,6 +97,9 @@
     </div>
 
     <section id="mini-window" class="app-window mini-window is-visible" aria-label="迷你收入视图">
+      <button class="privacy-edge-tab" id="privacy-edge-tab" type="button" aria-label="距离下班还有四小时三十八分钟，按 Enter 展开迷你收入视图">
+        <span id="privacy-edge-copy">距离下班 4小时38分</span>
+      </button>
       <div class="mini-main">
         <button class="status-orb" id="open-workbench" title="打开今日工作台" aria-label="打开今日工作台">
           <span>¥</span>
@@ -108,7 +124,7 @@
       </div>
     </section>
 
-    <section id="workbench-window" class="app-window workbench-window" aria-label="今日工作台">
+    <section id="workbench-window" class="app-window workbench-window surface-target" aria-label="今日工作台">
       <header class="titlebar">
         <div class="titlebar-title">
           <span class="app-mark">¥</span>
@@ -249,7 +265,7 @@
       </div>
     </section>
 
-    <section id="wizard-window" class="app-window wizard-window" aria-label="首次配置">
+    <section id="wizard-window" class="app-window wizard-window surface-target" aria-label="首次配置">
       <header class="titlebar">
         <div class="titlebar-title">
           <span class="app-mark">¥</span>
@@ -347,7 +363,7 @@
       </div>
     </section>
 
-    <section id="settings-window" class="app-window settings-window" aria-label="设置">
+    <section id="settings-window" class="app-window settings-window surface-target" aria-label="设置">
       <header class="titlebar">
         <div class="titlebar-title">
           <span class="app-mark">¥</span>
@@ -510,6 +526,10 @@
                   <span><strong>开机启动</strong><small>仅注册当前用户，不请求管理员权限</small></span>
                   <span class="inline-toggle"><input type="checkbox" aria-label="开机启动"><i></i></span>
                 </label>
+                <label class="setting-row">
+                  <span><strong>贴边自动隐藏</strong><small>靠近屏幕左右边缘后收起，悬停时展开</small></span>
+                  <span class="inline-toggle"><input id="edge-auto-hide" type="checkbox" checked aria-label="贴边自动隐藏"><i></i></span>
+                </label>
               </fieldset>
             </section>
 
@@ -523,7 +543,7 @@
                   <span><strong>复制诊断摘要</strong><small>内容已脱敏，不包含用户名和完整路径</small></span><span>复制 ›</span>
                 </button>
                 <button type="button" class="setting-row row-button" id="check-update">
-                  <span><strong>检查更新</strong><small>当前版本 v1.0.2</small></span><span>检查 ›</span>
+                  <span><strong>检查更新</strong><small>当前版本 v1.0.4</small></span><span>检查 ›</span>
                 </button>
                 <button type="button" class="setting-row row-button" id="run-wizard">
                   <span><strong>重新运行配置向导</strong><small>不会在完成前写入半成品配置</small></span><span>开始 ›</span>

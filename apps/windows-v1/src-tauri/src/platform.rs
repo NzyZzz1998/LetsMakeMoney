@@ -19,7 +19,7 @@ pub struct EdgeDockPositions {
 }
 
 pub const MINI_EDGE_DOCK_THRESHOLD_LOGICAL_PX: i32 = 16;
-pub const MINI_EDGE_PRIVACY_TAB_LOGICAL_PX: i32 = 10;
+pub const MINI_EDGE_PRIVACY_TAB_LOGICAL_PX: i32 = 28;
 pub const MINI_EDGE_UNDOCK_THRESHOLD_LOGICAL_PX: i32 = 24;
 pub const MINI_EDGE_FALLBACK_MARGIN_LOGICAL_PX: i32 = 12;
 pub const MINI_EDGE_TRANSITION_MS: u64 = 180;
@@ -340,6 +340,13 @@ mod tests {
         .expect("v1.0.4 geometry fixture must parse")
     }
 
+    fn v105_geometry_fixture() -> GeometryFixture {
+        serde_json::from_str(include_str!(
+            "../../tests/fixtures/v105-mini-edge-geometry.json"
+        ))
+        .expect("v1.0.5 geometry fixture must parse")
+    }
+
     #[test]
     fn clamps_offscreen_window_inside_monitor() {
         let monitor = Rect {
@@ -435,6 +442,40 @@ mod tests {
                     case.id
                 );
             }
+        }
+    }
+
+    #[test]
+    fn v105_privacy_tab_keeps_28_logical_pixels_visible() {
+        let fixture = v105_geometry_fixture();
+        assert_eq!(fixture.contract.privacy_tab_logical_px, 28);
+        assert_eq!(
+            MINI_EDGE_PRIVACY_TAB_LOGICAL_PX, fixture.contract.privacy_tab_logical_px,
+            "production privacy-tab width must follow the v1.0.5 contract"
+        );
+        for case in fixture.dock_cases {
+            let side = match case.expected_side.as_str() {
+                "left" => EdgeDockSide::Left,
+                "right" => EdgeDockSide::Right,
+                other => panic!("unexpected v1.0.5 fixture side: {other}"),
+            };
+            let positions = edge_dock_positions(
+                Rect::from(&case.window),
+                Rect::from(&case.work_area),
+                side,
+                case.scale_factor,
+                fixture.contract.privacy_tab_logical_px,
+            );
+            let expected = case
+                .expected_retracted
+                .as_ref()
+                .expect("v1.0.5 docked case needs a retracted position");
+            assert_eq!(
+                positions.retracted,
+                (expected.x, expected.y),
+                "fixture {}",
+                case.id
+            );
         }
     }
 

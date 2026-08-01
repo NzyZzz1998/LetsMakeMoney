@@ -30,6 +30,8 @@ export function WindowFrame({
     <main
       className={`window-frame ${className}`}
       data-window={kind}
+      data-surface-owner="window-frame"
+      data-shadow-owner="native-window"
       {...drag.handlers}
     >
       <header className="titlebar">

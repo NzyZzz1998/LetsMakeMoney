@@ -199,6 +199,49 @@ export interface CalendarCellPresentation {
   isDisabled?: boolean;
 }
 
+export interface CalendarCoveragePresentation {
+  isVisible: boolean;
+  title: string;
+  detail: string;
+  tone: "estimated" | "stale" | "error" | null;
+}
+
+export function calendarCoveragePresentation(input: {
+  mode: "official" | "estimated" | "stale" | "integrity_error";
+  year: number;
+}): CalendarCoveragePresentation {
+  if (input.mode === "official") {
+    return {
+      isVisible: false,
+      title: "",
+      detail: "",
+      tone: null,
+    };
+  }
+  if (input.mode === "estimated") {
+    return {
+      isVisible: true,
+      title: "当前年份使用估算日历",
+      detail: `${input.year} 年按你的休息模式推算，不代表法定放假安排`,
+      tone: "estimated",
+    };
+  }
+  if (input.mode === "stale") {
+    return {
+      isVisible: true,
+      title: "日历数据可能已过期",
+      detail: "当前继续显示上次有效数据，日期调整暂不可用",
+      tone: "stale",
+    };
+  }
+  return {
+    isVisible: true,
+    title: "日历暂时无法加载",
+    detail: "数据完整性校验未通过，未使用估算结果替代",
+    tone: "error",
+  };
+}
+
 export function calendarCellContract(input: CalendarCellPresentation) {
   const labels: Record<CalendarBusinessState, string> = {
     workday: "工作日",
@@ -216,6 +259,7 @@ export function calendarCellContract(input: CalendarCellPresentation) {
       input.isStale ? "is-stale" : "",
       input.isDisabled ? "is-disabled" : "",
     ].filter(Boolean),
+    todayCue: input.isToday ? "今" : null,
     ariaLabel: [
       labels[input.businessState],
       input.isToday ? "今天" : "",

@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NzyZzz1998/LetsMakeMoney/schemas/v105-build-info.schema.json",
+  "title": "LetsMakeMoney v1.0.5 BUILD-INFO",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "product",
+    "version",
+    "channel",
+    "platform",
+    "architecture",
+    "source_head",
+    "source_tree_dirty",
+    "build_timestamp_utc",
+    "executable_sha256",
+    "webview2_loader_sha256",
+    "documentation",
+    "licenses",
+    "calendar"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "product": { "const": "LetsMakeMoney" },
+    "version": { "const": "1.0.5" },
+    "channel": { "const": "stable-candidate" },
+    "platform": { "const": "windows-x86_64" },
+    "architecture": { "const": "x86_64" },
+    "source_head": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "source_tree_dirty": { "type": "boolean" },
+    "build_timestamp_utc": { "type": "string", "format": "date-time" },
+    "executable_sha256": { "$ref": "#/$defs/sha256" },
+    "webview2_loader_sha256": { "$ref": "#/$defs/sha256" },
+    "documentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["readme_sha256", "readme_en_sha256", "source"],
+      "properties": {
+        "readme_sha256": { "$ref": "#/$defs/sha256" },
+        "readme_en_sha256": { "$ref": "#/$defs/sha256" },
+        "source": { "const": "apps/windows-v1/release-docs" }
+      }
+    },
+    "licenses": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "license_sha256",
+        "third_party_notices_sha256",
+        "assets_license_sha256",
+        "assets_manifest_sha256"
+      ],
+      "properties": {
+        "license_sha256": { "$ref": "#/$defs/sha256" },
+        "third_party_notices_sha256": { "$ref": "#/$defs/sha256" },
+        "assets_license_sha256": { "$ref": "#/$defs/sha256" },
+        "assets_manifest_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "calendar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manifest_sha256", "dataset_version", "datasets"],
+      "properties": {
+        "manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "dataset_version": { "type": "string", "minLength": 1 },
+        "datasets": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["year", "file", "sha256"],
+            "properties": {
+              "year": { "type": "integer", "minimum": 2025, "maximum": 9999 },
+              "file": { "type": "string", "pattern": "^[A-Za-z0-9._-]+\\.json$" },
+              "sha256": { "$ref": "#/$defs/sha256" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[A-F0-9]{64}$" }
+  }
+}
