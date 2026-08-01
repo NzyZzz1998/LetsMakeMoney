@@ -99,4 +99,3 @@
 4. 涉及包时重新核对 BUILD-INFO、Zip/EXE/DLL 哈希与远端附件。
 5. 涉及原生窗口时补 Computer Use 与日志。
 6. 每批有独立 commit，失败时只回退该批，不连带其他治理。
-
