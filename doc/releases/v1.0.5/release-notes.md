@@ -1,8 +1,8 @@
-# LetsMakeMoney Windows v1.0.5 发布说明草案
+# LetsMakeMoney Windows v1.0.5 发布说明
 
-> 状态：**独立验收通过，发布收口已授权。** 正式 Release 内容和附件身份仍以最终合并提交的干净构建为准。
+> 状态：**v1.0.5 Stable 已发布。** 正式 Release 内容和附件身份已由最终合并提交的干净构建、annotated tag 与 GitHub 回下载核验锁定。
 
-当前验收 candidate 不直接上传；发布收口将从最终合并后的干净提交重新构建并锁定正式附件。
+历史验收 candidate 未直接上传；正式附件来自最终合并后的干净提交。
 
 ## 本版重点
 
@@ -40,11 +40,11 @@
 - WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 - 发布状态：**不可发布**。
 
-## 发布前仍需完成
+## 历史发布前门禁
 
-1. 对唯一 clean 候选执行独立验收并恢复用户环境。
-2. 关闭验收发现的发布阻塞，或明确记录待补证边界。
-3. 按已获得的项目所有者授权执行 push、tag 与 Release，并完成回下载核验。
+1. [x] 对唯一 clean 候选执行独立验收并恢复用户环境。
+2. [x] 关闭验收发现的发布阻塞，并明确记录待补证边界。
+3. [x] 按项目所有者授权执行 push、tag 与 Release，并完成回下载核验。
 
 ## ACC 修复后替代候选
 
@@ -66,7 +66,7 @@
 - 真实 Windows 通知区左键隐藏与恢复：通过，进程保持运行。
 - v1.0.4 核心回归与用户环境恢复：通过。
 - 多显示器：项目所有者批准延期；Windows 10：环境待补证。
-- 当前发布判断：**通过，发布收口已授权并开始执行**；尚未生成最终发布提交、tag 或 Release。
+- 当时发布判断：**通过，可进入发布收口**；该历史节点之后已完成正式发布。
 
 ## 最终合并后重建候选
 
@@ -77,4 +77,14 @@
 - EXE SHA256：`68FA8FC443B12A2BA8BD757F532EC6B90E09E3DA7E1027255267150C4DAEC37A`。
 - WebView2Loader.dll SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
 - 该候选由最终合并提交重新构建；业务代码相对已通过独立验收的候选无变化，历史验收记录继续保留。
-- 在 M6、受控桌面冒烟、tag、Release、published 模式和 GitHub 回下载核验完成前，本候选仍**不可发布**。
+- M6、受控桌面冒烟、tag、Release、published 模式和 GitHub 回下载核验均已完成，该候选现为正式发布附件。
+
+## 正式发布身份
+
+- Release 源提交：`ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`。
+- annotated tag：`v1.0.5`；tag object `7d7734ca1f45d24672a46523ae4bd93cfaf201fb`。
+- GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5`。
+- 便携 Zip：3,231,663 字节；SHA256 `019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`。
+- EXE SHA256：`68FA8FC443B12A2BA8BD757F532EC6B90E09E3DA7E1027255267150C4DAEC37A`。
+- WebView2Loader.dll SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
+- Release 仅包含便携 Zip 与 `SHA256SUMS.txt`；published 模式和 GitHub 回下载核验通过。

@@ -6,7 +6,7 @@
   <a href="README.md">简体中文</a> ·
   <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">Download</a> ·
   <a href="doc/current.md">Current status</a> ·
-  <a href="doc/releases/v1.0.5/progress_v1.0.5.md">v1.0.5 development status</a>
+  <a href="doc/releases/v1.0.5/progress_v1.0.5.md">v1.0.5 release status</a>
 </div>
 
 ## Know what today is worth
@@ -30,17 +30,16 @@ The compact earnings window is designed to stay on the desktop. Open the Today a
 
 ## Current release status
 
-The current public release remains **v1.0.4 Stable**. The repository is developing **v1.0.5**, a privacy and visual-maintenance release that has not completed independent acceptance and is not yet published.
+The current public release is **v1.0.5 Stable**. It has completed independent acceptance, a clean-source build, required CI, an annotated tag, GitHub Release publication, and download verification.
 
-- The current public release is [v1.0.4 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.4).
-- v1.0.4 has completed implementation, independent acceptance, a clean-source build, required CI, and GitHub Release publication.
-- The v1.0.5 development candidate adds a readable non-financial privacy tab, compound “today” calendar treatment, and single-surface calibration for the three main windows. See the [v1.0.5 progress source](doc/releases/v1.0.5/progress_v1.0.5.md) for its actual status.
+- The current public release is [v1.0.5 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5).
+- v1.0.5 adds a readable non-financial privacy tab, compound “today” calendar treatment, and single-surface calibration for the three main windows. See the [v1.0.5 progress source](doc/releases/v1.0.5/progress_v1.0.5.md) for its release evidence.
 - The Mini window can retract salary details at the left or right work-area edge and can be revealed by hover or the system tray while retaining its normal saved position.
 - Years not covered by official calendar data use an explicitly labeled work-pattern estimate; the app never invents official holidays or adjusted workdays.
 - Hidden windows pause local ticks and authoritative synchronization, then recalibrate immediately when restored.
 - Windows sleep recovery, forward and backward system-time jumps, a real time-zone switch, and a continuous 120-minute run have been accepted.
 - Stage copy, timeline alignment, overnight ownership, adjusted-workday sources, compound calendar states, and light/dark themes retain the v1.0.2 contracts.
-- v1.0.4 does not include pets, cloud sync, an installer, system-following themes, or custom themes.
+- v1.0.5 does not include pets, cloud sync, an installer, system-following themes, or custom themes.
 - Users who need the desktop-pet experience can remain on v0.9 Beta, which is also the explicit rollback baseline.
 
 See the [current status source](doc/current.md) for the latest release identity and checksums.

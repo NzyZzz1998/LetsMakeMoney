@@ -2,18 +2,18 @@
 
 ## 追踪信息
 
-- 当前状态：修复后 clean 候选已通过 M6 聚合与独立真实 Windows 定向复验；V105-BUG-001 已关闭，可进入发布收口
-- 发布授权：已获得；验收 candidate 不直接上传，正式附件必须从最终合并后的干净提交重新构建
+- 当前状态：v1.0.5 Stable 已发布；M0 至 M6、独立 ACC、tag、Release、published 模式与回下载核验全部完成
+- 发布授权：已执行完成；历史验收 candidate 未上传，正式附件来自最终合并后的干净提交
 - 目标版本：Windows v1.0.5 Stable
 - 来源 PRD：`doc/releases/v1.0.5/prd.md`
 - 对应实施计划：`doc/releases/v1.0.5/dev_plan_v1.0.5.md`
 - 对应开发日志：`doc/logs/dev_log_v1.0.5.md`
 - 需求追踪：`doc/releases/v1.0.5/traceability.md`
 - 高保真原型：`doc/prototypes/v1.0/index.html`
-- 下游承接：按受保护 PR、干净重建、published 验证、tag 与 GitHub Release 顺序执行发布收口
+- 下游承接：发布后观察；后续版本范围由新的 Review 决定
 - 当前事实源：本文
-- 候选源码基线：`6c9f010a164fb2b73c9068bd4fdcb6e863bd5100`
-- 当前公开版本：Windows v1.0.4 Stable
+- 发布源码基线：`ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`
+- 当前公开版本：Windows v1.0.5 Stable
 - 最后更新：2026-08-01
 
 ## 版本目标
@@ -183,6 +183,14 @@
 - Zip SHA256：`019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`。
 - EXE SHA256：`68FA8FC443B12A2BA8BD757F532EC6B90E09E3DA7E1027255267150C4DAEC37A`。
 - WebView2Loader.dll SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
-- 最近状态：最终合并后干净重建、M6 聚合和非交互启动冒烟已完成；tag、Release、published 模式和回下载核验待本轮发布收口逐项完成。
-- 当前候选在最终发布门禁关闭前仍**不可发布**；旧验收候选及 `ACC-20260801-105930-retest` 继续作为历史证据保留。
+- 最近状态：最终合并后干净重建、M6 聚合、非交互启动冒烟、annotated tag、GitHub Release、published 模式和回下载核验全部完成。
+- 当前对象已作为 v1.0.5 Stable 正式发布；旧验收候选及 `ACC-20260801-105930-retest` 继续作为历史证据保留。
 - 启动冒烟 ID：`LMM-V105-SMOKE-20260801080945`；结果 `partial`（仅非交互启动范围），环境精确恢复且残留进程为 0。
+
+## 正式发布结果
+
+- annotated tag：`v1.0.5`；peeled target 为 `ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`。
+- GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5`。
+- 附件：便携 Zip 与 `SHA256SUMS.txt`，共 2 个，无安装器、日志或验收证据。
+- GitHub 回下载 Zip SHA256：`019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`；published 模式通过。
+- 发布状态：**已完成，进入发布后观察。**

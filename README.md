@@ -6,7 +6,7 @@
   <a href="README.en.md">English</a> ·
   <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">下载</a> ·
   <a href="doc/current.md">当前状态</a> ·
-  <a href="doc/releases/v1.0.5/progress_v1.0.5.md">v1.0.5 开发状态</a>
+  <a href="doc/releases/v1.0.5/progress_v1.0.5.md">v1.0.5 发布状态</a>
 </div>
 
 ## 一眼知道今天赚了多少
@@ -30,17 +30,16 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪
 
 ## 当前版本
 
-当前公开版本仍为 **v1.0.4 Stable**；仓库正在开发 **v1.0.5** 隐私与视觉维护版本。v1.0.5 尚未完成独立验收，也不是已发布版本。
+当前公开版本为 **v1.0.5 Stable**。该版本已完成独立验收、干净提交构建、必需 CI、annotated tag、GitHub Release 与回下载校验。
 
-- 当前公开版本为 [v1.0.4 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.4)。
-- v1.0.4 已完成实现、独立验收、干净提交构建、必需 CI 和 GitHub Release 发布。
-- v1.0.5 开发候选新增可读的非金额贴边隐私竖条、日历“今天”复合标记与三窗单一表面校准；最终状态以 [v1.0.5 进度](doc/releases/v1.0.5/progress_v1.0.5.md) 为准。
+- 当前公开版本为 [v1.0.5 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5)。
+- v1.0.5 新增可读的非金额贴边隐私竖条、日历“今天”复合标记与三窗单一表面校准；完整状态见 [v1.0.5 进度](doc/releases/v1.0.5/progress_v1.0.5.md)。
 - Mini 可在贴近左右工作区边缘后收起收入信息，并通过悬停或托盘找回；正常位置仍可持久化恢复。
 - 官方日历未覆盖的年份会使用明确标注的休息模式估算，不伪造官方节假日或调休数据。
 - 隐藏窗口暂停本地计时与权威同步，恢复时立即重新校准，避免后台重复工作。
 - Windows 睡眠恢复、系统时间前后跳变、真实时区切换和连续 120 分钟运行已经过验收。
 - 阶段倒计时、今日安排、跨夜归属、调休来源、日历复合状态和浅色/深色双主题继续沿用 v1.0.2 合同。
-- v1.0.4 是无宠物的正式产品主线，暂不包含云同步、安装器、系统跟随主题或自定义主题。
+- v1.0.5 是无宠物的正式产品主线，暂不包含云同步、安装器、系统跟随主题或自定义主题。
 - 需要桌宠体验时，可以继续使用 `v0.9-beta` tag 对应的 v0.9 Beta；它也是 v1.0 的明确回退基线。
 
 最新事实与发布哈希以 [当前状态入口](doc/current.md) 为准。
@@ -79,7 +78,7 @@ npm run tauri dev
 powershell -ExecutionPolicy Bypass -File .\scripts\package_v105.ps1
 ```
 
-v1.0.5 本地候选只写入 `.artifacts\candidates\v1.0.5\<candidate-id>\`，不会覆盖 `releases\` 或 GitHub 回下载缓存。构建和验证不应依赖未声明的本机路径或私有文件；本地同名文件不能替代 GitHub Release 附件身份。
+v1.0.5 本地候选只写入 `.artifacts\candidates\v1.0.5\<candidate-id>\`，不会覆盖 `releases\` 或 GitHub 回下载缓存。构建和验证不应依赖未声明的本机路径或私有文件；本地同名文件不能替代已发布的 GitHub Release 附件身份。
 
 ## 数据、隐私与回退
 

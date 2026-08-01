@@ -1,6 +1,6 @@
 # LetsMakeMoney Windows v1.0.5
 
-v1.0.5 是隐私与发布可信度维护、日历状态收敛及限定窗口质感校准版本。当前公开版本仍为 v1.0.4 Stable；v1.0.5 修复后 clean 候选已通过 M6 与独立验收，项目所有者已授权执行发布收口。
+v1.0.5 是隐私与发布可信度维护、日历状态收敛及限定窗口质感校准版本。该版本已完成 M6、独立验收、干净重建、annotated tag、GitHub Stable Release、published 模式与回下载核验。
 
 ## 事实入口
 
@@ -11,12 +11,13 @@ v1.0.5 是隐私与发布可信度维护、日历状态收敛及限定窗口质�
 - [验证](verification.md)
 - [人工验证](manual-verification.md)
 - [发布检查](release-checklist.md)
-- [发布说明草案](release-notes.md)
+- [发布说明](release-notes.md)
 - [证据目录](evidence/README.md)
 
 ## 当前边界
 
 - V105-M0 至 M6 已完成，M6 为 10/10。
-- 当前 clean 候选 `V105-20260801T013259Z-6c9f010a-clean` 已通过完整聚合与独立验收，Zip SHA256 为 `0FED6256E1E979D4BEC41E64C4290EF1917A6A6AB2B04D9A6EF47F1DD3C48826`。旧候选的失败结论继续作为历史证据保留。
-- 只有来自干净提交、通过独立验收并获项目所有者授权的候选，才可进入发布收口。
+- 正式发布对象 `V105-20260801T075629Z-ffc431af-clean` 来自提交 `ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`，Zip SHA256 为 `019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`。
+- [GitHub Stable Release](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5) 仅包含便携 Zip 与 `SHA256SUMS.txt`，回下载核验与 published 模式均通过。
+- 旧候选的失败结论继续作为历史证据保留，不得替代正式附件身份。
 - 本版本不恢复宠物，不修改 v1.0.4 tag、Release 或附件。
