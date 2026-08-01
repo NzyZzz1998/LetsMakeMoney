@@ -2,11 +2,11 @@
 
 ## 当前判断
 
-状态：**验收通过，发布收口已授权并开始执行。**
+状态：**v1.0.5 Stable 已发布，发布后远端核验通过。**
 
-M0 至 M6 和修复后独立 ACC 已完成。修复后 clean 候选通过左右贴边隐私状态机、深色隐私条、Workbench 关闭、真实通知区左键隐藏/恢复和核心回归；V105-BUG-001 已关闭，当前无发布阻塞。项目所有者已授权执行远端发布收口。
+M0 至 M6 和修复后独立 ACC 已完成。修复后 clean 候选通过左右贴边隐私状态机、深色隐私条、Workbench 关闭、真实通知区左键隐藏/恢复和核心回归；V105-BUG-001 已关闭。正式对象已完成干净重建、tag、Release、published 模式和回下载核验。
 
-当前验收 candidate 本身不可发布，只可用于发布收口输入；正式发布对象必须从最终合并后的干净提交重新构建并通过 published 模式验证。
+历史验收 candidate 本身不可发布，只作为证据输入；正式发布对象已经从最终合并后的干净提交重新构建并通过 published 模式验证。
 
 ## 历史失败候选身份
 
@@ -25,7 +25,7 @@ M0 至 M6 和修复后独立 ACC 已完成。修复后 clean 候选通过左右�
 - [x] Rust test、fmt、clippy 与 release build。
 - [x] candidate 包身份和目录合同。
 - [x] UTF-8、乱码、链接、敏感路径、隐私文本与 `git diff --check`。
-- [ ] published 模式使用锁定 tag、Release URL、回下载 SHA 和 `SHA256SUMS.txt` 复核。
+- [x] published 模式使用锁定 tag、Release URL、回下载 SHA 和 `SHA256SUMS.txt` 复核。
 
 ## 独立验收
 
@@ -73,7 +73,7 @@ M0 至 M6 和修复后独立 ACC 已完成。修复后 clean 候选通过左右�
 - [x] WebView2Loader.dll SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
 - [x] 最终候选 M6 聚合通过。
 - [x] 最终候选受控桌面启动冒烟完成：`LMM-V105-SMOKE-20260801080945`，非交互启动范围为 `partial`，Mini 出现、环境精确恢复且无残留进程；完整 GUI 结论继承独立 ACC。
-- [ ] annotated tag `v1.0.5` 已推送并指向发布源码 HEAD。
-- [ ] GitHub Release 仅上传便携 Zip 与 `SHA256SUMS.txt`。
-- [ ] GitHub 回下载 SHA256 与本节锁定值一致，published 模式通过。
-- 状态：上述未完成项关闭前，本候选仍**不可发布**。
+- [x] annotated tag `v1.0.5` 已推送并指向发布源码 HEAD。
+- [x] GitHub Release 仅上传便携 Zip 与 `SHA256SUMS.txt`。
+- [x] GitHub 回下载 SHA256 与本节锁定值一致，published 模式通过。
+- 状态：**已发布**；Release 为 Stable、非草稿、非预发布，附件严格为 2 个。

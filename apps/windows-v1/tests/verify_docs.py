@@ -152,11 +152,11 @@ def check_current_readmes() -> None:
     root_zh = read_utf8(ROOT / "README.md")
     root_en = read_utf8(ROOT / "README.en.md")
     app_readme = read_utf8(ROOT / "apps" / "windows-v1" / "README.md")
-    release_url = "https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.4"
+    release_url = "https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5"
 
     for label, text in (("README.md", root_zh), ("README.en.md", root_en)):
         required = (
-            "v1.0.4 Stable",
+            "v1.0.5 Stable",
             release_url,
             "v1.0.5",
             "package_v105.ps1",
@@ -170,10 +170,10 @@ def check_current_readmes() -> None:
             if stale in text:
                 fail(f"{label} still uses stale default command: {stale}")
 
-    if "当前公开版本为 v1.0.4 Stable" not in app_readme:
+    if "当前公开版本为 v1.0.5 Stable" not in app_readme:
         fail("apps/windows-v1/README.md current public version drift")
-    if "当前开发目标为 v1.0.5" not in app_readme:
-        fail("apps/windows-v1/README.md current development version drift")
+    if "v1.0.5 已完成独立验收" not in app_readme:
+        fail("apps/windows-v1/README.md current release state drift")
     if "scripts\\verify_v105.ps1" not in app_readme:
         fail("apps/windows-v1/README.md missing current aggregate verification command")
     if "scripts\\package_v105.ps1" not in app_readme:
@@ -252,10 +252,10 @@ def main() -> int:
     check_current_readmes()
 
     current = read_utf8(ROOT / "doc" / "current.md")
-    if "当前公开版本 | Windows v1.0.4 Stable" not in current:
-        fail("doc/current.md 未声明当前公开版本为 v1.0.4 Stable")
-    if "当前公开 tag | `v1.0.4`" not in current:
-        fail("doc/current.md 未声明当前公开 tag 为 v1.0.4")
+    if "当前公开版本 | Windows v1.0.5 Stable" not in current:
+        fail("doc/current.md 未声明当前公开版本为 v1.0.5 Stable")
+    if "当前公开 tag | `v1.0.5`" not in current:
+        fail("doc/current.md 未声明当前公开 tag 为 v1.0.5")
     if "v0.9-beta" not in current:
         fail("doc/current.md 缺少 v0.9 回退基线")
     if "已通过并发布" not in current or "v1.0` tag 指向发布提交" not in current:
@@ -268,6 +268,8 @@ def main() -> int:
         fail("doc/current.md 未声明 v1.0.3 已完成发布")
     if "`v1.0.4` annotated tag 指向该发布源" not in current:
         fail("doc/current.md 未声明 v1.0.4 已完成发布")
+    if "`v1.0.5` annotated tag 指向该提交" not in current:
+        fail("doc/current.md 未声明 v1.0.5 已完成发布")
     if "多显示器安全回落因当前设备仅有一台显示器，标记为待补证" not in current:
         fail("doc/current.md 未保留多显示器待补证边界")
 
@@ -277,9 +279,9 @@ def main() -> int:
             print(f"- {item}")
         return 1
 
-    print("v1.0/v1.0.1/v1.0.2/v1.0.3/v1.0.4 与 v1.0.5 开发文档检查通过")
+    print("v1.0/v1.0.1/v1.0.2/v1.0.3/v1.0.4 与 v1.0.5 发布文档检查通过")
     print(f"- UTF-8 与乱码：{len(DOCUMENTS)} 份文档")
-    print("- v1.0 至 v1.0.4 发布事实源、v1.0.5 开发文档及本地链接完整")
+    print("- v1.0 至 v1.0.5 发布事实源及本地链接完整")
     print("- current、release notes、verification 的历史与当前发布哈希一致")
     return 0
 

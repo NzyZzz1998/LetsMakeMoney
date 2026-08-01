@@ -4,7 +4,7 @@
 
 | 项目 | 状态 |
 | --- | --- |
-| 当前阶段 | 修复后 clean 候选已通过 M6 聚合与独立真实 Windows 定向复验，可进入发布收口 |
+| 当前阶段 | v1.0.5 Stable 已发布，tag、Release、published 模式与回下载核验通过 |
 | M0 结论 | 通过，8/8 |
 | M1 结论 | 通过，8/8 |
 | M2 结论 | 通过，10/10；仅完成行为刻画与复现，缺陷未修复 |
@@ -13,11 +13,11 @@
 | M5 结论 | 通过，8/8；保留三窗单一表面候选，Windows 10 待环境补证 |
 | M6 结论 | 通过，10/10；唯一 clean 候选已从干净提交构建并锁定 |
 | 用户可见实现 | M3 至 M5 范围已实现：Mini 隐私行为、日历复合状态与三窗单一表面 |
-| v1.0.5 候选 | 修复后 clean 候选通过 M6 与独立 ACC；当前无发布阻塞 |
-| 构建 / 打包 | TypeScript/Vite/Rust、隔离打包和 candidate 包验证通过；已生成并验收 candidate，未生成正式发布包 |
-| 发布判断 | 通过；commit、push、tag 与 Release 发布收口已获项目所有者独立授权 |
+| v1.0.5 候选 | 修复后 clean 候选通过 M6 与独立 ACC；最终发布对象已由干净发布提交重建 |
+| 构建 / 打包 | TypeScript/Vite/Rust、隔离打包、candidate 与 published 包验证全部通过 |
+| 发布判断 | 已发布；GitHub Stable Release 与回下载哈希已核实 |
 
-当前验收 candidate 不得直接上传；正式发布对象必须从最终合并后的干净提交重新构建并通过 published 模式验证。
+历史验收 candidate 未直接上传；正式发布对象已从最终合并后的干净提交重新构建并通过 published 模式验证。
 
 ## 2. M0 验证对象
 
@@ -396,6 +396,18 @@ M2 聚合入口继承 M0/M1 门禁，并新增：
 - EXE：10,110,464 字节；SHA256 `68FA8FC443B12A2BA8BD757F532EC6B90E09E3DA7E1027255267150C4DAEC37A`。
 - WebView2Loader.dll：160,320 字节；SHA256 `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
 - 最终合并提交相对通过 `ACC-20260801-105930-retest` 的业务源码只增加文档与历史验证器合同修正；旧候选及其真实 Windows 验收记录继续保留，不被本节覆盖。
-- 当前候选在 annotated tag、GitHub Release、published 模式和 GitHub 回下载核验完成前仍**不可发布**；通过上述门禁后才能成为正式附件。
+- 该候选已通过 annotated tag、GitHub Release、published 模式和 GitHub 回下载核验，现为正式附件。
 - 最终候选 M6 聚合：通过；包含行为级测试、TypeScript strict、Vite production build、54 个 Rust 测试、cargo fmt、clippy 和 release build。
 - 受控启动冒烟：`LMM-V105-SMOKE-20260801080945`；新解压 EXE 成功显示 Mini，Zip 与 EXE 哈希匹配，用户环境精确恢复且残留进程为 0。脚本结果为 `partial`，因为本轮只执行非交互启动范围；完整 GUI 结论继续引用独立验收 `ACC-20260801-105930-retest`。
+
+## 18. 发布后远端核验
+
+- Release 源提交：`ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`。
+- annotated tag：`v1.0.5`；tag object `7d7734ca1f45d24672a46523ae4bd93cfaf201fb`，peeled target 与发布源提交一致。
+- GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5`；Stable、非草稿、非预发布。
+- Release 附件严格为 2 个：`LetsMakeMoney-v1.0.5-windows-x86_64.zip` 与 `SHA256SUMS.txt`。
+- GitHub 回下载 Zip 大小为 3,231,663 字节，SHA256 为 `019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`，与最终候选及 Release digest 一致。
+- 回下载 `SHA256SUMS.txt` 大小为 107 字节，文件 SHA256 为 `E84F6F01A6A703829926AC684325C3B2A6D6737AADB2381880BF4EDE962C6741`。
+- `verify_v105_package.ps1 -Mode published`：通过；tag、Release URL、下载目录、Zip、checksum 与 BUILD-INFO 身份一致。
+- 机器可读摘要：`evidence/release-summary.json`。
+- 最终结论：**v1.0.5 Stable 已发布，无发布阻塞。**

@@ -2,9 +2,9 @@
 
 ## 当前结论
 
-结论：**修复后独立候选验收通过，可进入发布收口。**
+结论：**修复后独立候选验收通过，v1.0.5 Stable 已发布。**
 
-修复后 clean 候选通过 M6 聚合与真实 Windows 定向复验。Mini 在左右边缘首次贴边后保持焦点也会按合同自动收起；深色工作态隐私竖条、点击与键盘找回、关闭 Workbench 后保持收起，以及真实通知区左键隐藏/恢复均已通过。V105-BUG-001 已关闭，当前无发布阻塞。本结论不授权 commit、push、tag 或 Release。
+修复后 clean 候选通过 M6 聚合与真实 Windows 定向复验。Mini 在左右边缘首次贴边后保持焦点也会按合同自动收起；深色工作态隐私竖条、点击与键盘找回、关闭 Workbench 后保持收起，以及真实通知区左键隐藏/恢复均已通过。V105-BUG-001 已关闭，最终干净重建对象已完成 tag、Release 与 published 回下载核验。
 
 ## 历史失败候选
 
@@ -121,5 +121,12 @@
 - EXE SHA256：`68FA8FC443B12A2BA8BD757F532EC6B90E09E3DA7E1027255267150C4DAEC37A`。
 - WebView2Loader.dll SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
 - 从已通过独立验收的业务提交到最终合并提交，产品业务代码无变化；最终候选仍需执行 M6 和受控桌面启动冒烟，原独立验收结论按证据失效规则继承。
-- 在 tag、Release、published 模式与 GitHub 回下载完成前，本候选仍**不可发布**，不得以本节替代旧候选的真实操作记录。
+- 该最终候选已完成 tag、Release、published 模式与 GitHub 回下载核验，现为正式发布附件；本节仍不得替代旧候选的真实操作记录。
 - 最终候选已执行非交互 FirstRun 启动冒烟 `LMM-V105-SMOKE-20260801080945`：新解压 Mini 成功出现，哈希与候选身份一致，环境精确恢复、残留进程为 0。该脚本按合同记录为 `partial`，仅证明最终二进制可启动；业务 GUI 通过结论仍来自 `ACC-20260801-105930-retest`。
+
+## 正式发布关联
+
+- 正式 tag：`v1.0.5`，指向发布源提交 `ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`。
+- GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5`。
+- 正式 Zip SHA256：`019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`。
+- Release 回下载与 published 模式通过；真实 GUI 结论继续由 `ACC-20260801-105930-retest` 提供，不以发布后静态检查冒充重新验收。
