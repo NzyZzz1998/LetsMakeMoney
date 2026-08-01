@@ -280,7 +280,14 @@ export function createMiniEdgeAutoHideController(
         const docked = status.auto_hide && status.dock !== "none";
         if (docked) {
           pointerEntryArmed = false;
-          state = { ...state, pointerInside: false };
+          // Pointer capture leaves the dragged WebView focused after release.
+          // Once native docking succeeds, that focus belongs to the completed
+          // drag and must not block the first privacy retraction.
+          state = {
+            ...state,
+            pointerInside: false,
+            locks: { ...state.locks, focus_inside: false },
+          };
         }
         applyNative(status);
         if (status.visibility === "expanded") scheduleRetract("drag_complete");

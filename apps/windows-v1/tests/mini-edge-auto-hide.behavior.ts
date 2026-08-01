@@ -158,6 +158,90 @@ assert(scheduler.pendingCount() === 0, "disabled privacy cannot leave a retract 
 controller.dispose();
 assert(scheduler.pendingCount() === 0, "dispose clears any remaining timer");
 
+for (const dock of ["left", "right"] as const) {
+  const focusedScheduler = new FakeScheduler();
+  let focusedStatus: MiniEdgeNativeStatus = {
+    auto_hide: true,
+    dock: "none",
+    visibility: "expanded",
+    notice: null,
+  };
+  const focusedController = createMiniEdgeAutoHideController({
+    scheduler: focusedScheduler,
+    retractDelayMs: 600,
+    readStatus: async () => focusedStatus,
+    setRetracted: async retracted => {
+      focusedStatus = {
+        ...focusedStatus,
+        visibility: retracted ? "retracted" : "expanded",
+      };
+      return focusedStatus;
+    },
+    completeDrag: async () => focusedStatus,
+  });
+  await focusedController.initialize();
+  focusedController.setLock("focus_inside", true);
+  await focusedController.dragStarted();
+  focusedStatus = {
+    auto_hide: true,
+    dock,
+    visibility: "expanded",
+    notice: null,
+  };
+  await focusedController.dragCompleted();
+  assert(
+    focusedScheduler.pendingCount() === 1,
+    `${dock}: a focused Mini must schedule first retraction immediately after edge docking`,
+  );
+  assert(
+    !focusedController.snapshot().locks.focus_inside,
+    `${dock}: drag completion must release the stale focus lock that belongs to the dragged surface`,
+  );
+  focusedController.dispose();
+}
+
+{
+  const protectedScheduler = new FakeScheduler();
+  let protectedStatus: MiniEdgeNativeStatus = {
+    auto_hide: true,
+    dock: "none",
+    visibility: "expanded",
+    notice: null,
+  };
+  const protectedController = createMiniEdgeAutoHideController({
+    scheduler: protectedScheduler,
+    retractDelayMs: 600,
+    readStatus: async () => protectedStatus,
+    setRetracted: async retracted => ({
+      ...protectedStatus,
+      visibility: retracted ? "retracted" : "expanded",
+    }),
+    completeDrag: async () => protectedStatus,
+  });
+  await protectedController.initialize();
+  protectedController.setLock("focus_inside", true);
+  protectedController.setLock("menu_open", true);
+  protectedController.setLock("modal_open", true);
+  await protectedController.dragStarted();
+  protectedStatus = {
+    auto_hide: true,
+    dock: "right",
+    visibility: "expanded",
+    notice: null,
+  };
+  await protectedController.dragCompleted();
+  assert(
+    protectedScheduler.pendingCount() === 0,
+    "menu and modal locks remain authoritative after drag completion",
+  );
+  assert(
+    protectedController.snapshot().locks.menu_open
+      && protectedController.snapshot().locks.modal_open,
+    "drag completion must not release menu or modal ownership",
+  );
+  protectedController.dispose();
+}
+
 let fallbackReported = false;
 const fallbackController = createMiniEdgeAutoHideController({
   scheduler: new FakeScheduler(),
@@ -241,4 +325,4 @@ assert(
 );
 lateController.dispose();
 
-console.log("mini edge auto-hide behavior: 37/37 passed");
+console.log("mini edge auto-hide behavior: focused drag regression passed");
