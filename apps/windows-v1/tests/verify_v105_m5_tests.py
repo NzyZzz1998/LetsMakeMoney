@@ -137,10 +137,23 @@ def verify_document_routing_contract() -> None:
     validate_document_routing(*fixture)
     print("PASS accepts M5 completion after routing to M6")
 
+    post_acc = list(fixture)
+    post_acc[2] = (
+        "V105-M0 至 M6 已完成；V105-BUG-001 最小代码修复已通过，"
+        "等待新 clean 候选真实复验，当前不可发布。"
+    )
+    validate_document_routing(*post_acc)
+    print("PASS accepts blocked post-ACC candidate rebuild status")
+
     for name, index, replacement in [
         ("incomplete M5 row", 0, fixture[0].replace("8/8", "7/8")),
         ("unchecked M5 task", 0, fixture[0].replace("- [x] `V105-M5-008`", "- [ ] `V105-M5-008`")),
         ("missing M5 current fact", 2, "V105-M6 正在执行"),
+        (
+            "post-ACC route missing publication block",
+            2,
+            "V105-M0 至 M6 已完成；V105-BUG-001 等待新 clean 候选。",
+        ),
     ]:
         values = list(fixture)
         values[index] = replacement

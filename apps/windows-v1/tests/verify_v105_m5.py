@@ -168,9 +168,18 @@ def validate_document_routing(progress: str, verification: str, current: str, tr
         "M5 checklist did not close",
     )
     require("M5 结论" in verification and "Windows 10" in verification, "M5 verification evidence missing")
+    m5_completion_recorded = (
+        re.search(r"V105-M0\s*至\s*M5\s*已完成\s*52/52", current) is not None
+        or re.search(r"V105-M0\s*至\s*M6\s*已完成", current) is not None
+    )
+    routed_to_m6 = "V105-M6" in current
+    routed_to_post_acc_candidate = all(
+        token in current
+        for token in ("V105-BUG-001", "新 clean 候选", "不可发布")
+    )
     require(
-        re.search(r"V105-M0\s*至\s*M5\s*已完成\s*52/52", current) is not None and "V105-M6" in current,
-        "current status did not route to M6",
+        m5_completion_recorded and (routed_to_m6 or routed_to_post_acc_candidate),
+        "current status did not route to M6 or a blocked post-ACC candidate rebuild",
     )
     require("M5 已通过" in traceability, "FR-008 traceability did not close M5")
     require("保留单一表面候选" in spike and "Windows 10" in spike, "M5 Spike decision missing")
