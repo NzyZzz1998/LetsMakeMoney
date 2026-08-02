@@ -8,8 +8,8 @@
 | --- | --- |
 | 当前公开版本 | Windows v1.0.5 Stable |
 | 当前公开 tag | `v1.0.5` |
-| 当前开发版本 | Windows v1.0.6；定向主题修复、原生关闭事务修复、干净候选构建和 GUI 身份冒烟已通过 |
-| 下一版本候选 | Windows v1.0.6；等待独立发布授权 |
+| 当前开发版本 | Windows v1.0.6；定向主题修复、原生关闭事务修复、候选验收与发布授权已完成 |
+| 下一版本候选 | Windows v1.0.6；等待 PR 合并后从干净 `main` 重建并锁定正式发布身份 |
 | v1.0.1 阶段 | 已发布 |
 | v1.0.2 阶段 | 已发布 / 发布后观察 |
 | v1.0.3 阶段 | 已发布 / 发布后观察 |
@@ -17,10 +17,10 @@
 | v1.0.5 阶段 | M0 至 M6、ACC、tag、Release 与 published 回下载核验全部完成；已发布 |
 | 技术栈 | Rust + Tauri + TypeScript/React |
 | 产品形态 | 无宠物、本地优先的 Windows 收入进度工具 |
-| 发布阻塞 | v1.0.5 无；v1.0.6 无技术阻塞，尚未取得推送、tag 与 Release 授权 |
+| 发布阻塞 | v1.0.5 无；v1.0.6 无技术阻塞，最终合并提交与正式附件身份尚待生成 |
 | 最后更新 | 2026-08-02 |
 
-v1.0.5 已完成 GitHub Stable Release。v1.0.6 只处理主题首帧、跨窗口 ThemeSession、配置 hydration、原生关闭事务和同源日志/门禁，不改变收入、日历、Mini 隐私贴边或窗口视觉。受控 dirty 候选继续作为历史排错证据保留；随后从干净提交 `ced768aba54bf06d61045b38c1008fe8624a6e82` 重建的新候选已通过 M6、包体验证和真实 Windows 最小身份冒烟，当前停在独立发布授权点。
+v1.0.5 已完成 GitHub Stable Release。v1.0.6 只处理主题首帧、跨窗口 ThemeSession、配置 hydration、原生关闭事务和同源日志/门禁，不改变收入、日历、Mini 隐私贴边或窗口视觉。受控 dirty 候选继续作为历史排错证据保留；rebase 前的干净候选已通过 M6、包体验证和真实 Windows 最小身份冒烟。项目所有者已经授权发布，正式附件必须从 PR 合并后的干净 `main` 重新构建，旧候选不得直接上传。
 
 ## v1.0 公开基线
 
@@ -272,8 +272,10 @@ v1.0.3 GitHub Release 的 README 快照差异披露已进入需求范围，但�
 - [v1.0.6 问题池](releases/v1.0.6/issue-pool.md)
 - [v1.0.6 进度](releases/v1.0.6/progress_v1.0.6.md)
 - [v1.0.6 验证](releases/v1.0.6/verification.md)
+- [v1.0.6 发布检查](releases/v1.0.6/release-checklist.md)
+- [v1.0.6 发布说明](releases/v1.0.6/release-notes.md)
 - [v1.0.6 Bugfix 记录](logs/v1.0.6-bugfix-log.md)
 
 ## 下一步
 
-确认是否授权 v1.0.6 发布收口。获授权后，应将本次状态文档形成最终本地提交，从该干净提交再次构建并锁定最终 Zip、EXE 与 DLL 哈希，随后才可推送、创建 annotated tag 与 GitHub Release。dirty 验收候选及其哈希始终不得用于 Release。
+v1.0.6 已取得发布授权。下一步通过受保护分支 PR 合入 `main`，等待必需的 Windows CI 后，从合并后的干净提交重建并锁定最终 Zip、EXE 与 DLL 哈希；随后创建 annotated tag、Stable GitHub Release，并对回下载附件做 SHA256 与 published 模式复核。旧候选及其哈希始终不得用于 Release。

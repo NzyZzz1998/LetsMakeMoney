@@ -30,11 +30,11 @@ The compact earnings window is designed to stay on the desktop. Open the Today a
 
 ## Current release status
 
-The current public release is **v1.0.5 Stable**. The repository is developing **v1.0.6**, a targeted theme-initialization maintenance release that has not completed independent candidate acceptance and is not yet published.
+The current public release is **v1.0.5 Stable**. The repository is closing out **v1.0.6**, a targeted theme-initialization maintenance release. Independent candidate acceptance and owner authorization are complete, but the final assets must still be rebuilt from the merged clean `main`; v1.0.6 is not published yet.
 
 - The current public release is [v1.0.5 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5).
 - v1.0.5 completed independent acceptance, a clean-source build, required CI, and GitHub Release publication. Its Zip SHA256 is `019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`.
-- v1.0.6 fixes stale per-WebView theme state and adds first-frame, cross-window ThemeSession, and configuration-hydration gates. See the [v1.0.6 status](doc/releases/v1.0.6/progress_v1.0.6.md).
+- v1.0.6 fixes stale per-WebView theme state and adds first-frame, cross-window ThemeSession, configuration-hydration, and native-close transaction gates. See the [v1.0.6 status](doc/releases/v1.0.6/progress_v1.0.6.md).
 - The Mini window can retract salary details at the left or right work-area edge and can be revealed by hover or the system tray while retaining its normal saved position.
 - Years not covered by official calendar data use an explicitly labeled work-pattern estimate; the app never invents official holidays or adjusted workdays.
 - Hidden windows pause local ticks and authoritative synchronization, then recalibrate immediately when restored.

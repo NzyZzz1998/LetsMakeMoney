@@ -298,8 +298,9 @@ def main() -> int:
     if "`v1.0.4` annotated tag 指向该发布源" not in current:
         fail("doc/current.md 未声明 v1.0.4 已完成发布")
     if "`v1.0.5` annotated tag 指向该提交" not in current:
+        fail("doc/current.md 未声明 v1.0.5 tag 发布事实")
     if "v1.0.5 已完成 GitHub Stable Release" not in current:
-        fail("doc/current.md 未声明 v1.0.5 已完成发布")
+        fail("doc/current.md 未声明 v1.0.5 GitHub Release 发布事实")
     if "多显示器安全回落因当前设备仅有一台显示器，标记为待补证" not in current:
         fail("doc/current.md 未保留多显示器待补证边界")
 
