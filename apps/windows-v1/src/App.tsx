@@ -1075,12 +1075,12 @@ function SupportSettings() {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const body = await response.text();
-      const result = await supportService.evaluateUpdate("1.0.5", body, null);
+      const result = await supportService.evaluateUpdate("1.0.6", body, null);
       await record("update.checked", `status=${result.status}`);
       setFeedback({ tone: result.status === "unavailable" ? "warning" : "success", message: result.message });
     } catch (error) {
       const result = await supportService
-        .evaluateUpdate("1.0.5", null, String(error))
+        .evaluateUpdate("1.0.6", null, String(error))
         .catch(() => ({ status: "unavailable" as const, message: `暂时无法检查更新：${String(error)}` }));
       await record("update.check_failed", `reason=${String(error)}`);
       setFeedback({ tone: "warning", message: `${result.message} 当前版本可继续正常使用。` });
@@ -1103,7 +1103,7 @@ function SupportSettings() {
       <section>
         <h2>关于</h2>
         <dl className="summary-list">
-          <div><dt>版本</dt><dd>1.0.5</dd></div>
+          <div><dt>版本</dt><dd>1.0.6</dd></div>
           <div><dt>数据</dt><dd>仅保存在本机</dd></div>
           <div><dt>运行环境</dt><dd>Windows · WebView2</dd></div>
           {platform && <div><dt>原生能力</dt><dd>{platform.tray_available && platform.explorer_available ? "可用" : "部分不可用，主功能不受影响"}</dd></div>}
