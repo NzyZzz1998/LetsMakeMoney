@@ -8,8 +8,8 @@
 | --- | --- |
 | 当前公开版本 | Windows v1.0.5 Stable |
 | 当前公开 tag | `v1.0.5` |
-| 当前开发版本 | 无；v1.0.5 已完成发布，进入发布后观察 |
-| 下一版本候选 | 待后续 Review 决定 |
+| 当前开发版本 | Windows v1.0.6；定向主题修复、原生关闭事务修复、候选验收与发布授权已完成 |
+| 下一版本候选 | Windows v1.0.6；等待 PR 合并后从干净 `main` 重建并锁定正式发布身份 |
 | v1.0.1 阶段 | 已发布 |
 | v1.0.2 阶段 | 已发布 / 发布后观察 |
 | v1.0.3 阶段 | 已发布 / 发布后观察 |
@@ -17,10 +17,10 @@
 | v1.0.5 阶段 | M0 至 M6、ACC、tag、Release 与 published 回下载核验全部完成；已发布 |
 | 技术栈 | Rust + Tauri + TypeScript/React |
 | 产品形态 | 无宠物、本地优先的 Windows 收入进度工具 |
-| 发布阻塞 | v1.0.5 无 |
-| 最后更新 | 2026-08-01 |
+| 发布阻塞 | v1.0.5 无；v1.0.6 无技术阻塞，最终合并提交与正式附件身份尚待生成 |
+| 最后更新 | 2026-08-02 |
 
-v1.0.5 已从最终干净发布提交重建并发布。历史验收 candidate 继续只作为证据输入，不得冒充 GitHub Release 附件。
+v1.0.5 已完成 GitHub Stable Release。v1.0.6 只处理主题首帧、跨窗口 ThemeSession、配置 hydration、原生关闭事务和同源日志/门禁，不改变收入、日历、Mini 隐私贴边或窗口视觉。受控 dirty 候选继续作为历史排错证据保留；rebase 前的干净候选已通过 M6、包体验证和真实 Windows 最小身份冒烟。项目所有者已经授权发布，正式附件必须从 PR 合并后的干净 `main` 重新构建，旧候选不得直接上传。
 
 ## v1.0 公开基线
 
@@ -142,6 +142,16 @@ GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.
 
 修复后独立验收 `ACC-20260801-105930-retest` 已通过：左右首次贴边收起、悬停/移开、点击/键盘找回、深色 working 隐私竖条、关闭 Workbench 后保持收起，以及真实 Windows 通知区左键隐藏/恢复均有真实证据；M6 聚合、核心回归和用户环境恢复通过。V105-BUG-001 已关闭。最终发布对象从干净提交 `ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf` 构建，`v1.0.5` annotated tag 指向该提交，GitHub Stable Release 已发布并完成回下载核验。多显示器由项目所有者批准延期，Windows 10 因无设备或 VM 保持环境待补证：
 
+发布后锁定身份：
+
+- 发布源码提交：`ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`。
+- GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5`。
+- Zip：`LetsMakeMoney-v1.0.5-windows-x86_64.zip`，3,231,663 字节。
+- Zip SHA256：`019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`。
+- EXE SHA256：`68FA8FC443B12A2BA8BD757F532EC6B90E09E3DA7E1027255267150C4DAEC37A`。
+- WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
+- Release 仅包含便携 Zip 与 `SHA256SUMS.txt`；远端附件哈希已经核对。
+
 - `doc/releases/v1.0.5/issue-pool.md`
 - `doc/releases/v1.0.5/review.md`
 - `doc/releases/v1.0.5/slimming-candidates.md`
@@ -258,11 +268,14 @@ v1.0.3 GitHub Release 的 README 快照差异披露已进入需求范围，但�
 - [v1.0.5 开发计划](releases/v1.0.5/dev_plan_v1.0.5.md)
 - [v1.0.5 进度看板](releases/v1.0.5/progress_v1.0.5.md)
 - [v1.0.5 开发日志](logs/dev_log_v1.0.5.md)
+- [v1.0.6 维护版本 Review](releases/v1.0.6/review.md)
+- [v1.0.6 问题池](releases/v1.0.6/issue-pool.md)
+- [v1.0.6 进度](releases/v1.0.6/progress_v1.0.6.md)
+- [v1.0.6 验证](releases/v1.0.6/verification.md)
+- [v1.0.6 发布检查](releases/v1.0.6/release-checklist.md)
+- [v1.0.6 发布说明](releases/v1.0.6/release-notes.md)
+- [v1.0.6 Bugfix 记录](logs/v1.0.6-bugfix-log.md)
 
 ## 下一步
 
-v1.0.5 已完成发布收口，当前进入发布后观察。后续功能或维护版本必须重新经过 Review 决定范围；不从本轮历史候选直接续写发布结论。
-
-正式发布对象为 `V105-20260801T075629Z-ffc431af-clean`，来源提交 `ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`，Zip SHA256 为 `019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`。annotated tag、GitHub Release、published 模式和回下载核验均已通过；之前的验收候选和失败候选继续保留为历史证据。
-
-GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5`
+v1.0.6 已取得发布授权。下一步通过受保护分支 PR 合入 `main`，等待必需的 Windows CI 后，从合并后的干净提交重建并锁定最终 Zip、EXE 与 DLL 哈希；随后创建 annotated tag、Stable GitHub Release，并对回下载附件做 SHA256 与 published 模式复核。旧候选及其哈希始终不得用于 Release。

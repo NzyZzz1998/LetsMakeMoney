@@ -15,6 +15,7 @@ export interface ConfigurationSaveOutcome {
   publishUpdated: boolean;
   themeMode: AppConfig["theme_mode"];
   themeReason:
+    | "hydration_incomplete"
     | "validation_failed"
     | "unchanged"
     | "saved"
@@ -25,13 +26,28 @@ interface ConfigurationSaveInput {
   persisted: AppConfig;
   draft: AppConfig;
   service: Pick<ConfigurationService, "save">;
+  hydrated?: boolean;
 }
 
 export async function executeConfigurationSave({
   persisted,
   draft,
   service,
+  hydrated = true,
 }: ConfigurationSaveInput): Promise<ConfigurationSaveOutcome> {
+  if (!hydrated) {
+    return {
+      ok: false,
+      feedback: "failed",
+      message: "配置仍在加载，暂时无法保存。请稍后重试。",
+      persisted,
+      draft,
+      publishUpdated: false,
+      themeMode: persisted.theme_mode,
+      themeReason: "hydration_incomplete",
+    };
+  }
+
   const validation = validateConfiguration(draft);
   if (Object.keys(validation).length > 0) {
     return {

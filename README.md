@@ -6,7 +6,7 @@
   <a href="README.en.md">English</a> ·
   <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">下载</a> ·
   <a href="doc/current.md">当前状态</a> ·
-  <a href="doc/releases/v1.0.5/progress_v1.0.5.md">v1.0.5 发布状态</a>
+  <a href="doc/releases/v1.0.6/progress_v1.0.6.md">v1.0.6 修复状态</a>
 </div>
 
 ## 一眼知道今天赚了多少
@@ -30,10 +30,11 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪
 
 ## 当前版本
 
-当前公开版本为 **v1.0.5 Stable**。该版本已完成独立验收、干净提交构建、必需 CI、annotated tag、GitHub Release 与回下载校验。
+当前公开版本为 **v1.0.5 Stable**；仓库正在收口 **v1.0.6** 主题初始化维护版本。v1.0.6 已通过独立候选验收并取得发布授权，仍需从合并后的干净 `main` 重建并锁定正式附件，当前不是已发布版本。
 
 - 当前公开版本为 [v1.0.5 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5)。
-- v1.0.5 新增可读的非金额贴边隐私竖条、日历“今天”复合标记与三窗单一表面校准；完整状态见 [v1.0.5 进度](doc/releases/v1.0.5/progress_v1.0.5.md)。
+- v1.0.5 已完成独立验收、干净提交构建、必需 CI 和 GitHub Release 发布，Zip SHA256 为 `019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`。
+- v1.0.6 修复浅色配置下辅助窗口可能采用旧深色缓存的问题，并补齐首帧、跨窗口 ThemeSession、配置 hydration 与原生关闭事务门禁；状态以 [v1.0.6 进度](doc/releases/v1.0.6/progress_v1.0.6.md) 为准。
 - Mini 可在贴近左右工作区边缘后收起收入信息，并通过悬停或托盘找回；正常位置仍可持久化恢复。
 - 官方日历未覆盖的年份会使用明确标注的休息模式估算，不伪造官方节假日或调休数据。
 - 隐藏窗口暂停本地计时与权威同步，恢复时立即重新校准，避免后台重复工作。
@@ -75,10 +76,10 @@ npm run tauri dev
 
 ```powershell
 # 在仓库根目录执行
-powershell -ExecutionPolicy Bypass -File .\scripts\package_v105.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\package_v106.ps1
 ```
 
-v1.0.5 本地候选只写入 `.artifacts\candidates\v1.0.5\<candidate-id>\`，不会覆盖 `releases\` 或 GitHub 回下载缓存。构建和验证不应依赖未声明的本机路径或私有文件；本地同名文件不能替代已发布的 GitHub Release 附件身份。
+v1.0.6 本地候选只写入 `.artifacts\candidates\v1.0.6\<candidate-id>\`，不会覆盖 `releases\` 或 GitHub 回下载缓存。构建和验证不应依赖未声明的本机路径或私有文件；本地同名文件不能替代 GitHub Release 附件身份。
 
 ## 数据、隐私与回退
 
@@ -96,12 +97,12 @@ v1.0 Windows 主线的配置与日志目录：
 ## 验证
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v105.ps1 -Milestone M5
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v106.ps1 -Milestone M5
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
 # 生成候选后，使用脚本输出的路径执行 M6 聚合验证
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v105.ps1 -Milestone M6 -CandidatePath <候选 Zip 路径>
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v106.ps1 -Milestone M6 -CandidatePath <候选 Zip 路径>
 # 单独复核受控候选包身份；published 模式还必须提供 tag、Release URL 与回下载校验文件
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v105_package.ps1 -Mode candidate -PackagePath <候选 Zip 路径> -ExpectedSourceHead <40 位提交> -ExpectedZipSha256 <SHA256>
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v106_package.ps1 -Mode candidate -PackagePath <候选 Zip 路径> -ExpectedSourceHead <40 位提交> -ExpectedZipSha256 <SHA256>
 ```
 
 自动测试覆盖工资计算、配置事务、窗口合同、托盘桥接、文档和包完整性。真实通知区、任务栏、DPI 与重启恢复仍以 Windows 桌面验收为准。
@@ -113,7 +114,7 @@ apps/windows-v1/       v1.0 Tauri + React 正式客户端
 shared/                节假日与共享数据
 scripts/               验证、打包和合规检查
 doc/current.md         当前唯一内部事实入口
-doc/releases/v1.0.5/   v1.0.5 PRD、进度、验证与候选发布文档
+doc/releases/v1.0.6/   v1.0.6 主题修复 Review、进度与验证文档
 ```
 
 ## 参与项目

@@ -1,12 +1,15 @@
 param(
     [string]$CandidateId = "",
-    [string]$PythonExe = ""
+    [string]$PythonExe = "",
+    [string]$Version = "1.0.5",
+    [string]$CandidatePrefix = "V105",
+    [string]$AggregateVerificationScript = "verify_v105.ps1",
+    [string]$PackageVerificationScript = "verify_v105_package.ps1"
 )
 
 $ErrorActionPreference = "Stop"
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $AppRoot = Join-Path $RepoRoot "apps\windows-v1"
-$Version = "1.0.5"
 $Platform = "windows-x86_64"
 $Architecture = "x86_64"
 $PackageName = "LetsMakeMoney-v$Version-$Platform"
@@ -66,7 +69,7 @@ $SourceTreeDirty = [bool](git -C $RepoRoot status --short --untracked-files=all)
 $SourceState = if ($SourceTreeDirty) { "dirty" } else { "clean" }
 $Timestamp = [DateTime]::UtcNow.ToString("yyyyMMddTHHmmssZ")
 if ([string]::IsNullOrWhiteSpace($CandidateId)) {
-    $CandidateId = "V105-$Timestamp-$($SourceHead.Substring(0, 8))-$SourceState"
+    $CandidateId = "$CandidatePrefix-$Timestamp-$($SourceHead.Substring(0, 8))-$SourceState"
 }
 if ($CandidateId -notmatch '^[A-Za-z0-9._-]{6,96}$') {
     throw "CandidateId contains unsupported characters or has an invalid length."
@@ -96,9 +99,9 @@ foreach ($entry in ([ordered]@{
     }
 }
 
-& (Join-Path $PSScriptRoot "verify_v105.ps1") -Milestone M5 -PythonExe $PythonExe
+& (Join-Path $PSScriptRoot $AggregateVerificationScript) -Milestone M5 -PythonExe $PythonExe
 if ($LASTEXITCODE -ne 0) {
-    throw "v1.0.5 M5 verification failed before packaging."
+    throw "v$Version verification failed before packaging."
 }
 
 Push-Location $AppRoot
@@ -213,7 +216,7 @@ try {
     "$($ZipIdentity.sha256)  $($ZipIdentity.name)" | Set-Content `
         -LiteralPath (Join-Path $StagingDirectory "SHA256SUMS.txt") -Encoding ASCII
 
-    & (Join-Path $PSScriptRoot "verify_v105_package.ps1") `
+    & (Join-Path $PSScriptRoot $PackageVerificationScript) `
         -Mode candidate `
         -PackagePath $StagingZip `
         -ExpectedSourceHead $SourceHead `
@@ -222,7 +225,7 @@ try {
         -SkipLocationCheck `
         -PythonExe $PythonExe
     if ($LASTEXITCODE -ne 0) {
-        throw "Staged v1.0.5 candidate verification failed."
+        throw "Staged v$Version candidate verification failed."
     }
 
     $CandidateIdentity = [ordered]@{
@@ -253,7 +256,7 @@ try {
     $MovedToFinal = $true
     $FinalZip = Join-Path $FinalDirectory "$PackageName.zip"
 
-    & (Join-Path $PSScriptRoot "verify_v105_package.ps1") `
+    & (Join-Path $PSScriptRoot $PackageVerificationScript) `
         -Mode candidate `
         -PackagePath $FinalZip `
         -ExpectedSourceHead $SourceHead `
@@ -261,7 +264,7 @@ try {
         -ExpectedZipSha256 $ZipIdentity.sha256 `
         -PythonExe $PythonExe
     if ($LASTEXITCODE -ne 0) {
-        throw "Final v1.0.5 candidate location or identity verification failed."
+        throw "Final v$Version candidate location or identity verification failed."
     }
 
     Write-Host "CANDIDATE_ID=$CandidateId"

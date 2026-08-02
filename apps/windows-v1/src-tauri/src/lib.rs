@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::process::Command;
 use std::sync::{
     atomic::{AtomicBool, AtomicU64, Ordering},
@@ -9,8 +9,8 @@ use std::time::Duration;
 use tauri::{
     menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    AppHandle, LogicalSize, Manager, PhysicalPosition, Position, Size, WebviewUrl, WebviewWindow,
-    WebviewWindowBuilder, WindowEvent,
+    AppHandle, Emitter, LogicalSize, Manager, PhysicalPosition, Position, Size, WebviewUrl,
+    WebviewWindow, WebviewWindowBuilder, WindowEvent,
 };
 #[cfg(target_os = "windows")]
 use webview2_com::{Microsoft::Web::WebView2::Win32::ICoreWebView2_3, TrySuspendCompletedHandler};
@@ -95,6 +95,179 @@ struct ConfigurationState(AtomicBool);
 struct ExitState(AtomicBool);
 struct PositionSaveRevision(AtomicU64);
 struct PlatformRuntime(Mutex<PlatformCapabilities>);
+
+const THEME_SESSION_EVENT: &str = "lmm://theme-preview";
+
+#[derive(Clone, Debug)]
+struct ThemePreview {
+    theme_mode: config::ThemeMode,
+    transaction_id: String,
+}
+
+#[derive(Clone, Debug)]
+struct ThemeSessionState {
+    persisted: config::ThemeMode,
+    preview: Option<ThemePreview>,
+    revision: u64,
+}
+
+struct ThemeSession(Mutex<ThemeSessionState>);
+
+#[derive(Clone, Copy, Debug, Deserialize)]
+#[serde(rename_all = "snake_case")]
+enum ThemeSessionAction {
+    Preview,
+    Commit,
+    Revert,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ThemeSessionUpdateRequest {
+    action: ThemeSessionAction,
+    theme_mode: config::ThemeMode,
+    transaction_id: String,
+    reason: String,
+    window_label: String,
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct ThemeSessionSnapshot {
+    theme_mode: config::ThemeMode,
+    source: &'static str,
+    transaction_id: Option<String>,
+    revision: u64,
+    reason: String,
+}
+
+impl ThemeSessionState {
+    fn snapshot(&self, reason: impl Into<String>) -> ThemeSessionSnapshot {
+        match &self.preview {
+            Some(preview) => ThemeSessionSnapshot {
+                theme_mode: preview.theme_mode.clone(),
+                source: "preview",
+                transaction_id: Some(preview.transaction_id.clone()),
+                revision: self.revision,
+                reason: reason.into(),
+            },
+            None => ThemeSessionSnapshot {
+                theme_mode: self.persisted.clone(),
+                source: "persisted",
+                transaction_id: None,
+                revision: self.revision,
+                reason: reason.into(),
+            },
+        }
+    }
+
+    fn transition(
+        &mut self,
+        action: ThemeSessionAction,
+        requested: config::ThemeMode,
+        persisted: config::ThemeMode,
+        transaction_id: &str,
+        reason: &str,
+    ) -> (ThemeSessionSnapshot, bool) {
+        self.persisted = persisted;
+        let mut applied = true;
+        match action {
+            ThemeSessionAction::Preview => {
+                self.preview = Some(ThemePreview {
+                    theme_mode: requested,
+                    transaction_id: transaction_id.to_string(),
+                });
+            }
+            ThemeSessionAction::Commit | ThemeSessionAction::Revert => {
+                if self
+                    .preview
+                    .as_ref()
+                    .is_some_and(|preview| preview.transaction_id != transaction_id)
+                {
+                    applied = false;
+                } else {
+                    self.preview = None;
+                }
+            }
+        }
+        self.revision = self.revision.saturating_add(1);
+        (self.snapshot(reason), applied)
+    }
+}
+
+impl ThemeSession {
+    fn new(theme_mode: config::ThemeMode) -> Self {
+        Self(Mutex::new(ThemeSessionState {
+            persisted: theme_mode,
+            preview: None,
+            revision: 1,
+        }))
+    }
+}
+
+fn theme_mode_label(theme_mode: &config::ThemeMode) -> &'static str {
+    match theme_mode {
+        config::ThemeMode::Light => "light",
+        config::ThemeMode::Dark => "dark",
+    }
+}
+
+#[cfg(test)]
+mod theme_session_tests {
+    use super::*;
+
+    #[test]
+    fn preview_is_process_local_and_reverts_to_persisted_theme() {
+        let mut session = ThemeSessionState {
+            persisted: config::ThemeMode::Light,
+            preview: None,
+            revision: 1,
+        };
+        let (preview, applied) = session.transition(
+            ThemeSessionAction::Preview,
+            config::ThemeMode::Dark,
+            config::ThemeMode::Light,
+            "tx-settings",
+            "draft_changed",
+        );
+        assert!(applied);
+        assert_eq!(preview.theme_mode, config::ThemeMode::Dark);
+        assert_eq!(preview.source, "preview");
+
+        let (reverted, applied) = session.transition(
+            ThemeSessionAction::Revert,
+            config::ThemeMode::Light,
+            config::ThemeMode::Light,
+            "tx-settings",
+            "draft_discarded",
+        );
+        assert!(applied);
+        assert_eq!(reverted.theme_mode, config::ThemeMode::Light);
+        assert_eq!(reverted.source, "persisted");
+        assert!(reverted.transaction_id.is_none());
+    }
+
+    #[test]
+    fn stale_transaction_cannot_clear_a_newer_preview() {
+        let mut session = ThemeSessionState {
+            persisted: config::ThemeMode::Light,
+            preview: Some(ThemePreview {
+                theme_mode: config::ThemeMode::Dark,
+                transaction_id: "tx-new".into(),
+            }),
+            revision: 4,
+        };
+        let (snapshot, applied) = session.transition(
+            ThemeSessionAction::Revert,
+            config::ThemeMode::Light,
+            config::ThemeMode::Light,
+            "tx-old",
+            "stale_revert",
+        );
+        assert!(!applied);
+        assert_eq!(snapshot.theme_mode, config::ThemeMode::Dark);
+        assert_eq!(snapshot.transaction_id.as_deref(), Some("tx-new"));
+    }
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum MiniEdgeVisibility {
@@ -188,6 +361,88 @@ fn read_configuration(state: tauri::State<'_, RuntimeConfig>) -> Result<config::
         .lock()
         .map(|value| value.clone())
         .map_err(|_| "config_lock_failed".into())
+}
+
+#[tauri::command]
+fn read_theme_session(
+    app: AppHandle,
+    state: tauri::State<'_, ThemeSession>,
+    window_label: String,
+) -> Result<ThemeSessionSnapshot, String> {
+    let snapshot = state
+        .0
+        .lock()
+        .map(|session| session.snapshot("authority_read"))
+        .map_err(|_| "theme_session_lock_failed".to_string())?;
+    append_log(
+        &app,
+        "theme.loaded",
+        &format!(
+            "window={window_label} theme={} source={} revision={}",
+            theme_mode_label(&snapshot.theme_mode),
+            snapshot.source,
+            snapshot.revision
+        ),
+    );
+    Ok(snapshot)
+}
+
+#[tauri::command]
+fn update_theme_session(
+    app: AppHandle,
+    session_state: tauri::State<'_, ThemeSession>,
+    config_state: tauri::State<'_, RuntimeConfig>,
+    request: ThemeSessionUpdateRequest,
+) -> Result<ThemeSessionSnapshot, String> {
+    let ThemeSessionUpdateRequest {
+        action,
+        theme_mode,
+        transaction_id,
+        reason,
+        window_label,
+    } = request;
+    if transaction_id.trim().is_empty() {
+        return Err("theme_transaction_id_required".into());
+    }
+    let persisted = config_state
+        .0
+        .lock()
+        .map(|configuration| configuration.theme_mode.clone())
+        .map_err(|_| "config_lock_failed".to_string())?;
+    let action_label = match action {
+        ThemeSessionAction::Preview => "preview",
+        ThemeSessionAction::Commit => "commit",
+        ThemeSessionAction::Revert => "revert",
+    };
+    let mut session = session_state
+        .0
+        .lock()
+        .map_err(|_| "theme_session_lock_failed".to_string())?;
+    let (snapshot, applied) =
+        session.transition(action, theme_mode, persisted, &transaction_id, &reason);
+    drop(session);
+
+    app.emit(THEME_SESSION_EVENT, snapshot.clone())
+        .map_err(|error| error.to_string())?;
+    let event = match action_label {
+        "preview" => "theme.preview_applied",
+        "commit" => "theme.saved",
+        _ => "theme.preview_reverted",
+    };
+    append_log(
+        &app,
+        event,
+        &format!(
+            "window={window_label} theme={} source={} transaction={} revision={} applied={} reason={}",
+            theme_mode_label(&snapshot.theme_mode),
+            snapshot.source,
+            transaction_id,
+            snapshot.revision,
+            applied,
+            reason.replace(['\r', '\n'], " ")
+        ),
+    );
+    Ok(snapshot)
 }
 
 #[tauri::command]
@@ -1832,7 +2087,9 @@ pub fn run() {
             let configuration_initialized = config_path.is_file() && config_result.is_ok();
             let config = config_result.unwrap_or_else(|_| config::AppConfig::default());
             let mini_edge_runtime = MiniEdgeRuntime::new(&config);
+            let theme_session = ThemeSession::new(config.theme_mode.clone());
             app.manage(RuntimeConfig(Mutex::new(config)));
+            app.manage(theme_session);
             app.manage(mini_edge_runtime);
             app.manage(ConfigurationState(AtomicBool::new(
                 configuration_initialized,
@@ -1920,7 +2177,39 @@ pub fn run() {
                     .load(Ordering::SeqCst);
                 if !exiting {
                     api.prevent_close();
-                    if hide_window_internal(window.app_handle(), window.label()).is_ok() {
+                    if matches!(window.label(), "settings" | "wizard") {
+                        if let Some(webview) = window
+                            .app_handle()
+                            .get_webview_window(window.label())
+                        {
+                            match webview.eval(
+                                "window.dispatchEvent(new CustomEvent('lmm:window-close-requested'))",
+                            ) {
+                                Ok(()) => append_log(
+                                    window.app_handle(),
+                                    "window.close_requested",
+                                    &format!("label={} route=react", window.label()),
+                                ),
+                                Err(error) => append_log(
+                                    window.app_handle(),
+                                    "window.lifecycle_event_failed",
+                                    &format!(
+                                        "label={} event=close_requested reason={error}",
+                                        window.label()
+                                    ),
+                                ),
+                            }
+                        } else {
+                            append_log(
+                                window.app_handle(),
+                                "window.lifecycle_event_failed",
+                                &format!(
+                                    "label={} event=close_requested reason=webview_missing",
+                                    window.label()
+                                ),
+                            )
+                        }
+                    } else if hide_window_internal(window.app_handle(), window.label()).is_ok() {
                         append_log(
                             window.app_handle(),
                             "window.close_hidden",
@@ -1953,6 +2242,8 @@ pub fn run() {
             commands::income::resolve_calendar_month,
             commands::income::resolve_next_workday,
             read_configuration,
+            read_theme_session,
+            update_theme_session,
             save_configuration,
             save_date_override,
             configuration_initialized,

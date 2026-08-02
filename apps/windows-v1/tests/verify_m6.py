@@ -23,6 +23,8 @@ def production_rust(text: str) -> str:
 
 
 def check_source_tree() -> None:
+    current_version = json.loads((APP / "package.json").read_text(encoding="utf-8"))["version"]
+    current_package_script = f"package_v{current_version.replace('.', '')}.ps1"
     retired_paths = [
         "src",
         "native",
@@ -52,6 +54,7 @@ def check_source_tree() -> None:
                 "package_v103.ps1",
                 "package_v104.ps1",
                 "package_v105.ps1",
+                current_package_script,
                 "collect_v103_stability.ps1",
                 "diagnose_v104_environment.ps1",
                 "smoke_v104_desktop.ps1",

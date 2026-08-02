@@ -31,11 +31,25 @@ check(rust.includes(".transparent(true)"), "dynamic native windows must stay tra
 check(rust.includes(".shadow(true)"), "dynamic native windows must retain DWM shadow");
 check(tauri.app.windows[0].transparent === true, "Mini native root must stay transparent");
 check(tauri.app.windows[0].shadow === true, "Mini native shadow must stay enabled");
-check((app.match(/<WindowFrame\b/g) ?? []).length === 3, "only three product windows may use WindowFrame");
+const frameKinds = [...app.matchAll(/<WindowFrame kind="([^"]+)"/g)].map(match => match[1]);
+check(
+  new Set(frameKinds).size === 3
+    && frameKinds.every(kind => ["workbench", "settings", "wizard"].includes(kind)),
+  "only the three product window kinds may use WindowFrame",
+);
 check(app.includes('<WindowFrame kind="workbench"'), "Workbench surface contract missing");
 check(app.includes('<WindowFrame kind="settings"'), "Settings surface contract missing");
 check(app.includes('<WindowFrame kind="wizard"'), "Wizard surface contract missing");
 check(!read("src/features/mini/MiniWindow.tsx").includes("WindowFrame"), "Mini must remain outside the M5 surface Spike");
 check(styles.includes("@media (prefers-reduced-motion: reduce)"), "reduced-motion contract missing");
+check(
+  app.includes('window.addEventListener("lmm:window-close-requested", requestClose)'),
+  "Settings and Wizard must route native close requests through their React close transaction",
+);
+check(
+  rust.includes('matches!(window.label(), "settings" | "wizard")')
+    && rust.includes("lmm:window-close-requested"),
+  "native Settings and Wizard close requests must not bypass draft confirmation and preview rollback",
+);
 
-console.log(`window surface contract ${assertions}/16 passed`);
+console.log(`window surface contract ${assertions}/18 passed`);
