@@ -30,17 +30,17 @@ The compact earnings window is designed to stay on the desktop. Open the Today a
 
 ## Current release status
 
-The current public release is **v1.0.5 Stable**. The repository is closing out **v1.0.6**, a targeted theme-initialization maintenance release. Independent candidate acceptance and owner authorization are complete, but the final assets must still be rebuilt from the merged clean `main`; v1.0.6 is not published yet.
+The current public release is [**v1.0.6 Stable**](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.6). This maintenance release completed independent acceptance, required CI, a clean-source build, GitHub Release publication, and a round-trip verification of the published assets.
 
-- The current public release is [v1.0.5 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5).
-- v1.0.5 completed independent acceptance, a clean-source build, required CI, and GitHub Release publication. Its Zip SHA256 is `019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`.
+- The v1.0.6 release source commit is `51e4c08da5260af9b9f4808c4f6d29591319e655`.
+- The portable Zip SHA256 is `AEE4BC4A41D3839E421138D0B152EA5A8B0FBDC60C5B189EA11790DE4ED8B66A`; the Release contains only the portable Zip and `SHA256SUMS.txt`.
 - v1.0.6 fixes stale per-WebView theme state and adds first-frame, cross-window ThemeSession, configuration-hydration, and native-close transaction gates. See the [v1.0.6 status](doc/releases/v1.0.6/progress_v1.0.6.md).
 - The Mini window can retract salary details at the left or right work-area edge and can be revealed by hover or the system tray while retaining its normal saved position.
 - Years not covered by official calendar data use an explicitly labeled work-pattern estimate; the app never invents official holidays or adjusted workdays.
 - Hidden windows pause local ticks and authoritative synchronization, then recalibrate immediately when restored.
 - Windows sleep recovery, forward and backward system-time jumps, a real time-zone switch, and a continuous 120-minute run have been accepted.
 - Stage copy, timeline alignment, overnight ownership, adjusted-workday sources, compound calendar states, and light/dark themes retain the v1.0.2 contracts.
-- v1.0.5 does not include pets, cloud sync, an installer, system-following themes, or custom themes.
+- v1.0.6 does not include pets, cloud sync, an installer, system-following themes, or custom themes.
 - Users who need the desktop-pet experience can remain on v0.9 Beta, which is also the explicit rollback baseline.
 
 See the [current status source](doc/current.md) for the latest release identity and checksums.

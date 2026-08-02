@@ -1,6 +1,6 @@
 # LetsMakeMoney Windows v1.0.6 发布说明
 
-> 状态：**发布已授权，等待合并后干净重建。** 本文件描述正式范围；最终提交、附件大小和 SHA256 以 GitHub Release 与 `SHA256SUMS.txt` 为准。
+> 状态：**已发布。** 本文件描述正式范围；最终提交、附件大小和 SHA256 已与 GitHub Release 及回下载附件核对一致。
 
 ## 本版重点
 
@@ -38,3 +38,13 @@
 2. `SHA256SUMS.txt`
 
 历史 dirty 候选、rebase 前干净候选、截图、日志和临时目录不得作为 Release 附件。
+
+## 正式发布身份
+
+- 发布源提交：`51e4c08da5260af9b9f4808c4f6d29591319e655`。
+- tag：`v1.0.6`。
+- Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.6`。
+- Zip：3,245,194 字节；SHA256 `AEE4BC4A41D3839E421138D0B152EA5A8B0FBDC60C5B189EA11790DE4ED8B66A`。
+- EXE：10,140,160 字节；SHA256 `21EAC751534F4D0787DEC07545F315326E9C5D773F39D65D9F46AA1879518659`。
+- WebView2Loader：160,320 字节；SHA256 `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
+- Release 仅包含便携 Zip 与 `SHA256SUMS.txt`；published 模式验证通过。

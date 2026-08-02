@@ -6,21 +6,22 @@
 
 | 项目 | 状态 |
 | --- | --- |
-| 当前公开版本 | Windows v1.0.5 Stable |
-| 当前公开 tag | `v1.0.5` |
-| 当前开发版本 | Windows v1.0.6；定向主题修复、原生关闭事务修复、候选验收与发布授权已完成 |
-| 下一版本候选 | Windows v1.0.6；等待 PR 合并后从干净 `main` 重建并锁定正式发布身份 |
+| 当前公开版本 | Windows v1.0.6 Stable |
+| 当前公开 tag | `v1.0.6` |
+| 当前开发版本 | 无；v1.0.6 已完成发布收口 |
+| 下一版本候选 | 待发布后观察决定 |
 | v1.0.1 阶段 | 已发布 |
 | v1.0.2 阶段 | 已发布 / 发布后观察 |
 | v1.0.3 阶段 | 已发布 / 发布后观察 |
 | v1.0.4 阶段 | M0 至 M6、ACC 全部完成，74/74；已发布 |
 | v1.0.5 阶段 | M0 至 M6、ACC、tag、Release 与 published 回下载核验全部完成；已发布 |
+| v1.0.6 阶段 | 定向 Bugfix、CI、M6、桌面冒烟、tag、Release 与 published 回下载核验全部完成；已发布 |
 | 技术栈 | Rust + Tauri + TypeScript/React |
 | 产品形态 | 无宠物、本地优先的 Windows 收入进度工具 |
-| 发布阻塞 | v1.0.5 无；v1.0.6 无技术阻塞，最终合并提交与正式附件身份尚待生成 |
+| 发布阻塞 | 无 |
 | 最后更新 | 2026-08-02 |
 
-v1.0.5 已完成 GitHub Stable Release。v1.0.6 只处理主题首帧、跨窗口 ThemeSession、配置 hydration、原生关闭事务和同源日志/门禁，不改变收入、日历、Mini 隐私贴边或窗口视觉。受控 dirty 候选继续作为历史排错证据保留；rebase 前的干净候选已通过 M6、包体验证和真实 Windows 最小身份冒烟。项目所有者已经授权发布，正式附件必须从 PR 合并后的干净 `main` 重新构建，旧候选不得直接上传。
+v1.0.6 已完成 GitHub Stable Release。该版本只处理主题首帧、跨窗口 ThemeSession、配置 hydration、原生关闭事务和同源日志/门禁，不改变收入、日历、Mini 隐私贴边或窗口视觉。正式附件从合并后的干净 `main` 提交 `51e4c08da5260af9b9f4808c4f6d29591319e655` 构建；历史 dirty 候选与 rebase 前候选继续仅作为排错证据保留。
 
 ## v1.0 公开基线
 
@@ -141,6 +142,8 @@ GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.
 首个独立 ACC 在 Windows 11、100% DPI、单显示器环境发现 Mini 保持焦点时首次贴边不收起，复开 V105-BUG-001；该旧候选及其哈希继续作为历史失败证据保留。最小修复完成后，新 clean 候选 `V105-20260801T013259Z-6c9f010a-clean` 从提交 `6c9f010a164fb2b73c9068bd4fdcb6e863bd5100` 构建，Zip SHA256 为 `0FED6256E1E979D4BEC41E64C4290EF1917A6A6AB2B04D9A6EF47F1DD3C48826`。
 
 修复后独立验收 `ACC-20260801-105930-retest` 已通过：左右首次贴边收起、悬停/移开、点击/键盘找回、深色 working 隐私竖条、关闭 Workbench 后保持收起，以及真实 Windows 通知区左键隐藏/恢复均有真实证据；M6 聚合、核心回归和用户环境恢复通过。V105-BUG-001 已关闭。最终发布对象从干净提交 `ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf` 构建，`v1.0.5` annotated tag 指向该提交，GitHub Stable Release 已发布并完成回下载核验。多显示器由项目所有者批准延期，Windows 10 因无设备或 VM 保持环境待补证：
+
+v1.0.5 已完成 GitHub Stable Release；以下锁定身份继续作为该历史版本的事实源。
 
 发布后锁定身份：
 
@@ -276,6 +279,16 @@ v1.0.3 GitHub Release 的 README 快照差异披露已进入需求范围，但�
 - [v1.0.6 发布说明](releases/v1.0.6/release-notes.md)
 - [v1.0.6 Bugfix 记录](logs/v1.0.6-bugfix-log.md)
 
-## 下一步
+## v1.0.6 发布结论
 
-v1.0.6 已取得发布授权。下一步通过受保护分支 PR 合入 `main`，等待必需的 Windows CI 后，从合并后的干净提交重建并锁定最终 Zip、EXE 与 DLL 哈希；随后创建 annotated tag、Stable GitHub Release，并对回下载附件做 SHA256 与 published 模式复核。旧候选及其哈希始终不得用于 Release。
+- 发布源提交：`51e4c08da5260af9b9f4808c4f6d29591319e655`。
+- annotated tag：`v1.0.6`，解引用后指向上述提交。
+- GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.6`。
+- Zip：`LetsMakeMoney-v1.0.6-windows-x86_64.zip`，3,245,194 字节。
+- Zip SHA256：`AEE4BC4A41D3839E421138D0B152EA5A8B0FBDC60C5B189EA11790DE4ED8B66A`。
+- EXE SHA256：`21EAC751534F4D0787DEC07545F315326E9C5D773F39D65D9F46AA1879518659`。
+- WebView2Loader SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
+- Release 仅包含便携 Zip 与 `SHA256SUMS.txt`；GitHub 回下载附件已通过 SHA256 与 published 模式验证。
+- Windows 10 与真实多显示器仍为环境补证项，不冒充通过，也不阻塞本次定向维护版。
+
+下一步进入 v1.0.6 发布后观察；不改写本次 tag、Release 或附件。

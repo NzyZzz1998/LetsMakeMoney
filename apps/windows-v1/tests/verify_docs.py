@@ -25,6 +25,9 @@ V104_SOURCE_COMMIT = "4d06dc73dbc5c27d7a97462d8262a553dd97d5b6"
 V105_ZIP_SHA256 = "019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889"
 V105_EXE_SHA256 = "68FA8FC443B12A2BA8BD757F532EC6B90E09E3DA7E1027255267150C4DAEC37A"
 V105_SOURCE_COMMIT = "ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf"
+V106_ZIP_SHA256 = "AEE4BC4A41D3839E421138D0B152EA5A8B0FBDC60C5B189EA11790DE4ED8B66A"
+V106_EXE_SHA256 = "21EAC751534F4D0787DEC07545F315326E9C5D773F39D65D9F46AA1879518659"
+V106_SOURCE_COMMIT = "51e4c08da5260af9b9f4808c4f6d29591319e655"
 LOADER_SHA256 = "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
 
 DOCUMENTS = [
@@ -168,18 +171,35 @@ def check_release_identity() -> None:
             if expected not in text:
                 fail(f"{path.relative_to(ROOT)} 缺少 v1.0.5 {label}")
 
+    v106_identity_docs = [
+        ROOT / "doc" / "current.md",
+        ROOT / "doc" / "releases" / "v1.0.6" / "release-notes.md",
+        ROOT / "doc" / "releases" / "v1.0.6" / "verification.md",
+    ]
+    for path in v106_identity_docs:
+        text = read_utf8(path)
+        for label, expected in (
+            ("Zip", V106_ZIP_SHA256),
+            ("EXE", V106_EXE_SHA256),
+            ("WebView2Loader", LOADER_SHA256),
+            ("发布源码提交", V106_SOURCE_COMMIT),
+        ):
+            if expected not in text:
+                fail(f"{path.relative_to(ROOT)} 缺少 v1.0.6 {label}")
+
 
 def check_current_readmes() -> None:
     root_zh = read_utf8(ROOT / "README.md")
     root_en = read_utf8(ROOT / "README.en.md")
     app_readme = read_utf8(ROOT / "apps" / "windows-v1" / "README.md")
-    release_url = "https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5"
+    release_url = "https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.6"
 
     for label, text in (("README.md", root_zh), ("README.en.md", root_en)):
         required = (
-            "v1.0.5 Stable",
+            "v1.0.6 Stable",
             release_url,
-            "v1.0.6",
+            V106_SOURCE_COMMIT,
+            V106_ZIP_SHA256,
             "package_v106.ps1",
             "verify_v106_package.ps1",
             "verify_v106.ps1",
@@ -191,12 +211,10 @@ def check_current_readmes() -> None:
             if stale in text:
                 fail(f"{label} still uses stale default command: {stale}")
 
-    if "当前公开版本为 v1.0.5 Stable" not in app_readme:
+    if "当前公开版本为 v1.0.6 Stable" not in app_readme:
         fail("apps/windows-v1/README.md current public version drift")
-    if "v1.0.5 已完成独立验收" not in app_readme:
+    if "v1.0.6 Stable；该版本已完成独立验收" not in app_readme:
         fail("apps/windows-v1/README.md current release state drift")
-    if "当前开发目标为 v1.0.6" not in app_readme:
-        fail("apps/windows-v1/README.md current development version drift")
     if "scripts\\verify_v106.ps1" not in app_readme:
         fail("apps/windows-v1/README.md missing current aggregate verification command")
     if "scripts\\package_v106.ps1" not in app_readme:
@@ -281,10 +299,10 @@ def main() -> int:
     check_current_readmes()
 
     current = read_utf8(ROOT / "doc" / "current.md")
-    if "当前公开版本 | Windows v1.0.5 Stable" not in current:
-        fail("doc/current.md 未声明当前公开版本为 v1.0.5 Stable")
-    if "当前公开 tag | `v1.0.5`" not in current:
-        fail("doc/current.md 未声明当前公开 tag 为 v1.0.5")
+    if "当前公开版本 | Windows v1.0.6 Stable" not in current:
+        fail("doc/current.md 未声明当前公开版本为 v1.0.6 Stable")
+    if "当前公开 tag | `v1.0.6`" not in current:
+        fail("doc/current.md 未声明当前公开 tag 为 v1.0.6")
     if "v0.9-beta" not in current:
         fail("doc/current.md 缺少 v0.9 回退基线")
     if "已通过并发布" not in current or "v1.0` tag 指向发布提交" not in current:
@@ -301,6 +319,10 @@ def main() -> int:
         fail("doc/current.md 未声明 v1.0.5 tag 发布事实")
     if "v1.0.5 已完成 GitHub Stable Release" not in current:
         fail("doc/current.md 未声明 v1.0.5 GitHub Release 发布事实")
+    if "v1.0.6 已完成 GitHub Stable Release" not in current:
+        fail("doc/current.md 未声明 v1.0.6 GitHub Release 发布事实")
+    if "tag：`v1.0.6`" not in current or V106_SOURCE_COMMIT not in current:
+        fail("doc/current.md 未声明 v1.0.6 tag 与发布源提交")
     if "多显示器安全回落因当前设备仅有一台显示器，标记为待补证" not in current:
         fail("doc/current.md 未保留多显示器待补证边界")
 
@@ -310,9 +332,9 @@ def main() -> int:
             print(f"- {item}")
         return 1
 
-    print("v1.0 至 v1.0.5 发布文档与 v1.0.6 开发文档检查通过")
+    print("v1.0 至 v1.0.6 发布文档检查通过")
     print(f"- UTF-8 与乱码：{len(DOCUMENTS)} 份文档")
-    print("- v1.0 至 v1.0.5 发布事实源、v1.0.6 开发文档及本地链接完整")
+    print("- v1.0 至 v1.0.6 发布事实源及本地链接完整")
     print("- current、release notes、verification 的历史与当前发布哈希一致")
     return 0
 

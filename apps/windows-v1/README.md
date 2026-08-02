@@ -1,6 +1,6 @@
 # LetsMakeMoney Windows Stable 工程
 
-这是 LetsMakeMoney 当前 Windows Stable 主线工程，技术栈为 Rust、Tauri、TypeScript 与 React。当前公开版本为 v1.0.5 Stable，且 v1.0.5 已完成独立验收、干净构建、CI、tag、GitHub Release 与回下载核验；当前开发目标为 v1.0.6，已通过候选验收并取得发布授权，等待合并后干净重建，尚未发布。
+这是 LetsMakeMoney 当前 Windows Stable 主线工程，技术栈为 Rust、Tauri、TypeScript 与 React。当前公开版本为 v1.0.6 Stable；该版本已完成独立验收、必需 CI、干净构建、annotated tag、GitHub Release 与线上附件回下载核验。
 
 ## 产品边界
 
@@ -42,7 +42,7 @@ npm test
 npm run build:web
 ```
 
-`npm test` 会执行 Runtime Adapter、配置领域、桌面服务、时间与呈现纯函数测试，并检查前后端责任边界和工具解析。当前完整开发回归以仓库根目录的 `scripts\verify_v106.ps1` 为准；公开版本复核继续使用 v1.0.5 的锁定身份。
+`npm test` 会执行 Runtime Adapter、配置领域、桌面服务、时间与呈现纯函数测试，并检查前后端责任边界和工具解析。当前完整开发回归以仓库根目录的 `scripts\verify_v106.ps1` 为准；公开版本复核使用 v1.0.6 的锁定身份。
 
 ## 统一工具链解析
 
