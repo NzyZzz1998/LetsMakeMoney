@@ -37,6 +37,19 @@ const configurationService = {
   },
 };
 
+const hydrationBlocked = await executeConfigurationSave({
+  persisted: original,
+  draft: edited,
+  service: configurationService,
+  hydrated: false,
+});
+assert(!hydrationBlocked.ok, "configuration cannot save before authoritative hydration completes");
+assert(saveCalls === 0, "hydration gate cannot invoke native storage with a seeded draft");
+assert(
+  hydrationBlocked.themeReason === "hydration_incomplete",
+  "hydration rejection remains distinguishable from validation and storage failures",
+);
+
 const unchanged = await executeConfigurationSave({
   persisted: original,
   draft: original,

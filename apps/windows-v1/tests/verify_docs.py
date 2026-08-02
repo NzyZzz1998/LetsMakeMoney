@@ -22,6 +22,9 @@ V103_SOURCE_COMMIT = "87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4"
 V104_ZIP_SHA256 = "C4F28892831891A4266C4D9B12D432CD5C970BB3C9B36A6B8DB21FA2566DE50E"
 V104_EXE_SHA256 = "E0C9C603703FC2632619AFBC84F63B1B1D403273CD01D29AA0A308A95243E107"
 V104_SOURCE_COMMIT = "4d06dc73dbc5c27d7a97462d8262a553dd97d5b6"
+V105_ZIP_SHA256 = "019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889"
+V105_EXE_SHA256 = "68FA8FC443B12A2BA8BD757F532EC6B90E09E3DA7E1027255267150C4DAEC37A"
+V105_SOURCE_COMMIT = "ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf"
 LOADER_SHA256 = "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
 
 DOCUMENTS = [
@@ -35,6 +38,8 @@ DOCUMENTS = [
     *sorted((ROOT / "doc" / "releases" / "v1.0.3").glob("*.md")),
     *sorted((ROOT / "doc" / "releases" / "v1.0.4").glob("*.md")),
     *sorted((ROOT / "doc" / "releases" / "v1.0.5").glob("*.md")),
+    *sorted((ROOT / "doc" / "releases" / "v1.0.6").glob("*.md")),
+    ROOT / "doc" / "logs" / "v1.0.6-bugfix-log.md",
 ]
 
 
@@ -147,6 +152,22 @@ def check_release_identity() -> None:
             if expected not in text:
                 fail(f"{path.relative_to(ROOT)} 缺少 v1.0.4 {label}")
 
+    v105_identity_docs = [
+        ROOT / "doc" / "current.md",
+        ROOT / "doc" / "releases" / "v1.0.5" / "release-notes.md",
+        ROOT / "doc" / "releases" / "v1.0.5" / "verification.md",
+    ]
+    for path in v105_identity_docs:
+        text = read_utf8(path)
+        for label, expected in (
+            ("Zip", V105_ZIP_SHA256),
+            ("EXE", V105_EXE_SHA256),
+            ("WebView2Loader", LOADER_SHA256),
+            ("发布源码提交", V105_SOURCE_COMMIT),
+        ):
+            if expected not in text:
+                fail(f"{path.relative_to(ROOT)} 缺少 v1.0.5 {label}")
+
 
 def check_current_readmes() -> None:
     root_zh = read_utf8(ROOT / "README.md")
@@ -158,10 +179,10 @@ def check_current_readmes() -> None:
         required = (
             "v1.0.5 Stable",
             release_url,
-            "v1.0.5",
-            "package_v105.ps1",
-            "verify_v105_package.ps1",
-            "verify_v105.ps1",
+            "v1.0.6",
+            "package_v106.ps1",
+            "verify_v106_package.ps1",
+            "verify_v106.ps1",
         )
         for marker in required:
             if marker not in text:
@@ -174,9 +195,11 @@ def check_current_readmes() -> None:
         fail("apps/windows-v1/README.md current public version drift")
     if "v1.0.5 已完成独立验收" not in app_readme:
         fail("apps/windows-v1/README.md current release state drift")
-    if "scripts\\verify_v105.ps1" not in app_readme:
+    if "当前开发目标为 v1.0.6" not in app_readme:
+        fail("apps/windows-v1/README.md current development version drift")
+    if "scripts\\verify_v106.ps1" not in app_readme:
         fail("apps/windows-v1/README.md missing current aggregate verification command")
-    if "scripts\\package_v105.ps1" not in app_readme:
+    if "scripts\\package_v106.ps1" not in app_readme:
         fail("apps/windows-v1/README.md missing current isolated packaging command")
 
     for path, text in (
@@ -237,6 +260,12 @@ def main() -> int:
         ROOT / "doc" / "releases" / "v1.0.5" / "release-checklist.md",
         ROOT / "doc" / "releases" / "v1.0.5" / "release-notes.md",
         ROOT / "doc" / "releases" / "v1.0.5" / "traceability.md",
+        ROOT / "doc" / "releases" / "v1.0.6" / "README.md",
+        ROOT / "doc" / "releases" / "v1.0.6" / "review.md",
+        ROOT / "doc" / "releases" / "v1.0.6" / "issue-pool.md",
+        ROOT / "doc" / "releases" / "v1.0.6" / "progress_v1.0.6.md",
+        ROOT / "doc" / "releases" / "v1.0.6" / "verification.md",
+        ROOT / "doc" / "logs" / "v1.0.6-bugfix-log.md",
     }
     for path in required:
         if not path.exists():
@@ -269,6 +298,7 @@ def main() -> int:
     if "`v1.0.4` annotated tag 指向该发布源" not in current:
         fail("doc/current.md 未声明 v1.0.4 已完成发布")
     if "`v1.0.5` annotated tag 指向该提交" not in current:
+    if "v1.0.5 已完成 GitHub Stable Release" not in current:
         fail("doc/current.md 未声明 v1.0.5 已完成发布")
     if "多显示器安全回落因当前设备仅有一台显示器，标记为待补证" not in current:
         fail("doc/current.md 未保留多显示器待补证边界")
@@ -279,9 +309,9 @@ def main() -> int:
             print(f"- {item}")
         return 1
 
-    print("v1.0/v1.0.1/v1.0.2/v1.0.3/v1.0.4 与 v1.0.5 发布文档检查通过")
+    print("v1.0 至 v1.0.5 发布文档与 v1.0.6 开发文档检查通过")
     print(f"- UTF-8 与乱码：{len(DOCUMENTS)} 份文档")
-    print("- v1.0 至 v1.0.5 发布事实源及本地链接完整")
+    print("- v1.0 至 v1.0.5 发布事实源、v1.0.6 开发文档及本地链接完整")
     print("- current、release notes、verification 的历史与当前发布哈希一致")
     return 0
 

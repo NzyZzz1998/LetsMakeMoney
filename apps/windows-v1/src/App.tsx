@@ -92,6 +92,13 @@ async function hideCurrentWindow() {
   }
 }
 
+function useNativeCloseRequest(requestClose: () => void) {
+  useEffect(() => {
+    window.addEventListener("lmm:window-close-requested", requestClose);
+    return () => window.removeEventListener("lmm:window-close-requested", requestClose);
+  }, [requestClose]);
+}
+
 function SyncNotice({ state }: { state: "synced" | "syncing" | "stale" }) {
   if (state === "synced") return null;
   return (
@@ -633,7 +640,8 @@ function WizardWindow() {
     window.addEventListener("lmm:window-shown", resetWizard);
     return () => window.removeEventListener("lmm:window-shown", resetWizard);
   }, [config.draft.lunch_end_time, config.draft.lunch_start_time, refreshFirstRun]);
-  const requestClose = () => setConfirmClose(true);
+  const requestClose = useCallback(() => setConfirmClose(true), []);
+  useNativeCloseRequest(requestClose);
   const updateRestMode = (mode: RestMode) => {
     config.update("rest_mode", mode);
     if (mode !== "alternating") config.update("alternating_anchor_week_type", null);
@@ -662,6 +670,24 @@ function WizardWindow() {
     config.update("lunch_end_time", addHours(config.draft.lunch_start_time, value));
     config.update("work_end_time", addHours(config.draft.work_start_time, config.draft.work_hours_per_day + value));
   };
+  if (config.loading) {
+    return (
+      <WindowFrame kind="wizard" title="开始配置" className="wizard-window" onClose={requestClose}>
+        <PageState title="正在读取本地配置" detail="确认现有设置后即可继续配置。" />
+      </WindowFrame>
+    );
+  }
+  if (config.hydrationError) {
+    return (
+      <WindowFrame kind="wizard" title="开始配置" className="wizard-window" onClose={requestClose}>
+        <PageState
+          title="暂时无法读取配置"
+          detail="当前输入不会被保存。请确认数据目录可用后重试。"
+          action={<Button onClick={() => void config.reload(false)}>重试</Button>}
+        />
+      </WindowFrame>
+    );
+  }
   return (
     <WindowFrame kind="wizard" title="开始配置" className="wizard-window" onClose={requestClose}>
       <div className="wizard-layout">
@@ -828,7 +854,11 @@ function SettingsWindow() {
   const config = useConfigDraft({ monthly_salary: 10_000 });
   const [confirmClose, setConfirmClose] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
-  const requestClose = () => config.dirty ? setConfirmClose(true) : void hideCurrentWindow();
+  const requestClose = useCallback(
+    () => config.dirty ? setConfirmClose(true) : void hideCurrentWindow(),
+    [config.dirty],
+  );
+  useNativeCloseRequest(requestClose);
   const saveAndFocus = async () => {
     const saved = await config.save();
     if (!saved) {
@@ -844,6 +874,24 @@ function SettingsWindow() {
     ["window", "窗口与启动"],
     ["support", "数据与支持"],
   ];
+  if (config.loading) {
+    return (
+      <WindowFrame kind="settings" title="设置" className="settings-window" onClose={requestClose}>
+        <PageState title="正在读取本地配置" detail="设置将在读取完成后开放编辑。" />
+      </WindowFrame>
+    );
+  }
+  if (config.hydrationError) {
+    return (
+      <WindowFrame kind="settings" title="设置" className="settings-window" onClose={requestClose}>
+        <PageState
+          title="暂时无法读取配置"
+          detail="为保护现有配置，读取失败期间不会保存默认值。"
+          action={<Button onClick={() => void config.reload(false)}>重试</Button>}
+        />
+      </WindowFrame>
+    );
+  }
   return (
     <WindowFrame kind="settings" title="设置" className="settings-window" onClose={requestClose}>
       <div className="settings-layout">

@@ -6,7 +6,7 @@
   <a href="README.md">简体中文</a> ·
   <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">Download</a> ·
   <a href="doc/current.md">Current status</a> ·
-  <a href="doc/releases/v1.0.5/progress_v1.0.5.md">v1.0.5 release status</a>
+  <a href="doc/releases/v1.0.6/progress_v1.0.6.md">v1.0.6 bugfix status</a>
 </div>
 
 ## Know what today is worth
@@ -30,10 +30,11 @@ The compact earnings window is designed to stay on the desktop. Open the Today a
 
 ## Current release status
 
-The current public release is **v1.0.5 Stable**. It has completed independent acceptance, a clean-source build, required CI, an annotated tag, GitHub Release publication, and download verification.
+The current public release is **v1.0.5 Stable**. The repository is developing **v1.0.6**, a targeted theme-initialization maintenance release that has not completed independent candidate acceptance and is not yet published.
 
 - The current public release is [v1.0.5 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5).
-- v1.0.5 adds a readable non-financial privacy tab, compound “today” calendar treatment, and single-surface calibration for the three main windows. See the [v1.0.5 progress source](doc/releases/v1.0.5/progress_v1.0.5.md) for its release evidence.
+- v1.0.5 completed independent acceptance, a clean-source build, required CI, and GitHub Release publication. Its Zip SHA256 is `019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889`.
+- v1.0.6 fixes stale per-WebView theme state and adds first-frame, cross-window ThemeSession, and configuration-hydration gates. See the [v1.0.6 status](doc/releases/v1.0.6/progress_v1.0.6.md).
 - The Mini window can retract salary details at the left or right work-area edge and can be revealed by hover or the system tray while retaining its normal saved position.
 - Years not covered by official calendar data use an explicitly labeled work-pattern estimate; the app never invents official holidays or adjusted workdays.
 - Hidden windows pause local ticks and authoritative synchronization, then recalibrate immediately when restored.
@@ -66,10 +67,10 @@ npm run tauri dev
 
 ```powershell
 # Run from the repository root
-powershell -ExecutionPolicy Bypass -File .\scripts\package_v105.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\package_v106.ps1
 ```
 
-v1.0.5 development candidates are written only to `.artifacts\candidates\v1.0.5\<candidate-id>\`; they do not overwrite `releases\` or a GitHub-downloaded cache. The flow must not depend on undeclared local paths or private files, and a same-named local file does not establish GitHub Release identity.
+v1.0.6 development candidates are written only to `.artifacts\candidates\v1.0.6\<candidate-id>\`; they do not overwrite `releases\` or a GitHub-downloaded cache. The flow must not depend on undeclared local paths or private files, and a same-named local file does not establish GitHub Release identity.
 
 ## Data, privacy, and rollback
 
@@ -87,12 +88,12 @@ The v1.0 Windows line stores configuration and logs under:
 ## Verification
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v105.ps1 -Milestone M5
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v106.ps1 -Milestone M5
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
 # After packaging, pass the emitted candidate Zip path to the M6 gate
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v105.ps1 -Milestone M6 -CandidatePath <candidate Zip path>
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v106.ps1 -Milestone M6 -CandidatePath <candidate Zip path>
 # Verify a controlled candidate independently; published mode additionally requires the tag, Release URL, and downloaded checksum file
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v105_package.ps1 -Mode candidate -PackagePath <candidate Zip path> -ExpectedSourceHead <40-character commit> -ExpectedZipSha256 <SHA256>
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v106_package.ps1 -Mode candidate -PackagePath <candidate Zip path> -ExpectedSourceHead <40-character commit> -ExpectedZipSha256 <SHA256>
 ```
 
 Automated checks cover earnings calculations, configuration transactions, window contracts, the tray bridge, documentation, and package integrity. Real notification-area, taskbar, DPI, and restart-recovery behavior remains part of Windows desktop acceptance.
@@ -104,7 +105,7 @@ apps/windows-v1/       Production v1.0 Tauri + React client
 shared/                Holiday and shared data
 scripts/               Verification, packaging, and compliance checks
 doc/current.md         Single internal source of current project truth
-doc/releases/v1.0.5/   v1.0.5 PRD, progress, verification, and candidate release docs
+doc/releases/v1.0.6/   v1.0.6 theme bugfix review, progress, and verification docs
 ```
 
 ## Contributing

@@ -98,10 +98,17 @@ def main() -> int:
         "all product windows must be allowed to listen for and emit cross-window theme events",
     )
     require(
-        "THEME_LISTENER_COLD_START_DELAY_MS = 3000" in main_source
-        and "setTimeout" in main_source
-        and "listenForThemeChanges().catch" in main_source,
-        "cross-window theme listener registration must wait until WebView setup completes and handle failure",
+        "await bootstrapTheme()" in main_source
+        and "listenForThemeChanges().catch" in main_source
+        and 'synchronizeTheme("window_shown")' in main_source
+        and "THEME_LISTENER_COLD_START_DELAY_MS" not in main_source,
+        "theme bootstrap must precede React and late listeners must reconcile without a fixed delay",
+    )
+    require(
+        'runtime.invoke<ThemeSessionSnapshot>("read_theme_session"' in theme
+        and 'runtime.invoke<ThemeSessionSnapshot>("update_theme_session"' in theme
+        and 'removeItem?.(LEGACY_THEME_STORAGE_KEY)' in theme,
+        "theme authority must be replayable and must retire the legacy persistent cache",
     )
     require("[data-theme=\"dark\"]" in styles, "dark theme token layer is missing")
     require(
