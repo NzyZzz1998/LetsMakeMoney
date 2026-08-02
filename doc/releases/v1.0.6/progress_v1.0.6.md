@@ -2,11 +2,11 @@
 
 ## 状态
 
-- 当前阶段：定向 Bugfix、全量自动回归、候选构建、真实 Windows 身份冒烟与发布授权完成；进入受保护分支发布收口。
+- 当前阶段：定向 Bugfix、全量自动回归、候选构建、真实 Windows 身份冒烟、发布与线上附件回下载核验全部完成。
 - 基线：v1.0.5 Stable，发布源码提交 `ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`。
-- 当前分支：`release/v1.0.6`。
+- 发布源：远端 `main` 提交 `51e4c08da5260af9b9f4808c4f6d29591319e655`。
 - 当前开发版本：`1.0.6`。
-- 发布判断：技术门禁与授权通过；必须先合并 PR，再从合并后的干净 `main` 重建，禁止复用历史候选附件。
+- 发布判断：通过并已发布；`v1.0.6` tag、Stable Release 与回下载附件身份一致。
 
 ## Checklist
 
@@ -27,15 +27,15 @@
 - [x] 恢复用户环境并给出最终发布判断。
 - [x] 从干净提交重建正式候选并对新哈希执行身份冒烟。
 - [x] 项目所有者授权执行 v1.0.6 发布收口。
-- [ ] 通过受保护分支 PR 和必需 Windows CI 合入 `main`。
-- [ ] 从合并后的干净 `main` 重建最终候选并执行 M6 与桌面冒烟。
-- [ ] 创建并推送 annotated tag `v1.0.6`。
-- [ ] 创建 Stable GitHub Release，仅上传便携 Zip 与 `SHA256SUMS.txt`。
-- [ ] 回下载附件并通过 published 模式与 SHA256 复核。
+- [x] 通过受保护分支 PR #25 和必需 Windows CI 合入 `main`。
+- [x] 从合并后的干净 `main` 重建最终候选并执行 M6 与桌面冒烟。
+- [x] 创建并推送 annotated tag `v1.0.6`。
+- [x] 创建 Stable GitHub Release，仅上传便携 Zip 与 `SHA256SUMS.txt`。
+- [x] 回下载附件并通过 published 模式与 SHA256 复核。
 
 ## 阻塞
 
-- 无技术或授权阻塞；最终合并提交、附件哈希和回下载证据尚待生成。
+- 无发布阻塞。
 - Windows 10 无受控设备或 VM；真实多显示器延续既有补证边界。
 
 ## 证据入口
@@ -46,3 +46,6 @@
 - 本地原始证据：`.artifacts/acceptance/v1.0.6/20260802-204009/`（Git 忽略）。
 - 干净候选身份：`.artifacts/candidates/v1.0.6/V106-20260802T151034Z-ced768ab-clean/candidate-identity.json`（Git 忽略）。
 - 干净候选 GUI 冒烟：`.artifacts/acceptance/v1.0.6/20260802-231417-clean-smoke/`（10 张截图，Git 忽略）。
+- 最终候选：`.artifacts/candidates/v1.0.6/V106-20260802T161137Z-51e4c08d-clean/`（Git 忽略）。
+- 最终 Zip SHA256：`AEE4BC4A41D3839E421138D0B152EA5A8B0FBDC60C5B189EA11790DE4ED8B66A`。
+- GitHub Release：`https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.6`。

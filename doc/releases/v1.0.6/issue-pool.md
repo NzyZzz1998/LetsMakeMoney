@@ -1,6 +1,6 @@
 # LetsMakeMoney Windows v1.0.6 问题池
 
-> 状态：定向 Bugfix、自动回归、候选构建、真实 Windows 身份冒烟和发布授权均已完成；等待受保护分支合并后重建正式附件。
+> 状态：定向 Bugfix、自动回归、候选构建、真实 Windows 身份冒烟、受保护分支合并、正式发布和线上附件回下载核验均已完成。
 >
 > 基线：v1.0.5 Stable，Release 源提交 `ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf`。
 >
