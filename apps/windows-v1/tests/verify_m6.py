@@ -23,6 +23,8 @@ def production_rust(text: str) -> str:
 
 
 def check_source_tree() -> None:
+    current_version = json.loads((APP / "package.json").read_text(encoding="utf-8"))["version"]
+    current_package_script = f"package_v{current_version.replace('.', '')}.ps1"
     retired_paths = [
         "src",
         "native",
@@ -44,7 +46,23 @@ def check_source_tree() -> None:
         for name in scripts
         if not (
             name.startswith("verify_v10")
-            or name in {"package_v10.ps1", "v10_tools.ps1"}
+            or name in {
+                "verify_architecture.ps1",
+                "package_v10.ps1",
+                "package_v101.ps1",
+                "package_v102.ps1",
+                "package_v103.ps1",
+                "package_v104.ps1",
+                "package_v105.ps1",
+                current_package_script,
+                "collect_v103_stability.ps1",
+                "diagnose_v104_environment.ps1",
+                "smoke_v104_desktop.ps1",
+                "v104_evidence.py",
+                "verify_calendar_data_v103.py",
+                "verify_calendar_data_v103.ps1",
+                "v10_tools.ps1",
+            }
         )
     ]
     check(
@@ -53,7 +71,7 @@ def check_source_tree() -> None:
     )
 
     production_files = list((APP / "src").rglob("*"))
-    production_files += list((APP / "src-tauri" / "src").glob("*.rs"))
+    production_files += list((APP / "src-tauri" / "src").rglob("*.rs"))
     forbidden = re.compile(
         r"(?i)(\bpet(?:_|-|\b)|pure_pet|click_through|desktop\s+pet|桌宠|宠物)"
     )

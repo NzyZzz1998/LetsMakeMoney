@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NzyZzz1998/LetsMakeMoney/contracts/overtime-records-v2.schema.json",
+  "title": "LetsMakeMoney overtime records v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "records"],
+  "properties": {
+    "schema_version": { "const": 2 },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "business_date",
+          "minutes",
+          "hourly_rate_fen_snapshot",
+          "origin",
+          "boundary_snapshot",
+          "linked_override_date",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "business_date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+          "minutes": { "type": "integer", "minimum": 1, "maximum": 1440 },
+          "hourly_rate_fen_snapshot": { "type": "integer", "minimum": 0 },
+          "origin": { "enum": ["independent", "manual_weekend_work"] },
+          "boundary_snapshot": {
+            "oneOf": [
+              { "type": "null" },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["basis", "current_shift_end", "next_actual_work_start", "maximum_minutes", "calendar_source"],
+                "properties": {
+                  "basis": { "enum": ["planned_shift_gap", "rest_day_cap"] },
+                  "current_shift_end": { "type": ["string", "null"], "format": "date-time" },
+                  "next_actual_work_start": { "type": ["string", "null"], "format": "date-time" },
+                  "maximum_minutes": { "type": "integer", "minimum": 1, "maximum": 1440 },
+                  "calendar_source": { "enum": ["official", "estimated", "manual"] }
+                }
+              }
+            ]
+          },
+          "linked_override_date": {
+            "type": ["string", "null"],
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}

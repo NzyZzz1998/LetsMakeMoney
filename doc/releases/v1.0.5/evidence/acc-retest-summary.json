@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "acceptance_id": "ACC-20260801-105930-retest",
+  "candidate": {
+    "candidate_id": "V105-20260801T013259Z-6c9f010a-clean",
+    "source_head": "6c9f010a164fb2b73c9068bd4fdcb6e863bd5100",
+    "source_tree_dirty": false,
+    "zip": {
+      "name": "LetsMakeMoney-v1.0.5-windows-x86_64.zip",
+      "size": 3231697,
+      "sha256": "0FED6256E1E979D4BEC41E64C4290EF1917A6A6AB2B04D9A6EF47F1DD3C48826"
+    },
+    "executable": {
+      "name": "LetsMakeMoney.exe",
+      "size": 10110464,
+      "sha256": "BCF2309F3EF12FC494BEC7A4E43A5FDD62612CB7D086CB1C04AA5533AAE75112"
+    },
+    "webview2_loader": {
+      "name": "WebView2Loader.dll",
+      "size": 160320,
+      "sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
+    }
+  },
+  "verification": {
+    "m6_aggregate": "passed",
+    "acc_001_identity": "passed",
+    "acc_003_edge_privacy": "passed",
+    "acc_004_theme_and_zero_leakage": "passed",
+    "acc_005_workbench_and_notification_area": "passed",
+    "acc_006_calendar": "passed",
+    "acc_007_dpi": "passed_with_unaffected_m5_evidence",
+    "acc_008_v104_regression": "passed",
+    "acc_009_multi_display": "deferred_by_owner",
+    "acc_010_environment_recovery": "passed",
+    "acc_011_documents": "passed",
+    "acc_012_release_judgement": "passed"
+  },
+  "real_windows_evidence": {
+    "right_first_dock": "acc-003-right-first-dock-retracted.jpg",
+    "right_hover_reveal": "acc-003-right-hover-revealed.jpg",
+    "right_pointer_leave": "acc-003-right-pointer-leave-retracted.jpg",
+    "left_first_dock": "acc-003-left-first-dock-retracted.jpg",
+    "left_hover_reveal": "acc-003-left-hover-revealed.jpg",
+    "left_pointer_leave": "acc-003-left-pointer-leave-retracted.jpg",
+    "workbench_close": "acc-005-workbench-close-mini-stays-retracted.jpg",
+    "dark_privacy_strip": "acc-004-working-dark-privacy-strip.png",
+    "click_recovery": "acc-004-working-dark-click-recovery.png",
+    "keyboard_recovery": "acc-004-working-dark-keyboard-recovery.png",
+    "notification_area": "acc-005-notification-area-left-click.json",
+    "redacted_runtime_events": "acc-redacted-runtime-events.json",
+    "environment_recovery": "final-restoration.json"
+  },
+  "invalid_evidence": [
+    {
+      "file": "acc-003-right-first-dock-expanded-after-1150ms.png",
+      "reason": "auto-hide precondition was not saved",
+      "counts_as_result": false
+    }
+  ],
+  "environment": {
+    "windows_11": "passed",
+    "windows_10": "unavailable_non_blocking",
+    "multi_display": "deferred_by_owner_non_blocking",
+    "normal_and_virtualized_user_roots_restored": true,
+    "autostart_registry_restored": true,
+    "remaining_process_count": 0
+  },
+  "privacy": {
+    "tracked_raw_screenshots": false,
+    "tracked_raw_logs": false,
+    "tracked_user_configuration": false,
+    "summary_redacted": true
+  },
+  "result": {
+    "passed": true,
+    "release_blockers": [],
+    "release_closure_ready": true,
+    "remote_actions_authorized": false
+  }
+}

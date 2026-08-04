@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
+  AppIcon,
   Field,
   Feedback,
   IconButton,
@@ -9,11 +9,21 @@ import {
   SegmentedControl,
   Switch,
 } from "./components";
+import { AccessibleCombobox } from "./components/AccessibleCombobox";
+import { TimeField } from "./components/TimeField";
+import { WindowFrame } from "./components/WindowFrame";
+import { DateOverrideEditor } from "./features/calendar/DateOverrideEditor";
+import { OvertimeEditor } from "./features/calendar/OvertimeEditor";
+import {
+  calculateMonthlySummary,
+  formatWorkMinutes,
+} from "./features/calendar/monthlySummary";
+import { useOvertimeMonth } from "./features/calendar/useOvertimeMonth";
+import { MiniWindow } from "./features/mini/MiniWindow";
 import {
   formatDuration,
   formatMoney,
   dashboardErrorTitle,
-  useCalendarOverrides,
   useCalendarMonth,
   useDashboard,
   useMonthWorkdayPreview,
@@ -24,8 +34,38 @@ import {
   type RestMode,
   type WeekType,
 } from "./configModel";
-
-type WindowKind = "mini" | "workbench" | "settings" | "wizard";
+import {
+  boundaryPresentation,
+  calendarBusinessState,
+  calendarCellContract,
+  calendarCoveragePresentation,
+  timelineRows,
+  workbenchHeading,
+} from "./presentation";
+import {
+  formatLocalDate,
+  systemTime,
+} from "./runtime/timeService";
+import {
+  windowService,
+  type WindowOperationFailureDetail,
+  type WindowKind,
+} from "./services/windowService";
+import {
+  supportService,
+  type PlatformCapabilities,
+} from "./services/supportService";
+import { versionService } from "./services/versionService";
+import {
+  calendarLeadingBlankCount,
+  clockDifferenceSeconds,
+  formatFullDate,
+  formatLunchDuration,
+  formatReadableDuration,
+  formatShortDate,
+  parseLunchDuration,
+  shiftMonthKey,
+} from "./utils/presentationFormatters";
 
 const WINDOW_LABELS: Record<WindowKind, string> = {
   mini: "迷你收入视图",
@@ -42,256 +82,114 @@ function resolveWindowKind(): WindowKind {
 
 async function showWindow(label: WindowKind) {
   try {
-    await invoke("show_app_window", { label });
+    await windowService.show(label);
   } catch {
-    window.location.search = `?window=${label}`;
+    if (!windowService.isDesktop) window.location.search = `?window=${label}`;
   }
 }
 
 async function hideCurrentWindow() {
   try {
-    await invoke("hide_app_window", { label: resolveWindowKind() });
+    await windowService.hide(resolveWindowKind());
   } catch {
-    // Browser preview intentionally has no native window to hide.
+    // Desktop failures are reported by windowService. Browser previews have no native window.
   }
 }
 
-const DRAG_THRESHOLD_PX = 5;
-const INTERACTIVE_DRAG_SELECTOR = "button, input, select, textarea, a, [role='switch'], [data-window-drag='false']";
-
-type WindowDragOrigin = {
-  x: number;
-  y: number;
-  scale_factor: number;
-};
-
-type WindowDragPointer = {
-  id: number;
-  startX: number;
-  startY: number;
-  currentX: number;
-  currentY: number;
-  origin: WindowDragOrigin | null;
-  dragging: boolean;
-  frame: number | null;
-  captureTarget: HTMLElement;
-};
-
-function useWindowDrag({ allowInteractiveStart = false }: { allowInteractiveStart?: boolean } = {}) {
-  const pointer = useRef<WindowDragPointer | null>(null);
-  const dragged = useRef(false);
-
-  const moveWindow = (current: NonNullable<typeof pointer.current>) => {
-    if (!current.origin) return;
-    const scale = current.origin.scale_factor;
-    void invoke("move_app_window", {
-      label: resolveWindowKind(),
-      x: Math.round(current.origin.x + (current.currentX - current.startX) * scale),
-      y: Math.round(current.origin.y + (current.currentY - current.startY) * scale),
-    });
-  };
-
-  const scheduleMove = (current: NonNullable<typeof pointer.current>) => {
-    if (current.frame !== null) return;
-    current.frame = window.requestAnimationFrame(() => {
-      current.frame = null;
-      if (pointer.current === current && current.dragging) moveWindow(current);
-    });
-  };
-
-  const cancel = (event?: React.PointerEvent<HTMLElement>, commit = false) => {
-    const current = pointer.current;
-    if (!current || (event && current.id !== event.pointerId)) return;
-    if (event) {
-      current.currentX = event.screenX;
-      current.currentY = event.screenY;
-    }
-    if (commit && current.dragging) moveWindow(current);
-    if (current.frame !== null) window.cancelAnimationFrame(current.frame);
-    if (current.captureTarget.hasPointerCapture(current.id)) {
-      current.captureTarget.releasePointerCapture(current.id);
-    }
-    pointer.current = null;
-  };
-
-  const handlers = {
-    onPointerDownCapture(event: React.PointerEvent<HTMLElement>) {
-      if (event.button !== 0 || !event.isPrimary) return;
-      const target = event.target as HTMLElement;
-      if (!allowInteractiveStart && target.closest(INTERACTIVE_DRAG_SELECTOR)) return;
-      dragged.current = false;
-      const captureTarget = event.currentTarget;
-      const current: WindowDragPointer = {
-        id: event.pointerId,
-        startX: event.screenX,
-        startY: event.screenY,
-        currentX: event.screenX,
-        currentY: event.screenY,
-        origin: null,
-        dragging: false,
-        frame: null,
-        captureTarget,
+function WindowOperationNotice() {
+  const [message, setMessage] = useState<string | null>(null);
+  const timer = useRef<number | null>(null);
+  useEffect(() => {
+    const handleFailure = (event: Event) => {
+      const detail = (event as CustomEvent<WindowOperationFailureDetail>).detail;
+      const operationLabel: Partial<Record<WindowOperationFailureDetail["operation"], string>> = {
+        show: "显示窗口",
+        hide: "隐藏窗口",
+        move: "移动窗口",
+        finalize_drag: "完成窗口拖动",
+        recover: "找回窗口",
+        drag_origin: "开始窗口拖动",
+        workbench_ready: "打开今日工作台",
+        always_on_top: "应用置顶设置",
       };
-      pointer.current = current;
-      void invoke<WindowDragOrigin>("window_drag_origin", { label: resolveWindowKind() })
-        .then(origin => {
-          if (pointer.current !== current) return;
-          current.origin = origin;
-          if (current.dragging) scheduleMove(current);
-        })
-        .catch(() => cancel());
-    },
-    onPointerMoveCapture(event: React.PointerEvent<HTMLElement>) {
-      const current = pointer.current;
-      if (!current || current.id !== event.pointerId) return;
-      if ((event.buttons & 1) === 0) {
-        cancel(event);
-        return;
-      }
-      current.currentX = event.screenX;
-      current.currentY = event.screenY;
-      const distance = Math.hypot(current.currentX - current.startX, current.currentY - current.startY);
-      if (distance < DRAG_THRESHOLD_PX) return;
-      if (!current.dragging) {
-        current.dragging = true;
-        dragged.current = true;
-        current.captureTarget.setPointerCapture(current.id);
-      }
-      event.preventDefault();
-      if (current.origin) scheduleMove(current);
-    },
-    onPointerUpCapture(event: React.PointerEvent<HTMLElement>) {
-      cancel(event, true);
-    },
-    onPointerCancelCapture(event: React.PointerEvent<HTMLElement>) {
-      cancel(event);
-    },
-  };
-
-  return {
-    handlers,
-    consumeDraggedClick() {
-      if (!dragged.current) return false;
-      dragged.current = false;
-      return true;
-    },
-  };
+      setMessage(`${operationLabel[detail.operation] ?? "窗口操作"}失败，请从托盘重试。`);
+      if (timer.current !== null) window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => {
+        timer.current = null;
+        setMessage(null);
+      }, 5_000);
+    };
+    window.addEventListener("lmm:window-operation-failed", handleFailure);
+    return () => {
+      window.removeEventListener("lmm:window-operation-failed", handleFailure);
+      if (timer.current !== null) window.clearTimeout(timer.current);
+    };
+  }, []);
+  if (!message) return null;
+  return <div className="window-operation-notice" role="status">{message}</div>;
 }
 
-function WindowFrame({
-  kind,
-  title,
-  children,
-  className = "",
-  onClose = hideCurrentWindow,
-}: {
-  kind: WindowKind;
-  title: string;
-  children: React.ReactNode;
-  className?: string;
-  onClose?: () => void;
-}) {
-  const drag = useWindowDrag();
-
+function BrowserPreviewNotice() {
+  if (windowService.isDesktop) return null;
   return (
-    <main
-      className={`window-frame ${className}`}
-      data-window={kind}
-      {...drag.handlers}
-    >
-      <header className="titlebar">
-        <div className="titlebar__identity">
-          <span className="coin-mark" aria-hidden="true">¥</span>
-          <strong>{title}</strong>
-        </div>
-        <IconButton label={`关闭${title}`} icon="×" data-window-drag="false" onClick={onClose} />
-      </header>
-      {children}
-    </main>
+    <div className="browser-preview-notice" role="status">
+      开发预览 · 收入与日历为非权威模拟数据
+    </div>
   );
 }
 
-function MiniWindow() {
-  const { snapshot, refresh } = useDashboard();
-  const drag = useWindowDrag({ allowInteractiveStart: true });
-  if (snapshot.state === "loading") {
-    return <main className="mini-window mini-window--state" data-window="mini" {...drag.handlers}><span className="spinner" /><strong>正在计算今天的收入</strong></main>;
-  }
-  if (snapshot.state === "error") {
-    return (
-      <main className="mini-window mini-window--state mini-window--error" data-window="mini" {...drag.handlers}>
-        <div className="mini-window__error-copy">
-          <strong>{dashboardErrorTitle(snapshot.errorCode)}</strong>
-          <span>{snapshot.message}</span>
-        </div>
-        <div className="mini-window__error-actions">
-          <button type="button" data-window-drag="false" onClick={() => showWindow("settings")}>检查设置</button>
-          <button type="button" data-window-drag="false" onClick={refresh}>重试</button>
-        </div>
-      </main>
-    );
-  }
-  const isRestDay = snapshot.phase === "rest_day";
+function useNativeCloseRequest(requestClose: () => void) {
+  useEffect(() => {
+    window.addEventListener("lmm:window-close-requested", requestClose);
+    return () => window.removeEventListener("lmm:window-close-requested", requestClose);
+  }, [requestClose]);
+}
+
+function SyncNotice({ state }: { state: "synced" | "syncing" | "stale" }) {
+  if (state === "synced") return null;
   return (
-    <main className={`mini-window ${isRestDay ? "mini-window--rest" : ""}`} data-window="mini" {...drag.handlers}>
-      <div
-        className="mini-window__drag"
-        aria-label="拖动迷你收入视图"
-      >
-        <span aria-hidden="true" />
-      </div>
-      <button
-        className="mini-window__primary"
-        type="button"
-        onClick={() => {
-          if (!drag.consumeDraggedClick()) void showWindow("workbench");
-        }}
-        aria-label="打开今日工作台"
-      >
-        <span className="mini-window__status">
-          <span className="status-dot" />
-          {snapshot.workState}
-        </span>
-        {isRestDay ? (
-          <>
-            <span className="mini-window__label">今天没有工作安排</span>
-            <strong className="mini-window__amount mini-window__amount--rest">安心休息</strong>
-            <span className="mini-window__rest-line" aria-hidden="true" />
-            <span className="mini-window__meta">
-              {snapshot.nextWorkDate ? `下一个工作日 ${formatShortDate(snapshot.nextWorkDate)} ${snapshot.workStartTime}` : "下一个工作日尚未确定"}
-            </span>
-          </>
-        ) : (
-          <>
-            <span className="mini-window__label">今日已赚</span>
-            <strong className="mini-window__amount">{formatMoney(snapshot.amount)}</strong>
-            <ProgressBar value={snapshot.progress} label="工作进度" compact />
-            <span className="mini-window__meta">剩余有效工时 {formatDuration(snapshot.remainingSeconds)}</span>
-          </>
-        )}
-      </button>
-    </main>
+    <div className={`sync-notice sync-notice--${state}`} role="status">
+      {state === "stale" ? "正在重新同步，当前显示最近一次可信结果。" : "正在同步最新结果…"}
+    </div>
+  );
+}
+
+function CalendarCoverageNotice({
+  coverage,
+}: {
+  coverage: ReturnType<typeof useDashboard>["snapshot"]["calendarCoverage"];
+}) {
+  const content = calendarCoveragePresentation(coverage);
+  if (!content.isVisible || content.tone === null) return null;
+  return (
+    <div className={`calendar-coverage calendar-coverage--${content.tone}`} role="status">
+      <strong>{content.title}</strong>
+      <span>{content.detail}</span>
+    </div>
   );
 }
 
 function WorkbenchWindow() {
   const [tab, setTab] = useState("today");
   const dashboard = useDashboard();
+  useEffect(() => {
+    if (windowService.isDesktop) void windowService.workbenchReady().catch(() => undefined);
+  }, []);
   return (
     <WindowFrame kind="workbench" title="LetsMakeMoney" className="workbench-window">
       <div className="workbench-layout">
         <nav className="side-nav" aria-label="工作台导航">
           <button className={tab === "today" ? "is-active" : ""} onClick={() => setTab("today")}>
-            <span aria-hidden="true">¥</span>今日
+            <AppIcon name="coins" />今日
           </button>
           <button className={tab === "calendar" ? "is-active" : ""} onClick={() => setTab("calendar")}>
-            <span className="nav-calendar-mark" aria-hidden="true">日</span>日历
+            <AppIcon name="calendar" />日历
           </button>
           <button onClick={() => showWindow("settings")}>
-            <span aria-hidden="true">⚙</span>设置
+            <AppIcon name="settings" />设置
           </button>
         </nav>
-        <section className="workbench-content">
+        <section className={`workbench-content workbench-content--${tab}`}>
           {tab === "today" ? <TodayView {...dashboard} /> : <CalendarView snapshot={dashboard.snapshot} />}
         </section>
       </div>
@@ -300,6 +198,42 @@ function WorkbenchWindow() {
 }
 
 function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
+  const [editor, setEditor] = useState<"date" | "overtime" | null>(null);
+  const [editorFeedback, setEditorFeedback] = useState<string | null>(null);
+  const ownerDay = snapshot.calendarDays.find(day => day.date === snapshot.ownerDate);
+  const finishEditor = (message: string) => {
+    setEditorFeedback(message);
+    setEditor(null);
+    refresh();
+  };
+  const todayActions = (
+    <div className="section-heading__actions">
+      <Button variant="ghost" onClick={() => setEditor("date")} disabled={!ownerDay}>调整今天</Button>
+      <Button variant="ghost" onClick={() => setEditor("overtime")}>记录加班</Button>
+    </div>
+  );
+  const editorLayer = (
+    <>
+      {editor === "date" && ownerDay && (
+        <DateOverrideEditor
+          key={`today-date-${ownerDay.date}`}
+          day={ownerDay}
+          currentHourlyRateFen={Math.max(0, Math.round(snapshot.hourlySalary * 100))}
+          onApplied={finishEditor}
+          onClose={() => setEditor(null)}
+        />
+      )}
+      {editor === "overtime" && (
+        <OvertimeEditor
+          key={`today-overtime-${snapshot.ownerDate}`}
+          businessDate={snapshot.ownerDate}
+          currentHourlyRateFen={Math.max(0, Math.round(snapshot.hourlySalary * 100))}
+          onApplied={finishEditor}
+          onClose={() => setEditor(null)}
+        />
+      )}
+    </>
+  );
   if (snapshot.state === "loading") return <PageState title="正在整理今天" detail="收入、安排和日历正在同步。" />;
   if (snapshot.state === "error") {
     return (
@@ -317,7 +251,11 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
   }
   if (snapshot.phase === "rest_day") {
     return (
+      <>
       <div className="page-stack" aria-label="今日休息">
+        <SyncNotice state={snapshot.syncState} />
+        <CalendarCoverageNotice coverage={snapshot.calendarCoverage} />
+        {editorFeedback && <Feedback tone="success">{editorFeedback}</Feedback>}
         <div className="page-heading">
           <div>
             <span className="eyebrow">{formatFullDate(snapshot.ownerDate)} · 休息日</span>
@@ -336,7 +274,7 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
           <section className="surface rest-schedule">
             <div className="section-heading">
               <div><span className="eyebrow">今日状态</span><h2>休息日</h2></div>
-              <Button variant="ghost" onClick={() => showWindow("settings")}>调整今天</Button>
+              {todayActions}
             </div>
             <div className="rest-schedule__body">
               <strong>今天无需打卡或记录工时</strong>
@@ -354,173 +292,398 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
           </section>
         </div>
       </div>
+      {editorLayer}
+      </>
     );
   }
-  const hasLunch = snapshot.lunchStartTime !== snapshot.lunchEndTime;
-  const lunchCompleted = hasLunch && (snapshot.phase === "after_work"
-    || (snapshot.phase === "working" && snapshot.completedSeconds > clockDifferenceSeconds(snapshot.workStartTime, snapshot.lunchStartTime)));
+  if (snapshot.phase === "paid_rest" || snapshot.phase === "unpaid_rest") {
+    const paid = snapshot.phase === "paid_rest";
+    return (
+      <>
+      <div className="page-stack" aria-label={paid ? "今日带薪休息" : "今日不带薪休息"}>
+        <SyncNotice state={snapshot.syncState} />
+        <CalendarCoverageNotice coverage={snapshot.calendarCoverage} />
+        {editorFeedback && <Feedback tone="success">{editorFeedback}</Feedback>}
+        <div className="page-heading">
+          <div>
+            <span className="eyebrow">{formatFullDate(snapshot.ownerDate)} · {paid ? "带薪休息" : "不带薪休息"}</span>
+            <h1>{paid ? "今天带薪休息" : "今天不带薪休息"}</h1>
+          </div>
+          <span className={`status-pill ${paid ? "status-pill--success" : "status-pill--rest"}`}>
+            {snapshot.workState}
+          </span>
+        </div>
+        <section className="rest-hero">
+          <span className="rest-hero__symbol" aria-hidden="true">{paid ? "¥" : "—"}</span>
+          <div>
+            <h2>{paid ? `今日带薪金额 ${formatMoney(snapshot.amount)}` : "今天不计算收入"}</h2>
+            <p>
+              {paid
+                ? "当天工资分配金额已计入本月累计，不计算有效工时和工作进度。"
+                : `当天工资分配金额已从本月预计应发中扣除，预计应发 ${formatMoney(snapshot.expectedMonthlyPay)}。`}
+            </p>
+          </div>
+        </section>
+        <div className="content-grid">
+          <section className="surface rest-schedule">
+            <div className="section-heading">
+              <div><span className="eyebrow">今日状态</span><h2>{paid ? "带薪休息" : "不带薪休息"}</h2></div>
+              {todayActions}
+            </div>
+            <div className="rest-schedule__body">
+              <strong>今天无需记录有效工时</strong>
+              <span>
+                {snapshot.nextWorkDate
+                  ? `下一个工作日是 ${formatFullDate(snapshot.nextWorkDate)}，${snapshot.workStartTime} 开始工作。`
+                  : "暂未找到下一个工作日，请检查休息模式和日期调整。"}
+              </span>
+            </div>
+          </section>
+          <section className="surface stats">
+            <div><span>本月累计</span><strong>{formatMoney(snapshot.monthTotal)}</strong></div>
+            <div><span>本月预计应发</span><strong>{formatMoney(snapshot.expectedMonthlyPay)}</strong></div>
+            <div><span>预计工作日</span><strong>{snapshot.workdays} 天</strong></div>
+          </section>
+        </div>
+      </div>
+      {editorLayer}
+      </>
+    );
+  }
+  const todayKey = formatLocalDate(systemTime.now());
+  const heading = workbenchHeading(snapshot.ownerDate, todayKey);
+  const stage = boundaryPresentation({
+    phase: snapshot.phase,
+    nextBoundaryKind: snapshot.nextBoundaryKind,
+    nextBoundarySeconds: snapshot.nextBoundarySeconds,
+  });
+  const scheduleRows = timelineRows({
+    phase: snapshot.phase,
+    nextBoundaryKind: snapshot.nextBoundaryKind,
+    workStartTime: snapshot.workStartTime,
+    restStartTime: snapshot.lunchStartTime,
+    restEndTime: snapshot.lunchEndTime,
+    workEndTime: snapshot.workEndTime,
+  });
+  const ownerKindLabel = ownerDay?.source === "adjusted_workday"
+    ? "官方调休工作日"
+    : ownerDay?.source === "manual_workday"
+      ? "手动工作日"
+      : "工作日";
   return (
+    <>
     <div className="page-stack" aria-label="今日">
+      <SyncNotice state={snapshot.syncState} />
+      <CalendarCoverageNotice coverage={snapshot.calendarCoverage} />
+      {editorFeedback && <Feedback tone="success">{editorFeedback}</Feedback>}
       <div className="page-heading">
         <div>
-          <span className="eyebrow">{formatFullDate(snapshot.ownerDate)} · 工作日</span>
-          <h1>今天的收入进度</h1>
+          <span className="eyebrow">{formatFullDate(snapshot.ownerDate)} · {ownerKindLabel}</span>
+          <h1>{heading.title}</h1>
+          {snapshot.ownerDate !== todayKey && <p>{heading.subtitle}</p>}
         </div>
-        <span className="status-pill status-pill--success">{snapshot.workState}</span>
+        <span className="status-pill status-pill--success">{stage.stateLabel}</span>
       </div>
       <section className="amount-hero">
         <span>今日已赚</span>
         <strong className="long-number">{formatMoney(snapshot.amount)}</strong>
         <p>日薪 {formatMoney(snapshot.dailySalary)} · 时薪 {formatMoney(snapshot.hourlySalary)}</p>
         <ProgressBar value={snapshot.progress} label="工作进度" />
+        <div className="boundary-summary" role="status">
+          <span>{stage.completeLabel ?? stage.countdownLabel ?? snapshot.workState}</span>
+          {stage.countdownSeconds !== null && <strong>{formatDuration(stage.countdownSeconds)}</strong>}
+        </div>
       </section>
       <div className="content-grid">
         <section className="surface schedule">
           <div className="section-heading">
             <div><span className="eyebrow">时间线</span><h2>今日安排</h2></div>
-            <Button variant="ghost" onClick={() => showWindow("settings")}>调整今天</Button>
+            {todayActions}
           </div>
           <ol>
-            <li className={snapshot.completedSeconds > 0 || snapshot.phase === "after_work" ? "is-done" : snapshot.phase === "before_work" ? "is-current" : ""}>
-              <time>{snapshot.workStartTime}</time>
-              <strong>开始工作</strong>
-              <span>{snapshot.completedSeconds > 0 ? `已完成 ${formatReadableDuration(snapshot.completedSeconds)}` : `将在 ${snapshot.workStartTime} 开始`}</span>
-            </li>
-            {hasLunch && (
-              <li className={snapshot.phase === "lunch" ? "is-current" : lunchCompleted ? "is-done" : ""}>
-                <time>{snapshot.lunchStartTime}</time>
-                <strong>午休</strong>
-                <span>{snapshot.lunchStartTime}–{snapshot.lunchEndTime}</span>
-              </li>
-            )}
-            <li className={snapshot.phase === "after_work" ? "is-done" : ""}>
-              <time>{snapshot.workEndTime}</time>
-              <strong>结束工作</strong>
-              <span>{snapshot.phase === "after_work" ? "今日工作已完成" : `预计 ${snapshot.workEndTime} 下班`}</span>
-            </li>
+            {scheduleRows.map(row => {
+              const detail = row.kind === "work_start" && snapshot.completedSeconds > 0
+                ? `已完成 ${formatReadableDuration(snapshot.completedSeconds)}`
+                : row.kind === "work_end" && snapshot.phase === "after_work"
+                  ? "本次工作已完成"
+                  : row.detail;
+              return (
+                <li key={row.kind} className={`is-${row.state}`}>
+                  <time className="schedule__time">{row.time}</time>
+                  <span className="schedule__axis" aria-hidden="true"><i /></span>
+                  <div className="schedule__content">
+                    <strong>{row.title}</strong>
+                    <span>{detail}</span>
+                  </div>
+                </li>
+              );
+            })}
           </ol>
         </section>
         <section className="surface stats">
           <div><span>本月累计</span><strong>{formatMoney(snapshot.monthTotal)}</strong></div>
           <div><span>本月工作日</span><strong>{snapshot.workdays} 天</strong></div>
-          <div><span>剩余有效工时</span><strong>{formatDuration(snapshot.remainingSeconds)}</strong></div>
+          <div>
+            <span>{stage.completeLabel ?? stage.countdownLabel ?? "当前状态"}</span>
+            <strong>{stage.countdownSeconds !== null ? formatDuration(stage.countdownSeconds) : "—"}</strong>
+          </div>
         </section>
       </div>
     </div>
+    {editorLayer}
+    </>
   );
 }
 
 function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>["snapshot"] }) {
-  const owner = parseLocalDate(snapshot.ownerDate);
-  const [visibleMonth, setVisibleMonth] = useState(() => `${owner.getFullYear()}-${String(owner.getMonth() + 1).padStart(2, "0")}`);
-  const calendarMonth = useCalendarMonth(visibleMonth, snapshot.calendarDays);
+  const todayKey = formatLocalDate(systemTime.now());
+  const [visibleMonth, setVisibleMonth] = useState(() => snapshot.ownerDate.slice(0, 7));
+  const calendarMonth = useCalendarMonth(
+    visibleMonth,
+    snapshot.calendarDays,
+    snapshot.calendarCoverage,
+  );
   const [visibleYear, visibleMonthNumber] = visibleMonth.split("-").map(Number);
+  const displayMonth = calendarMonth.dataMonth ?? visibleMonth;
+  const [displayYear, displayMonthNumber] = displayMonth.split("-").map(Number);
   const days = calendarMonth.days;
+  const overtimeMonth = useOvertimeMonth(displayMonth);
   const monthLabel = `${visibleYear} 年 ${visibleMonthNumber} 月`;
-  const leadingBlanks = Array.from({ length: new Date(visibleYear, visibleMonthNumber - 1, 1).getDay() });
-  const { overrides, setOverride } = useCalendarOverrides();
+  const displayMonthLabel = `${displayYear} 年 ${displayMonthNumber} 月`;
+  const leadingBlanks = Array.from({ length: calendarLeadingBlankCount(displayMonth) });
+  const calendarWeeks = Math.max(5, Math.ceil((leadingBlanks.length + days.length) / 7));
+  const overtimeDates = useMemo(
+    () => new Set(overtimeMonth.records.map(record => record.business_date)),
+    [overtimeMonth.records],
+  );
+  const now = systemTime.now();
+  const monthlySummary = useMemo(() => calculateMonthlySummary({
+    month: displayMonth,
+    days,
+    ownerDate: snapshot.ownerDate,
+    currentLocalDate: formatLocalDate(now),
+    currentMinuteOfDay: now.getHours() * 60 + now.getMinutes(),
+    schedule: {
+      workStartTime: snapshot.workStartTime,
+      restStartTime: snapshot.lunchStartTime,
+      restEndTime: snapshot.lunchEndTime,
+      workEndTime: snapshot.workEndTime,
+      effectiveMinutes: snapshot.effectiveSeconds / 60,
+    },
+    overtimeRecords: overtimeMonth.records,
+  }), [
+    days,
+    displayMonth,
+    now,
+    overtimeMonth.records,
+    snapshot.effectiveSeconds,
+    snapshot.lunchEndTime,
+    snapshot.lunchStartTime,
+    snapshot.ownerDate,
+    snapshot.workEndTime,
+    snapshot.workStartTime,
+  ]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [editorMode, setEditorMode] = useState<"date" | "overtime" | null>(null);
+  const [overrideFeedback, setOverrideFeedback] = useState<string | null>(null);
   const moveMonth = (offset: number) => {
-    const next = new Date(visibleYear, visibleMonthNumber - 1 + offset, 1);
-    setVisibleMonth(`${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}`);
+    setVisibleMonth(shiftMonthKey(visibleMonth, offset));
     setSelectedDate(null);
+    setEditorMode(null);
+    setOverrideFeedback(null);
+  };
+  const actionDate = selectedDate
+    ?? days.find(day => day.date === snapshot.ownerDate)?.date
+    ?? days[0]?.date
+    ?? null;
+  const openEditor = (mode: "date" | "overtime") => {
+    if (!actionDate) return;
+    setSelectedDate(actionDate);
+    setEditorMode(mode);
   };
   return (
-    <div className="page-stack" aria-label="日历">
+    <div className="page-stack page-stack--calendar" aria-label="日历">
+      <SyncNotice state={snapshot.syncState} />
       <div className="page-heading">
         <div><span className="eyebrow">{monthLabel}</span><h1>收入日历</h1></div>
-        <Button variant="secondary" onClick={() => showWindow("settings")}>调整日期</Button>
+        <div className="page-heading__actions">
+          <Button
+            variant="secondary"
+            onClick={() => openEditor("date")}
+            disabled={
+              !actionDate
+              || calendarMonth.state === "stale"
+              || calendarMonth.coverage?.can_adjust_date === false
+            }
+          >
+            调整日期
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => openEditor("overtime")}
+            disabled={!actionDate || calendarMonth.state === "stale"}
+          >
+            记录加班
+          </Button>
+        </div>
       </div>
+      {overrideFeedback && <Feedback tone="success">{overrideFeedback}</Feedback>}
       <section className="surface calendar">
         <div className="calendar__toolbar" aria-label="切换月份">
-          <IconButton label="查看上个月" icon="‹" onClick={() => moveMonth(-1)} />
+          <IconButton label="查看上个月" icon="chevron-left" onClick={() => moveMonth(-1)} />
           <strong>{monthLabel}</strong>
-          <IconButton label="查看下个月" icon="›" onClick={() => moveMonth(1)} />
+          <IconButton label="查看下个月" icon="chevron-right" onClick={() => moveMonth(1)} />
         </div>
-        <div className="calendar__weekdays">{["日","一","二","三","四","五","六"].map(day => <span key={day}>{day}</span>)}</div>
-        <div className="calendar__grid">
-          {leadingBlanks.map((_, index) => <span key={`blank-${index}`} />)}
-          {days.map(daySnapshot => {
-            const day = Number(daySnapshot.date.slice(-2));
-            const override = overrides[daySnapshot.date];
-            const className = [
-              daySnapshot.date === snapshot.ownerDate ? "is-today" : "",
-              override === "work" ? "is-manual-work" : "",
-              override === "rest" || (!override && daySnapshot.kind === "rest_day") ? "is-rest" : "",
-              daySnapshot.source === "manual_override" ? "is-manual" : "",
-            ].filter(Boolean).join(" ");
-            return (
-              <button
-                key={daySnapshot.date}
-                aria-current={daySnapshot.date === snapshot.ownerDate ? "date" : undefined}
-                aria-label={`${visibleMonthNumber}月${day}日，${daySnapshot.kind === "rest_day" ? "休息日" : "工作日"}${daySnapshot.date === snapshot.ownerDate ? "，今天" : ""}`}
-                className={className}
-                onClick={() => setSelectedDate(daySnapshot.date)}
-              >
-                {day}
-              </button>
-            );
-          })}
-        </div>
-        <div className="calendar__legend">
-          <span><i className="legend-dot legend-dot--work" />工作日</span>
-          <span><i className="legend-dot legend-dot--rest" />休息日</span>
-          <span><i className="legend-ring" />今天</span>
-          <span><i className="legend-dot legend-dot--manual" />手动调整</span>
-        </div>
+        {calendarMonth.state === "loading" && (
+          <div className="calendar__status" role="status">正在读取 {monthLabel} 的日历…</div>
+        )}
+        {calendarMonth.coverage && <CalendarCoverageNotice coverage={calendarMonth.coverage} />}
+        {calendarMonth.state === "error" && (
+          <div className="calendar__status calendar__status--warning" role="alert">
+            <span>日历暂时无法加载，未展示可能错误的日期。</span>
+            <Button variant="secondary" onClick={calendarMonth.retry}>重试</Button>
+          </div>
+        )}
+        {calendarMonth.state === "empty" && (
+          <div className="calendar__status calendar__status--warning" role="status">
+            <span>{monthLabel} 没有可用日期数据。</span>
+            <Button variant="secondary" onClick={calendarMonth.retry}>重试</Button>
+          </div>
+        )}
+        {calendarMonth.state === "stale" && (
+          <div className="calendar__status calendar__status--warning" role="alert">
+            <span>{monthLabel} 加载失败，暂时保留 {displayMonthLabel} 的上次有效数据。</span>
+            <Button variant="secondary" onClick={calendarMonth.retry}>重试</Button>
+          </div>
+        )}
+        {(calendarMonth.state === "ready" || calendarMonth.state === "stale") && (
+          <>
+            <div className="calendar__weekdays">{["日","一","二","三","四","五","六"].map(day => <span key={day}>{day}</span>)}</div>
+            <div className="calendar__grid" data-weeks={calendarWeeks}>
+              {leadingBlanks.map((_, index) => <span key={`blank-${index}`} />)}
+              {days.map(daySnapshot => {
+                const day = Number(daySnapshot.date.slice(-2));
+                const isToday = daySnapshot.date === todayKey;
+                const isSelected = daySnapshot.date === selectedDate;
+                const hasOvertime = overtimeDates.has(daySnapshot.date);
+                const businessState = calendarBusinessState(daySnapshot);
+                const contract = calendarCellContract({
+                  businessState,
+                  isToday,
+                  isSelected,
+                  isStale: calendarMonth.state === "stale",
+                  isDisabled: calendarMonth.state === "stale",
+                });
+                return (
+                  <button
+                    key={daySnapshot.date}
+                    aria-current={isToday ? "date" : undefined}
+                    aria-pressed={isSelected}
+                    aria-label={`${displayMonthNumber}月${day}日，${contract.ariaLabel}${hasOvertime ? "，有加班记录" : ""}`}
+                    className={[...contract.classNames, hasOvertime ? "has-overtime" : ""].filter(Boolean).join(" ")}
+                    disabled={
+                      calendarMonth.state === "stale"
+                      || calendarMonth.coverage?.can_adjust_date === false
+                    }
+                    onClick={() => {
+                      setSelectedDate(daySnapshot.date);
+                      setEditorMode(null);
+                      setOverrideFeedback(null);
+                    }}
+                    onDoubleClick={() => {
+                      setSelectedDate(daySnapshot.date);
+                      setEditorMode("date");
+                      setOverrideFeedback(null);
+                    }}
+                  >
+                    {contract.todayCue && (
+                      <span className="calendar-day__today" aria-hidden="true">{contract.todayCue}</span>
+                    )}
+                    <span className="calendar-day__number">{day}</span>
+                    <span className="calendar-day__marker" aria-hidden="true" />
+                    {hasOvertime && <span className="calendar-day__overtime" aria-hidden="true">加</span>}
+                  </button>
+                );
+              })}
+            </div>
+            <section className="month-summary" aria-labelledby="month-summary-title">
+              <div className="month-summary__heading">
+                <div>
+                  <span className="eyebrow">月度总结</span>
+                  <h2 id="month-summary-title">只统计计划与主动记录</h2>
+                </div>
+              </div>
+              <dl className="month-summary__grid">
+                <div><dt>计划工时</dt><dd>{formatWorkMinutes(monthlySummary.plannedMinutes)}</dd></div>
+                <div><dt>实际工时</dt><dd>{formatWorkMinutes(monthlySummary.elapsedPlannedMinutes)}</dd></div>
+                <div>
+                  <dt>加班工时</dt>
+                  <dd>
+                    {overtimeMonth.state === "ready"
+                      || overtimeMonth.state === "empty"
+                      || overtimeMonth.state === "stale"
+                      ? formatWorkMinutes(monthlySummary.overtimeMinutes)
+                      : overtimeMonth.state === "loading" ? "读取中…" : "暂不可用"}
+                  </dd>
+                </div>
+              </dl>
+              {overtimeMonth.state === "stale" && (
+                <div className="month-summary__notice" role="status">
+                  <span>{overtimeMonth.message}</span>
+                  <Button variant="ghost" onClick={overtimeMonth.retry}>重试</Button>
+                </div>
+              )}
+              {(overtimeMonth.state === "error" || overtimeMonth.state === "corrupt") && (
+                <div className="month-summary__notice month-summary__notice--danger" role="alert">
+                  <span>加班记录读取失败，未以 0 分钟替代。</span>
+                  <Button variant="ghost" onClick={overtimeMonth.retry}>重试</Button>
+                </div>
+              )}
+            </section>
+            <div className="calendar__legend">
+              <span><i className="legend-dot legend-dot--work" />工作日</span>
+              <span><i className="legend-dot legend-dot--rest" />休息日</span>
+              <span><i className="legend-dot legend-dot--adjusted" />官方调休</span>
+              <span><i className="legend-dot legend-dot--manual" />手动工作</span>
+              <span><i className="legend-dot legend-dot--paid" />带薪休息</span>
+              <span><i className="legend-dot legend-dot--unpaid" />不带薪休息</span>
+              <span><i className="legend-today">今</i>今天</span>
+              <span><i className="legend-selected" />已选日期</span>
+            </div>
+          </>
+        )}
       </section>
-      {selectedDate !== null && (
-        <section className="surface date-editor" role="dialog" aria-label={`调整 ${visibleMonthNumber} 月 ${Number(selectedDate.slice(-2))} 日`}>
-          <div><span className="eyebrow">手动调整</span><h2>{visibleMonthNumber} 月 {Number(selectedDate.slice(-2))} 日</h2><p>本次调整只影响这一天。</p></div>
-          <SegmentedControl
-            value={overrides[selectedDate] ?? "default"}
-            onChange={value => setOverride(selectedDate, value as "work" | "rest" | "default")}
-            options={[{ value: "default", label: "跟随规则" }, { value: "work", label: "工作日" }, { value: "rest", label: "休息日" }]}
-          />
-          <IconButton label="关闭日期调整" icon="×" onClick={() => setSelectedDate(null)} />
-        </section>
+      {editorMode === "date"
+        && selectedDate !== null
+        && calendarMonth.coverage?.can_adjust_date !== false
+        && calendarMonth.days.find(day => day.date === selectedDate) && (
+        <DateOverrideEditor
+          key={selectedDate}
+          day={calendarMonth.days.find(day => day.date === selectedDate)!}
+          currentHourlyRateFen={Math.max(0, Math.round(snapshot.hourlySalary * 100))}
+          onApplied={message => {
+            setOverrideFeedback(message);
+            setEditorMode(null);
+            calendarMonth.retry();
+          }}
+          onClose={() => setEditorMode(null)}
+        />
+      )}
+      {editorMode === "overtime" && selectedDate !== null && (
+        <OvertimeEditor
+          key={selectedDate}
+          businessDate={selectedDate}
+          currentHourlyRateFen={Math.max(0, Math.round(snapshot.hourlySalary * 100))}
+          onApplied={message => {
+            setOverrideFeedback(message);
+            setEditorMode(null);
+            overtimeMonth.retry();
+          }}
+          onClose={() => setEditorMode(null)}
+        />
       )}
     </div>
   );
-}
-
-function parseLocalDate(value: string) {
-  const [year, month, day] = value.split("-").map(Number);
-  return new Date(year, month - 1, day);
-}
-
-function formatFullDate(value: string) {
-  return new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "long" }).format(parseLocalDate(value));
-}
-
-function formatShortDate(value: string) {
-  return new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric" }).format(parseLocalDate(value));
-}
-
-function formatReadableDuration(seconds: number) {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  if (hours && minutes) return `${hours} 小时 ${minutes} 分钟`;
-  if (hours) return `${hours} 小时`;
-  return `${minutes} 分钟`;
-}
-
-function clockDifferenceSeconds(start: string, end: string) {
-  const [startHour, startMinute] = start.split(":").map(Number);
-  const [endHour, endMinute] = end.split(":").map(Number);
-  const startMinutes = startHour * 60 + startMinute;
-  const endMinutes = endHour * 60 + endMinute;
-  return (((endMinutes - startMinutes) % 1440) + 1440) % 1440 * 60;
-}
-
-function parseLunchDuration(value: string) {
-  if (!value.trim()) return null;
-  const parsed = Number(value.replace(",", "."));
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
-}
-
-function formatLunchDuration(value: number) {
-  return String(Math.round(value * 100) / 100);
 }
 
 function PageState({ title, detail, action }: { title: string; detail: string; action?: React.ReactNode }) {
@@ -536,11 +699,19 @@ function WizardWindow() {
   const lunchDuration = parseLunchDuration(lunchDurationInput) ?? 0;
   const [confirmClose, setConfirmClose] = useState(false);
   const [firstRun, setFirstRun] = useState(false);
-  useEffect(() => {
-    invoke<boolean>("configuration_initialized")
-      .then(value => setFirstRun(!value))
-      .catch(() => setFirstRun(false));
+  const firstRunRequest = useRef(0);
+  const refreshFirstRun = useCallback(async () => {
+    const request = ++firstRunRequest.current;
+    try {
+      const initialized = await windowService.configurationInitialized();
+      if (request === firstRunRequest.current) setFirstRun(!initialized);
+    } catch {
+      if (request === firstRunRequest.current) setFirstRun(false);
+    }
   }, []);
+  useEffect(() => {
+    void refreshFirstRun();
+  }, [refreshFirstRun]);
   useEffect(() => {
     if (!config.loading && !lunchDurationEdited.current) {
       setLunchDurationInput(formatLunchDuration(
@@ -556,11 +727,13 @@ function WizardWindow() {
       setLunchDurationInput(formatLunchDuration(
         clockDifferenceSeconds(config.draft.lunch_start_time, config.draft.lunch_end_time) / 3600,
       ));
+      void refreshFirstRun();
     };
     window.addEventListener("lmm:window-shown", resetWizard);
     return () => window.removeEventListener("lmm:window-shown", resetWizard);
-  }, [config.draft.lunch_end_time, config.draft.lunch_start_time]);
-  const requestClose = () => setConfirmClose(true);
+  }, [config.draft.lunch_end_time, config.draft.lunch_start_time, refreshFirstRun]);
+  const requestClose = useCallback(() => setConfirmClose(true), []);
+  useNativeCloseRequest(requestClose);
   const updateRestMode = (mode: RestMode) => {
     config.update("rest_mode", mode);
     if (mode !== "alternating") config.update("alternating_anchor_week_type", null);
@@ -589,6 +762,24 @@ function WizardWindow() {
     config.update("lunch_end_time", addHours(config.draft.lunch_start_time, value));
     config.update("work_end_time", addHours(config.draft.work_start_time, config.draft.work_hours_per_day + value));
   };
+  if (config.loading) {
+    return (
+      <WindowFrame kind="wizard" title="开始配置" className="wizard-window" onClose={requestClose}>
+        <PageState title="正在读取本地配置" detail="确认现有设置后即可继续配置。" />
+      </WindowFrame>
+    );
+  }
+  if (config.hydrationError) {
+    return (
+      <WindowFrame kind="wizard" title="开始配置" className="wizard-window" onClose={requestClose}>
+        <PageState
+          title="暂时无法读取配置"
+          detail="当前输入不会被保存。请确认数据目录可用后重试。"
+          action={<Button onClick={() => void config.reload(false)}>重试</Button>}
+        />
+      </WindowFrame>
+    );
+  }
   return (
     <WindowFrame kind="wizard" title="开始配置" className="wizard-window" onClose={requestClose}>
       <div className="wizard-layout">
@@ -597,7 +788,7 @@ function WizardWindow() {
           <h2>三分钟完成</h2>
           <p>只询问计算收入真正需要的信息。</p>
           <ol>
-            {["收入与休息", "工作与午休", "确认配置"].map((label, index) => (
+            {["收入与休息", "工作与休息", "确认配置"].map((label, index) => (
               <li key={label} className={step === index + 1 ? "is-active" : step > index + 1 ? "is-done" : ""}>
                 <span>{step > index + 1 ? "✓" : index + 1}</span>{label}
               </li>
@@ -641,7 +832,10 @@ function WizardWindow() {
                       value={config.draft.alternating_anchor_week_type ?? ""}
                       onChange={value => {
                         config.update("alternating_anchor_week_type", value as WeekType);
-                        config.update("alternating_anchor_date", new Date().toISOString().slice(0, 10));
+                        config.update(
+                          "alternating_anchor_date",
+                          formatLocalDate(systemTime.now()),
+                        );
                       }}
                       options={[{ value: "big", label: "大周" }, { value: "small", label: "小周" }]}
                     />
@@ -666,12 +860,12 @@ function WizardWindow() {
               <>
                 <span className="eyebrow">第 2 步，共 3 步</span>
                 <h1>你的工作时间</h1>
-                <p>默认每天工作 8 小时，午休不计入有效工时。</p>
+                <p>默认每天工作 8 小时，休息时间不计入有效工时。</p>
                 <div className="form-grid">
-                  <Field label="上班时间" value={config.draft.work_start_time} type="time" onChange={event => updateStart(event.target.value)} />
-                  <Field label="午休开始" value={config.draft.lunch_start_time} type="time" onChange={event => updateLunchStart(event.target.value)} />
+                  <TimeField label="上班时间" value={config.draft.work_start_time} onChange={updateStart} />
+                  <TimeField label="休息开始" value={config.draft.lunch_start_time} onChange={updateLunchStart} />
                   <Field
-                    label="午休时长"
+                    label="休息时长"
                     value={lunchDurationInput}
                     suffix="小时"
                     inputMode="decimal"
@@ -679,12 +873,12 @@ function WizardWindow() {
                     onChange={event => updateLunchDuration(event.target.value)}
                     onBlur={commitLunchDuration}
                   />
-                  <Field label="推算下班时间" value={config.draft.work_end_time} type="time" readOnly />
+                  <TimeField label="推算下班时间" value={config.draft.work_end_time} readOnly />
                 </div>
                 <Feedback tone="success">
                   有效工时 {config.draft.work_hours_per_day} 小时 · {config.draft.lunch_start_time === config.draft.lunch_end_time
-                    ? "无午休"
-                    : `午休 ${config.draft.lunch_start_time}–${config.draft.lunch_end_time}`}
+                    ? "无休息时段"
+                    : `休息 ${config.draft.lunch_start_time}–${config.draft.lunch_end_time}`}
                 </Feedback>
               </>
             )}
@@ -697,7 +891,7 @@ function WizardWindow() {
                   <div><dt>月薪</dt><dd>{formatMoney(config.draft.monthly_salary)}</dd></div>
                   <div><dt>休息模式</dt><dd>{config.draft.rest_mode === "single" ? "单休" : config.draft.rest_mode === "alternating" ? `大小周 · 本周${config.draft.alternating_anchor_week_type === "small" ? "小周" : "大周"}` : "双休"}</dd></div>
                   <div><dt>工作时间</dt><dd>{config.draft.work_start_time}–{config.draft.work_end_time}</dd></div>
-                  <div><dt>午休</dt><dd>{config.draft.lunch_start_time === config.draft.lunch_end_time ? "无午休" : `${config.draft.lunch_start_time}–${config.draft.lunch_end_time}`}</dd></div>
+                  <div><dt>休息</dt><dd>{config.draft.lunch_start_time === config.draft.lunch_end_time ? "无休息时段" : `${config.draft.lunch_start_time}–${config.draft.lunch_end_time}`}</dd></div>
                 </dl>
                 {config.feedback === "failed" && <Feedback tone="error">{config.message}</Feedback>}
               </>
@@ -716,6 +910,8 @@ function WizardWindow() {
                 onClick={async () => {
                   if (step < 3) setStep(value => value + 1);
                   else if (await config.save()) {
+                    firstRunRequest.current += 1;
+                    setFirstRun(false);
                     await showWindow("mini");
                     await hideCurrentWindow();
                   }
@@ -734,8 +930,9 @@ function WizardWindow() {
           confirmLabel={firstRun ? "退出应用" : "放弃配置"}
           onCancel={() => setConfirmClose(false)}
           onConfirm={() => {
+            setConfirmClose(false);
             config.cancel();
-            if (firstRun) void invoke("exit_application");
+            if (firstRun) void windowService.exit();
             else void hideCurrentWindow();
           }}
         />
@@ -749,7 +946,11 @@ function SettingsWindow() {
   const config = useConfigDraft({ monthly_salary: 10_000 });
   const [confirmClose, setConfirmClose] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
-  const requestClose = () => config.dirty ? setConfirmClose(true) : void hideCurrentWindow();
+  const requestClose = useCallback(
+    () => config.dirty ? setConfirmClose(true) : void hideCurrentWindow(),
+    [config.dirty],
+  );
+  useNativeCloseRequest(requestClose);
   const saveAndFocus = async () => {
     const saved = await config.save();
     if (!saved) {
@@ -761,9 +962,28 @@ function SettingsWindow() {
   const sections = [
     ["income", "收入与作息"],
     ["calendar", "日历"],
+    ["appearance", "外观"],
     ["window", "窗口与启动"],
     ["support", "数据与支持"],
   ];
+  if (config.loading) {
+    return (
+      <WindowFrame kind="settings" title="设置" className="settings-window" onClose={requestClose}>
+        <PageState title="正在读取本地配置" detail="设置将在读取完成后开放编辑。" />
+      </WindowFrame>
+    );
+  }
+  if (config.hydrationError) {
+    return (
+      <WindowFrame kind="settings" title="设置" className="settings-window" onClose={requestClose}>
+        <PageState
+          title="暂时无法读取配置"
+          detail="为保护现有配置，读取失败期间不会保存默认值。"
+          action={<Button onClick={() => void config.reload(false)}>重试</Button>}
+        />
+      </WindowFrame>
+    );
+  }
   return (
     <WindowFrame kind="settings" title="设置" className="settings-window" onClose={requestClose}>
       <div className="settings-layout">
@@ -779,6 +999,7 @@ function SettingsWindow() {
             </div>
             {section === "income" && <IncomeSettings config={config} />}
             {section === "calendar" && <CalendarSettings />}
+            {section === "appearance" && <AppearanceSettings config={config} />}
             {section === "window" && <WindowSettings config={config} />}
             {section === "support" && <SupportSettings />}
           </div>
@@ -797,6 +1018,7 @@ function SettingsWindow() {
           confirmLabel="放弃更改"
           onCancel={() => setConfirmClose(false)}
           onConfirm={() => {
+            setConfirmClose(false);
             config.cancel();
             void hideCurrentWindow();
           }}
@@ -822,18 +1044,108 @@ function SettingsWindow() {
 function IncomeSettings({ config }: { config: ReturnType<typeof useConfigDraft> }) {
   return (
     <div className="settings-groups">
-      <section><h2>基础收入</h2><Field label="月薪" value={config.draft.monthly_salary || ""} suffix="元" error={config.errors.monthly_salary} onChange={event => config.update("monthly_salary", Number(event.target.value.replaceAll(",", "")) || 0)} /><label className="setting-row"><span><strong>休息模式</strong><small>决定每月工作日口径</small></span><select value={config.draft.rest_mode} onChange={event => config.update("rest_mode", event.target.value as RestMode)}><option value="double">双休</option><option value="single">单休</option><option value="alternating">大小周</option></select></label>{config.draft.rest_mode === "alternating" && <label className="setting-row"><span><strong>本周类型</strong><small>必须由你明确选择</small></span><select value={config.draft.alternating_anchor_week_type ?? ""} onChange={event => config.update("alternating_anchor_week_type", (event.target.value || null) as WeekType)}><option value="">请选择</option><option value="big">大周</option><option value="small">小周</option></select></label>}</section>
-      <section><h2>工作与午休</h2><div className="form-grid"><Field label="上班时间" value={config.draft.work_start_time} type="time" onChange={event => config.update("work_start_time", event.target.value)} /><Field label="下班时间" value={config.draft.work_end_time} type="time" onChange={event => config.update("work_end_time", event.target.value)} /><Field label="午休开始" value={config.draft.lunch_start_time} type="time" onChange={event => config.update("lunch_start_time", event.target.value)} /><Field label="午休结束" value={config.draft.lunch_end_time} type="time" onChange={event => config.update("lunch_end_time", event.target.value)} /></div></section>
+      <section>
+        <h2>基础收入</h2>
+        <Field label="月薪" value={config.draft.monthly_salary || ""} suffix="元" error={config.errors.monthly_salary} onChange={event => config.update("monthly_salary", Number(event.target.value.replaceAll(",", "")) || 0)} />
+        <div className="setting-row">
+          <span><strong>休息模式</strong><small>决定每月工作日口径</small></span>
+          <AccessibleCombobox
+            ariaLabel="休息模式"
+            value={config.draft.rest_mode}
+            options={[
+              { value: "double", label: "双休" },
+              { value: "single", label: "单休" },
+              { value: "alternating", label: "大小周" },
+            ]}
+            onChange={value => config.update("rest_mode", value as RestMode)}
+          />
+        </div>
+        {config.draft.rest_mode === "alternating" && (
+          <div className="setting-row">
+            <span><strong>本周类型</strong><small>必须由你明确选择</small></span>
+            <AccessibleCombobox
+              ariaLabel="本周类型"
+              value={config.draft.alternating_anchor_week_type ?? ""}
+              placeholder="请选择"
+              error={config.errors.alternating_anchor_week_type}
+              showError={false}
+              options={[
+                { value: "big", label: "大周" },
+                { value: "small", label: "小周" },
+              ]}
+              onChange={value => config.update("alternating_anchor_week_type", value as WeekType)}
+            />
+          </div>
+        )}
+      </section>
+      <section><h2>工作与休息</h2><div className="form-grid"><TimeField label="上班时间" value={config.draft.work_start_time} onChange={value => config.update("work_start_time", value)} /><TimeField label="下班时间" value={config.draft.work_end_time} onChange={value => config.update("work_end_time", value)} /><TimeField label="休息开始" value={config.draft.lunch_start_time} onChange={value => config.update("lunch_start_time", value)} /><TimeField label="休息结束" value={config.draft.lunch_end_time} onChange={value => config.update("lunch_end_time", value)} /></div></section>
+    </div>
+  );
+}
+
+function AppearanceSettings({ config }: { config: ReturnType<typeof useConfigDraft> }) {
+  return (
+    <div className="settings-groups">
+      <section>
+        <h2>界面主题</h2>
+        <p className="section-description">选择只保存在当前设备上的浅色或深色外观。更改会立即预览，保存后对所有窗口生效。</p>
+        <div className="theme-options" role="radiogroup" aria-label="界面主题">
+          <button
+            type="button"
+            role="radio"
+            aria-checked={config.draft.theme_mode === "light"}
+            className={config.draft.theme_mode === "light" ? "is-selected" : ""}
+            onClick={() => config.update("theme_mode", "light")}
+          >
+            <AppIcon name="sun" size={22} />
+            <span><strong>浅色模式</strong><small>默认，适合明亮桌面环境</small></span>
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={config.draft.theme_mode === "dark"}
+            className={config.draft.theme_mode === "dark" ? "is-selected" : ""}
+            onClick={() => config.update("theme_mode", "dark")}
+          >
+            <AppIcon name="moon" size={22} />
+            <span><strong>深色模式</strong><small>降低暗光环境下的视觉刺激</small></span>
+          </button>
+        </div>
+      </section>
     </div>
   );
 }
 
 function CalendarSettings() {
-  return <div className="settings-groups"><section><h2>日历口径</h2><label className="setting-row"><span><strong>节假日数据</strong><small>用于识别法定节假日和调休工作日</small></span><select><option>中国大陆 2026</option></select></label><label className="setting-row"><span><strong>允许手动调整</strong><small>单独修改某一天，不改变长期规则</small></span><Switch defaultChecked label="允许手动调整" /></label></section></div>;
+  return (
+    <div className="settings-groups">
+      <section>
+        <h2>日历口径</h2>
+        <div className="setting-row">
+          <span>
+            <strong>离线节假日数据</strong>
+            <small>用于识别法定节假日和调休工作日</small>
+          </span>
+          <strong>中国大陆 2025-2026</strong>
+        </div>
+        <div className="setting-row">
+          <span>
+            <strong>日期判断优先级</strong>
+            <small>单日调整请前往收入日历</small>
+          </span>
+          <strong>手动调整 &gt; 官方日历 &gt; 休息模式</strong>
+        </div>
+      </section>
+    </div>
+  );
 }
 
 function WindowSettings({ config }: { config: ReturnType<typeof useConfigDraft> }) {
-  return <div className="settings-groups"><section><h2>迷你收入视图</h2><label className="setting-row"><span><strong>启动时显示</strong><small>随应用启动显示迷你收入视图</small></span><Switch checked={config.draft.mini_window_visible} onChange={value => config.update("mini_window_visible", value)} label="启动时显示" /></label><label className="setting-row"><span><strong>始终置顶</strong><small>保持在其他普通窗口上方</small></span><Switch checked={config.draft.mini_window_always_on_top} onChange={value => config.update("mini_window_always_on_top", value)} label="始终置顶" /></label></section><section><h2>系统</h2><label className="setting-row"><span><strong>开机启动</strong><small>登录 Windows 后启动应用</small></span><Switch checked={config.draft.auto_start} onChange={value => config.update("auto_start", value)} label="开机启动" /></label></section></div>;
+  const setEdgeAutoHide = (value: boolean) => {
+    config.update("mini_edge_auto_hide", value);
+    if (!value) config.update("mini_edge_dock", "none");
+  };
+  return <div className="settings-groups"><section><h2>迷你收入视图</h2><label className="setting-row"><span><strong>启动时显示</strong><small>随应用启动显示迷你收入视图</small></span><Switch checked={config.draft.mini_window_visible} onChange={value => config.update("mini_window_visible", value)} label="启动时显示" /></label><label className="setting-row"><span><strong>始终置顶</strong><small>保持在其他普通窗口上方</small></span><Switch checked={config.draft.mini_window_always_on_top} onChange={value => config.update("mini_window_always_on_top", value)} label="始终置顶" /></label><label className="setting-row"><span><strong>贴边自动隐藏</strong><small>靠近屏幕左右边缘后收起，悬停时展开</small></span><Switch checked={config.draft.mini_edge_auto_hide} onChange={setEdgeAutoHide} label="贴边自动隐藏" /></label></section><section><h2>系统</h2><label className="setting-row"><span><strong>开机启动</strong><small>登录 Windows 后启动应用</small></span><Switch checked={config.draft.auto_start} onChange={value => config.update("auto_start", value)} label="开机启动" /></label></section></div>;
 }
 
 function ConfirmDialog({ title, detail, confirmLabel, tone = "danger", onCancel, onConfirm }: { title: string; detail: string; confirmLabel: string; tone?: "danger" | "warning"; onCancel(): void; onConfirm(): void }) {
@@ -843,17 +1155,30 @@ function ConfirmDialog({ title, detail, confirmLabel, tone = "danger", onCancel,
 function SupportSettings() {
   const [feedback, setFeedback] = useState<{ tone: "success" | "warning" | "error"; message: string } | null>(null);
   const [checking, setChecking] = useState(false);
-  const [platform, setPlatform] = useState<{ webview2_available: boolean; tray_available: boolean; explorer_available: boolean } | null>(null);
+  const [platform, setPlatform] = useState<PlatformCapabilities | null>(null);
+  const [appVersion, setAppVersion] = useState<string | null>(null);
+  const [versionError, setVersionError] = useState(false);
 
   useEffect(() => {
-    void invoke<{ webview2_available: boolean; tray_available: boolean; explorer_available: boolean }>("platform_capabilities")
+    void supportService.capabilities()
       .then(setPlatform)
       .catch(() => setPlatform(null));
+    let active = true;
+    void versionService.read()
+      .then(version => {
+        if (active) setAppVersion(version);
+      })
+      .catch(() => {
+        if (active) setVersionError(true);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const record = async (event: string, detail: string) => {
     try {
-      await invoke("record_semantic_event", { event, detail });
+      await supportService.record(event, detail);
     } catch {
       // Browser preview has no native logger.
     }
@@ -861,7 +1186,7 @@ function SupportSettings() {
 
   const openData = async () => {
     try {
-      await invoke<string>("open_data_directory");
+      await supportService.openDataDirectory();
       setFeedback({ tone: "success", message: "数据目录已打开。" });
     } catch (error) {
       setFeedback({ tone: "error", message: `无法打开数据目录：${String(error)}` });
@@ -870,7 +1195,7 @@ function SupportSettings() {
 
   const copyDiagnostics = async () => {
     try {
-      const summary = await invoke<string>("diagnostic_summary");
+      const summary = await supportService.diagnosticSummary();
       await navigator.clipboard.writeText(summary);
       await record("support.diagnostic_copied", "result=success");
       setFeedback({ tone: "success", message: "诊断摘要已复制，内容不包含用户名和本机路径。" });
@@ -881,6 +1206,10 @@ function SupportSettings() {
   };
 
   const checkUpdates = async () => {
+    if (!appVersion || versionError) {
+      setFeedback({ tone: "error", message: "无法读取当前版本，更新检查已停止。" });
+      return;
+    }
     setChecking(true);
     try {
       const response = await fetch("https://api.github.com/repos/NzyZzz1998/LetsMakeMoney/releases/latest", {
@@ -888,18 +1217,13 @@ function SupportSettings() {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const body = await response.text();
-      const result = await invoke<{ status: "up_to_date" | "available" | "unavailable"; message: string }>(
-        "evaluate_update_response",
-        { currentVersion: "1.0.0", responseBody: body, failureReason: null },
-      );
+      const result = await supportService.evaluateUpdate(appVersion, body, null);
       await record("update.checked", `status=${result.status}`);
       setFeedback({ tone: result.status === "unavailable" ? "warning" : "success", message: result.message });
     } catch (error) {
-      const result = await invoke<{ message: string }>("evaluate_update_response", {
-        currentVersion: "1.0.0",
-        responseBody: null,
-        failureReason: String(error),
-      }).catch(() => ({ message: `暂时无法检查更新：${String(error)}` }));
+      const result = await supportService
+        .evaluateUpdate(appVersion, null, String(error))
+        .catch(() => ({ status: "unavailable" as const, message: `暂时无法检查更新：${String(error)}` }));
       await record("update.check_failed", `reason=${String(error)}`);
       setFeedback({ tone: "warning", message: `${result.message} 当前版本可继续正常使用。` });
     } finally {
@@ -914,14 +1238,14 @@ function SupportSettings() {
         <div className="button-list">
           <Button variant="secondary" onClick={openData}>打开数据目录</Button>
           <Button variant="secondary" onClick={copyDiagnostics}>复制诊断摘要</Button>
-          <Button variant="secondary" disabled={checking} onClick={checkUpdates}>{checking ? "正在检查…" : "检查更新"}</Button>
+          <Button variant="secondary" disabled={checking || !appVersion || versionError} onClick={checkUpdates}>{checking ? "正在检查…" : "检查更新"}</Button>
         </div>
         {feedback && <Feedback tone={feedback.tone}>{feedback.message}</Feedback>}
       </section>
       <section>
         <h2>关于</h2>
         <dl className="summary-list">
-          <div><dt>版本</dt><dd>1.0.0</dd></div>
+          <div><dt>版本</dt><dd>{versionError ? "读取失败" : appVersion ?? "正在读取…"}</dd></div>
           <div><dt>数据</dt><dd>仅保存在本机</dd></div>
           <div><dt>运行环境</dt><dd>Windows · WebView2</dd></div>
           {platform && <div><dt>原生能力</dt><dd>{platform.tray_available && platform.explorer_available ? "可用" : "部分不可用，主功能不受影响"}</dd></div>}
@@ -939,8 +1263,12 @@ export function App() {
     document.title = WINDOW_LABELS[kind];
   }, [kind]);
 
-  if (kind === "workbench") return <WorkbenchWindow />;
-  if (kind === "settings") return <SettingsWindow />;
-  if (kind === "wizard") return <WizardWindow />;
-  return <MiniWindow />;
+  const content = kind === "workbench"
+    ? <WorkbenchWindow />
+    : kind === "settings"
+      ? <SettingsWindow />
+      : kind === "wizard"
+        ? <WizardWindow />
+        : <MiniWindow onOpenWindow={label => { void showWindow(label); }} />;
+  return <>{content}<BrowserPreviewNotice /><WindowOperationNotice /></>;
 }

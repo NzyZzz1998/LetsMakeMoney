@@ -1,6 +1,8 @@
-# LetsMakeMoney Windows v1.0
+# LetsMakeMoney Windows Stable 工程
 
-这是 Windows v1.0 的正式工程，技术栈为 Rust、Tauri、TypeScript 与 React。
+这是 LetsMakeMoney 当前 Windows Stable 主线工程，技术栈为 Rust、Tauri、TypeScript 与 React。当前公开版本为 v1.0.7 Stable；该版本已完成独立验收、必需 CI、干净构建、annotated tag、GitHub Release 与线上附件回下载核验。
+
+v1.0.7 当前已验证开发环境为 Windows 11 x86_64 单显示器；Windows 10 与多显示器不进入 v1.0.7 已验证通过声明，完整边界见 `doc/releases/v1.0.7/support-matrix.md`。
 
 ## 产品边界
 
@@ -30,4 +32,36 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
 
 也可以运行 `scripts\verify_v10.ps1` 执行聚合验证。
 
-构建命令与依赖要求见仓库根目录 `README.md` 和 `CONTRIBUTING.md`。
+历史增量验证入口位于仓库根目录，并只用于复核对应版本。当前开发聚合入口为 `scripts\verify_windows_current.ps1`；当前开发合同由 `scripts\current-manifest.json` 标识。v1.0.8 开发候选使用 `scripts\package_v10f.ps1` 生成，并由 `scripts\verify_v10f_package.ps1` 复核；在 v1.0.8 正式发布前，公开发布身份仍以仓库根目录 `README.md`、`doc/current.md` 和 v1.0.7 GitHub Release 为准。
+
+## 架构行为验证
+
+安装锁定依赖后，可在本目录运行：
+
+```powershell
+npm ci
+npm test
+npm run build:web
+```
+
+`npm test` 会执行 Runtime Adapter、配置领域、桌面服务、时间与呈现纯函数测试，并检查前后端责任边界和工具解析。当前完整开发回归以仓库根目录的 `scripts\verify_windows_current.ps1` 为准；公开版本复核使用 v1.0.7 的锁定身份。
+
+## 统一工具链解析
+
+正式验证和打包脚本按固定顺序解析 Node、Python 和 Cargo：
+
+1. 显式环境变量。
+2. `PATH`。
+3. 仓库根目录 `.toolchains` 缓存。
+4. 全部缺失时给出可操作错误并停止。
+
+```powershell
+$env:LMM_NODE = "<node.exe 的绝对路径>"
+$env:LMM_PYTHON = "<python.exe 的绝对路径>"
+$env:LMM_CARGO = "<cargo.exe 的绝对路径>"
+$env:LMM_CARGO_HOME = "<Cargo Home>"
+$env:LMM_RUSTUP_HOME = "<Rustup Home>"
+```
+
+仓库缓存位置分别为 `.toolchains\node\node.exe`、`.toolchains\python\python.exe`
+和 `.toolchains\cargo\bin\cargo.exe`。正式入口不依赖 `spikes/`、Codex 私有运行时或某个开发者的用户目录。

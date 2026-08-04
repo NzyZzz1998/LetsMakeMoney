@@ -29,6 +29,7 @@ def main() -> int:
     window_contract = json.loads(read(ROOT / "contracts" / "window-contract.json"))
     visual_contract = json.loads(read(ROOT / "contracts" / "visual-contract.json"))
     app = read(ROOT / "src" / "App.tsx")
+    mini = read(ROOT / "src" / "features" / "mini" / "MiniWindow.tsx")
     components = read(ROOT / "src" / "components.tsx")
     styles = read(ROOT / "src" / "styles.css")
     rust = read(ROOT / "src-tauri" / "src" / "lib.rs")
@@ -41,7 +42,7 @@ def main() -> int:
     check(all(re.search(r"\d+\.\d+\.\d+", value) for value in exact_versions), "Node/React/Tauri 依赖未全部锁定到精确版本")
 
     expected_sizes = {
-        "mini": (344, 120),
+        "mini": (344, 108),
         "workbench": (920, 640),
         "settings": (760, 560),
         "wizard": (780, 580),
@@ -49,10 +50,29 @@ def main() -> int:
     for label, (width, height) in expected_sizes.items():
         check(f'label: "{label}"' in rust, f"Rust 窗口注册表缺少 {label}")
         check(f'width: {width}.0' in rust and f'height: {height}.0' in rust, f"{label} 窗口尺寸不正确")
-        check(f'kind="{label}"' in app or label == "mini" and 'data-window="mini"' in app, f"React 缺少 {label} 窗口壳")
+        check(
+            f'kind="{label}"' in app
+            or label == "mini" and 'data-window="mini"' in mini,
+            f"React 缺少 {label} 窗口壳",
+        )
 
     contract_sizes = {item["id"]: tuple(item["default_size"]) for item in window_contract["windows"]}
     check(contract_sizes == expected_sizes, "窗口合同与 M1 实现尺寸不一致")
+    mini_contract = next(item for item in window_contract["windows"] if item["id"] == "mini")
+    check(
+        mini_contract.get("state_sizes")
+        == {
+            "normal": [344, 108],
+            "loading": [344, 108],
+            "error": [344, 120],
+        },
+        "迷你窗口状态尺寸合同不完整",
+    )
+    check(
+        '"normal" | "loading" => 108.0' in rust
+        and '"error" => 120.0' in rust,
+        "Rust 未实现迷你窗口状态尺寸",
+    )
     check(tauri["app"]["windows"][0]["skipTaskbar"] is True, "迷你窗口必须不显示任务栏入口")
     check("CreateMutexW" in rust and "ERROR_ALREADY_EXISTS" in rust, "单实例互斥没有实现")
     check("ensure_window" in rust and "get_webview_window" in rust, "窗口复用没有实现")
@@ -71,7 +91,7 @@ def main() -> int:
     check("--shadow-window" in styles and "--radius-window" in styles, "生产级窗口 token 未落地")
     check(visual_contract["motion"]["reduced_motion"] is True, "视觉合同没有要求 reduced motion")
 
-    searchable = "\n".join([app, components, styles, rust]).lower()
+    searchable = "\n".join([app, mini, components, styles, rust]).lower()
     forbidden = [r"\bpet\b", r"\bcat\b", "宠物", "桌宠", "pure_pet"]
     for term in forbidden:
         check(re.search(term, searchable) is None, f"M1 正式应用壳出现宠物能力：{term}")

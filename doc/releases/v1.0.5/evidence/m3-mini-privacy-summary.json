@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "milestone": "V105-M3",
+  "candidate": {
+    "kind": "dirty-controlled-m3-candidate",
+    "candidate_id": "V105-M3-20260801-015617",
+    "source_head": "8a63da7836fb24c3b7f8ff12f896ac40571adeb7",
+    "source_tree_dirty": true,
+    "staged_exe_sha256": "67F14FB8E4455AF20693E2AA279D42B0B827C224E13B2B07EE77149BC4AB5E61",
+    "native_dll_sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C",
+    "identity_path": ".artifacts/candidates/v1.0.5/V105-M3-20260801-015617"
+  },
+  "automation": {
+    "architecture": "pass",
+    "typescript": "pass",
+    "web_build": "pass",
+    "cargo_test": "pass",
+    "clippy": "pass",
+    "privacy_scan": "pass",
+    "mini_state_machine_assertions": 37,
+    "privacy_selector_cases": 10,
+    "cargo_tests_passed": 54
+  },
+  "privacy": {
+    "tab_logical_px": 28,
+    "covered_states": [
+      "loading",
+      "error",
+      "before_work",
+      "working_before_rest",
+      "rest",
+      "working_after_rest",
+      "after_work",
+      "rest_day",
+      "paid_rest",
+      "unpaid_rest"
+    ],
+    "forbidden_tokens_found": [],
+    "dom_scan": "pass",
+    "aria_scan": "pass",
+    "log_scan": "pass",
+    "light_theme": "pass",
+    "dark_theme": "pass"
+  },
+  "desktop": {
+    "left_edge_first_retract": "pass",
+    "right_edge_first_retract": "pass",
+    "hover_reveal": "pass",
+    "pointer_leave_retract": "pass",
+    "click_reveal": "pass",
+    "keyboard_reveal": "pass",
+    "ordinary_focus_does_not_reveal": "pass",
+    "explicit_restore_reveals": "pass",
+    "workbench_close_regression": "pass",
+    "fallback_keeps_window_recoverable": "pass"
+  },
+  "evidence_basis": {
+    "real_windows": [
+      "left_edge_first_retract",
+      "right_edge_first_retract",
+      "hover_reveal",
+      "pointer_leave_retract",
+      "click_reveal",
+      "ordinary_focus_does_not_reveal",
+      "workbench_close_regression"
+    ],
+    "automated_contract_only_until_acceptance": [
+      "keyboard_reveal",
+      "explicit_restore_reveals",
+      "dark_theme",
+      "fallback_keeps_window_recoverable"
+    ],
+    "note": "M3 是开发里程碑验证，不替代独立候选验收。"
+  },
+  "fr003": {
+    "status": "fixed-and-verified",
+    "first_retract_requires_extra_interaction": false,
+    "late_native_result_protected": true
+  },
+  "fr004": {
+    "status": "fixed-and-verified",
+    "ordinary_focus_reveals": false,
+    "explicit_shown_reveals": true,
+    "tray_restore_reveals": true
+  },
+  "baseline_integrity": {
+    "configuration_restored": true,
+    "debug_log_restored": true,
+    "registry_changed": false,
+    "remaining_processes": 0,
+    "income_formula_changed": false,
+    "calendar_contract_changed": false,
+    "configuration_schema_changed": false
+  },
+  "raw_evidence": {
+    "storage": "local-ignored",
+    "index": ".artifacts/acceptance/v1.0.5/V105-M3-20260801-015617/raw",
+    "repository_contains_raw_screenshots_or_logs": false
+  },
+  "conclusion": {
+    "milestone": "passed",
+    "completed_tasks": 10,
+    "release_created": false,
+    "next_milestone": "V105-M4"
+  }
+}

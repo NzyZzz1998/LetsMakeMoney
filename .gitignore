@@ -15,6 +15,9 @@ export_credentials.cfg
 /releases/v0.8/
 /releases/v0.9/
 /releases/v1.0/
+/releases/v1.0.1/
+/releases/v1.0.2/
+/releases/v1.0.3/
 /deliverables/
 .godot_user_v05/
 assets/pets/cat/orange_v2/_incoming/
@@ -35,6 +38,8 @@ native/windows/**/*.obj
 /.cache/
 /.tmp_ci/
 /native/windows/bin/**/*.a
+__pycache__/
+*.py[cod]
 
 # Local acceptance evidence and extracted candidates
 /.manual-test/
@@ -98,6 +103,17 @@ temp/**/*.import
 /apps/windows-v1/src-tauri/target/
 /apps/windows-v1/src-tauri/gen/
 /.tmp_m*.png
+/.toolchains/
+/.tmp_v104_desktop_smoke/
+/.tmp_v104_*/
+/releases/v1.0.4/
+/releases/v1.0.5/
+
+# v1.0.5 artifact ownership: local candidates, raw acceptance evidence,
+# and GitHub-downloaded published caches must never become repository evidence.
+/.artifacts/candidates/
+/.artifacts/acceptance/
+/.artifacts/published/
 
 # Figma plugin PNGs are documentation assets, not Godot runtime textures
 doc/prototypes/v0.9-polished/figma-plugin/generated-assets/*.png.import

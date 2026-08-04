@@ -92,6 +92,34 @@ pub struct UpdateResult {
     pub message: String,
 }
 
+fn parse_version_parts(value: &str) -> Option<Vec<u64>> {
+    let normalized = value.trim().trim_start_matches(['v', 'V']);
+    let core = normalized
+        .split_once('-')
+        .map_or(normalized, |(core, _)| core);
+    if core.is_empty() {
+        return None;
+    }
+    let parts = core
+        .split('.')
+        .map(str::parse::<u64>)
+        .collect::<Result<Vec<_>, _>>()
+        .ok()?;
+    if parts.is_empty() {
+        return None;
+    }
+    Some(parts)
+}
+
+fn compare_versions(left: &str, right: &str) -> Option<std::cmp::Ordering> {
+    let mut left = parse_version_parts(left)?;
+    let mut right = parse_version_parts(right)?;
+    let width = left.len().max(right.len());
+    left.resize(width, 0);
+    right.resize(width, 0);
+    Some(left.cmp(&right))
+}
+
 pub fn parse_release_response(current: &str, response: Result<&str, &str>) -> UpdateResult {
     let body = match response {
         Ok(body) => body,
@@ -125,18 +153,22 @@ pub fn parse_release_response(current: &str, response: Result<&str, &str>) -> Up
             message: "更新信息缺少版本号".into(),
         };
     }
-    if version == current.trim_start_matches('v') {
-        UpdateResult {
-            status: UpdateStatus::UpToDate,
-            version: Some(version.into()),
-            message: "当前已是最新版本".into(),
-        }
-    } else {
-        UpdateResult {
+    match compare_versions(version, current) {
+        Some(std::cmp::Ordering::Greater) => UpdateResult {
             status: UpdateStatus::Available,
             version: Some(version.into()),
             message: format!("发现新版本 {version}"),
-        }
+        },
+        Some(_) => UpdateResult {
+            status: UpdateStatus::UpToDate,
+            version: Some(version.into()),
+            message: "当前已是最新版本".into(),
+        },
+        None => UpdateResult {
+            status: UpdateStatus::Unavailable,
+            version: None,
+            message: "更新信息包含无法识别的版本号".into(),
+        },
     }
 }
 
@@ -155,6 +187,21 @@ mod tests {
         assert!(result.message.contains("网络不可用"));
         let result = parse_release_response("1.0.0", Ok(r#"{"tag_name":"v1.0.0"}"#));
         assert_eq!(result.status, UpdateStatus::UpToDate);
+    }
+
+    #[test]
+    fn update_versions_are_compared_numerically() {
+        let older = parse_release_response("1.0.1", Ok(r#"{"tag_name":"v1.0"}"#));
+        assert_eq!(older.status, UpdateStatus::UpToDate);
+
+        let equivalent = parse_release_response("1.0.0", Ok(r#"{"tag_name":"v1.0"}"#));
+        assert_eq!(equivalent.status, UpdateStatus::UpToDate);
+
+        let newer = parse_release_response("1.0.1", Ok(r#"{"tag_name":"v1.0.2"}"#));
+        assert_eq!(newer.status, UpdateStatus::Available);
+
+        let invalid = parse_release_response("1.0.1", Ok(r#"{"tag_name":"release-latest"}"#));
+        assert_eq!(invalid.status, UpdateStatus::Unavailable);
     }
 
     #[test]

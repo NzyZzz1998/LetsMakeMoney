@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "milestone": "V105-M2",
+  "captured_on": "2026-08-01",
+  "candidate": {
+    "kind": "published-v1.0.4-baseline",
+    "tag": "v1.0.4",
+    "source_head": "4d06dc73dbc5c27d7a97462d8262a553dd97d5b6",
+    "zip_sha256": "C4F28892831891A4266C4D9B12D432CD5C970BB3C9B36A6B8DB21FA2566DE50E",
+    "executable_sha256": "E0C9C603703FC2632619AFBC84F63B1B1D403273CD01D29AA0A308A95243E107",
+    "source_tree_dirty": false
+  },
+  "fr003_characterization": {
+    "fixture_count": 8,
+    "edges": [
+      "left",
+      "right"
+    ],
+    "current_behavior_test": "pass",
+    "target_behavior_test": "expected-red",
+    "target_failure_marker": "M2_RED_NO_POINTERLEAVE_RETRACT",
+    "confirmed_root_cause": "drag completion retains pointerInside=true, so eligibility remains false until a later pointerleave",
+    "minimum_fix_boundary": "reconcile release-time pointer intent when applying the native dock result; retain the single timer generation and interaction locks",
+    "route": "V105-M3"
+  },
+  "fr004_reproduction": {
+    "calibration_runs_excluded": 1,
+    "valid_runs": 20,
+    "reproduced_runs": 20,
+    "pre_close_state": "retracted",
+    "post_close_state": "expanded",
+    "pre_close_width_px": 3,
+    "post_close_width_px": 346,
+    "observed_surface": "mini_expanded",
+    "workbench_close_result": "hidden",
+    "native_mini_shown_events": 0,
+    "aggregate_window_focus_log_entries": 43,
+    "correlated_ordinary_focus_runs": 20,
+    "mini_reveal_events_with_window_shown_source": 20,
+    "mini_reveal_events_with_pointer_enter_source": 1,
+    "mini_retract_events_with_pointer_leave_source": 21,
+    "confirmed_root_cause": "browser focus and explicit lmm:window-shown share one reveal handler; ordinary focus after Workbench close is recorded as source=window_shown and expands Mini without a native Mini shown event",
+    "minimum_fix_boundary": "separate ordinary focus from explicit native shown; preserve tray and explicit restore behavior",
+    "route": "V105-M3"
+  },
+  "runs": [
+    { "run": 1, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 2, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 3, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 4, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 5, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 6, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 7, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 8, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 9, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 10, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 11, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 12, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 13, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 14, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 15, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 16, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 17, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 18, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 19, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" },
+    { "run": 20, "mini_before": "retracted", "observed_surface": "mini_expanded", "mini_after": "expanded", "result": "unexpected" }
+  ],
+  "baseline_integrity": {
+    "configuration_sha256_before": "62A5B2A846D990E98F0556CF5BE657D4E9D943E7426AC9BC6ACFC594858909CC",
+    "configuration_sha256_after": "62A5B2A846D990E98F0556CF5BE657D4E9D943E7426AC9BC6ACFC594858909CC",
+    "configuration_restored": true,
+    "debug_log_restored": true,
+    "registry_changed": false,
+    "remaining_processes": 0,
+    "tray_restore_baseline_changed": false,
+    "position_persistence_baseline_changed": false,
+    "configuration_transaction_baseline_changed": false,
+    "business_code_modified": false
+  },
+  "raw_evidence": {
+    "storage": "local-ignored",
+    "index": ".artifacts/acceptance/v1.0.5/m2-gui-20260801/",
+    "available_at_capture": true,
+    "repository_contains_raw_screenshots_or_logs": false
+  },
+  "conclusion": {
+    "milestone": "passed-characterization-only",
+    "fr003": "confirmed-not-fixed",
+    "fr004": "confirmed-not-fixed",
+    "m3_authorized_scope": "FR-003 release-time pointer reconciliation plus FR-004 focus/explicit-shown split",
+    "candidate_or_release_created": false
+  }
+}

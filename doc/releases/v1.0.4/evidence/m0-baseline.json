@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "milestone": "V104-M0",
+  "captured_at": "2026-07-31T01:33:34+08:00",
+  "git": {
+    "branch": "main",
+    "development_head": "09f838d05c67efb5219437ec2208920e441f3f52",
+    "remote": "origin",
+    "remote_url": "git@github.com:NzyZzz1998/LetsMakeMoney.git",
+    "worktree": "intentional_v104_document_and_prototype_changes",
+    "release_tag": "v1.0.3",
+    "release_tag_object": "51741ba4dfc5a68ab83744d6320d95f63a6bbcb8",
+    "release_commit": "87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4"
+  },
+  "release": {
+    "name": "LetsMakeMoney v1.0.3",
+    "url": "https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.3",
+    "published_at": "2026-07-30T10:25:12Z",
+    "draft": false,
+    "prerelease": false,
+    "assets": [
+      {
+        "name": "LetsMakeMoney-v1.0.3-windows-x86_64.zip",
+        "size": 3204791,
+        "sha256": "259CAE23D785FC7712CAC0EFD42991C8EE210C0BCEA1EB5C07FC171DFB993B28"
+      },
+      {
+        "name": "SHA256SUMS.txt",
+        "size": 107,
+        "sha256": "68038A746A3CB8BF775BB9212479866ACB191FFF36D251708044E9E14E8AA1C6"
+      }
+    ]
+  },
+  "release_payload": {
+    "zip": {
+      "path": "releases/v1.0.3/LetsMakeMoney-v1.0.3-windows-x86_64.zip",
+      "size": 3204791,
+      "sha256": "259CAE23D785FC7712CAC0EFD42991C8EE210C0BCEA1EB5C07FC171DFB993B28"
+    },
+    "executable": {
+      "name": "LetsMakeMoney.exe",
+      "size": 9997312,
+      "sha256": "41BB11FCBC95C3789AD283D0F85E67DB0E17D4BC769B133B317FDB1804607237"
+    },
+    "webview2_loader": {
+      "name": "WebView2Loader.dll",
+      "size": 160320,
+      "sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
+    },
+    "build_info": {
+      "name": "BUILD-INFO.json",
+      "size": 1434,
+      "sha256": "6156ED43955806A3ED8AB63978C6BC239B6A1D667DDEF11895FC347FE7997E85",
+      "source_head": "87f6766a33fd6ff284f0fb3a42dc18c5a7292bf4",
+      "source_tree_dirty": false
+    }
+  },
+  "environment": {
+    "os": {
+      "name": "Windows 11 Pro",
+      "version": "10.0.26200",
+      "build": "26200",
+      "architecture": "x86_64"
+    },
+    "node": {
+      "version": "24.14.0",
+      "source": "codex_bundled_runtime"
+    },
+    "python": {
+      "version": "3.12.13",
+      "source": "codex_bundled_runtime"
+    },
+    "rustc": {
+      "version": "1.97.1",
+      "commit": "8bab26f4f",
+      "source": "managed_lmm_toolchain"
+    },
+    "cargo": {
+      "version": "1.97.1",
+      "commit": "c980f4866",
+      "source": "managed_lmm_toolchain"
+    },
+    "msvc": {
+      "product": "Visual Studio Build Tools 2022",
+      "product_version": "17.14.35",
+      "vctools_version": "14.44.35207",
+      "source": "managed_build_tools"
+    },
+    "windows_sdk": {
+      "version": "10.0.22621.0",
+      "source": "system"
+    },
+    "webview2": {
+      "version": "150.0.4078.105",
+      "source": "system_evergreen_runtime"
+    }
+  },
+  "rust_comparison": {
+    "stable": {
+      "rustc": "1.97.1 (8bab26f4f 2026-07-14)",
+      "rust_tests": "46/46 passed",
+      "release_build": "passed"
+    },
+    "fixed": {
+      "toolchain": "1.97.1-x86_64-pc-windows-msvc",
+      "rustc": "1.97.1 (8bab26f4f 2026-07-14)",
+      "rust_tests": "46/46 passed",
+      "release_build": "passed"
+    },
+    "decision": "pin_exact_1.97.1_in_M3",
+    "reason": "stable and fixed identities are equal; an exact pin improves reproducibility without changing behavior"
+  },
+  "inherited_evidence": {
+    "FR-007": {
+      "runtime_behavior": "15/15 passed",
+      "desktop_services": "21/21 passed",
+      "status": "inherited",
+      "invalidated_by": [
+        "runtime adapter semantic change",
+        "service command or event contract change",
+        "desktop failure fallback change"
+      ]
+    },
+    "FR-009": {
+      "architecture_structure": "22/22 passed",
+      "presentation_utils": "18/18 passed",
+      "status": "inherited",
+      "invalidated_by": [
+        "second-round module split",
+        "public window or configuration contract rename",
+        "new global state architecture"
+      ]
+    }
+  },
+  "decisions": {
+    "mini_edge_state_storage": "config_v8_optional_fields",
+    "window_state_json_required": false,
+    "legacy_behavior": "v1.0.3 reads the config, drops unknown v1.0.4 fields on save, and preserves all v1.0.3 fields",
+    "work_area_api": "tauri_monitor_work_area",
+    "new_win32_dependency_required": false,
+    "normal_position_persistence": "expanded_only",
+    "retracted_position_persistence": "never",
+    "missing_monitor_fallback": "clear_dock_and_show_fully_on_primary_work_area"
+  },
+  "verification": {
+    "baseline_rust_tests": "46/46 passed",
+    "baseline_frontend_build": "passed",
+    "runtime_behavior": "15/15 passed",
+    "configuration_domain": "10/10 passed",
+    "desktop_services": "21/21 passed",
+    "presentation_utils": "18/18 passed",
+    "architecture_structure": "22/22 passed",
+    "tool_resolution": "2/2 passed",
+    "v104_geometry_and_compatibility": "4/4 passed"
+  }
+}

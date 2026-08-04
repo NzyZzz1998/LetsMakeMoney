@@ -1,0 +1,11 @@
+{
+  "contract_version": 1,
+  "cases": [
+    {"id": "working-local-tick", "seconds": 3, "expected_local_ticks": 3},
+    {"id": "lunch-freeze", "seconds": 3, "expected_amount_change_minor": 0},
+    {"id": "thirty-second-authoritative-sync", "elapsed_seconds": 30, "expected_sync_count": 1},
+    {"id": "resume-immediate-sync", "event": "window_focus", "expected_delay_ms": 0},
+    {"id": "one-cent-tolerance", "local_minor": 1001, "authoritative_minor": 1002, "expected_correction": false},
+    {"id": "late-authoritative-snapshot-ignored", "current_sequence": 8, "incoming_sequence": 7, "expected_applied": false}
+  ]
+}

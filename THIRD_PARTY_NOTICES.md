@@ -1,6 +1,6 @@
 # LetsMakeMoney v1.0 第三方声明
 
-**最后更新**：2026-07-24
+**最后更新**：2026-07-28
 
 v1.0 使用 Rust、Tauri、TypeScript 和 React。项目自身代码采用 MIT License；第三方组件保留各自许可。
 
@@ -11,6 +11,7 @@ v1.0 使用 Rust、Tauri、TypeScript 和 React。项目自身代码采用 MIT L
 | Tauri | 2.11.1 | Windows 桌面壳、窗口、托盘和命令桥 | Apache-2.0 / MIT，https://github.com/tauri-apps/tauri |
 | React | 19.1.1 | 用户界面 | MIT，https://github.com/facebook/react |
 | React DOM | 19.1.1 | React DOM 渲染 | MIT，https://github.com/facebook/react |
+| Lucide React | 1.27.0 | 今日、日历、设置、月份切换、关闭、重试及状态入口图标 | ISC，https://github.com/lucide-icons/lucide |
 | webview2-com / webview2-com-sys | 0.38.2 | WebView2 COM Rust 绑定；提供构建所需的 x64 `WebView2Loader.dll` | MIT，https://github.com/wravery/webview2-rs |
 | Microsoft WebView2Loader | 随 webview2-com-sys 0.38.2 锁定 | 帮助应用定位设备上的 WebView2 Runtime；x64 `WebView2Loader.dll` 随便携 Zip 分发 | Microsoft WebView2 SDK 组件；Microsoft 官方部署文档明确要求随对应架构应用提供，https://learn.microsoft.com/zh-cn/microsoft-edge/webview2/concepts/distribution |
 | Microsoft Edge WebView2 Runtime | 用户设备上的系统安装版本 | Windows Web 内容运行时 | 由 Microsoft 独立安装和许可；本项目便携 Zip 不包含 Runtime |

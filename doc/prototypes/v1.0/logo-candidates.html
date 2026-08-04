@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LetsMakeMoney 品牌标识精修候选</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+      --canvas: #eceee9;
+      --paper: #fbfbf8;
+      --surface: #ffffff;
+      --ink: #27251f;
+      --muted: #706c63;
+      --line: #d8d9d2;
+      --accent: #ebaa24;
+      --accent-soft: #fff1c9;
+      --green: #6f9778;
+      --green-soft: #e5efe7;
+      --rust: #b75a44;
+      --shadow: 0 20px 60px rgb(39 37 31 / 11%);
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--canvas); }
+    body { margin: 0; color: var(--ink); background: var(--canvas); }
+    button { font: inherit; letter-spacing: 0; }
+    svg { display: block; }
+
+    .page {
+      width: min(1280px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 40px 0 72px;
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(300px, .7fr);
+      gap: 48px;
+      align-items: end;
+      padding: 28px 30px 30px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .kicker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .kicker::before { content: ""; width: 28px; height: 2px; background: var(--accent); }
+    h1 { max-width: 780px; margin: 0; font-size: clamp(31px, 4vw, 52px); line-height: 1.05; letter-spacing: 0; }
+    .lede { max-width: 700px; margin: 18px 0 0; color: var(--muted); font-size: 14px; line-height: 1.8; }
+
+    .brief {
+      border-left: 1px solid var(--line);
+      padding-left: 28px;
+    }
+
+    .brief__label { margin-bottom: 12px; color: var(--muted); font-size: 11px; font-weight: 700; }
+    .brief ul { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; font-size: 13px; }
+    .brief li { display: grid; grid-template-columns: 12px 1fr; gap: 9px; align-items: baseline; }
+    .brief li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: end;
+      margin: 44px 0 18px;
+    }
+
+    .section-head h2 { margin: 0; font-size: 22px; }
+    .section-head p { max-width: 560px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; text-align: right; }
+
+    .candidate {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      min-height: 430px;
+      margin-bottom: 18px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+
+    .candidate__identity {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 30px;
+      border-right: 1px solid var(--line);
+      background: #f6f6f1;
+    }
+
+    .candidate[data-kind="b"] .candidate__identity { background: #282720; color: #f8f5ec; }
+    .candidate[data-kind="c"] .candidate__identity { background: #e5eee6; }
+
+    .candidate__index { color: var(--muted); font-size: 11px; font-weight: 700; }
+    .candidate[data-kind="b"] .candidate__index { color: #bfb9aa; }
+
+    .hero-mark {
+      display: grid;
+      place-items: center;
+      width: 184px;
+      height: 184px;
+      margin: 20px auto;
+    }
+
+    .hero-mark svg { width: 100%; height: 100%; }
+    .candidate__name h3 { margin: 0; font-size: 25px; }
+    .candidate__name p { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .candidate[data-kind="b"] .candidate__name p { color: #bfb9aa; }
+
+    .candidate__content { display: grid; grid-template-rows: auto auto 1fr; gap: 24px; padding: 28px 30px 30px; }
+    .candidate__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+    .candidate__top h4 { margin: 0 0 8px; font-size: 15px; }
+    .candidate__top p { max-width: 650px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+
+    .recommend {
+      flex: 0 0 auto;
+      padding: 6px 9px;
+      border: 1px solid #deb25a;
+      border-radius: 999px;
+      color: #795500;
+      background: var(--accent-soft);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .scale-test { display: flex; align-items: end; gap: 20px; min-height: 92px; padding: 18px 20px; border-block: 1px solid var(--line); }
+    .scale { display: grid; justify-items: center; gap: 8px; color: var(--muted); font-size: 10px; }
+    .scale svg { width: var(--size); height: var(--size); }
+    .scale:first-child { margin-right: 10px; }
+
+    .context-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(220px, .8fr) minmax(180px, .65fr); gap: 14px; }
+    .mock { overflow: hidden; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
+    .mock__label { padding: 9px 11px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; font-weight: 700; }
+    .titlebar { display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 14px; }
+    .titlebar svg { width: 28px; height: 28px; }
+    .titlebar strong { font-size: 13px; }
+    .taskbar { display: flex; align-items: center; gap: 11px; height: 62px; padding: 10px 12px; color: #f8f7f2; background: #22231f; }
+    .taskbar svg { width: 32px; height: 32px; }
+    .taskbar span { overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+
+    .tray-pair { display: grid; grid-template-columns: 1fr 1fr; min-height: 62px; }
+    .tray-pair > div { display: grid; place-items: center; }
+    .tray-pair > div:first-child { background: #f5f5f1; }
+    .tray-pair > div:last-child { background: #252621; }
+    .tray-pair svg { width: 20px; height: 20px; }
+    .mono-light { color: #282722; }
+    .mono-dark { color: #f7f5ed; }
+    .mono-light .bg, .mono-dark .bg { fill: currentColor; }
+    .mono-light .fg, .mono-dark .fg { fill: none; stroke: currentColor; }
+    .mono-light .dot, .mono-dark .dot { fill: currentColor; }
+
+    .reasoning { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+    .reasoning div { padding: 15px 16px 0 0; }
+    .reasoning div + div { padding-left: 16px; border-left: 1px solid var(--line); }
+    .reasoning strong { display: block; margin-bottom: 5px; font-size: 11px; }
+    .reasoning span { color: var(--muted); font-size: 11px; line-height: 1.55; }
+
+    .decision {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 28px;
+      align-items: center;
+      margin-top: 30px;
+      padding: 26px 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+    .decision h2 { margin: 0; font-size: 20px; }
+    .decision p { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .decision__actions { display: flex; gap: 8px; }
+    .decision button { min-height: 38px; padding: 0 15px; border: 1px solid var(--line); border-radius: 7px; color: var(--ink); background: var(--surface); cursor: pointer; }
+    .decision button:hover { border-color: #b6b7af; background: #f7f7f3; }
+    .decision button[aria-pressed="true"] { border-color: #c78a11; color: #352600; background: var(--accent); font-weight: 700; }
+    .decision-result { min-height: 20px; margin-top: 10px; color: #775300; font-size: 12px; font-weight: 700; }
+
+    @media (max-width: 980px) {
+      .masthead { grid-template-columns: 1fr; }
+      .brief { border-left: 0; border-top: 1px solid var(--line); padding: 22px 0 0; }
+      .candidate { grid-template-columns: 1fr; }
+      .candidate__identity { border-right: 0; border-bottom: 1px solid var(--line); }
+      .hero-mark { width: 148px; height: 148px; }
+      .context-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      .page { width: min(100% - 24px, 1280px); padding-top: 14px; }
+      .masthead, .candidate__identity, .candidate__content, .decision { padding: 22px; }
+      .section-head, .candidate__top, .decision { align-items: flex-start; flex-direction: column; }
+      .section-head p { text-align: left; }
+      .scale-test { gap: 13px; overflow-x: auto; }
+      .reasoning { grid-template-columns: 1fr; }
+      .reasoning div + div { padding-left: 0; border-left: 0; }
+      .decision { display: flex; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="mark-a" viewBox="0 0 64 64">
+        <rect class="bg" x="4" y="4" width="56" height="56" rx="16" fill="#282720"/>
+        <path class="fg" d="M17 42.5 27.5 32l8.5 7.5L48 24" fill="none" stroke="#f0b43b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="dot" cx="48" cy="24" r="5.5" fill="#fff1c9"/>
+      </symbol>
+      <symbol id="mark-b" viewBox="0 0 64 64">
+        <rect class="bg" x="4" y="4" width="56" height="56" rx="15" fill="#ebaa24"/>
+        <path class="fg" d="M17 18v28h12M28 46V20l8 12 9-12v26" fill="none" stroke="#282720" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="dot" cx="45" cy="19.5" r="3.5" fill="#fff5d8"/>
+      </symbol>
+      <symbol id="mark-c" viewBox="0 0 64 64">
+        <rect class="bg" x="4" y="4" width="56" height="56" rx="16" fill="#e4eee5"/>
+        <path class="fg" d="M46.5 18.5A20 20 0 1 0 51 39" fill="none" stroke="#31543a" stroke-width="6" stroke-linecap="round"/>
+        <path class="fg" d="M29 40V30h9V20" fill="none" stroke="#ebaa24" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="dot" cx="38" cy="20" r="4" fill="#b75a44"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <main class="page">
+    <header class="masthead">
+      <div>
+        <p class="kicker">LetsMakeMoney · Brand Mark Study 02</p>
+        <h1>让收入的变化，成为一眼能认出的标记。</h1>
+        <p class="lede">这次不再把现成 UI 图标当作 Logo。三套方案均由独立几何构成，并以 Windows 标题栏、任务栏和 16px 托盘为实际约束。品牌气质保持温暖、克制、可信，不重新引入桌宠身份。</p>
+      </div>
+      <aside class="brief">
+        <div class="brief__label">设计约束</div>
+        <ul>
+          <li>16px 仍保留清楚轮廓</li>
+          <li>深浅背景均有单色版本</li>
+          <li>不依赖文字与人民币符号</li>
+          <li>可延展为 ICO、托盘与产品图标</li>
+        </ul>
+      </aside>
+    </header>
+
+    <div class="section-head">
+      <h2>三个品牌方向</h2>
+      <p>先看 16px 和 32px，再看大图。真正合格的应用标识，必须在 Windows 小尺寸场景中先成立。</p>
+    </div>
+
+    <section aria-label="Logo 候选方向">
+      <article class="candidate" data-kind="a">
+        <div class="candidate__identity">
+          <span class="candidate__index">A / EARNED PATH</span>
+          <div class="hero-mark"><svg role="img" aria-label="收入轨迹候选图标"><use href="#mark-a"/></svg></div>
+          <div class="candidate__name"><h3>收入轨迹</h3><p>把时间推进转化为一条持续上升、但不夸张承诺的路径。</p></div>
+        </div>
+        <div class="candidate__content">
+          <div class="candidate__top">
+            <div><h4>最直接的产品语义</h4><p>深色轮廓承载可靠感，金币黄只用于“正在发生”的路径。末端节点代表此刻，不使用货币符号，未来扩展到时薪、项目收入时仍然成立。</p></div>
+          </div>
+          <div class="scale-test" aria-label="收入轨迹尺寸测试">
+            <div class="scale"><svg style="--size:64px"><use href="#mark-a"/></svg><span>64</span></div>
+            <div class="scale"><svg style="--size:32px"><use href="#mark-a"/></svg><span>32</span></div>
+            <div class="scale"><svg style="--size:24px"><use href="#mark-a"/></svg><span>24</span></div>
+            <div class="scale"><svg style="--size:20px"><use href="#mark-a"/></svg><span>20</span></div>
+            <div class="scale"><svg style="--size:16px"><use href="#mark-a"/></svg><span>16</span></div>
+          </div>
+          <div>
+            <div class="context-grid">
+              <div class="mock"><div class="mock__label">WINDOW TITLE</div><div class="titlebar"><svg><use href="#mark-a"/></svg><strong>LetsMakeMoney</strong></div></div>
+              <div class="mock"><div class="mock__label">TASKBAR · 32PX</div><div class="taskbar"><svg><use href="#mark-a"/></svg><span>LetsMakeMoney</span></div></div>
+              <div class="mock"><div class="mock__label">TRAY · MONO</div><div class="tray-pair"><div><svg class="mono-light"><path class="fg" d="M4 15 8 11l3 3 6-7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle class="dot" cx="17" cy="7" r="2"/></svg></div><div><svg class="mono-dark"><path class="fg" d="M4 15 8 11l3 3 6-7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle class="dot" cx="17" cy="7" r="2"/></svg></div></div></div>
+            </div>
+            <div class="reasoning"><div><strong>辨识度</strong><span>强轮廓，远看像上升路径。</span></div><div><strong>气质</strong><span>稳健、成熟，稍偏效率工具。</span></div><div><strong>风险</strong><span>图表语义较常见，专属性中等。</span></div></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="candidate" data-kind="b">
+        <div class="candidate__identity">
+          <span class="candidate__index">B / LMM MONOGRAM</span>
+          <div class="hero-mark"><svg role="img" aria-label="LMM 字母结构候选图标"><use href="#mark-b"/></svg></div>
+          <div class="candidate__name"><h3>LMM 折线字标</h3><p>用一笔式 L 与双峰 M 构成专属缩写，末端光点代表今天的进度。</p></div>
+        </div>
+        <div class="candidate__content">
+          <div class="candidate__top">
+            <div><h4>最像长期品牌资产</h4><p>不直接画钱、时钟或图表，而是把 LetsMakeMoney 的缩写压缩成自有几何。它在未来增加更多收入模式后仍可沿用，也最不容易与常见财务工具撞形。</p></div>
+            <span class="recommend">首选方向</span>
+          </div>
+          <div class="scale-test" aria-label="LMM 字母结构尺寸测试">
+            <div class="scale"><svg style="--size:64px"><use href="#mark-b"/></svg><span>64</span></div>
+            <div class="scale"><svg style="--size:32px"><use href="#mark-b"/></svg><span>32</span></div>
+            <div class="scale"><svg style="--size:24px"><use href="#mark-b"/></svg><span>24</span></div>
+            <div class="scale"><svg style="--size:20px"><use href="#mark-b"/></svg><span>20</span></div>
+            <div class="scale"><svg style="--size:16px"><use href="#mark-b"/></svg><span>16</span></div>
+          </div>
+          <div>
+            <div class="context-grid">
+              <div class="mock"><div class="mock__label">WINDOW TITLE</div><div class="titlebar"><svg><use href="#mark-b"/></svg><strong>LetsMakeMoney</strong></div></div>
+              <div class="mock"><div class="mock__label">TASKBAR · 32PX</div><div class="taskbar"><svg><use href="#mark-b"/></svg><span>LetsMakeMoney</span></div></div>
+              <div class="mock"><div class="mock__label">TRAY · MONO</div><div class="tray-pair"><div><svg class="mono-light" viewBox="0 0 24 24"><path class="fg" d="M4.5 4.5v15h5M9 19V6l4 6 4-6v13" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><svg class="mono-dark" viewBox="0 0 24 24"><path class="fg" d="M4.5 4.5v15h5M9 19V6l4 6 4-6v13" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+            </div>
+            <div class="reasoning"><div><strong>辨识度</strong><span>具备自有字形，品牌专属性最高。</span></div><div><strong>气质</strong><span>温暖、果断，兼顾工具与消费产品。</span></div><div><strong>风险</strong><span>16px 的第二个 M 会抽象成双峰。</span></div></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="candidate" data-kind="c">
+        <div class="candidate__identity">
+          <span class="candidate__index">C / TIME LEDGER</span>
+          <div class="hero-mark"><svg role="img" aria-label="时间累积候选图标"><use href="#mark-c"/></svg></div>
+          <div class="candidate__name"><h3>时间累积</h3><p>缺口圆环是时间，内部阶梯是收入在工作日中的逐步积累。</p></div>
+        </div>
+        <div class="candidate__content">
+          <div class="candidate__top">
+            <div><h4>最完整的产品故事</h4><p>把“时间”和“收入进度”放进同一结构，绿色强调健康节奏，橙色保留收益感。适合强调产品逻辑，但细节比前两套更多。</p></div>
+          </div>
+          <div class="scale-test" aria-label="时间累积尺寸测试">
+            <div class="scale"><svg style="--size:64px"><use href="#mark-c"/></svg><span>64</span></div>
+            <div class="scale"><svg style="--size:32px"><use href="#mark-c"/></svg><span>32</span></div>
+            <div class="scale"><svg style="--size:24px"><use href="#mark-c"/></svg><span>24</span></div>
+            <div class="scale"><svg style="--size:20px"><use href="#mark-c"/></svg><span>20</span></div>
+            <div class="scale"><svg style="--size:16px"><use href="#mark-c"/></svg><span>16</span></div>
+          </div>
+          <div>
+            <div class="context-grid">
+              <div class="mock"><div class="mock__label">WINDOW TITLE</div><div class="titlebar"><svg><use href="#mark-c"/></svg><strong>LetsMakeMoney</strong></div></div>
+              <div class="mock"><div class="mock__label">TASKBAR · 32PX</div><div class="taskbar"><svg><use href="#mark-c"/></svg><span>LetsMakeMoney</span></div></div>
+              <div class="mock"><div class="mock__label">TRAY · MONO</div><div class="tray-pair"><div><svg class="mono-light" viewBox="0 0 24 24"><path class="fg" d="M17 5a8 8 0 1 0 2 10M9 17v-5h4V7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><svg class="mono-dark" viewBox="0 0 24 24"><path class="fg" d="M17 5a8 8 0 1 0 2 10M9 17v-5h4V7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+            </div>
+            <div class="reasoning"><div><strong>辨识度</strong><span>圆环与阶梯结合，概念最完整。</span></div><div><strong>气质</strong><span>平静、理性，更强调时间管理。</span></div><div><strong>风险</strong><span>16px 细节最多，需要单独微调。</span></div></div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="decision">
+      <div>
+        <h2>设计建议：优先推进 B</h2>
+        <p>B 不是现成图标的组合，而是 LetsMakeMoney 独有的字母结构；A 可作为更稳妥的保守方向，C 保留为产品叙事方向。确认后才会制作最终几何、完整 ICO 尺寸组和标题栏/托盘接入稿。</p>
+        <div class="decision-result" id="decision-result" aria-live="polite"></div>
+      </div>
+      <div class="decision__actions" aria-label="选择候选方向">
+        <button type="button" data-choice="A">选择 A</button>
+        <button type="button" data-choice="B">选择 B</button>
+        <button type="button" data-choice="C">选择 C</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const result = document.querySelector('#decision-result');
+    const choiceButtons = [...document.querySelectorAll('[data-choice]')];
+    for (const button of choiceButtons) {
+      button.addEventListener('click', () => {
+        for (const current of choiceButtons) current.setAttribute('aria-pressed', String(current === button));
+        result.textContent = `已在本页选择方案 ${button.dataset.choice}，请将该选择告诉 Codex 后再进入最终图标制作。`;
+      });
+    }
+  </script>
+</body>
+</html>

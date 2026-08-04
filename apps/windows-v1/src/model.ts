@@ -1,16 +1,87 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { defaultConfig, type AppConfig } from "./configModel";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import {
+  defaultConfig,
+  type AppConfig,
+  type DateOverrideKind,
+} from "./configModel";
+import {
+  classifyCalendarLoadFailure,
+  createEstimatedCoverage,
+  type CalendarCoverage,
+  type CalendarSource,
+} from "./calendarCoverage";
+import {
+  createCalendarState,
+  reduceCalendarState,
+  type CalendarLoadStatus,
+} from "./calendarState";
+import {
+  calculateLocalTick,
+  classifyTimeEnvironmentChange,
+  createTimeEnvironmentSample,
+  needsAuthoritativeCorrection,
+  shouldRetryInitialSync,
+  syncFailureDisposition,
+  type TimeEnvironmentSample,
+  type TickAuthority,
+} from "./authoritativeSync";
+import {
+  createDashboardLifecycle,
+  shouldApplyDashboardRequest,
+  transitionDashboardLifecycle,
+  type DashboardLifecycleEffect,
+  type DashboardLifecycleEvent,
+} from "./dashboardLifecycle";
+import {
+  applyDashboardSyncFailure,
+  createBrowserDashboardProjection,
+  createTauriDashboardProjection,
+  type DashboardState,
+  type WorkPhase,
+} from "./dashboardProjection";
+import type { BoundaryKind } from "./presentation";
+import {
+  formatLocalDate as localDateKey,
+  monthKey,
+  systemTime,
+} from "./runtime/timeService";
+import { createDeferredDisposer } from "./runtime/appRuntime";
+import { configurationService } from "./services/configurationService";
+import {
+  dashboardService,
+  type DateOverrideSaveResult,
+} from "./services/dashboardService";
+import { supportService } from "./services/supportService";
 
-export type DashboardState = "loading" | "ready" | "setup" | "error";
-export type WorkPhase = "working" | "lunch" | "before_work" | "after_work" | "rest_day";
+export type { DashboardState, WorkPhase } from "./dashboardProjection";
 export type CalendarDayKind = "workday" | "rest_day";
 
 export interface CalendarDaySnapshot {
   date: string;
   kind: CalendarDayKind;
   source: string;
+  automatic_kind: CalendarDayKind;
+  automatic_source: string;
+  override_kind: DateOverrideKind | null;
 }
+
+interface CalendarPayload {
+  statutory_holidays: string[];
+  adjusted_workdays: string[];
+  date_overrides: AppConfig["date_overrides"];
+}
+
+interface CalendarDatasetResponse {
+  year: number;
+  dataset_version: string | null;
+  source: CalendarSource | null;
+  coverage: CalendarCoverage;
+  calendar: Omit<CalendarPayload, "date_overrides"> & {
+    date_overrides: AppConfig["date_overrides"];
+  };
+}
+
+const calendarDatasetCache = new Map<number, Promise<CalendarDatasetResponse>>();
 
 export interface DashboardSnapshot {
   state: DashboardState;
@@ -24,16 +95,43 @@ export interface DashboardSnapshot {
   completedSeconds: number;
   remainingSeconds: number;
   monthTotal: number;
+  expectedMonthlyPay: number;
   workdays: number;
+  salarySlotCount: number;
+  syncState: "synced" | "syncing" | "stale";
+  algorithmVersion: string;
   effectiveSeconds: number;
+  nextBoundarySeconds: number | null;
+  nextBoundaryKind: BoundaryKind;
   workStartTime: string;
   lunchStartTime: string;
   lunchEndTime: string;
   workEndTime: string;
   nextWorkDate: string | null;
   calendarDays: CalendarDaySnapshot[];
+  calendarCoverage: CalendarCoverage;
   message?: string;
   errorCode?: string;
+}
+
+type SalarySlotKind = "workday" | "paid_rest" | "unpaid_rest";
+
+interface SalarySlot {
+  date: string;
+  index: number;
+  kind: SalarySlotKind;
+  target_minor: number;
+  payable_minor: number;
+}
+
+interface MonthSalaryResult {
+  workdays: number;
+  salary_slot_count: number;
+  daily_salary_minor: number;
+  hourly_salary_minor: number;
+  payable_salary_minor: number;
+  working_saturdays: string[];
+  salary_slots: SalarySlot[];
 }
 
 export type WorkdayPreviewState = "loading" | "ready" | "needs_week_type" | "error";
@@ -43,16 +141,20 @@ export interface WorkdayPreview {
   workdays: number | null;
 }
 
-function isTauri() {
-  return "__TAURI_INTERNALS__" in window;
+export function recordSemanticEvent(event: string, detail: string) {
+  if (!dashboardService.isDesktop) return;
+  void supportService.record(event, detail).catch(() => {
+    // Logging must never replace or interrupt the user-visible result.
+  });
 }
 
-function localDateKey(date: Date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-}
-
-function monthKey(date: Date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+function currentTimeEnvironmentSample() {
+  return createTimeEnvironmentSample(
+    systemTime.wallClockMs(),
+    systemTime.monotonicMs(),
+    systemTime.timezoneId(),
+    systemTime.timezoneOffsetMinutes(),
+  );
 }
 
 function mondaySerial(date: Date) {
@@ -97,11 +199,52 @@ function toSchedule(config: AppConfig) {
   };
 }
 
-function toCalendar(config: AppConfig) {
+function withCalendarOverrides(
+  calendar: Omit<CalendarPayload, "date_overrides">,
+  config: AppConfig,
+): CalendarPayload {
   return {
-    statutory_holidays: [] as string[],
-    adjusted_workdays: [] as string[],
+    statutory_holidays: calendar.statutory_holidays,
+    adjusted_workdays: calendar.adjusted_workdays,
     date_overrides: config.date_overrides,
+  };
+}
+
+async function loadCalendarForYear(year: number, config: AppConfig) {
+  let pending = calendarDatasetCache.get(year);
+  if (!pending) {
+    pending = dashboardService.loadCalendarYear<CalendarDatasetResponse>(year);
+    calendarDatasetCache.set(year, pending);
+  }
+  let dataset: CalendarDatasetResponse;
+  try {
+    dataset = await pending;
+  } catch (error) {
+    calendarDatasetCache.delete(year);
+    const errorCode = calendarErrorCode(error);
+    if (classifyCalendarLoadFailure(errorCode, year) === "unsupported") {
+      const coverage = createEstimatedCoverage(year, config.rest_mode);
+      return {
+        datasetVersion: null,
+        coverage,
+        calendar: withCalendarOverrides(
+          { statutory_holidays: [], adjusted_workdays: [] },
+          config,
+        ),
+      };
+    }
+    throw error;
+  }
+  const coverage = dataset.coverage.mode === "estimated"
+    ? {
+        ...dataset.coverage,
+        estimate_basis: config.rest_mode,
+      }
+    : dataset.coverage;
+  return {
+    datasetVersion: dataset.dataset_version,
+    coverage,
+    calendar: withCalendarOverrides(dataset.calendar, config),
   };
 }
 
@@ -124,18 +267,19 @@ export function useMonthWorkdayPreview(config: AppConfig): WorkdayPreview {
       setPreview({ state: "needs_week_type", workdays: null });
       return;
     }
-    const now = new Date();
-    if (!isTauri()) {
+    const now = systemTime.now();
+    if (!dashboardService.isDesktop) {
       setPreview({ state: "ready", workdays: fallbackWorkdays(config, now) });
       return;
     }
     let active = true;
     setPreview(current => ({ state: "loading", workdays: current.workdays }));
-    void invoke<{ workdays: number }>("calculate_month_salary", {
-      month: monthKey(now),
-      schedule: toSchedule(config),
-      calendar: toCalendar(config),
-    })
+    void loadCalendarForYear(now.getFullYear(), config)
+      .then(({ calendar }) => dashboardService.calculateMonth<{ workdays: number }>(
+        monthKey(now),
+        toSchedule(config),
+        calendar,
+      ))
       .then(result => {
         if (active) setPreview({ state: "ready", workdays: result.workdays });
       })
@@ -159,6 +303,9 @@ function fallbackCalendarDays(now: Date): CalendarDaySnapshot[] {
       date: localDateKey(date),
       kind: weekend ? "rest_day" : "workday",
       source: "rest_mode",
+      automatic_kind: weekend ? "rest_day" : "workday",
+      automatic_source: "rest_mode",
+      override_kind: null,
     };
   });
 }
@@ -189,150 +336,459 @@ function fallbackSnapshot(now: Date): DashboardSnapshot {
             : "after_work";
   const workState = {
     working: "工作中",
-    lunch: "午休中",
+    lunch: "休息中",
     before_work: "上班前",
     after_work: "已下班",
     rest_day: "休息日",
   }[phase];
   const nextWorkDate = calendarDays.find(day => day.date > ownerDate && day.kind === "workday")?.date ?? null;
   const priorWorkdays = calendarDays.filter(day => day.date < ownerDate && day.kind === "workday").length;
-  return {
-    state: "ready",
+  const workdays = calendarDays.filter(day => day.kind === "workday").length;
+  const [nextBoundarySeconds, nextBoundaryKind]: [number | null, BoundaryKind] = isRestDay
+    ? [null, null]
+    : phase === "before_work"
+      ? [Math.max(0, start - second), "work_start"]
+      : phase === "working" && second < lunchStart
+        ? [Math.max(0, lunchStart - second), "rest_start"]
+        : phase === "lunch"
+          ? [Math.max(0, lunchEnd - second), "work_resume"]
+          : phase === "working"
+            ? [Math.max(0, end - second), "work_end"]
+            : [null, null];
+  const projection = createBrowserDashboardProjection({
     phase,
-    workState,
     ownerDate,
     amount: isRestDay ? 0 : 500 * progress,
     dailySalary: 500,
     hourlySalary: 62.5,
-    progress: Math.round(progress * 100),
+    progressPercent: progress * 100,
     completedSeconds: completed,
-    remainingSeconds: isRestDay ? 0 : Math.max(0, 8 * 3600 - completed),
-    monthTotal: priorWorkdays * 500 + (isRestDay ? 0 : 500 * progress),
-    workdays: calendarDays.filter(day => day.kind === "workday").length,
     effectiveSeconds: 8 * 3600,
+    monthTotal: priorWorkdays * 500 + (isRestDay ? 0 : 500 * progress),
+    expectedMonthlyPay: 10_000,
+    workdays,
+    salarySlotCount: workdays,
+    algorithmVersion: "browser-preview",
+  });
+  return {
+    ...projection,
+    workState,
+    nextBoundarySeconds,
+    nextBoundaryKind,
     workStartTime: "08:00",
     lunchStartTime: "12:00",
     lunchEndTime: "14:00",
     workEndTime: "18:00",
     nextWorkDate,
     calendarDays,
+    calendarCoverage: createEstimatedCoverage(now.getFullYear(), "double"),
   };
 }
 
 export function useDashboard() {
   const [snapshot, setSnapshot] = useState<DashboardSnapshot>({
-    ...fallbackSnapshot(new Date()),
+    ...fallbackSnapshot(systemTime.now()),
     state: "loading",
   });
   const lastErrorCode = useRef<string | null>(null);
+  const requestSequence = useRef(0);
+  const authority = useRef<TickAuthority | null>(null);
+  const boundarySyncPending = useRef(false);
+  const consecutiveSyncFailures = useRef(0);
+  const lastOwnerDate = useRef<string | null>(null);
+  const clockSample = useRef<TimeEnvironmentSample>(currentTimeEnvironmentSample());
+  const initialRetryTimer = useRef<number | null>(null);
+  const localTimer = useRef<number | null>(null);
+  const authorityTimer = useRef<number | null>(null);
+  const lifecycle = useRef(createDashboardLifecycle());
+  const timeRecoveryInFlight = useRef(false);
 
-  const refresh = useCallback(async () => {
-    const now = new Date();
-    if (!isTauri()) {
+  const refreshAuthority = useCallback(async function refreshAuthorityRequest(reason: string) {
+    if (!lifecycle.current.visible || !lifecycle.current.mounted) {
+      return;
+    }
+    const sequence = ++requestSequence.current;
+    const requestGeneration = lifecycle.current.generation;
+    const now = systemTime.now();
+    if (!dashboardService.isDesktop) {
       setSnapshot(fallbackSnapshot(now));
       return;
     }
+    setSnapshot(current => current.state === "ready"
+      ? {
+          ...current,
+          syncState: current.syncState === "stale" ? "stale" : "syncing",
+        }
+      : current);
+    recordSemanticEvent(
+      "earnings.authoritative_sync.requested",
+      `sequence=${sequence} reason=${reason}`,
+    );
     try {
-      const config = await invoke<AppConfig>("read_configuration");
+      const config = await configurationService.read(defaultConfig);
       const schedule = toSchedule(config);
-      const calendar = toCalendar(config);
-      const ownerDate = localDateKey(now);
-      const currentMonth = monthKey(now);
-      const month = await invoke<{
-        workdays: number;
-        daily_salary_minor: number;
-        hourly_salary_minor: number;
-      }>("calculate_month_salary", {
-        month: currentMonth,
+      const nowDate = localDateKey(now);
+      const nowTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+      const ownerDate = await dashboardService.resolveOwnerDate(nowDate, nowTime, schedule);
+      if (ownerDate !== lastOwnerDate.current) {
+        recordSemanticEvent(
+          "schedule.owner_date.resolved",
+          `owner_date=${ownerDate} overnight=${schedule.work_end_time <= schedule.work_start_time}`,
+        );
+        lastOwnerDate.current = ownerDate;
+      }
+      const ownerYear = Number(ownerDate.slice(0, 4));
+      const currentMonth = ownerDate.slice(0, 7);
+      const { calendar, coverage } = await loadCalendarForYear(ownerYear, config);
+      const month = await dashboardService.calculateMonth<MonthSalaryResult>(
+        currentMonth,
         schedule,
         calendar,
-      });
-      const calendarDays = await invoke<CalendarDaySnapshot[]>("resolve_calendar_month", {
-        month: currentMonth,
+      );
+      const calendarDays = await dashboardService.resolveMonthDays<CalendarDaySnapshot[]>(
+        currentMonth,
         schedule,
         calendar,
-      });
-      const today = await invoke<{
+      );
+      const today = await dashboardService.calculateToday<{
         state: string;
         schedule_owner_date: string;
+        algorithm_version: string;
+        monthly_salary_minor: number;
         effective_work_seconds: number;
         completed_work_seconds: number;
         earned_minor: number;
+        daily_target_minor: number;
+        hourly_salary_minor: number;
+        month_earned_minor: number;
+        payable_salary_minor: number;
+        salary_slot_index: number | null;
+        salary_slot_count: number;
+        next_boundary_seconds: number | null;
+        next_boundary_kind: BoundaryKind;
         progress: number;
-      }>("calculate_today_income", {
-        request: {
-          owner_date: ownerDate,
-          now_date: ownerDate,
-          now_time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`,
-          schedule,
-          daily_salary_minor: month.daily_salary_minor,
-          calendar,
-        },
+      }>({
+        ownerDate,
+        nowDate,
+        nowTime,
+        schedule,
+        monthSalary: month,
+        calendar,
       });
       const phase = today.state as WorkPhase;
-      const nextWorkDate = phase === "rest_day"
-        ? await invoke<string | null>("resolve_next_workday", {
-            afterDate: ownerDate,
-            schedule,
-            calendar,
-          })
+      const nextWorkDate = ["rest_day", "paid_rest", "unpaid_rest"].includes(phase)
+        ? await dashboardService.resolveNextWorkday(ownerDate, schedule, calendar)
         : null;
-      const priorWorkdays = calendarDays.filter(day => day.date < ownerDate && day.kind === "workday").length;
-      setSnapshot({
-        state: "ready",
+      if (!shouldApplyDashboardRequest(
+        lifecycle.current,
+        requestGeneration,
+        requestSequence.current,
+        sequence,
+      )) {
+        recordSemanticEvent(
+          "earnings.authoritative_sync.ignored",
+          `sequence=${sequence} generation=${requestGeneration} current_generation=${lifecycle.current.generation}`,
+        );
+        return;
+      }
+      const projection = createTauriDashboardProjection({
         phase,
+        ownerDate: today.schedule_owner_date,
+        earnedMinor: today.earned_minor,
+        dailyTargetMinor: today.daily_target_minor,
+        hourlySalaryMinor: today.hourly_salary_minor,
+        progressRatio: today.progress,
+        completedSeconds: today.completed_work_seconds,
+        effectiveSeconds: today.effective_work_seconds,
+        monthEarnedMinor: today.month_earned_minor,
+        payableSalaryMinor: today.payable_salary_minor,
+        workdays: month.workdays,
+        salarySlotCount: month.salary_slot_count,
+        algorithmVersion: today.algorithm_version,
+      });
+      const nextSnapshot: DashboardSnapshot = {
+        ...projection,
         workState: {
           working: "工作中",
-          lunch: "午休中",
+          lunch: "休息中",
           before_work: "上班前",
           after_work: "已下班",
           rest_day: "休息日",
+          paid_rest: "带薪休息",
+          unpaid_rest: "不带薪休息",
         }[today.state] ?? today.state,
-        ownerDate: today.schedule_owner_date,
-        amount: today.earned_minor / 100,
-        dailySalary: month.daily_salary_minor / 100,
-        hourlySalary: month.hourly_salary_minor / 100,
-        progress: Math.round(today.progress * 100),
-        completedSeconds: today.completed_work_seconds,
-        remainingSeconds: phase === "rest_day"
-          ? 0
-          : Math.max(0, today.effective_work_seconds - today.completed_work_seconds),
-        monthTotal: priorWorkdays * (month.daily_salary_minor / 100) + today.earned_minor / 100,
-        workdays: month.workdays,
-        effectiveSeconds: today.effective_work_seconds,
+        nextBoundarySeconds: today.next_boundary_seconds,
+        nextBoundaryKind: today.next_boundary_kind,
         workStartTime: config.work_start_time,
         lunchStartTime: config.lunch_start_time,
         lunchEndTime: config.lunch_end_time,
         workEndTime: config.work_end_time,
         nextWorkDate,
         calendarDays,
+        calendarCoverage: coverage,
+      };
+      const nextAuthority: TickAuthority = {
+        sequence,
+        capturedAtMs: Math.floor(now.getTime() / 1000) * 1000,
+        phase,
+        ownerDate: today.schedule_owner_date,
+        monthlySalaryMinor: today.monthly_salary_minor,
+        salarySlotIndex: today.salary_slot_index,
+        salarySlotCount: today.salary_slot_count,
+        effectiveSeconds: today.effective_work_seconds,
+        completedSeconds: today.completed_work_seconds,
+        todayMinor: today.earned_minor,
+        monthEarnedMinor: today.month_earned_minor,
+        nextBoundarySeconds: today.next_boundary_seconds,
+      };
+      authority.current = nextAuthority;
+      boundarySyncPending.current = false;
+      setSnapshot(current => {
+        if (current.state === "ready") {
+          const correctionReasons = [
+            needsAuthoritativeCorrection(
+              Math.round(current.amount * 100),
+              today.earned_minor,
+            ) ? "amount" : null,
+            current.ownerDate !== nextSnapshot.ownerDate ? "owner_date" : null,
+            current.phase !== nextSnapshot.phase ? "phase" : null,
+          ].filter(Boolean);
+          if (correctionReasons.length > 0) {
+            recordSemanticEvent(
+              "earnings.authoritative_sync.drift_corrected",
+              `sequence=${sequence} reasons=${correctionReasons.join(",")} drift_minor=${Math.abs(Math.round(current.amount * 100) - today.earned_minor)}`,
+            );
+          }
+        }
+        return nextSnapshot;
       });
+      recordSemanticEvent(
+        "earnings.authoritative_sync.completed",
+        `sequence=${sequence} owner_date=${today.schedule_owner_date} phase=${today.state}`,
+      );
+      if (initialRetryTimer.current !== null) {
+        window.clearTimeout(initialRetryTimer.current);
+        initialRetryTimer.current = null;
+      }
       lastErrorCode.current = null;
+      consecutiveSyncFailures.current = 0;
     } catch (error) {
+      if (!shouldApplyDashboardRequest(
+        lifecycle.current,
+        requestGeneration,
+        requestSequence.current,
+        sequence,
+      )) return;
       const { code, message } = describeDashboardError(error);
+      consecutiveSyncFailures.current += 1;
+      if (
+        lifecycle.current.visible
+        && shouldRetryInitialSync(
+          authority.current !== null,
+          code,
+          consecutiveSyncFailures.current,
+        )
+      ) {
+        recordSemanticEvent(
+          "earnings.authoritative_sync.retry_scheduled",
+          `sequence=${sequence} reason=${code} attempt=${consecutiveSyncFailures.current}`,
+        );
+        if (initialRetryTimer.current !== null) {
+          window.clearTimeout(initialRetryTimer.current);
+        }
+        initialRetryTimer.current = window.setTimeout(() => {
+          initialRetryTimer.current = null;
+          void refreshAuthorityRequest("startup_retry");
+        }, 500);
+        return;
+      }
       if (lastErrorCode.current !== code) {
         lastErrorCode.current = code;
-        void invoke("record_semantic_event", {
-          event: "salary.calculate.invalid",
-          detail: `reason=${code}`,
-        }).catch(() => {
-          // Browser preview and a degraded native bridge intentionally have no logger.
-        });
+        recordSemanticEvent(
+          "earnings.authoritative_sync.failed",
+          `sequence=${sequence} reason=${code}`,
+        );
       }
-      setSnapshot(current => ({
-        ...current,
-        state: "error",
-        message,
-        errorCode: code,
-      }));
+      const blocked = syncFailureDisposition(
+        consecutiveSyncFailures.current,
+        boundarySyncPending.current,
+      ) === "blocked";
+      setSnapshot(current => {
+        const crossedBoundaryWithoutAuthority = current.state === "ready" && blocked;
+        if (crossedBoundaryWithoutAuthority) {
+          recordSemanticEvent(
+            "earnings.local_tick.paused",
+            `owner_date=${current.ownerDate} reason=boundary_sync_failed`,
+          );
+        }
+        return applyDashboardSyncFailure(current, { code, message, blocked });
+      });
     }
   }, []);
 
   useEffect(() => {
-    void refresh();
-    const timer = window.setInterval(refresh, 1000);
-    return () => window.clearInterval(timer);
-  }, [refresh]);
+    const stopTimers = () => {
+      if (localTimer.current !== null) {
+        window.clearInterval(localTimer.current);
+        localTimer.current = null;
+      }
+      if (authorityTimer.current !== null) {
+        window.clearInterval(authorityTimer.current);
+        authorityTimer.current = null;
+      }
+      if (initialRetryTimer.current !== null) {
+        window.clearTimeout(initialRetryTimer.current);
+        initialRetryTimer.current = null;
+      }
+      recordSemanticEvent("dashboard.lifecycle.paused", "timers=local,authority,retry");
+    };
+
+    const requestTimeRecovery = (
+      change: Exclude<ReturnType<typeof classifyTimeEnvironmentChange>, "none">,
+    ) => {
+      if (timeRecoveryInFlight.current) return;
+      timeRecoveryInFlight.current = true;
+      const event = {
+        wall_clock: "schedule.wall_clock_changed",
+        timezone: "schedule.timezone_changed",
+        sleep_resume: "schedule.sleep_resumed",
+      }[change];
+      recordSemanticEvent(event, "action=authoritative_sync");
+      void refreshAuthority(change).finally(() => {
+        timeRecoveryInFlight.current = false;
+      });
+    };
+
+    const detectTimeEnvironmentChange = () => {
+      const next = currentTimeEnvironmentSample();
+      const change = classifyTimeEnvironmentChange(clockSample.current, next);
+      clockSample.current = next;
+      if (change !== "none") {
+        requestTimeRecovery(change);
+        return true;
+      }
+      return false;
+    };
+
+    const runLocalTick = () => {
+      if (!lifecycle.current.visible || detectTimeEnvironmentChange()) return;
+      const currentAuthority = authority.current;
+      if (!currentAuthority) return;
+      const wallNow = systemTime.wallClockMs();
+      const tick = calculateLocalTick(currentAuthority, wallNow);
+      setSnapshot(current => {
+        if (
+          current.state !== "ready"
+          || current.ownerDate !== currentAuthority.ownerDate
+          || current.phase !== currentAuthority.phase
+        ) {
+          return current;
+        }
+        return {
+          ...current,
+          amount: tick.todayMinor / 100,
+          monthTotal: tick.monthEarnedMinor / 100,
+          completedSeconds: tick.completedSeconds,
+          nextBoundarySeconds: tick.nextBoundarySeconds,
+          remainingSeconds: Math.max(0, current.effectiveSeconds - tick.completedSeconds),
+          progress: current.effectiveSeconds > 0
+            ? Math.round((tick.completedSeconds / current.effectiveSeconds) * 100)
+            : 0,
+        };
+      });
+      if (tick.reachedBoundary && !boundarySyncPending.current) {
+        boundarySyncPending.current = true;
+        recordSemanticEvent(
+          "earnings.boundary.recalculated",
+          `owner_date=${currentAuthority.ownerDate} phase=${currentAuthority.phase}`,
+        );
+        void refreshAuthority("business_boundary");
+      }
+    };
+
+    const startTimers = () => {
+      if (localTimer.current === null) {
+        localTimer.current = window.setInterval(runLocalTick, 1000);
+      }
+      if (authorityTimer.current === null) {
+        authorityTimer.current = window.setInterval(() => {
+          if (lifecycle.current.visible) {
+            void refreshAuthority("interval_30s");
+          }
+        }, 30_000);
+      }
+      recordSemanticEvent("dashboard.lifecycle.resumed", "timers=local,authority");
+    };
+
+    const applyEffects = (effects: DashboardLifecycleEffect[]) => {
+      for (const effect of effects) {
+        if (effect === "stop_timers") stopTimers();
+        if (effect === "reset_time_sample") {
+          clockSample.current = currentTimeEnvironmentSample();
+          timeRecoveryInFlight.current = false;
+        }
+        if (effect === "start_timers") startTimers();
+        if (effect === "sync_window_shown") void refreshAuthority("window_shown");
+        if (effect === "sync_configuration_updated") {
+          void refreshAuthority("configuration_updated");
+        }
+      }
+    };
+
+    const transitionLifecycle = (event: DashboardLifecycleEvent) => {
+      const transition = transitionDashboardLifecycle(lifecycle.current, event);
+      lifecycle.current = transition.state;
+      applyEffects(transition.effects);
+    };
+
+    const handleConfigurationUpdate = () => {
+      transitionLifecycle({ type: "configuration_updated" });
+    };
+    const handleFocus = () => {
+      if (lifecycle.current.visible && !detectTimeEnvironmentChange()) {
+        void refreshAuthority("window_focus");
+      }
+    };
+    const handleVisibility = () => {
+      transitionLifecycle({
+        type: document.visibilityState === "visible" ? "shown" : "hidden",
+      });
+    };
+    const handleWindowHidden = () => transitionLifecycle({ type: "hidden" });
+    const handleWindowShown = () => transitionLifecycle({ type: "shown" });
+
+    startTimers();
+    void refreshAuthority("startup");
+    window.addEventListener("lmm:configuration-updated", handleConfigurationUpdate);
+    window.addEventListener("lmm:window-hidden", handleWindowHidden);
+    window.addEventListener("lmm:window-shown", handleWindowShown);
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibility);
+    const configurationListener = createDeferredDisposer();
+    if (dashboardService.isDesktop) {
+      void dashboardService.listenConfigurationUpdated(handleConfigurationUpdate).then(unlisten => {
+        configurationListener.attach(unlisten);
+      }).catch(error => {
+        recordSemanticEvent(
+          "dashboard.configuration_listener.failed",
+          `error=${error instanceof Error ? error.message : String(error)}`,
+        );
+      });
+    }
+    return () => {
+      transitionLifecycle({ type: "unmounted" });
+      window.removeEventListener("lmm:configuration-updated", handleConfigurationUpdate);
+      window.removeEventListener("lmm:window-hidden", handleWindowHidden);
+      window.removeEventListener("lmm:window-shown", handleWindowShown);
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      configurationListener.dispose();
+    };
+  }, [refreshAuthority]);
+
+  const refresh = useCallback(() => {
+    void refreshAuthority("manual");
+  }, [refreshAuthority]);
 
   return { snapshot, refresh };
 }
@@ -340,6 +796,9 @@ export function useDashboard() {
 const DASHBOARD_ERROR_CODES = [
   "invalid_monthly_salary",
   "invalid_salary_denominator",
+  "salary.zero_slots",
+  "salary.owner_slot_missing",
+  "schedule.owner_date_mismatch",
   "invalid_work_hours",
   "invalid_time",
   "invalid_lunch_interval",
@@ -358,7 +817,7 @@ function describeDashboardError(error: unknown) {
     return { code, message: "大小周需要明确选择本周是大周还是小周。" };
   }
   if (code !== "calculation_unavailable") {
-    return { code, message: "请检查上班、下班和午休时间后重试。" };
+    return { code, message: "请检查上班、下班和休息时间后重试。" };
   }
   return { code, message: "请稍后重试；若仍失败，请检查设置。" };
 }
@@ -391,56 +850,163 @@ export function formatDuration(seconds: number) {
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(remaining).padStart(2, "0")}`;
 }
 
-export function useCalendarOverrides() {
-  const [overrides, setOverrides] = useState<Record<string, "work" | "rest">>({});
-  const setOverride = useCallback((date: string, kind: "work" | "rest" | "default") => {
-    setOverrides(current => {
-      const next = { ...current };
-      if (kind === "default") delete next[date];
-      else next[date] = kind;
-      return next;
-    });
-  }, []);
-  return useMemo(() => ({ overrides, setOverride }), [overrides, setOverride]);
-}
-
-export function useCalendarMonth(month: string, currentMonthDays: CalendarDaySnapshot[]) {
-  const [days, setDays] = useState<CalendarDaySnapshot[]>(currentMonthDays);
-  const [state, setState] = useState<"loading" | "ready" | "error">("ready");
+export function useCalendarMonth(
+  month: string,
+  currentMonthDays: CalendarDaySnapshot[],
+  currentCoverage: CalendarCoverage,
+) {
+  const initialMonth = currentMonthDays[0]?.date.slice(0, 7);
+  const lastValidMonth = useRef(initialMonth);
+  const [calendarState, dispatch] = useReducer(
+    reduceCalendarState,
+    createCalendarState(
+      initialMonth
+        ? {
+            month: initialMonth,
+            days: currentMonthDays,
+            datasetVersion: currentCoverage.dataset_version,
+            coverage: currentCoverage,
+          }
+        : undefined,
+    ),
+  );
+  const requestId = useRef(0);
+  const [retryRevision, setRetryRevision] = useState(0);
 
   useEffect(() => {
-    let active = true;
+    const activeRequestId = requestId.current + 1;
+    requestId.current = activeRequestId;
+    dispatch({ type: "requested", requestId: activeRequestId, targetMonth: month });
     const load = async () => {
-      setState("loading");
       try {
-        if (!isTauri()) {
+        if (!dashboardService.isDesktop) {
           const [year, monthNumber] = month.split("-").map(Number);
           const result = fallbackCalendarDays(new Date(year, monthNumber - 1, 1));
-          if (active) {
-            setDays(result);
-            setState("ready");
-          }
+          if (requestId.current !== activeRequestId) return;
+          lastValidMonth.current = month;
+          dispatch({
+            type: "resolved",
+            requestId: activeRequestId,
+            targetMonth: month,
+            data: {
+              month,
+              days: result,
+              datasetVersion: null,
+              coverage: createEstimatedCoverage(year, "double"),
+            },
+          });
           return;
         }
-        const config = await invoke<AppConfig>("read_configuration");
-        const result = await invoke<CalendarDaySnapshot[]>("resolve_calendar_month", {
+        const config = await configurationService.read(defaultConfig);
+        const year = Number(month.slice(0, 4));
+        const { calendar, datasetVersion, coverage } = await loadCalendarForYear(year, config);
+        const result = await dashboardService.resolveMonthDays<CalendarDaySnapshot[]>(
           month,
-          schedule: toSchedule(config),
-          calendar: toCalendar(config),
-        });
-        if (active) {
-          setDays(result);
-          setState("ready");
+          toSchedule(config),
+          calendar,
+        );
+        if (requestId.current !== activeRequestId) {
+          recordSemanticEvent(
+            "calendar.request.ignored",
+            `target_month=${month};reason=late_result`,
+          );
+          return;
         }
-      } catch {
-        if (active) setState("error");
+        lastValidMonth.current = month;
+        dispatch({
+          type: "resolved",
+          requestId: activeRequestId,
+          targetMonth: month,
+          data: { month, days: result, datasetVersion, coverage },
+        });
+      } catch (error) {
+        if (requestId.current !== activeRequestId) {
+          recordSemanticEvent(
+            "calendar.request.ignored",
+            `target_month=${month};reason=late_failure`,
+          );
+          return;
+        }
+        const errorCode = calendarErrorCode(error);
+        if (lastValidMonth.current) {
+          recordSemanticEvent(
+            "calendar.dataset.stale",
+            `target_month=${month};displayed_month=${lastValidMonth.current};reason=${errorCode}`,
+          );
+        }
+        dispatch({
+          type: "failed",
+          requestId: activeRequestId,
+          targetMonth: month,
+          errorCode,
+        });
       }
     };
     void load();
-    return () => {
-      active = false;
-    };
-  }, [month]);
+  }, [month, retryRevision]);
 
-  return { days, state };
+  const canDisplayData =
+    calendarState.status === "ready"
+    || calendarState.status === "empty"
+    || calendarState.status === "stale";
+  return {
+    days: canDisplayData ? calendarState.data?.days ?? [] : [],
+    state: calendarState.status as CalendarLoadStatus,
+    dataMonth: canDisplayData ? calendarState.data?.month : undefined,
+    datasetVersion: canDisplayData ? calendarState.data?.datasetVersion : undefined,
+    coverage: canDisplayData ? calendarState.data?.coverage : undefined,
+    errorCode: calendarState.errorCode,
+    retry: () => setRetryRevision(value => value + 1),
+  };
+}
+
+export async function saveDateOverride(
+  date: string,
+  kind: DateOverrideKind | null,
+): Promise<DateOverrideSaveResult> {
+  if (dashboardService.isDesktop) {
+    return dashboardService.saveDateOverride(date, kind);
+  }
+  const config: AppConfig = JSON.parse(
+    localStorage.getItem("lmm.config") ?? JSON.stringify(defaultConfig),
+  );
+  const next = {
+    ...config,
+    date_overrides: config.date_overrides
+      .filter(entry => entry.date !== date)
+      .concat(kind ? [{ date, kind, note: "" }] : [])
+      .sort((left, right) => left.date.localeCompare(right.date)),
+  };
+  if (JSON.stringify(config) === JSON.stringify(next)) {
+    return {
+      status: "unchanged",
+      message: "没有需要保存的更改",
+      draft_preserved: true,
+    };
+  }
+  localStorage.setItem("lmm.config", JSON.stringify(next));
+  window.dispatchEvent(new Event("lmm:configuration-updated"));
+  return {
+    status: "saved",
+    message: kind ? "日期调整已应用" : "已恢复自动判断",
+    draft_preserved: false,
+  };
+}
+
+function calendarErrorCode(error: unknown) {
+  const raw = error instanceof Error ? error.message : String(error);
+  const known = [
+    "calendar_year_unsupported:",
+    "calendar_manifest_invalid",
+    "calendar_hash_mismatch:",
+    "calendar_dataset_invalid:",
+    "calendar_dataset_missing:",
+    "calendar_source_invalid:",
+  ].find(code => raw.includes(code));
+  if (!known) return "calendar_load_failed";
+  if (known.endsWith(":")) {
+    const suffix = raw.slice(raw.indexOf(known) + known.length).match(/^\d{4}/)?.[0];
+    return `${known}${suffix ?? "unknown"}`;
+  }
+  return known;
 }

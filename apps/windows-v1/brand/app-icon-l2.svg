@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title description">
+  <title id="title">LetsMakeMoney</title>
+  <desc id="description">燕麦石墨配色的双峰收入进度标记</desc>
+  <rect width="96" height="96" rx="28" fill="#EEE9DF"/>
+  <path d="M18 60 36 27 49 48 42 60ZM47 48 60 27 78 60H54Z" fill="#30302B"/>
+  <rect x="18" y="68" width="60" height="10" rx="5" fill="#778B7B"/>
+  <rect x="18" y="68" width="36" height="10" rx="5" fill="#D89B26"/>
+</svg>

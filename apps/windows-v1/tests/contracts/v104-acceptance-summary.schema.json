@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/NzyZzz1998/LetsMakeMoney/schemas/v104-acceptance-summary.schema.json",
+  "title": "LetsMakeMoney v1.0.4 acceptance summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "release_version",
+    "channel",
+    "branch",
+    "commit",
+    "source_tree_dirty",
+    "artifacts",
+    "environment",
+    "checks",
+    "conclusion",
+    "limitations",
+    "log_summary",
+    "redaction",
+    "raw_archive",
+    "generated_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "release_version": {
+      "type": "string",
+      "pattern": "^1\\.0\\.4$"
+    },
+    "channel": {
+      "enum": [
+        "stable-candidate",
+        "stable"
+      ]
+    },
+    "branch": {
+      "type": "string",
+      "minLength": 1
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "source_tree_dirty": {
+      "type": "boolean"
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "size",
+          "sha256"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[^\\\\/:]+$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[A-F0-9]{64}$"
+          }
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "windows_version",
+        "architecture",
+        "dpi",
+        "webview2_version"
+      ],
+      "properties": {
+        "windows_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "architecture": {
+          "enum": [
+            "x86_64",
+            "arm64"
+          ]
+        },
+        "dpi": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              100,
+              125,
+              150
+            ]
+          }
+        },
+        "webview2_version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "method",
+          "result",
+          "started_at",
+          "finished_at",
+          "evidence_ref"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^V104-[A-Z0-9-]+$"
+          },
+          "method": {
+            "enum": [
+              "automatic",
+              "computer_use",
+              "manual"
+            ]
+          },
+          "result": {
+            "enum": [
+              "passed",
+              "partial",
+              "failed",
+              "pending",
+              "not_run"
+            ]
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "evidence_ref": {
+            "type": "string",
+            "pattern": "^(repo|archive):[A-Za-z0-9._/-]+$"
+          }
+        }
+      }
+    },
+    "conclusion": {
+      "enum": [
+        "passed",
+        "partial",
+        "failed",
+        "pending"
+      ]
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "log_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_counts",
+        "error_categories",
+        "truncated"
+      ],
+      "properties": {
+        "event_counts": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "error_categories": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9._-]+$"
+          }
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy_version",
+        "removed_fields"
+      ],
+      "properties": {
+        "policy_version": {
+          "const": "v1"
+        },
+        "removed_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "raw_archive": {
+      "$ref": "v104-raw-evidence-index.schema.json"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

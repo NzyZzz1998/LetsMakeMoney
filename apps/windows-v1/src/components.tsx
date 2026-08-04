@@ -1,4 +1,57 @@
 import { forwardRef, useId, useState } from "react";
+import {
+  AlertTriangle,
+  BriefcaseBusiness,
+  CalendarDays,
+  Check,
+  ChevronLeft,
+  ChevronDown,
+  ChevronRight,
+  CircleX,
+  Clock3,
+  Coins,
+  Moon,
+  RefreshCw,
+  RotateCcw,
+  Settings,
+  Sun,
+  X,
+  type LucideIcon,
+} from "lucide-react";
+
+const APP_ICONS = {
+  alert: AlertTriangle,
+  briefcase: BriefcaseBusiness,
+  calendar: CalendarDays,
+  check: Check,
+  "chevron-down": ChevronDown,
+  "chevron-left": ChevronLeft,
+  "chevron-right": ChevronRight,
+  clock: Clock3,
+  close: X,
+  coins: Coins,
+  error: CircleX,
+  moon: Moon,
+  refresh: RefreshCw,
+  reset: RotateCcw,
+  settings: Settings,
+  sun: Sun,
+} satisfies Record<string, LucideIcon>;
+
+export type AppIconName = keyof typeof APP_ICONS;
+
+export function AppIcon({
+  name,
+  size = 18,
+  strokeWidth = 1.8,
+}: {
+  name: AppIconName;
+  size?: number;
+  strokeWidth?: number;
+}) {
+  const Icon = APP_ICONS[name] ?? AlertTriangle;
+  return <Icon aria-hidden="true" size={size} strokeWidth={strokeWidth} />;
+}
 
 export function Button({
   children,
@@ -16,8 +69,8 @@ export function IconButton({
   icon,
   className = "",
   ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & { label: string; icon: string }) {
-  return <button className={`icon-button ${className}`} type="button" aria-label={label} title={label} {...props}><span aria-hidden="true">{icon}</span></button>;
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { label: string; icon: AppIconName }) {
+  return <button className={`icon-button ${className}`} type="button" aria-label={label} title={label} {...props}><AppIcon name={icon} /></button>;
 }
 
 export const Field = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement> & {
@@ -55,11 +108,11 @@ export function SegmentedControl({
   value,
   onChange,
 }: {
-  options: Array<{ value: string; label: string }>;
+  options: Array<{ value: string; label: string; disabled?: boolean }>;
   value: string;
   onChange(value: string): void;
 }) {
-  return <div className="segmented">{options.map(option => <button type="button" key={option.value} className={value === option.value ? "is-active" : ""} onClick={() => onChange(option.value)}>{option.label}</button>)}</div>;
+  return <div className="segmented">{options.map(option => <button type="button" key={option.value} disabled={option.disabled} className={value === option.value ? "is-active" : ""} onClick={() => onChange(option.value)}>{option.label}</button>)}</div>;
 }
 
 export function ProgressBar({ value, label, compact = false }: { value: number; label: string; compact?: boolean }) {
@@ -67,5 +120,5 @@ export function ProgressBar({ value, label, compact = false }: { value: number; 
 }
 
 export function Feedback({ children, tone }: { children: React.ReactNode; tone: "success" | "warning" | "error" }) {
-  return <div className={`feedback feedback--${tone}`} role={tone === "error" ? "alert" : "status"}><span aria-hidden="true">{tone === "success" ? "✓" : tone === "warning" ? "!" : "×"}</span>{children}</div>;
+  return <div className={`feedback feedback--${tone}`} role={tone === "error" ? "alert" : "status"}><AppIcon name={tone === "success" ? "check" : tone === "warning" ? "alert" : "error"} size={16} />{children}</div>;
 }

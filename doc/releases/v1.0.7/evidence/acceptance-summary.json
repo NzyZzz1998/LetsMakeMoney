@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "milestone": "V107-ACC",
+  "evidence_id": "ACC-V107-20260804",
+  "source_head": "12b6b03ce91b716d49590e21eb8dd7fe90fa283c",
+  "source_tree_dirty": true,
+  "candidate_id": "V107-M7-DIRTY-20260803-01",
+  "candidate": {
+    "zip_size": 3331364,
+    "zip_sha256": "173207AE508DB8D8504818F16B21165164E6C50C29ABF74C4C4D5C08B40CC05D",
+    "exe_size": 10297344,
+    "exe_sha256": "760C0E80952181BA80352187DCCE9C6823F3BE19B0EC1BC04553ACCC34156035",
+    "webview2_loader_size": 160320,
+    "webview2_loader_sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
+  },
+  "environment": {
+    "os": "Windows 11 x86_64",
+    "display_count": 1,
+    "dpi_verified": [100],
+    "dpi_pending": [125, 150]
+  },
+  "assessment": {
+    "total": 14,
+    "passed": 7,
+    "partial": 4,
+    "failed": 3,
+    "outcome": "failed",
+    "publication_allowed": false
+  },
+  "blockers": [
+    "V107-BUG-001",
+    "V107-BUG-002"
+  ],
+  "external_evidence": {
+    "screenshots": {
+      "first": "ACC-001",
+      "last": "ACC-028",
+      "count": 28
+    },
+    "logs": [
+      "ACC-runtime-debug-normal.log",
+      "ACC-runtime-debug-codex-sandbox.log"
+    ]
+  },
+  "environment_restoration": {
+    "completed": true,
+    "candidate_process_count": 0,
+    "unexpected_overtime_file_present": false,
+    "config_sha256": "451B16466CD23EA71B0CEB336900B0EB61F36F0A913ECF0149C16D11B30FC2BC",
+    "config_previous_sha256": "D283F0D57DEF595D21F609E6D7DA517666B39C0449A2089D57703EAE5CC55138",
+    "debug_log_sha256": "E5F7D56E430719ACEB96BC77E0101F52A00D24307763D5EDD3A15A55C5149469"
+  }
+}

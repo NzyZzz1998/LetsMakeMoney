@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "milestone": "V107-M7",
+  "recorded_at": "2026-08-03",
+  "candidate": {
+    "candidate_id": "V107-M7-DIRTY-20260803-01",
+    "purpose": "independent_acceptance_only",
+    "source_head": "12b6b03ce91b716d49590e21eb8dd7fe90fa283c",
+    "source_tree_dirty": true,
+    "publication_allowed": false,
+    "build_timestamp_utc": "2026-08-03T15:54:16.4909752Z",
+    "zip_path": ".artifacts/candidates/v1.0.7/V107-M7-DIRTY-20260803-01/LetsMakeMoney-v1.0.7-windows-x86_64.zip",
+    "zip_size": 3331364,
+    "zip_sha256": "173207AE508DB8D8504818F16B21165164E6C50C29ABF74C4C4D5C08B40CC05D",
+    "executable_size": 10297344,
+    "executable_sha256": "760C0E80952181BA80352187DCCE9C6823F3BE19B0EC1BC04553ACCC34156035",
+    "webview2_loader_size": 160320,
+    "webview2_loader_sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
+  },
+  "package_contract": {
+    "payload_file_count": 13,
+    "allowlist_passed": true,
+    "unknown_binary_count": 0,
+    "private_or_temporary_file_count": 0,
+    "readme_sha256": "783856D9EFC21005BA3C1ABADDDFAABD98D00144BF3FC491D70150BF7C4E65CA",
+    "readme_en_sha256": "15EFFE0DE88F566AC56CF7750DDB4CEF01A30AE9DEB23493372F1940CC85BBC5",
+    "build_info_sha256": "DB4E9A1371F170071C4C1A9A8B6F0C020BFAFD0BD8CB69C8063492921FB06517",
+    "license_sha256": "BA9F2849A358B2DE340A4E03DE2D3EE9E922196A97B91847D3CC468E8A611EB6",
+    "third_party_notices_sha256": "A5D8CB18C9639F8ABE4CFCC08162873873CA19578EECFD42B31CCCBDC6B9074D",
+    "assets_license_sha256": "D44712AF7B914EC33344707AE7768034A817E0ADDB0DE3CB5B768579C50B8209",
+    "assets_manifest_sha256": "41497B788D295152BB003C54CC2700141C1E0DA0820B37D2DE9E03FF39D144A3",
+    "calendar_manifest_sha256": "66EFF12D277E75CF2E178AE7DCCB59BF678F16E056C514A1C1676E00C0D482A1"
+  },
+  "verification": {
+    "verify_v107_m7": "passed",
+    "verify_v107_with_candidate": "passed",
+    "verify_current_manifest": "passed",
+    "verify_windows_current": "passed",
+    "typescript_and_vite": "passed",
+    "rust_test_count": 66,
+    "rust_tests": "passed",
+    "rust_fmt": "passed",
+    "rust_clippy": "passed",
+    "git_diff_check": "passed"
+  },
+  "publication_blockers": [
+    "independent acceptance is not complete",
+    "source tree is dirty",
+    "clean release commit and final artifact identity do not exist"
+  ],
+  "remaining_tasks": [
+    "V107-M7-009",
+    "V107-M7-010",
+    "V107-ACC-001..014"
+  ]
+}

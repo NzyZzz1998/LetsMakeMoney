@@ -1,10 +1,15 @@
 {
-  "contract_version": 1,
+  "contract_version": 2,
   "windows": [
     {
       "id": "mini",
-      "default_size": [344, 120],
-      "minimum_size": [344, 120],
+      "default_size": [344, 108],
+      "minimum_size": [344, 108],
+      "state_sizes": {
+        "normal": [344, 108],
+        "loading": [344, 108],
+        "error": [344, 120]
+      },
       "resizable": false,
       "taskbar": false,
       "close": "hide_to_tray",

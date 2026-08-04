@@ -22,15 +22,21 @@ def require(condition: bool, message: str) -> None:
 
 
 def verify_config_contract() -> None:
-    schema = load_json(CONTRACTS / "config-v1.schema.json")
-    defaults = load_json(CONTRACTS / "config-defaults.json")
+    schema = load_json(CONTRACTS / "config-v8.schema.json")
+    defaults = load_json(CONTRACTS / "config-v8-defaults.json")
     properties = schema["properties"]
 
     require(set(schema["required"]) == set(defaults), "Defaults and required config keys differ")
-    require(defaults["config_version"] == 6, "config_version must be 6")
+    require(defaults["config_version"] == 8, "config_version must be 8")
     require(defaults["work_hours_per_day"] == 8, "Default work duration must be 8 hours")
     require(defaults["alternating_anchor_week_type"] is None, "Alternating week type must not default")
     require(properties["alternating_anchor_week_type"]["default"] is None, "Schema must not choose big/small")
+    require(defaults["mini_edge_auto_hide"] is True, "Mini edge auto-hide must default on")
+    require(defaults["mini_edge_dock"] == "none", "Mini edge dock must start undocked")
+    require(properties["mini_edge_dock"]["enum"] == ["none", "left", "right"], "Mini edge dock enum drift")
+
+    legacy_defaults = load_json(CONTRACTS / "config-defaults.json")
+    require(legacy_defaults["config_version"] == 6, "Historical config v6 evidence must remain immutable")
 
     forbidden = ("pet", "pure_pet", "click_through")
     for key in defaults:
@@ -79,7 +85,16 @@ def verify_platform_contracts() -> None:
     visual = load_json(CONTRACTS / "visual-contract.json")
 
     by_id = {window["id"]: window for window in windows["windows"]}
-    require(by_id["mini"]["default_size"] == [344, 120], "Mini window dimensions drift")
+    require(by_id["mini"]["default_size"] == [344, 108], "Mini window dimensions drift")
+    require(
+        by_id["mini"].get("state_sizes")
+        == {
+            "normal": [344, 108],
+            "loading": [344, 108],
+            "error": [344, 120],
+        },
+        "Mini window state dimensions drift",
+    )
     require(by_id["workbench"]["default_size"] == [920, 640], "Workbench dimensions drift")
     require(by_id["settings"]["default_size"] == [760, 560], "Settings dimensions drift")
     require(by_id["wizard"]["default_size"] == [780, 580], "Wizard dimensions drift")
@@ -99,6 +114,20 @@ def verify_platform_contracts() -> None:
         require(event in events, f"Missing semantic event: {event}")
     require("monthly_salary" in logs["redaction"]["forbidden_values"], "Salary must be redacted")
     require(visual["dpi_percent"] == [100, 125, 150], "DPI contract drift")
+
+
+def verify_overtime_contract() -> None:
+    schema = load_json(CONTRACTS / "overtime-records-v1.schema.json")
+    require(schema["additionalProperties"] is False, "Overtime store must reject unknown root fields")
+    require(set(schema["required"]) == {"schema_version", "records"}, "Overtime root fields drift")
+    require(schema["properties"]["schema_version"]["const"] == 1, "Overtime schema version drift")
+    record = schema["properties"]["records"]["items"]
+    require(record["additionalProperties"] is False, "Overtime records must reject unknown fields")
+    require(record["properties"]["minutes"]["maximum"] == 1440, "Overtime maximum must remain 24 hours")
+    require(
+        record["properties"]["hourly_rate_fen_snapshot"]["minimum"] == 0,
+        "Overtime rate snapshots cannot be negative",
+    )
 
 
 def verify_formal_project_boundary() -> None:
@@ -165,6 +194,7 @@ def main() -> int:
         verify_config_contract,
         verify_salary_fixtures,
         verify_platform_contracts,
+        verify_overtime_contract,
         verify_formal_project_boundary,
         verify_docs_exist,
         verify_ci_utf8_environment,

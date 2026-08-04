@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "product": "LetsMakeMoney Windows",
+  "version": "1.0.8",
+  "config_version": 8,
+  "aggregate": "scripts/verify_windows_current.ps1",
+  "gates": [
+    {
+      "id": "v10f-m1",
+      "path": "scripts/verify_v10f_m1.ps1",
+      "lifecycle": "current"
+    },
+    {
+      "id": "v10f-m5",
+      "path": "scripts/verify_v10f_m5.ps1",
+      "lifecycle": "current"
+    },
+    {
+      "id": "v10f-m6",
+      "path": "scripts/verify_v10f_m6.ps1",
+      "lifecycle": "current"
+    },
+    {
+      "id": "v10f-m7",
+      "path": "scripts/verify_v10f_m7.ps1",
+      "lifecycle": "current"
+    },
+    {
+      "id": "architecture",
+      "path": "scripts/verify_architecture.ps1",
+      "lifecycle": "reusable"
+    }
+  ],
+  "artifacts": {
+    "zip_name": "LetsMakeMoney-v1.0.8-windows-x86_64.zip",
+    "checksum_name": "SHA256SUMS.txt",
+    "build_info_name": "BUILD-INFO.json",
+    "executable_name": "LetsMakeMoney.exe"
+  }
+}

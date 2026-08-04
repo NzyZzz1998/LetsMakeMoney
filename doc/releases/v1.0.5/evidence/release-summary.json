@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "version": "1.0.5",
+  "status": "published",
+  "published_at_utc": "2026-08-01T08:21:29Z",
+  "source": {
+    "commit": "ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf",
+    "tree_dirty": false
+  },
+  "tag": {
+    "name": "v1.0.5",
+    "annotated": true,
+    "object": "7d7734ca1f45d24672a46523ae4bd93cfaf201fb",
+    "target_commit": "ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf"
+  },
+  "release": {
+    "url": "https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.5",
+    "draft": false,
+    "prerelease": false,
+    "asset_count": 2
+  },
+  "assets": [
+    {
+      "name": "LetsMakeMoney-v1.0.5-windows-x86_64.zip",
+      "size": 3231663,
+      "sha256": "019B706E18E7D57D0B7E6DBFB6300762422B5723A11EB6ACCB601DA438215889",
+      "redownload_verified": true
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 107,
+      "sha256": "E84F6F01A6A703829926AC684325C3B2A6D6737AADB2381880BF4EDE962C6741",
+      "redownload_verified": true
+    }
+  ],
+  "payload": {
+    "executable_sha256": "68FA8FC443B12A2BA8BD757F532EC6B90E09E3DA7E1027255267150C4DAEC37A",
+    "webview2_loader_sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
+  },
+  "verification": {
+    "candidate_m6": "passed",
+    "independent_acceptance": "ACC-20260801-105930-retest",
+    "startup_smoke": "LMM-V105-SMOKE-20260801080945",
+    "published_package_contract": "passed"
+  }
+}

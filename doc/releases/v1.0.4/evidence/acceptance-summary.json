@@ -1,0 +1,192 @@
+{
+  "artifacts": [
+    {
+      "name": "LetsMakeMoney-v1.0.4-windows-x86_64.zip",
+      "sha256": "2BBC5B79F9A615F31CFDFFC27C55450C660363A643DE5EB33A6E7B3A1B049340",
+      "size": 3229111
+    },
+    {
+      "name": "LetsMakeMoney.exe",
+      "sha256": "EB0FA82F5506B775F03774E429A12DB66F838E705B608F4A7664D6F9243830DF",
+      "size": 10108416
+    },
+    {
+      "name": "WebView2Loader.dll",
+      "sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C",
+      "size": 160320
+    },
+    {
+      "name": "README.md",
+      "sha256": "70DEAA1D916B6C5694F927B10D280D3E829F6F0954DF0E5F8B2C75104DB0C030",
+      "size": 2140
+    },
+    {
+      "name": "README.en.md",
+      "sha256": "B91FA03E155CEEF7B9D9BF690EB3F85948DA6A469DA5D73614BC0C5A951D035D",
+      "size": 2399
+    },
+    {
+      "name": "BUILD-INFO.json",
+      "sha256": "EA51272263FE4CE5CE0CBC37E2E073E84AF0F472A0FBF531BA75C97FA51FF0DD",
+      "size": 1783
+    }
+  ],
+  "branch": "main",
+  "channel": "stable-candidate",
+  "checks": [
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/verification.md",
+      "finished_at": "2026-07-30T20:59:36Z",
+      "id": "V104-AUTO-FULL",
+      "method": "automatic",
+      "result": "passed",
+      "started_at": "2026-07-30T20:59:36Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/verification.md",
+      "finished_at": "2026-07-30T20:59:36Z",
+      "id": "V104-AUTO-PACKAGE",
+      "method": "automatic",
+      "result": "passed",
+      "started_at": "2026-07-30T20:59:36Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-30T21:54:09Z",
+      "id": "V104-GUI-MINI-EDGE",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T21:00:00Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-30T21:54:09Z",
+      "id": "V104-GUI-CONFIG-REFRESH",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T21:00:00Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-30T21:54:09Z",
+      "id": "V104-GUI-RESTART-PERSISTENCE",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T21:00:00Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-30T21:54:09Z",
+      "id": "V104-GUI-DPI",
+      "method": "manual",
+      "result": "passed",
+      "started_at": "2026-07-30T21:00:00Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-30T21:54:09Z",
+      "id": "V104-GUI-DARK-THEME",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T21:00:00Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-30T21:54:09Z",
+      "id": "V104-GUI-REDUCED-MOTION",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T21:00:00Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-30T21:54:09Z",
+      "id": "V104-GUI-WIZARD",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T21:00:00Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-30T21:54:09Z",
+      "id": "V104-GUI-CALENDAR",
+      "method": "computer_use",
+      "result": "passed",
+      "started_at": "2026-07-30T21:00:00Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-30T21:54:09Z",
+      "id": "V104-GUI-MULTI-MONITOR",
+      "method": "manual",
+      "result": "not_run",
+      "started_at": "2026-07-30T20:25:38Z"
+    },
+    {
+      "evidence_ref": "repo:doc/releases/v1.0.4/manual-verification.md",
+      "finished_at": "2026-07-31T05:47:06Z",
+      "id": "V104-GUI-TRAY",
+      "method": "manual",
+      "result": "passed",
+      "started_at": "2026-07-31T05:43:25Z"
+    }
+  ],
+  "commit": "661b0f748798e28f7999eac23532aa7ed7510640",
+  "conclusion": "passed",
+  "environment": {
+    "architecture": "x86_64",
+    "dpi": [
+      100,
+      125,
+      150
+    ],
+    "webview2_version": "150.0.4078.105",
+    "windows_version": "Windows 11 Pro 10.0.26200"
+  },
+  "generated_at": "2026-07-31T05:47:06Z",
+  "limitations": [
+    "当前环境只有一台显示器；项目所有者于 2026-07-31 批准将真实多显示器、负坐标工作区和显示器移除回落延期验证，不阻塞 v1.0.4。",
+    "减少动态效果下的真实收起已通过；3px 隐私唤回条无法由 Computer Use 独立稳定命中，正常动态下的唤回已通过。",
+    "当前候选来自隔离干净提交，但该提交尚不是最终发布提交；发布源发生变化时必须重新构建并锁定哈希。"
+  ],
+  "log_summary": {
+    "error_categories": [],
+    "event_counts": {
+      "calendar.override.cancelled": 1,
+      "calendar.override.opened": 1,
+      "mini.edge_dock.canceled": 7,
+      "mini.edge_dock.detected": 15,
+      "mini.edge_dock.retracted": 13,
+      "mini.edge_dock.revealed": 9,
+      "settings.saved": 9,
+      "tray.left_click": 2,
+      "window.hidden": 11,
+      "window.shown": 31
+    },
+    "truncated": false
+  },
+  "raw_archive": {
+    "archive_id": "LMM-V104-ACCEPTANCE-M6-001",
+    "archive_sha256": null,
+    "availability": "not_collected",
+    "contents": [],
+    "custodian_role": "project-owner",
+    "reason": "Computer Use 截图未作为持久原始归档保存；仓库仅保留脱敏摘要和日志语义计数。",
+    "retention": "owner-managed",
+    "schema_version": "1.0",
+    "updated_at": "2026-07-30T21:55:01Z"
+  },
+  "redaction": {
+    "policy_version": "v1",
+    "removed_fields": [
+      "user_paths",
+      "personal_configuration",
+      "salary_values",
+      "raw_log_lines",
+      "secrets"
+    ]
+  },
+  "release_version": "1.0.4",
+  "schema_version": "1.0",
+  "source_tree_dirty": false
+}

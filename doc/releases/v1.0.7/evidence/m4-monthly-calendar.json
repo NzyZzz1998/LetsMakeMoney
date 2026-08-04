@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "milestone": "V107-M4",
+  "captured_at": "2026-08-03",
+  "candidate": {
+    "kind": "dirty-intermediate-m4-source",
+    "source_branch": "main",
+    "source_head": "12b6b03ce91b716d49590e21eb8dd7fe90fa283c",
+    "source_tree_dirty": true,
+    "release_eligible": false,
+    "exe_size": 15287296,
+    "exe_sha256": "1F176B305C16DD3982372123E8D72E6302EA340A161F14E1614F15D066DC95A9"
+  },
+  "implementation": {
+    "monthly_summary_metrics": [
+      "planned_work_minutes",
+      "elapsed_planned_work_minutes",
+      "overtime_minutes"
+    ],
+    "overtime_income_exposed": false,
+    "overtime_read_failure_isolated": true,
+    "calendar_overtime_marker": true,
+    "calendar_week_layouts": [5, 6],
+    "workbench_logical_size": "820x620",
+    "calendar_vertical_scrollbar": false
+  },
+  "automated_verification": {
+    "verify_v107_m4": "passed",
+    "monthly_summary_behavior": "10/10",
+    "overtime_month_state_behavior": "7/7",
+    "typescript_strict": "passed",
+    "vite_production_build": "passed",
+    "tauri_debug_build": "passed",
+    "git_diff_check": "passed"
+  },
+  "real_windows_verification": {
+    "environment": "Windows 11 single display",
+    "resolution": "2560x1440",
+    "applied_dpi": 96,
+    "scale_percent": 100,
+    "six_week_month": "2026-08 passed without vertical scrolling",
+    "five_week_month": "2026-09 passed without vertical scrolling",
+    "monthly_summary": "three columns visible in both month layouts",
+    "overtime_editor": "opened from calendar; date, range, precision and cancel semantics verified without saving",
+    "light_theme": "passed",
+    "dark_theme": "passed and synchronized to Workbench",
+    "environment_restored": true
+  },
+  "pending_evidence": [
+    "真实 Windows 125% DPI 溢出、对齐与键盘交互",
+    "真实 Windows 150% DPI 溢出、对齐与键盘交互"
+  ],
+  "pending_evidence_resolution": {
+    "status": "resolved_after_initial_failure",
+    "resolved_at": "2026-08-04",
+    "summary": "acceptance-dpi-summary.json"
+  },
+  "evidence_limits": [
+    "M4 中间工作树未提交，不得用作 Release 候选身份。",
+    "100% DPI 已取得真实 Windows 壳证据；125% 和 150% 只保留为最终验收补证，未以浏览器缩放冒充通过。",
+    "加班编辑器只验证打开与取消，本证据没有修改用户加班数据。"
+  ]
+}

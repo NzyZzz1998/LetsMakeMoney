@@ -1,0 +1,33 @@
+﻿{
+    "schema_version":  "1.0",
+    "run_id":  "LMM-V104-SMOKE-20260730193823",
+    "package":  {
+                    "name":  "LetsMakeMoney-v1.0.4-windows-x86_64.zip",
+                    "size":  3228559,
+                    "sha256":  "43EE5692025F181342F4A64BCECFBEC9FA3238C61402EE7C7B2E28635078DBBC"
+                },
+    "executable":  {
+                       "name":  "LetsMakeMoney.exe",
+                       "size":  10107392,
+                       "sha256":  "9915A3AAE5C47C0A547E01B17E618C1A6F2AC786E84A8EEC550B70D7A40170F0"
+                   },
+    "mode":  "FirstRun",
+    "interactive":  false,
+    "result":  "partial",
+    "observed":  {
+                     "first_window":  true,
+                     "mini":  true,
+                     "workbench":  false,
+                     "settings":  false,
+                     "wizard":  false,
+                     "tray_recovery":  false
+                 },
+    "normal_exit":  false,
+    "forced_cleanup":  true,
+    "environment_restored":  true,
+    "environment_restored_exact":  true,
+    "residual_process_count":  0,
+    "started_at":  "2026-07-30T19:38:23.8898763Z",
+    "finished_at":  "2026-07-30T19:38:25.3126092Z",
+    "privacy":  "No user path, configuration value, salary, raw log line, or window title is retained."
+}

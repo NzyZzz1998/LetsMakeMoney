@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://letsmakemoney.app/contracts/calendar-data.schema.json",
+  "title": "LetsMakeMoney annual China mainland calendar data",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "dataset_id", "year", "source", "holidays", "holiday_dates", "adjusted_workdays"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "dataset_id": {"type": "string", "pattern": "^cn-20\\d{2}$"},
+    "year": {"type": "integer", "minimum": 2025},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["publisher", "title", "document_no", "published_at", "url"],
+      "properties": {
+        "publisher": {"const": "国务院办公厅"},
+        "title": {"type": "string", "minLength": 1},
+        "document_no": {"type": "string", "minLength": 1},
+        "published_at": {"type": "string", "format": "date"},
+        "url": {"type": "string", "format": "uri"}
+      }
+    },
+    "holidays": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "dates"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "dates": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "format": "date"}
+          }
+        }
+      }
+    },
+    "holiday_dates": {
+      "type": "array",
+      "items": {"type": "string", "format": "date"},
+      "uniqueItems": true
+    },
+    "adjusted_workdays": {
+      "type": "array",
+      "items": {"type": "string", "format": "date"},
+      "uniqueItems": true
+    }
+  }
+}
