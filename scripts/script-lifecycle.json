@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "current_release": "1.0.7",
+  "statuses": {
+    "current": [
+      "scripts/verify_windows_current.ps1",
+      "scripts/verify_v107_m1.ps1",
+      "scripts/verify_v107_m2.ps1",
+      "scripts/verify_v107_m3.ps1",
+      "scripts/verify_v107_m4.ps1",
+      "scripts/verify_v107_m5.ps1",
+      "scripts/verify_v107_m6.ps1",
+      "scripts/verify_v107_m7.ps1",
+      "scripts/verify_v107.ps1"
+    ],
+    "reusable": [
+      "scripts/v10_tools.ps1",
+      "scripts/verify_architecture.ps1",
+      "scripts/verify_v10_docs.ps1",
+      "scripts/verify_v107_package.ps1"
+    ],
+    "manual": [
+      "scripts/collect_v107_performance.ps1",
+      "scripts/collect_v103_stability.ps1",
+      "scripts/diagnose_v104_environment.ps1",
+      "scripts/package_v107.ps1",
+      "scripts/smoke_v104_desktop.ps1",
+      "scripts/spike_v107_csp.ps1"
+    ],
+    "historical": [
+      "scripts/package_v10.ps1",
+      "scripts/package_v101.ps1",
+      "scripts/package_v102.ps1",
+      "scripts/package_v103.ps1",
+      "scripts/package_v104.ps1",
+      "scripts/package_v105.ps1",
+      "scripts/package_v106.ps1",
+      "scripts/verify_calendar_data_v103.ps1",
+      "scripts/verify_v10.ps1",
+      "scripts/verify_v10_m0.ps1",
+      "scripts/verify_v10_m1.ps1",
+      "scripts/verify_v10_m2.ps1",
+      "scripts/verify_v10_m3.ps1",
+      "scripts/verify_v10_m4.ps1",
+      "scripts/verify_v10_m5.ps1",
+      "scripts/verify_v10_m6.ps1",
+      "scripts/verify_v10_package.ps1",
+      "scripts/verify_v101.ps1",
+      "scripts/verify_v101_m0.ps1",
+      "scripts/verify_v101_m1.ps1",
+      "scripts/verify_v101_m2.ps1",
+      "scripts/verify_v101_m3.ps1",
+      "scripts/verify_v101_m4.ps1",
+      "scripts/verify_v101_package.ps1",
+      "scripts/verify_v102.ps1",
+      "scripts/verify_v102_package.ps1",
+      "scripts/verify_v103.ps1",
+      "scripts/verify_v103_package.ps1",
+      "scripts/verify_v104.ps1",
+      "scripts/verify_v104_package.ps1",
+      "scripts/verify_v105.ps1",
+      "scripts/verify_v105_package.ps1",
+      "scripts/verify_v106.ps1",
+      "scripts/verify_v106_package.ps1",
+      "scripts/verify_v107_m0.ps1"
+    ]
+  },
+  "rules": {
+    "current_may_call": ["current", "reusable"],
+    "documentation_may_recommend": ["scripts/verify_windows_current.ps1"],
+    "historical_scripts_are_immutable_evidence": true
+  }
+}

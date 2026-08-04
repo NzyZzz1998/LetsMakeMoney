@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "evidence_id": "V107-ACC-TRAY-20260804-01",
+  "milestone": "V107-ACC",
+  "captured_at": "2026-08-04",
+  "status": "passed",
+  "candidate": {
+    "id": "V107-M7-DIRTY-20260804-03",
+    "branch": "main",
+    "source_head": "12b6b03ce91b716d49590e21eb8dd7fe90fa283c",
+    "source_tree_dirty": true,
+    "publication_allowed": false,
+    "zip_sha256": "322EB52DD01AE3B9BEE50EC3346B027C2AEA6E4669505735D01A493A3028A6E5",
+    "exe_sha256": "91F9EB87FBA35F7A6B3165A4E25CF05E544CDC598CB329FFC150ED416072BA46",
+    "webview2_loader_sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
+  },
+  "environment": {
+    "os": "Windows 11 x86_64",
+    "display": "single display",
+    "scale_percent": 100,
+    "input": "项目所有者真实鼠标"
+  },
+  "results": {
+    "tray_left_hide": {
+      "result": "passed",
+      "detail": "左键托盘后 Mini 从可定位窗口列表消失，候选进程继续运行；窗口隐藏、WebView suspend 与 Dashboard timer pause 日志完整。"
+    },
+    "tray_left_restore": {
+      "result": "passed",
+      "detail": "再次左键托盘后 Mini 恢复为进入前的隐私竖条；窗口显示、聚焦、WebView resume、Dashboard timer resume 与主题恢复日志完整。"
+    },
+    "tray_right_menu": {
+      "result": "passed",
+      "detail": "项目所有者使用真实鼠标确认 Windows 原生托盘菜单打开；菜单注册结构由锁定候选同源代码与静态门禁交叉核对。"
+    },
+    "taskbar_combination": {
+      "result": "passed",
+      "detail": "Mini 隐藏后任务栏固定快捷图标没有运行中横线；日志确认 Mini 应用 skip_taskbar=true。"
+    },
+    "environment_restore": {
+      "result": "passed",
+      "detail": "候选进程归零，config.json、config.json.previous 与 debug.log 均按验收前 SHA256 恢复。"
+    }
+  },
+  "external_raw_evidence": {
+    "logical_id": "V107-ACC-TRAY-20260804-01-RAW",
+    "debug_log_sha256": "82E2310FF29EE882E69DD7C71A20383733790A3C8AB891F5447E2BE141CCFE12"
+  },
+  "conclusion": "passed_for_locked_dirty_candidate",
+  "release_gate": "clean_release_commit_and_rebuilt_candidate_required"
+}

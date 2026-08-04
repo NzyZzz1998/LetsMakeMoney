@@ -49,7 +49,8 @@ See the [current status source](doc/current.md) for the latest release identity 
 
 ### Requirements
 
-- Windows 10/11 x86_64
+- Windows 11 x86_64 (the verified v1.0.7 environment is single-display; real 125%/150% DPI evidence remains a final-candidate gate)
+- Windows 10 x86_64 is best-effort only because no real device or VM evidence is currently available
 - Node.js 22+
 - Rust stable with the MSVC toolchain
 - Microsoft Edge WebView2 Runtime
@@ -66,11 +67,13 @@ npm run tauri dev
 ### Build the portable package
 
 ```powershell
-# Run from the repository root
-powershell -ExecutionPolicy Bypass -File .\scripts\package_v106.ps1
+# Run from the repository root to create an isolated v1.0.7 development candidate
+powershell -ExecutionPolicy Bypass -File .\scripts\package_v107.ps1
 ```
 
-v1.0.6 development candidates are written only to `.artifacts\candidates\v1.0.6\<candidate-id>\`; they do not overwrite `releases\` or a GitHub-downloaded cache. The flow must not depend on undeclared local paths or private files, and a same-named local file does not establish GitHub Release identity.
+v1.0.7 development candidates are written only to `.artifacts\candidates\v1.0.7\<candidate-id>\`; they do not overwrite `releases\` or a GitHub-downloaded cache. The flow must not depend on undeclared local paths or private files, and a same-named local file does not establish GitHub Release identity. The current public download remains v1.0.6 Stable.
+
+See the [v1.0.7 support matrix](doc/releases/v1.0.7/support-matrix.md) for the exact environment boundary. Multi-display and Windows 10 are excluded from the v1.0.7 verified-pass statement.
 
 ## Data, privacy, and rollback
 
@@ -88,12 +91,12 @@ The v1.0 Windows line stores configuration and logs under:
 ## Verification
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v106.ps1 -Milestone M5
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_windows_current.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
-# After packaging, pass the emitted candidate Zip path to the M6 gate
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v106.ps1 -Milestone M6 -CandidatePath <candidate Zip path>
+# After packaging a v1.0.7 development candidate, pass the emitted Zip path to the M7 gate
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v107.ps1 -Milestone M7 -CandidatePath <v1.0.7 candidate Zip path>
 # Verify a controlled candidate independently; published mode additionally requires the tag, Release URL, and downloaded checksum file
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v106_package.ps1 -Mode candidate -PackagePath <candidate Zip path> -ExpectedSourceHead <40-character commit> -ExpectedZipSha256 <SHA256>
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v107_package.ps1 -Mode candidate -PackagePath <candidate Zip path> -ExpectedSourceHead <40-character commit> -ExpectedZipSha256 <SHA256>
 ```
 
 Automated checks cover earnings calculations, configuration transactions, window contracts, the tray bridge, documentation, and package integrity. Real notification-area, taskbar, DPI, and restart-recovery behavior remains part of Windows desktop acceptance.

@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "milestone": "V107-M0",
+  "rounding": "nearest_minute",
+  "hour_vectors": [
+    {
+      "input": "0",
+      "minutes": 0,
+      "result": "delete"
+    },
+    {
+      "input": "0.01",
+      "minutes": 1,
+      "result": "save"
+    },
+    {
+      "input": "1.25",
+      "minutes": 75,
+      "result": "save"
+    },
+    {
+      "input": "24.00",
+      "minutes": 1440,
+      "result": "save"
+    },
+    {
+      "input": "24.01",
+      "result": "reject_out_of_range"
+    },
+    {
+      "input": "-0.01",
+      "result": "reject_out_of_range"
+    },
+    {
+      "input": "1.234",
+      "result": "reject_precision"
+    }
+  ],
+  "rate_snapshot_vectors": [
+    {
+      "id": "create",
+      "expected": "capture_current_hourly_rate"
+    },
+    {
+      "id": "edit-hours",
+      "expected": "preserve_original_rate_snapshot"
+    },
+    {
+      "id": "delete-and-recreate",
+      "expected": "capture_new_current_hourly_rate"
+    },
+    {
+      "id": "salary-change",
+      "expected": "do_not_reprice_historical_records"
+    }
+  ],
+  "date_vectors": [
+    {
+      "id": "ordinary-day",
+      "business_date": "2026-08-03",
+      "allowed": true
+    },
+    {
+      "id": "rest-day",
+      "business_date": "2026-08-02",
+      "allowed": true
+    },
+    {
+      "id": "paid-rest",
+      "business_date": "2026-10-01",
+      "allowed": true
+    },
+    {
+      "id": "unpaid-rest",
+      "business_date": "2026-08-04",
+      "allowed": true
+    },
+    {
+      "id": "overnight-default",
+      "expected": "use_dashboard_owner_date"
+    },
+    {
+      "id": "explicit-date",
+      "expected": "submitted_business_date_wins"
+    }
+  ],
+  "transaction_vectors": [
+    "create_success",
+    "edit_success",
+    "delete_success",
+    "cancel_no_write",
+    "close_no_write",
+    "unchanged_no_write",
+    "save_failure_preserves_old_record_and_input",
+    "corrupt_store_is_backed_up_and_not_overwritten",
+    "cross_month_summary_uses_business_date"
+  ],
+  "shared_date_override_vectors": [
+    "today_and_calendar_share_payload",
+    "apply_success",
+    "apply_unchanged",
+    "cancel",
+    "close",
+    "failure_preserves_previous_override",
+    "retry_after_failure"
+  ]
+}

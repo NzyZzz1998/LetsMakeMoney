@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "milestone": "V107-M0",
+  "workbench_window": {
+    "width": 820,
+    "height": 620
+  },
+  "requirements": {
+    "vertical_scroll": false,
+    "monthly_summary_metrics": [
+      "planned_hours",
+      "elapsed_planned_hours",
+      "overtime_hours"
+    ],
+    "long_content_must_not_overflow": true
+  },
+  "scenarios": [
+    { "weeks": 5, "theme": "light", "dpi": 100 },
+    { "weeks": 5, "theme": "light", "dpi": 125 },
+    { "weeks": 5, "theme": "light", "dpi": 150 },
+    { "weeks": 5, "theme": "dark", "dpi": 100 },
+    { "weeks": 5, "theme": "dark", "dpi": 125 },
+    { "weeks": 5, "theme": "dark", "dpi": 150 },
+    { "weeks": 6, "theme": "light", "dpi": 100 },
+    { "weeks": 6, "theme": "light", "dpi": 125 },
+    { "weeks": 6, "theme": "light", "dpi": 150 },
+    { "weeks": 6, "theme": "dark", "dpi": 100 },
+    { "weeks": 6, "theme": "dark", "dpi": 125 },
+    { "weeks": 6, "theme": "dark", "dpi": 150 }
+  ]
+}

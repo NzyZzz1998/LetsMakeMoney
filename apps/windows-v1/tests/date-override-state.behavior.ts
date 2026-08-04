@@ -1,6 +1,7 @@
 import {
   createDateOverrideEditorState,
   reduceDateOverrideEditor,
+  shouldSubmitDateOverride,
 } from "../src/dateOverrideState";
 
 function assert(condition: unknown, message: string): asserts condition {
@@ -8,7 +9,9 @@ function assert(condition: unknown, message: string): asserts condition {
 }
 
 let state = createDateOverrideEditorState("2026-07-24", "automatic");
+assert(!shouldSubmitDateOverride(state), "unchanged date overrides must not invoke the backend");
 state = reduceDateOverrideEditor(state, { type: "changed", value: "paid_rest" });
+assert(shouldSubmitDateOverride(state), "changed date overrides must become submittable");
 state = reduceDateOverrideEditor(state, { type: "cancelled" });
 assert(state.draft === "automatic", "cancel must discard the unsaved draft");
 
@@ -26,4 +29,4 @@ assert(state.feedback === "saved", "success feedback must be explicit");
 state = reduceDateOverrideEditor(state, { type: "unchanged", message: "没有变化" });
 assert(state.feedback === "unchanged", "unchanged must be distinguishable from saved");
 
-console.log("date-override state behavior: 4/4 passed");
+console.log("date-override state behavior: 6/6 passed");

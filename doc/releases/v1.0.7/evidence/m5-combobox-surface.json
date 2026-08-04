@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "milestone": "V107-M5",
+  "captured_at": "2026-08-03",
+  "candidate": {
+    "kind": "dirty-intermediate-m5-source",
+    "source_branch": "main",
+    "source_head": "12b6b03ce91b716d49590e21eb8dd7fe90fa283c",
+    "source_tree_dirty": true,
+    "release_eligible": false,
+    "exe_path": "apps/windows-v1/src-tauri/target/debug/letsmakemoney_windows_v1.exe",
+    "exe_size": 15293440,
+    "exe_sha256": "148E3BA5B47678EEBB6F4979B0EC11839C406CC88AD678F2430E7A33610BCA99"
+  },
+  "conditional_decisions": {
+    "fr_010_combobox": "implemented",
+    "reason": "原生 select 与现有圆角窗口语言不一致；隔离组件已通过键盘、焦点、ARIA、外点击、浅色和深色验证。",
+    "fr_011_surface_owner": "provisionally_accepted_at_100_percent",
+    "reason_surface": "Web 层不再重复绘制顶层阴影，真实 100% DPI 下 Settings、Workbench 与 Mini 未见双重表面；125% 和 150% 仍需真实系统 DPI 复核。"
+  },
+  "automated_verification": {
+    "verify_v107_m5": "passed",
+    "static_contract_groups": "3/3",
+    "combobox_behavior": "14/14",
+    "window_surface_behavior": "5/5",
+    "typescript_strict": "passed",
+    "tauri_debug_build": "passed",
+    "git_diff_check": "passed"
+  },
+  "real_windows_verification": {
+    "environment": "Windows 11 single display",
+    "resolution": "2560x1440",
+    "applied_dpi": 96,
+    "scale_percent": 100,
+    "combobox_pointer_selection": "passed",
+    "combobox_keyboard_selection": "passed with Arrow/End/Enter",
+    "combobox_escape_close": "passed",
+    "combobox_outside_click_close": "passed",
+    "combobox_aria": "combobox/listbox/option roles exposed",
+    "conditional_week_type_combobox": "passed",
+    "light_theme": "passed",
+    "dark_theme": "passed",
+    "cross_window_theme_preview": "Settings and Workbench synchronized immediately",
+    "unsaved_draft_discard": "passed; original configuration retained",
+    "workbench_close_restore": "passed after privacy auto-hide settle",
+    "mini_privacy_strip": "restored and remained keyboard discoverable"
+  },
+  "environment_restore": {
+    "candidate_processes_remaining": 0,
+    "config_last_write_unchanged": true,
+    "settings_test_draft_saved": false,
+    "note": "本轮只丢弃设置草稿；未删除或覆盖既有用户配置与日志。"
+  },
+  "pending_evidence": [
+    "真实 Windows 125% DPI 下四窗口表面、Combobox 弹层和焦点环",
+    "真实 Windows 150% DPI 下四窗口表面、Combobox 弹层和焦点环",
+    "基于三档真实 DPI 证据给出 FR-011 最终接受或回退结论"
+  ],
+  "pending_evidence_resolution": {
+    "status": "resolved_after_initial_failure",
+    "resolved_at": "2026-08-04",
+    "fr_011_decision": "accepted",
+    "summary": "acceptance-dpi-summary.json"
+  },
+  "evidence_limits": [
+    "该候选来自脏工作树，仅用于开发验证，不得进入 Release。",
+    "100% DPI 已取得真实 Windows 壳证据；125% 和 150% 未验证，不写为通过。",
+    "多显示器不在 v1.0.7 验收范围。"
+  ]
+}

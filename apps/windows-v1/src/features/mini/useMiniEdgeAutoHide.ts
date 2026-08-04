@@ -66,8 +66,13 @@ export function useMiniEdgeAutoHide() {
     const handleBlur = () => {
       current.setLock("focus_inside", false);
     };
-    const handleShown = () => {
-      void current.reveal("window_shown");
+    const handleShown = (event: Event) => {
+      const source = (event as CustomEvent<{ source?: string }>).detail?.source;
+      if (source === "workbench_restore_privacy") {
+        void current.refresh();
+        return;
+      }
+      void current.reveal(source ?? "window_shown");
     };
     const handleConfigurationUpdated = () => {
       void current.refresh();

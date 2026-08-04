@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   AppIcon,
@@ -9,14 +9,20 @@ import {
   SegmentedControl,
   Switch,
 } from "./components";
+import { AccessibleCombobox } from "./components/AccessibleCombobox";
 import { WindowFrame } from "./components/WindowFrame";
+import { DateOverrideEditor } from "./features/calendar/DateOverrideEditor";
+import { OvertimeEditor } from "./features/calendar/OvertimeEditor";
+import {
+  calculateMonthlySummary,
+  formatWorkMinutes,
+} from "./features/calendar/monthlySummary";
+import { useOvertimeMonth } from "./features/calendar/useOvertimeMonth";
 import { MiniWindow } from "./features/mini/MiniWindow";
 import {
   formatDuration,
   formatMoney,
   dashboardErrorTitle,
-  recordSemanticEvent,
-  saveDateOverride,
   useCalendarMonth,
   useDashboard,
   useMonthWorkdayPreview,
@@ -27,11 +33,6 @@ import {
   type RestMode,
   type WeekType,
 } from "./configModel";
-import {
-  createDateOverrideEditorState,
-  reduceDateOverrideEditor,
-  type DateOverrideSelection,
-} from "./dateOverrideState";
 import {
   boundaryPresentation,
   calendarBusinessState,
@@ -46,12 +47,14 @@ import {
 } from "./runtime/timeService";
 import {
   windowService,
+  type WindowOperationFailureDetail,
   type WindowKind,
 } from "./services/windowService";
 import {
   supportService,
   type PlatformCapabilities,
 } from "./services/supportService";
+import { versionService } from "./services/versionService";
 import {
   calendarLeadingBlankCount,
   clockDifferenceSeconds,
@@ -80,7 +83,7 @@ async function showWindow(label: WindowKind) {
   try {
     await windowService.show(label);
   } catch {
-    window.location.search = `?window=${label}`;
+    if (!windowService.isDesktop) window.location.search = `?window=${label}`;
   }
 }
 
@@ -88,8 +91,41 @@ async function hideCurrentWindow() {
   try {
     await windowService.hide(resolveWindowKind());
   } catch {
-    // Browser preview intentionally has no native window to hide.
+    // Desktop failures are reported by windowService. Browser previews have no native window.
   }
+}
+
+function WindowOperationNotice() {
+  const [message, setMessage] = useState<string | null>(null);
+  const timer = useRef<number | null>(null);
+  useEffect(() => {
+    const handleFailure = (event: Event) => {
+      const detail = (event as CustomEvent<WindowOperationFailureDetail>).detail;
+      const operationLabel: Partial<Record<WindowOperationFailureDetail["operation"], string>> = {
+        show: "显示窗口",
+        hide: "隐藏窗口",
+        move: "移动窗口",
+        finalize_drag: "完成窗口拖动",
+        recover: "找回窗口",
+        drag_origin: "开始窗口拖动",
+        workbench_ready: "打开今日工作台",
+        always_on_top: "应用置顶设置",
+      };
+      setMessage(`${operationLabel[detail.operation] ?? "窗口操作"}失败，请从托盘重试。`);
+      if (timer.current !== null) window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => {
+        timer.current = null;
+        setMessage(null);
+      }, 5_000);
+    };
+    window.addEventListener("lmm:window-operation-failed", handleFailure);
+    return () => {
+      window.removeEventListener("lmm:window-operation-failed", handleFailure);
+      if (timer.current !== null) window.clearTimeout(timer.current);
+    };
+  }, []);
+  if (!message) return null;
+  return <div className="window-operation-notice" role="status">{message}</div>;
 }
 
 function useNativeCloseRequest(requestClose: () => void) {
@@ -126,6 +162,9 @@ function CalendarCoverageNotice({
 function WorkbenchWindow() {
   const [tab, setTab] = useState("today");
   const dashboard = useDashboard();
+  useEffect(() => {
+    if (windowService.isDesktop) void windowService.workbenchReady().catch(() => undefined);
+  }, []);
   return (
     <WindowFrame kind="workbench" title="LetsMakeMoney" className="workbench-window">
       <div className="workbench-layout">
@@ -140,7 +179,7 @@ function WorkbenchWindow() {
             <AppIcon name="settings" />设置
           </button>
         </nav>
-        <section className="workbench-content">
+        <section className={`workbench-content workbench-content--${tab}`}>
           {tab === "today" ? <TodayView {...dashboard} /> : <CalendarView snapshot={dashboard.snapshot} />}
         </section>
       </div>
@@ -149,6 +188,41 @@ function WorkbenchWindow() {
 }
 
 function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
+  const [editor, setEditor] = useState<"date" | "overtime" | null>(null);
+  const [editorFeedback, setEditorFeedback] = useState<string | null>(null);
+  const ownerDay = snapshot.calendarDays.find(day => day.date === snapshot.ownerDate);
+  const finishEditor = (message: string) => {
+    setEditorFeedback(message);
+    setEditor(null);
+    refresh();
+  };
+  const todayActions = (
+    <div className="section-heading__actions">
+      <Button variant="ghost" onClick={() => setEditor("date")} disabled={!ownerDay}>调整今天</Button>
+      <Button variant="ghost" onClick={() => setEditor("overtime")}>记录加班</Button>
+    </div>
+  );
+  const editorLayer = (
+    <>
+      {editor === "date" && ownerDay && (
+        <DateOverrideEditor
+          key={`today-date-${ownerDay.date}`}
+          day={ownerDay}
+          onApplied={finishEditor}
+          onClose={() => setEditor(null)}
+        />
+      )}
+      {editor === "overtime" && (
+        <OvertimeEditor
+          key={`today-overtime-${snapshot.ownerDate}`}
+          businessDate={snapshot.ownerDate}
+          currentHourlyRateFen={Math.max(0, Math.round(snapshot.hourlySalary * 100))}
+          onApplied={finishEditor}
+          onClose={() => setEditor(null)}
+        />
+      )}
+    </>
+  );
   if (snapshot.state === "loading") return <PageState title="正在整理今天" detail="收入、安排和日历正在同步。" />;
   if (snapshot.state === "error") {
     return (
@@ -166,9 +240,11 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
   }
   if (snapshot.phase === "rest_day") {
     return (
+      <>
       <div className="page-stack" aria-label="今日休息">
         <SyncNotice state={snapshot.syncState} />
         <CalendarCoverageNotice coverage={snapshot.calendarCoverage} />
+        {editorFeedback && <Feedback tone="success">{editorFeedback}</Feedback>}
         <div className="page-heading">
           <div>
             <span className="eyebrow">{formatFullDate(snapshot.ownerDate)} · 休息日</span>
@@ -187,7 +263,7 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
           <section className="surface rest-schedule">
             <div className="section-heading">
               <div><span className="eyebrow">今日状态</span><h2>休息日</h2></div>
-              <Button variant="ghost" onClick={() => showWindow("settings")}>调整今天</Button>
+              {todayActions}
             </div>
             <div className="rest-schedule__body">
               <strong>今天无需打卡或记录工时</strong>
@@ -205,14 +281,18 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
           </section>
         </div>
       </div>
+      {editorLayer}
+      </>
     );
   }
   if (snapshot.phase === "paid_rest" || snapshot.phase === "unpaid_rest") {
     const paid = snapshot.phase === "paid_rest";
     return (
+      <>
       <div className="page-stack" aria-label={paid ? "今日带薪休息" : "今日不带薪休息"}>
         <SyncNotice state={snapshot.syncState} />
         <CalendarCoverageNotice coverage={snapshot.calendarCoverage} />
+        {editorFeedback && <Feedback tone="success">{editorFeedback}</Feedback>}
         <div className="page-heading">
           <div>
             <span className="eyebrow">{formatFullDate(snapshot.ownerDate)} · {paid ? "带薪休息" : "不带薪休息"}</span>
@@ -237,7 +317,7 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
           <section className="surface rest-schedule">
             <div className="section-heading">
               <div><span className="eyebrow">今日状态</span><h2>{paid ? "带薪休息" : "不带薪休息"}</h2></div>
-              <Button variant="ghost" onClick={() => showWindow("settings")}>调整今天</Button>
+              {todayActions}
             </div>
             <div className="rest-schedule__body">
               <strong>今天无需记录有效工时</strong>
@@ -255,6 +335,8 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
           </section>
         </div>
       </div>
+      {editorLayer}
+      </>
     );
   }
   const todayKey = formatLocalDate(systemTime.now());
@@ -272,16 +354,17 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
     restEndTime: snapshot.lunchEndTime,
     workEndTime: snapshot.workEndTime,
   });
-  const ownerDay = snapshot.calendarDays.find(day => day.date === snapshot.ownerDate);
   const ownerKindLabel = ownerDay?.source === "adjusted_workday"
     ? "官方调休工作日"
     : ownerDay?.source === "manual_workday"
       ? "手动工作日"
       : "工作日";
   return (
+    <>
     <div className="page-stack" aria-label="今日">
       <SyncNotice state={snapshot.syncState} />
       <CalendarCoverageNotice coverage={snapshot.calendarCoverage} />
+      {editorFeedback && <Feedback tone="success">{editorFeedback}</Feedback>}
       <div className="page-heading">
         <div>
           <span className="eyebrow">{formatFullDate(snapshot.ownerDate)} · {ownerKindLabel}</span>
@@ -304,7 +387,7 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
         <section className="surface schedule">
           <div className="section-heading">
             <div><span className="eyebrow">时间线</span><h2>今日安排</h2></div>
-            <Button variant="ghost" onClick={() => showWindow("settings")}>调整今天</Button>
+            {todayActions}
           </div>
           <ol>
             {scheduleRows.map(row => {
@@ -336,6 +419,8 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
         </section>
       </div>
     </div>
+    {editorLayer}
+    </>
   );
 }
 
@@ -351,34 +436,85 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
   const displayMonth = calendarMonth.dataMonth ?? visibleMonth;
   const [displayYear, displayMonthNumber] = displayMonth.split("-").map(Number);
   const days = calendarMonth.days;
+  const overtimeMonth = useOvertimeMonth(displayMonth);
   const monthLabel = `${visibleYear} 年 ${visibleMonthNumber} 月`;
   const displayMonthLabel = `${displayYear} 年 ${displayMonthNumber} 月`;
   const leadingBlanks = Array.from({ length: calendarLeadingBlankCount(displayMonth) });
+  const calendarWeeks = Math.max(5, Math.ceil((leadingBlanks.length + days.length) / 7));
+  const overtimeDates = useMemo(
+    () => new Set(overtimeMonth.records.map(record => record.business_date)),
+    [overtimeMonth.records],
+  );
+  const now = systemTime.now();
+  const monthlySummary = useMemo(() => calculateMonthlySummary({
+    month: displayMonth,
+    days,
+    ownerDate: snapshot.ownerDate,
+    currentLocalDate: formatLocalDate(now),
+    currentMinuteOfDay: now.getHours() * 60 + now.getMinutes(),
+    schedule: {
+      workStartTime: snapshot.workStartTime,
+      restStartTime: snapshot.lunchStartTime,
+      restEndTime: snapshot.lunchEndTime,
+      workEndTime: snapshot.workEndTime,
+      effectiveMinutes: snapshot.effectiveSeconds / 60,
+    },
+    overtimeRecords: overtimeMonth.records,
+  }), [
+    days,
+    displayMonth,
+    now,
+    overtimeMonth.records,
+    snapshot.effectiveSeconds,
+    snapshot.lunchEndTime,
+    snapshot.lunchStartTime,
+    snapshot.ownerDate,
+    snapshot.workEndTime,
+    snapshot.workStartTime,
+  ]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [editorMode, setEditorMode] = useState<"date" | "overtime" | null>(null);
   const [overrideFeedback, setOverrideFeedback] = useState<string | null>(null);
   const moveMonth = (offset: number) => {
     setVisibleMonth(shiftMonthKey(visibleMonth, offset));
     setSelectedDate(null);
+    setEditorMode(null);
     setOverrideFeedback(null);
   };
+  const actionDate = selectedDate
+    ?? days.find(day => day.date === snapshot.ownerDate)?.date
+    ?? days[0]?.date
+    ?? null;
+  const openEditor = (mode: "date" | "overtime") => {
+    if (!actionDate) return;
+    setSelectedDate(actionDate);
+    setEditorMode(mode);
+  };
   return (
-    <div className="page-stack" aria-label="日历">
+    <div className="page-stack page-stack--calendar" aria-label="日历">
       <SyncNotice state={snapshot.syncState} />
       <div className="page-heading">
         <div><span className="eyebrow">{monthLabel}</span><h1>收入日历</h1></div>
-        <Button
-          variant="secondary"
-          onClick={() => setSelectedDate(
-            days.find(day => day.date === snapshot.ownerDate)?.date ?? days[0]?.date ?? null,
-          )}
-          disabled={
-            !days.length
-            || calendarMonth.state === "stale"
-            || calendarMonth.coverage?.can_adjust_date === false
-          }
-        >
-          调整日期
-        </Button>
+        <div className="page-heading__actions">
+          <Button
+            variant="secondary"
+            onClick={() => openEditor("date")}
+            disabled={
+              !actionDate
+              || calendarMonth.state === "stale"
+              || calendarMonth.coverage?.can_adjust_date === false
+            }
+          >
+            调整日期
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => openEditor("overtime")}
+            disabled={!actionDate || calendarMonth.state === "stale"}
+          >
+            记录加班
+          </Button>
+        </div>
       </div>
       {overrideFeedback && <Feedback tone="success">{overrideFeedback}</Feedback>}
       <section className="surface calendar">
@@ -412,12 +548,13 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
         {(calendarMonth.state === "ready" || calendarMonth.state === "stale") && (
           <>
             <div className="calendar__weekdays">{["日","一","二","三","四","五","六"].map(day => <span key={day}>{day}</span>)}</div>
-            <div className="calendar__grid">
+            <div className="calendar__grid" data-weeks={calendarWeeks}>
               {leadingBlanks.map((_, index) => <span key={`blank-${index}`} />)}
               {days.map(daySnapshot => {
                 const day = Number(daySnapshot.date.slice(-2));
                 const isToday = daySnapshot.date === todayKey;
                 const isSelected = daySnapshot.date === selectedDate;
+                const hasOvertime = overtimeDates.has(daySnapshot.date);
                 const businessState = calendarBusinessState(daySnapshot);
                 const contract = calendarCellContract({
                   businessState,
@@ -431,23 +568,63 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
                     key={daySnapshot.date}
                     aria-current={isToday ? "date" : undefined}
                     aria-pressed={isSelected}
-                    aria-label={`${displayMonthNumber}月${day}日，${contract.ariaLabel}`}
-                    className={contract.classNames.join(" ")}
+                    aria-label={`${displayMonthNumber}月${day}日，${contract.ariaLabel}${hasOvertime ? "，有加班记录" : ""}`}
+                    className={[...contract.classNames, hasOvertime ? "has-overtime" : ""].filter(Boolean).join(" ")}
                     disabled={
                       calendarMonth.state === "stale"
                       || calendarMonth.coverage?.can_adjust_date === false
                     }
-                    onClick={() => setSelectedDate(daySnapshot.date)}
+                    onClick={() => {
+                      setSelectedDate(daySnapshot.date);
+                      setEditorMode(null);
+                      setOverrideFeedback(null);
+                    }}
                   >
                     {contract.todayCue && (
                       <span className="calendar-day__today" aria-hidden="true">{contract.todayCue}</span>
                     )}
                     <span className="calendar-day__number">{day}</span>
                     <span className="calendar-day__marker" aria-hidden="true" />
+                    {hasOvertime && <span className="calendar-day__overtime" aria-hidden="true">加</span>}
                   </button>
                 );
               })}
             </div>
+            <section className="month-summary" aria-labelledby="month-summary-title">
+              <div className="month-summary__heading">
+                <div>
+                  <span className="eyebrow">月度总结</span>
+                  <h2 id="month-summary-title">只统计计划与主动记录</h2>
+                </div>
+                <span>不代表实际出勤</span>
+              </div>
+              <dl className="month-summary__grid">
+                <div><dt>计划工时</dt><dd>{formatWorkMinutes(monthlySummary.plannedMinutes)}</dd></div>
+                <div><dt>已流逝计划工时</dt><dd>{formatWorkMinutes(monthlySummary.elapsedPlannedMinutes)}</dd></div>
+                <div>
+                  <dt>加班工时</dt>
+                  <dd>
+                    {overtimeMonth.state === "ready"
+                      || overtimeMonth.state === "empty"
+                      || overtimeMonth.state === "stale"
+                      ? formatWorkMinutes(monthlySummary.overtimeMinutes)
+                      : overtimeMonth.state === "loading" ? "读取中…" : "暂不可用"}
+                  </dd>
+                </div>
+              </dl>
+              {overtimeMonth.state === "stale" && (
+                <div className="month-summary__notice" role="status">
+                  <span>{overtimeMonth.message}</span>
+                  <Button variant="ghost" onClick={overtimeMonth.retry}>重试</Button>
+                </div>
+              )}
+              {(overtimeMonth.state === "error" || overtimeMonth.state === "corrupt") && (
+                <div className="month-summary__notice month-summary__notice--danger" role="alert">
+                  <span>加班记录读取失败，未以 0 分钟替代。</span>
+                  <Button variant="ghost" onClick={overtimeMonth.retry}>重试</Button>
+                </div>
+              )}
+            </section>
             <div className="calendar__legend">
               <span><i className="legend-dot legend-dot--work" />工作日</span>
               <span><i className="legend-dot legend-dot--rest" />休息日</span>
@@ -461,7 +638,8 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
           </>
         )}
       </section>
-      {selectedDate !== null
+      {editorMode === "date"
+        && selectedDate !== null
         && calendarMonth.coverage?.can_adjust_date !== false
         && calendarMonth.days.find(day => day.date === selectedDate) && (
         <DateOverrideEditor
@@ -469,127 +647,25 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
           day={calendarMonth.days.find(day => day.date === selectedDate)!}
           onApplied={message => {
             setOverrideFeedback(message);
-            setSelectedDate(null);
+            setEditorMode(null);
             calendarMonth.retry();
           }}
-          onClose={() => setSelectedDate(null)}
+          onClose={() => setEditorMode(null)}
         />
       )}
-    </div>
-  );
-}
-
-function DateOverrideEditor({
-  day,
-  onApplied,
-  onClose,
-}: {
-  day: ReturnType<typeof useCalendarMonth>["days"][number];
-  onApplied(message: string): void;
-  onClose(): void;
-}) {
-  const [state, dispatch] = useReducer(
-    reduceDateOverrideEditor,
-    createDateOverrideEditorState(
-      day.date,
-      (day.override_kind ?? "automatic") as DateOverrideSelection,
-    ),
-  );
-  useEffect(() => {
-    recordSemanticEvent(
-      "calendar.override.opened",
-      `date=${day.date};automatic=${day.automatic_kind};current=${state.persisted}`,
-    );
-  }, [day.date]);
-  const close = () => {
-    dispatch({ type: "cancelled" });
-    recordSemanticEvent("calendar.override.cancelled", `date=${day.date}`);
-    onClose();
-  };
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        close();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [day.date]);
-  const apply = async () => {
-    dispatch({ type: "saving" });
-    const kind = state.draft === "automatic" ? null : state.draft;
-    try {
-      const result = await saveDateOverride(day.date, kind);
-      if (result.status === "failed") {
-        dispatch({ type: "failed", message: result.message });
-        recordSemanticEvent(
-          "calendar.override.failed",
-          `date=${day.date};kind=${state.draft};reason=${result.message}`,
-        );
-        return;
-      }
-      dispatch({ type: result.status, message: result.message });
-      recordSemanticEvent(
-        result.status === "unchanged"
-          ? "calendar.override.unchanged"
-          : state.draft === "automatic"
-            ? "calendar.override.removed"
-            : "calendar.override.applied",
-        `date=${day.date};kind=${state.draft}`,
-      );
-      onApplied(result.message);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      dispatch({ type: "failed", message: `保存失败：${message}` });
-      recordSemanticEvent(
-        "calendar.override.failed",
-        `date=${day.date};kind=${state.draft};reason=${message}`,
-      );
-    }
-  };
-  const automaticIsRest = day.automatic_kind === "rest_day";
-  return (
-    <div className="modal-backdrop" role="presentation">
-      <section
-        className="surface date-editor"
-        role="dialog"
-        aria-modal="true"
-        aria-label={`调整 ${formatFullDate(day.date)}`}
-      >
-        <div className="date-editor__heading">
-          <span className="eyebrow">手动调整</span>
-          <h2>{formatFullDate(day.date)}</h2>
-          <p>
-            自动判断：{automaticIsRest ? "休息日" : "工作日"}。
-            {automaticIsRest ? "自动休息日不能重复记为请假。" : "可区分带薪与不带薪休息。"}
-          </p>
-        </div>
-        <SegmentedControl
-          value={state.draft}
-          onChange={value => dispatch({ type: "changed", value: value as DateOverrideSelection })}
-          options={[
-            { value: "automatic", label: "自动判断" },
-            { value: "workday", label: "工作日" },
-            { value: "paid_rest", label: "带薪休息", disabled: automaticIsRest },
-            { value: "unpaid_rest", label: "不带薪休息", disabled: automaticIsRest },
-          ]}
+      {editorMode === "overtime" && selectedDate !== null && (
+        <OvertimeEditor
+          key={selectedDate}
+          businessDate={selectedDate}
+          currentHourlyRateFen={Math.max(0, Math.round(snapshot.hourlySalary * 100))}
+          onApplied={message => {
+            setOverrideFeedback(message);
+            setEditorMode(null);
+            overtimeMonth.retry();
+          }}
+          onClose={() => setEditorMode(null)}
         />
-        <div className="date-editor__actions">
-          <Button variant="secondary" onClick={close}>取消</Button>
-          <Button
-            onClick={() => void apply()}
-            disabled={state.feedback === "saving"}
-          >
-            {state.feedback === "saving" ? "正在应用…" : "应用"}
-          </Button>
-          <IconButton label="关闭日期调整" icon="close" onClick={close} />
-        </div>
-        {state.feedback !== "idle" && state.feedback !== "saving" && (
-          <Feedback tone={state.feedback === "failed" ? "error" : "success"}>
-            {state.message}
-          </Feedback>
-        )}
-      </section>
+      )}
     </div>
   );
 }
@@ -952,7 +1028,39 @@ function SettingsWindow() {
 function IncomeSettings({ config }: { config: ReturnType<typeof useConfigDraft> }) {
   return (
     <div className="settings-groups">
-      <section><h2>基础收入</h2><Field label="月薪" value={config.draft.monthly_salary || ""} suffix="元" error={config.errors.monthly_salary} onChange={event => config.update("monthly_salary", Number(event.target.value.replaceAll(",", "")) || 0)} /><label className="setting-row"><span><strong>休息模式</strong><small>决定每月工作日口径</small></span><select value={config.draft.rest_mode} onChange={event => config.update("rest_mode", event.target.value as RestMode)}><option value="double">双休</option><option value="single">单休</option><option value="alternating">大小周</option></select></label>{config.draft.rest_mode === "alternating" && <label className="setting-row"><span><strong>本周类型</strong><small>必须由你明确选择</small></span><select value={config.draft.alternating_anchor_week_type ?? ""} onChange={event => config.update("alternating_anchor_week_type", (event.target.value || null) as WeekType)}><option value="">请选择</option><option value="big">大周</option><option value="small">小周</option></select></label>}</section>
+      <section>
+        <h2>基础收入</h2>
+        <Field label="月薪" value={config.draft.monthly_salary || ""} suffix="元" error={config.errors.monthly_salary} onChange={event => config.update("monthly_salary", Number(event.target.value.replaceAll(",", "")) || 0)} />
+        <div className="setting-row">
+          <span><strong>休息模式</strong><small>决定每月工作日口径</small></span>
+          <AccessibleCombobox
+            ariaLabel="休息模式"
+            value={config.draft.rest_mode}
+            options={[
+              { value: "double", label: "双休" },
+              { value: "single", label: "单休" },
+              { value: "alternating", label: "大小周" },
+            ]}
+            onChange={value => config.update("rest_mode", value as RestMode)}
+          />
+        </div>
+        {config.draft.rest_mode === "alternating" && (
+          <div className="setting-row">
+            <span><strong>本周类型</strong><small>必须由你明确选择</small></span>
+            <AccessibleCombobox
+              ariaLabel="本周类型"
+              value={config.draft.alternating_anchor_week_type ?? ""}
+              placeholder="请选择"
+              error={config.errors.alternating_anchor_week_type}
+              options={[
+                { value: "big", label: "大周" },
+                { value: "small", label: "小周" },
+              ]}
+              onChange={value => config.update("alternating_anchor_week_type", value as WeekType)}
+            />
+          </div>
+        )}
+      </section>
       <section><h2>工作与休息</h2><div className="form-grid"><Field label="上班时间" value={config.draft.work_start_time} type="time" onChange={event => config.update("work_start_time", event.target.value)} /><Field label="下班时间" value={config.draft.work_end_time} type="time" onChange={event => config.update("work_end_time", event.target.value)} /><Field label="休息开始" value={config.draft.lunch_start_time} type="time" onChange={event => config.update("lunch_start_time", event.target.value)} /><Field label="休息结束" value={config.draft.lunch_end_time} type="time" onChange={event => config.update("lunch_end_time", event.target.value)} /></div></section>
     </div>
   );
@@ -1031,11 +1139,24 @@ function SupportSettings() {
   const [feedback, setFeedback] = useState<{ tone: "success" | "warning" | "error"; message: string } | null>(null);
   const [checking, setChecking] = useState(false);
   const [platform, setPlatform] = useState<PlatformCapabilities | null>(null);
+  const [appVersion, setAppVersion] = useState<string | null>(null);
+  const [versionError, setVersionError] = useState(false);
 
   useEffect(() => {
     void supportService.capabilities()
       .then(setPlatform)
       .catch(() => setPlatform(null));
+    let active = true;
+    void versionService.read()
+      .then(version => {
+        if (active) setAppVersion(version);
+      })
+      .catch(() => {
+        if (active) setVersionError(true);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const record = async (event: string, detail: string) => {
@@ -1068,6 +1189,10 @@ function SupportSettings() {
   };
 
   const checkUpdates = async () => {
+    if (!appVersion || versionError) {
+      setFeedback({ tone: "error", message: "无法读取当前版本，更新检查已停止。" });
+      return;
+    }
     setChecking(true);
     try {
       const response = await fetch("https://api.github.com/repos/NzyZzz1998/LetsMakeMoney/releases/latest", {
@@ -1075,12 +1200,12 @@ function SupportSettings() {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const body = await response.text();
-      const result = await supportService.evaluateUpdate("1.0.6", body, null);
+      const result = await supportService.evaluateUpdate(appVersion, body, null);
       await record("update.checked", `status=${result.status}`);
       setFeedback({ tone: result.status === "unavailable" ? "warning" : "success", message: result.message });
     } catch (error) {
       const result = await supportService
-        .evaluateUpdate("1.0.6", null, String(error))
+        .evaluateUpdate(appVersion, null, String(error))
         .catch(() => ({ status: "unavailable" as const, message: `暂时无法检查更新：${String(error)}` }));
       await record("update.check_failed", `reason=${String(error)}`);
       setFeedback({ tone: "warning", message: `${result.message} 当前版本可继续正常使用。` });
@@ -1096,14 +1221,14 @@ function SupportSettings() {
         <div className="button-list">
           <Button variant="secondary" onClick={openData}>打开数据目录</Button>
           <Button variant="secondary" onClick={copyDiagnostics}>复制诊断摘要</Button>
-          <Button variant="secondary" disabled={checking} onClick={checkUpdates}>{checking ? "正在检查…" : "检查更新"}</Button>
+          <Button variant="secondary" disabled={checking || !appVersion || versionError} onClick={checkUpdates}>{checking ? "正在检查…" : "检查更新"}</Button>
         </div>
         {feedback && <Feedback tone={feedback.tone}>{feedback.message}</Feedback>}
       </section>
       <section>
         <h2>关于</h2>
         <dl className="summary-list">
-          <div><dt>版本</dt><dd>1.0.6</dd></div>
+          <div><dt>版本</dt><dd>{versionError ? "读取失败" : appVersion ?? "正在读取…"}</dd></div>
           <div><dt>数据</dt><dd>仅保存在本机</dd></div>
           <div><dt>运行环境</dt><dd>Windows · WebView2</dd></div>
           {platform && <div><dt>原生能力</dt><dd>{platform.tray_available && platform.explorer_available ? "可用" : "部分不可用，主功能不受影响"}</dd></div>}
@@ -1121,8 +1246,12 @@ export function App() {
     document.title = WINDOW_LABELS[kind];
   }, [kind]);
 
-  if (kind === "workbench") return <WorkbenchWindow />;
-  if (kind === "settings") return <SettingsWindow />;
-  if (kind === "wizard") return <WizardWindow />;
-  return <MiniWindow onOpenWindow={label => { void showWindow(label); }} />;
+  const content = kind === "workbench"
+    ? <WorkbenchWindow />
+    : kind === "settings"
+      ? <SettingsWindow />
+      : kind === "wizard"
+        ? <WizardWindow />
+        : <MiniWindow onOpenWindow={label => { void showWindow(label); }} />;
+  return <>{content}<WindowOperationNotice /></>;
 }

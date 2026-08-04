@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "milestone": "V107-ACC-FIX",
+  "evidence_id": "V107-ACCEPTANCE-FIX-20260804-01",
+  "supersedes": null,
+  "supplements": "ACC-V107-20260804",
+  "source_head": "12b6b03ce91b716d49590e21eb8dd7fe90fa283c",
+  "source_tree_dirty": true,
+  "candidate_id": "V107-M7-DIRTY-20260804-02",
+  "candidate": {
+    "zip_size": 3317706,
+    "zip_sha256": "EF57B0361B379B0D009EBD014B8717B4D7FA50C08330B297C3071A8171E56D47",
+    "exe_size": 10271744,
+    "exe_sha256": "37DE58BCD9FE1F0FE41C0F31AA640E68C4A07004A9E9BC6E4C26B0FB6236FB98",
+    "webview2_loader_size": 160320,
+    "webview2_loader_sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C",
+    "package_contract": "passed",
+    "publication_allowed": false
+  },
+  "scope": [
+    "V107-BUG-001",
+    "V107-BUG-002",
+    "Mini/Workbench restore regression",
+    "user environment restoration"
+  ],
+  "results": {
+    "V107-BUG-001": "passed",
+    "V107-BUG-002": "passed",
+    "mini_restore": "passed",
+    "targeted_reacceptance": "passed"
+  },
+  "workbench_transactions": {
+    "requested": 3,
+    "opened": 3,
+    "compensating": 3,
+    "closed": 3,
+    "timeouts": 0,
+    "initialization_timeouts": 0,
+    "second_and_third_open_wait_seconds": 9.5
+  },
+  "version_and_update": {
+    "visible_version": "1.0.7",
+    "update_result": "当前已是最新版本",
+    "update_up_to_date_log_count": 1
+  },
+  "external_evidence": {
+    "screenshots": {
+      "first": "ACC-FIX-001",
+      "last": "ACC-FIX-008",
+      "count": 8
+    },
+    "runtime_log_sha256": "B89B36AD6A393F008F2E9734B992A08173059AE4897B3810CF5811F8EBB2FA97",
+    "runtime_event_summary_sha256": "3FCD6E90045780FEEBCDF00B60FB2793032986E8690BFDC45436D346C4835643",
+    "event_summary_sha256": "3988EB8556D9B3D3CC13858E61F9FDB23870C0B1E92CB0F82F1F436CF1F9C819"
+  },
+  "environment_restoration": {
+    "completed": true,
+    "candidate_process_count": 0,
+    "config_sha256": "451B16466CD23EA71B0CEB336900B0EB61F36F0A913ECF0149C16D11B30FC2BC",
+    "config_previous_sha256": "D283F0D57DEF595D21F609E6D7DA517666B39C0449A2089D57703EAE5CC55138",
+    "debug_log_sha256": "E5F7D56E430719ACEB96BC77E0101F52A00D24307763D5EDD3A15A55C5149469"
+  },
+  "remaining_release_gates": [
+    "Windows 11 single-display 125% DPI",
+    "Windows 11 single-display 150% DPI",
+    "owner approval and clean release commit",
+    "final candidate rebuild and identity verification"
+  ]
+}

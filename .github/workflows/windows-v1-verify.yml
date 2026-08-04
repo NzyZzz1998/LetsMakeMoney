@@ -31,33 +31,14 @@ jobs:
         with:
           toolchain: "1.97.1"
           targets: x86_64-pc-windows-msvc
+          components: rustfmt, clippy
       - name: Fetch locked Rust dependencies
         working-directory: apps/windows-v1/src-tauri
         run: cargo fetch --locked
       - name: Install frontend dependencies
         working-directory: apps/windows-v1
         run: npm ci
-      - name: Restore locked v1.0.3 release evidence
+      - name: Verify current Windows contracts and build
         shell: pwsh
         run: |
-          $assetDirectory = "releases/v1.0.3"
-          $assetName = "LetsMakeMoney-v1.0.3-windows-x86_64.zip"
-          $assetPath = Join-Path $assetDirectory $assetName
-          $expectedSha256 = "259CAE23D785FC7712CAC0EFD42991C8EE210C0BCEA1EB5C07FC171DFB993B28"
-          $assetUrl = "https://github.com/NzyZzz1998/LetsMakeMoney/releases/download/v1.0.3/$assetName"
-
-          New-Item -ItemType Directory -Force -Path $assetDirectory | Out-Null
-          Invoke-WebRequest -Uri $assetUrl -OutFile $assetPath
-
-          $actualSha256 = (Get-FileHash -LiteralPath $assetPath -Algorithm SHA256).Hash
-          if ($actualSha256 -ne $expectedSha256) {
-            throw "v1.0.3 release asset SHA256 mismatch: $actualSha256"
-          }
-      - name: Diagnose pinned Windows environment
-        shell: pwsh
-        run: |
-          ./scripts/diagnose_v104_environment.ps1
-      - name: Verify current Windows release contracts and UI
-        shell: pwsh
-        run: |
-          ./scripts/verify_v104.ps1
+          ./scripts/verify_windows_current.ps1

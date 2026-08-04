@@ -25,6 +25,8 @@ $behaviorTests = @(
     "desktop-services.behavior.ts",
     "high-risk-combinations.behavior.ts",
     "mini-edge-auto-hide.behavior.ts",
+    "overtime-service.behavior.ts",
+    "overtime-state.behavior.ts",
     "privacy-tab-presentation.behavior.ts",
     "presentation.behavior.ts",
     "presentation-utils.behavior.ts",
