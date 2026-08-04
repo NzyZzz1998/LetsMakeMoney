@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "milestone": "V107-ACC-COMPLETION",
+  "captured_at": "2026-08-04",
+  "status": "passed",
+  "source": {
+    "branch": "main",
+    "head": "12b6b03ce91b716d49590e21eb8dd7fe90fa283c",
+    "tree_dirty": true
+  },
+  "candidate": {
+    "id": "V107-M7-DIRTY-20260804-03",
+    "publication_allowed": false,
+    "zip_size": 3317755,
+    "zip_sha256": "322EB52DD01AE3B9BEE50EC3346B027C2AEA6E4669505735D01A493A3028A6E5",
+    "exe_sha256": "91F9EB87FBA35F7A6B3165A4E25CF05E544CDC598CB329FFC150ED416072BA46",
+    "webview2_loader_sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1"
+  },
+  "environment": {
+    "os": "Windows 11 x86_64",
+    "display": "single display",
+    "scale_percent": 100,
+    "windows_10": "not_verified",
+    "multiple_displays": "deferred"
+  },
+  "real_windows_results": {
+    "rest_day_overtime": {
+      "result": "passed",
+      "business_date": "2026-08-02",
+      "input_hours": 1.25,
+      "stored_minutes": 75,
+      "restart_persistence": "passed",
+      "monthly_summary": "1小时15分钟"
+    },
+    "overnight_overtime": {
+      "result": "passed",
+      "schedule": "23:00-07:30",
+      "rest_interval": "02:00-02:30",
+      "owner_date": "2026-08-03",
+      "input_hours": 0.5,
+      "stored_minutes": 30,
+      "restart_persistence": "passed",
+      "monthly_summary_with_rest_day_record": "1小时45分钟"
+    },
+    "workbench_mini_transaction": {
+      "result": "passed",
+      "detail": "Workbench 打开后隐藏 Mini，关闭后恢复进入前的展开状态；窗口生命周期和 timer 日志成对。"
+    },
+    "tray_real_mouse": {
+      "result": "passed",
+      "detail": "项目所有者使用真实鼠标完成左键隐藏、再次左键恢复和右键菜单检查；隐藏后无运行中任务栏横线，详见 acceptance-tray-summary.json。"
+    }
+  },
+  "screenshots": [
+    {
+      "id": "ACC-COMP-001-rest-day-overtime-input.png",
+      "sha256": "B2A131EBDF955DEF94773998902AAE4C4C757B4744116DEF8D337C164F51E6FA"
+    },
+    {
+      "id": "ACC-COMP-002-rest-day-overtime-saved.png",
+      "sha256": "5E330B31A6151B8D0936906D8F1CBDC455888EEB42BB3D6089D74101D54CF048"
+    },
+    {
+      "id": "ACC-COMP-003-rest-day-overtime-restart.png",
+      "sha256": "A84E1BD03F81DCF5A4B8C24B7967F2D9039F110A4DFE8A3DE47DE26BF07BDC38"
+    },
+    {
+      "id": "ACC-COMP-004-cross-night-owner-date.png",
+      "sha256": "7B8A74E016365B3D35DA7110B470250B3BE6B64D25C3F11DB5029AD3A746A022"
+    },
+    {
+      "id": "ACC-COMP-005-cross-night-overtime-saved.png",
+      "sha256": "C70C1B8A2C9A8033E125705B2E25BA00B8241CEFEBD0A805D70E5C2B38E1F31B"
+    },
+    {
+      "id": "ACC-COMP-006-cross-night-overtime-restart.png",
+      "sha256": "B9E8A9B37800374CD9FB66873B622AE3D90F2B85786C1728108BC4574CCA2344"
+    },
+    {
+      "id": "ACC-COMP-007-workbench-close-mini-restored.png",
+      "sha256": "25DB6649598439A527EC8DCEC18FC7BE3089FFA8641E90DEDAED4102DAACB579"
+    }
+  ],
+  "environment_restore": {
+    "status": "passed",
+    "candidate_processes_remaining": 0,
+    "host_config_restored_by_sha256": true,
+    "host_config_previous_restored_by_sha256": true,
+    "host_log_restored_by_sha256": true,
+    "computer_use_config_restored_by_sha256": true,
+    "computer_use_config_previous_restored_by_sha256": true,
+    "computer_use_log_restored_by_sha256": true,
+    "temporary_overtime_records_removed": true
+  },
+  "automated_final_gate": {
+    "result": "passed",
+    "verified_at": "2026-08-04",
+    "command": "scripts/verify_windows_current.ps1",
+    "current_manifest_version": "1.0.7",
+    "milestone_gates": "M1-M7 passed",
+    "typescript_strict": "passed",
+    "vite_production_build": "passed",
+    "rust_tests": "67/67 passed",
+    "cargo_fmt": "passed",
+    "cargo_clippy_deny_warnings": "passed",
+    "documentation_and_diff": "passed"
+  },
+  "release_boundary": {
+    "product_blockers": "none_known",
+    "clean_release_commit": "missing",
+    "final_candidate_hash_lock": "missing",
+    "conclusion": "acceptance_passed_pending_clean_release_identity"
+  },
+  "limits": [
+    "原始截图与完整日志仅保存在外部验收目录，仓库只保存脱敏摘要和哈希。",
+    "该候选来自脏工作树，不得作为 Release 附件。",
+    "Windows 10 和多显示器不进入本次通过声明。"
+  ]
+}

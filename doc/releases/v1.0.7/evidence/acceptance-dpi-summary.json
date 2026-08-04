@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "milestone": "V107-ACC-DPI",
+  "captured_at": "2026-08-04",
+  "source": {
+    "branch": "main",
+    "head": "12b6b03ce91b716d49590e21eb8dd7fe90fa283c",
+    "tree_dirty": true
+  },
+  "candidate": {
+    "id": "V107-M7-DIRTY-20260804-03",
+    "publication_allowed": false,
+    "zip_size": 3317755,
+    "zip_sha256": "322EB52DD01AE3B9BEE50EC3346B027C2AEA6E4669505735D01A493A3028A6E5",
+    "exe_size": 10271744,
+    "exe_sha256": "91F9EB87FBA35F7A6B3165A4E25CF05E544CDC598CB329FFC150ED416072BA46",
+    "webview2_loader_size": 160320,
+    "webview2_loader_sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C",
+    "build_info_sha256": "66FE6121DE896AFA206BBEE394BA6E10CAE9859AD22024B099F97C0200C8D300"
+  },
+  "environment": {
+    "os": "Windows 11 x86_64",
+    "display": "single display",
+    "scales_verified": [100, 125, 150],
+    "system_scale_restored_to_percent": 100
+  },
+  "failure_preserved": {
+    "candidate_id": "V107-M7-DIRTY-20260804-02",
+    "finding": "六周月份的月度总结在真实 125% 和 150% DPI 下被纵向压缩，文字发生重叠。",
+    "evidence_ids": [
+      "DPI-125-003-calendar-six-week-overlap.jpg",
+      "DPI-150-007-calendar-six-week-overlap"
+    ]
+  },
+  "fix": {
+    "scope": "月度总结改为稳定双列布局，冻结最小高度、行高和长文本收敛规则。",
+    "automated_gate": "verify_v107_m4.py passed",
+    "full_current_gate": "passed",
+    "package_contract": "passed"
+  },
+  "real_windows_reverification": {
+    "scale_125_percent": "passed",
+    "scale_150_percent": "passed",
+    "six_week_month": "2026-08",
+    "result": "六周日期、月度总结四项内容和图例均一屏可见，无裁切、重叠或文本溢出。",
+    "screenshots": [
+      {
+        "id": "DPI-125-calendar-six-week-summary-fixed.png",
+        "size": 44258,
+        "sha256": "14EA8C682517291A5D316130333333D8EA8276E31AA37DF5D018C9F781913563"
+      },
+      {
+        "id": "DPI-150-calendar-six-week-summary-fixed.png",
+        "size": 42935,
+        "sha256": "240DD5AF8FBB33E94BE12A2FA28610A6C02C676FDE7ACD80CEEE6D1E66934E56"
+      }
+    ]
+  },
+  "environment_restore": {
+    "candidate_processes_remaining": 0,
+    "config_json_restored_by_sha256": true,
+    "config_previous_restored_by_sha256": true,
+    "temporary_test_data_removed": true
+  },
+  "conclusion": "passed",
+  "limits": [
+    "截图原件保存在外部验收证据目录，仓库仅保存脱敏摘要和哈希。",
+    "该候选来自脏工作树，只能证明 DPI 修复，不得作为 Release 附件。",
+    "Windows 10 与多显示器未纳入本次通过声明。"
+  ]
+}

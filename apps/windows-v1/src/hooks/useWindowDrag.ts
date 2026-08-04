@@ -69,13 +69,12 @@ export function useWindowDrag(
     }
     pointer.current = null;
     if (current.dragging) {
-      if (commit) {
-        void moveWindow(current).finally(() => {
-          void onDragEnd?.();
-        });
-      } else {
-        void onDragEnd?.();
-      }
+      const finalize = async () => {
+        if (commit) await moveWindow(current);
+        if (kind !== "mini") await windowService.finalizeDrag(kind);
+        await onDragEnd?.();
+      };
+      void finalize();
     }
   };
 

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "product": "LetsMakeMoney Windows",
+  "version": "1.0.7",
+  "config_version": 8,
+  "aggregate": "scripts/verify_windows_current.ps1",
+  "gates": [
+    {
+      "id": "v107-m1",
+      "path": "scripts/verify_v107_m1.ps1",
+      "lifecycle": "current"
+    },
+    {
+      "id": "v107-m2",
+      "path": "scripts/verify_v107_m2.ps1",
+      "lifecycle": "current"
+    },
+    {
+      "id": "v107-m3",
+      "path": "scripts/verify_v107_m3.ps1",
+      "lifecycle": "current"
+    },
+    {
+      "id": "v107-m4",
+      "path": "scripts/verify_v107_m4.ps1",
+      "lifecycle": "current"
+    },
+    {
+      "id": "v107-m5",
+      "path": "scripts/verify_v107_m5.ps1",
+      "lifecycle": "current"
+    },
+    {
+      "id": "v107-m6",
+      "path": "scripts/verify_v107_m6.ps1",
+      "lifecycle": "current"
+    },
+    {
+      "id": "v107-m7",
+      "path": "scripts/verify_v107_m7.ps1",
+      "lifecycle": "current"
+    },
+    {
+      "id": "architecture",
+      "path": "scripts/verify_architecture.ps1",
+      "lifecycle": "reusable"
+    },
+    {
+      "id": "documentation",
+      "path": "scripts/verify_v10_docs.ps1",
+      "lifecycle": "reusable"
+    }
+  ],
+  "artifacts": {
+    "zip_name": "LetsMakeMoney-v1.0.7-windows-x86_64.zip",
+    "checksum_name": "SHA256SUMS.txt",
+    "build_info_name": "BUILD-INFO.txt",
+    "executable_name": "LetsMakeMoney.exe"
+  }
+}

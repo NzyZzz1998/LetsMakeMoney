@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "milestone": "V107-M0",
+  "first_launch_topmost": [
+    {
+      "id": "clean-first-run",
+      "entry": "no_config_then_wizard_complete",
+      "expected": "mini_is_topmost_before_first_interactive_frame",
+      "evidence": "source_path_confirmed_real_shell_pending"
+    },
+    {
+      "id": "configured-topmost-on",
+      "entry": "config_true_cold_start",
+      "expected": "mini_is_topmost",
+      "evidence": "source_path_confirmed_real_shell_pending"
+    },
+    {
+      "id": "configured-topmost-off",
+      "entry": "config_false_cold_start",
+      "expected": "mini_is_not_forced_topmost",
+      "evidence": "source_path_confirmed_real_shell_pending"
+    },
+    {
+      "id": "tray-restore",
+      "entry": "explicit_tray_restore",
+      "expected": "saved_window_policy_is_reapplied",
+      "evidence": "source_path_confirmed_real_shell_pending"
+    }
+  ],
+  "mini_workbench_entry_states": [
+    {
+      "state": "expanded",
+      "on_workbench_open": "hide_mini",
+      "on_workbench_close_or_failure": "restore_expanded"
+    },
+    {
+      "state": "privacy_retracted",
+      "on_workbench_open": "hide_mini_without_losing_privacy_state",
+      "on_workbench_close_or_failure": "restore_privacy_retracted"
+    },
+    {
+      "state": "hidden_by_user",
+      "on_workbench_open": "keep_hidden",
+      "on_workbench_close_or_failure": "keep_hidden"
+    },
+    {
+      "state": "not_present",
+      "on_workbench_open": "do_not_create_mini",
+      "on_workbench_close_or_failure": "remain_not_present"
+    }
+  ],
+  "current_visibility_contract": "uncoordinated_show_hide",
+  "auto_hide_states": [
+    {
+      "id": "docked-idle",
+      "expected": "one_retract_timer"
+    },
+    {
+      "id": "first-drag-release-without-pointerleave",
+      "expected": "stale_pointer_and_focus_are_discarded_then_one_retract_timer"
+    },
+    {
+      "id": "menu-lock",
+      "expected": "retraction_blocked_until_menu_closes"
+    },
+    {
+      "id": "modal-lock",
+      "expected": "retraction_blocked_until_modal_closes"
+    },
+    {
+      "id": "ordinary-focus-on-retracted-mini",
+      "expected": "focus_does_not_reveal"
+    },
+    {
+      "id": "late-native-result",
+      "expected": "generation_guard_keeps_newer_state"
+    }
+  ],
+  "drag_contract": {
+    "current": "move_clamped_each_frame",
+    "target": "move_free_finalize_recover",
+    "privacy_tab_is_not_lost_window": true,
+    "multi_monitor": "out_of_scope"
+  },
+  "confirmed_gaps": [
+    "first_launch_topmost_needs_windows_shell_evidence",
+    "mini_workbench_visibility_has_no_lease",
+    "window_shown_and_explicit_reveal_are_not_fully_separated",
+    "move_command_clamps_during_drag"
+  ]
+}

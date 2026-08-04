@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import { ProgressBar } from "../../components";
+import { WINDOW_SURFACE_ATTRIBUTES } from "../../components/windowSurfaceContract";
 import { useWindowDrag } from "../../hooks/useWindowDrag";
 import {
   dashboardErrorTitle,
@@ -61,6 +62,7 @@ export function MiniWindow({ onOpenWindow }: MiniWindowProps) {
       <main
         className={`mini-window mini-window--privacy-tab mini-window--dock-${edge.snapshot.dock}`}
         data-window="mini"
+        {...WINDOW_SURFACE_ATTRIBUTES}
         {...edge.handlers}
         {...drag.handlers}
         data-privacy-surface="true"
@@ -83,6 +85,7 @@ export function MiniWindow({ onOpenWindow }: MiniWindowProps) {
       <main
         className="mini-window mini-window--state"
         data-window="mini"
+        {...WINDOW_SURFACE_ATTRIBUTES}
         {...edge.handlers}
         {...drag.handlers}
       >
@@ -98,6 +101,7 @@ export function MiniWindow({ onOpenWindow }: MiniWindowProps) {
       <main
         className="mini-window mini-window--state mini-window--error"
         data-window="mini"
+        {...WINDOW_SURFACE_ATTRIBUTES}
         {...edge.handlers}
         {...drag.handlers}
       >
@@ -141,6 +145,7 @@ export function MiniWindow({ onOpenWindow }: MiniWindowProps) {
     <main
       className={`mini-window ${isRestLike ? "mini-window--rest" : ""}`}
       data-window="mini"
+      {...WINDOW_SURFACE_ATTRIBUTES}
       {...edge.handlers}
       {...drag.handlers}
     >

@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "milestone": "V107-M0",
+  "captured_at": "2026-08-03",
+  "git": {
+    "branch": "main",
+    "baseline_head": "12b6b03ce91b716d49590e21eb8dd7fe90fa283c",
+    "origin_main": "12b6b03ce91b716d49590e21eb8dd7fe90fa283c"
+  },
+  "published_release": {
+    "version": "1.0.6",
+    "tag": "v1.0.6",
+    "tag_object": "96ffc5b593c965d580d0c5b170348ba7f674dbdf",
+    "source_commit": "51e4c08da5260af9b9f4808c4f6d29591319e655",
+    "url": "https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.6",
+    "assets": [
+      {
+        "path": "LetsMakeMoney-v1.0.6-windows-x86_64.zip",
+        "size": 3245194,
+        "sha256": "AEE4BC4A41D3839E421138D0B152EA5A8B0FBDC60C5B189EA11790DE4ED8B66A"
+      },
+      {
+        "path": "SHA256SUMS.txt",
+        "size": 107,
+        "sha256": "6EE4555857B51405365D57086A40025D59A178EE5F813C8BAAF0DA0826361B9B"
+      }
+    ],
+    "package_members": [
+      {
+        "path": "LetsMakeMoney.exe",
+        "size": 10140160,
+        "sha256": "21EAC751534F4D0787DEC07545F315326E9C5D773F39D65D9F46AA1879518659"
+      },
+      {
+        "path": "WebView2Loader.dll",
+        "size": 160320,
+        "sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
+      },
+      {
+        "path": "BUILD-INFO.json",
+        "sha256": "911A7940B5BCDCC96C35C4C4DD0DB173E3A9952B0F6B8CC70D6862046A5A5604"
+      }
+    ]
+  },
+  "frozen_contracts": [
+    {
+      "path": "doc/releases/v1.0.7/prd.md",
+      "size": 31520,
+      "sha256": "2F0579B250D4BB91D8FC3BCF5CC12700D5DE08F7AF8397CC0158724A2397FF3F"
+    },
+    {
+      "path": "doc/releases/v1.0.7/traceability.md",
+      "size": 6284,
+      "sha256": "BEAD1D221B383DBC5F25A12D2F07962BE8F293E6573778807E9A10727492F409"
+    },
+    {
+      "path": "doc/releases/v1.0.7/dev_plan_v1.0.7.md",
+      "size": 26822,
+      "sha256": "11F458B17FB460F65A98379C6F2C4C1CEDF89813453DA7B57D474C35C90E8E94"
+    },
+    {
+      "path": "doc/prototypes/v1.0/index.html",
+      "size": 36405,
+      "sha256": "0FD1FABCE78A8C189AD316A2A386C5A5FF970DB33438B6F6D90760D1B2FCC7E2"
+    },
+    {
+      "path": "doc/prototypes/v1.0/app.js",
+      "size": 62012,
+      "sha256": "1AD07D9B3966E1120788EAE5A1973D052CEC07A451ABC2D57A0832842FC935DD"
+    },
+    {
+      "path": "doc/prototypes/v1.0/styles.css",
+      "size": 43920,
+      "sha256": "9710C301DA2931E5FEE9DAA4F5E331BE26A531A4AB32486480659DD32F35B222"
+    }
+  ],
+  "confirmed_gaps": [
+    "current_ci_restores_v1_0_3_and_runs_verify_v104",
+    "config_v8_schema_omits_mini_edge_fields",
+    "version_metadata_has_multiple_writers",
+    "current_and_historical_scripts_have_no_single_lifecycle_index",
+    "mini_workbench_visibility_is_not_transactional",
+    "window_move_is_clamped_on_every_frame",
+    "overtime_domain_is_absent"
+  ],
+  "evidence_invalidation": [
+    "source_or_dependency_identity_changed",
+    "config_or_ipc_contract_changed",
+    "window_or_webview_lifecycle_changed",
+    "candidate_binary_or_build_info_changed",
+    "window_layout_theme_or_dpi_behavior_changed",
+    "overtime_or_monthly_summary_contract_changed"
+  ]
+}

@@ -49,7 +49,8 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪
 
 ### 环境
 
-- Windows 10/11 x86_64
+- Windows 11 x86_64（v1.0.7 已验证支持环境为单显示器；125%/150% DPI 在最终候选阶段补证）
+- Windows 10 x86_64 仅保留尽力兼容，当前没有真实设备或 VM 证据
 - Node.js 22+
 - Python 3.12
 - Rust 1.97.1 MSVC 工具链
@@ -75,11 +76,13 @@ npm run tauri dev
 ### 构建便携程序
 
 ```powershell
-# 在仓库根目录执行
-powershell -ExecutionPolicy Bypass -File .\scripts\package_v106.ps1
+# 在仓库根目录执行，生成 v1.0.7 隔离开发候选
+powershell -ExecutionPolicy Bypass -File .\scripts\package_v107.ps1
 ```
 
-v1.0.6 本地候选只写入 `.artifacts\candidates\v1.0.6\<candidate-id>\`，不会覆盖 `releases\` 或 GitHub 回下载缓存。构建和验证不应依赖未声明的本机路径或私有文件；本地同名文件不能替代 GitHub Release 附件身份。
+v1.0.7 本地候选只写入 `.artifacts\candidates\v1.0.7\<candidate-id>\`，不会覆盖 `releases\` 或 GitHub 回下载缓存。构建和验证不应依赖未声明的本机路径或私有文件；本地同名文件不能替代 GitHub Release 附件身份。当前公开下载仍是 v1.0.6 Stable。
+
+v1.0.7 的详细环境边界见 [支持矩阵](doc/releases/v1.0.7/support-matrix.md)。多显示器和 Windows 10 不进入 v1.0.7 已验证通过声明。
 
 ## 数据、隐私与回退
 
@@ -97,12 +100,12 @@ v1.0 Windows 主线的配置与日志目录：
 ## 验证
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v106.ps1 -Milestone M5
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_windows_current.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
-# 生成候选后，使用脚本输出的路径执行 M6 聚合验证
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v106.ps1 -Milestone M6 -CandidatePath <候选 Zip 路径>
+# 生成 v1.0.7 开发候选后，使用脚本输出的路径执行 M7 聚合验证
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v107.ps1 -Milestone M7 -CandidatePath <v1.0.7 候选 Zip 路径>
 # 单独复核受控候选包身份；published 模式还必须提供 tag、Release URL 与回下载校验文件
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v106_package.ps1 -Mode candidate -PackagePath <候选 Zip 路径> -ExpectedSourceHead <40 位提交> -ExpectedZipSha256 <SHA256>
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_v107_package.ps1 -Mode candidate -PackagePath <候选 Zip 路径> -ExpectedSourceHead <40 位提交> -ExpectedZipSha256 <SHA256>
 ```
 
 自动测试覆盖工资计算、配置事务、窗口合同、托盘桥接、文档和包完整性。真实通知区、任务栏、DPI 与重启恢复仍以 Windows 桌面验收为准。

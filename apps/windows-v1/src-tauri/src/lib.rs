@@ -43,10 +43,10 @@ const WINDOW_SPECS: [WindowSpec; 4] = [
     WindowSpec {
         label: "workbench",
         title: "LetsMakeMoney 今日工作台",
-        width: 920.0,
-        height: 640.0,
+        width: 820.0,
+        height: 620.0,
         min_width: 820.0,
-        min_height: 560.0,
+        min_height: 620.0,
         resizable: true,
         skip_taskbar: false,
     },
@@ -95,6 +95,7 @@ struct ConfigurationState(AtomicBool);
 struct ExitState(AtomicBool);
 struct PositionSaveRevision(AtomicU64);
 struct PlatformRuntime(Mutex<PlatformCapabilities>);
+struct WindowVisibilityRuntime(Mutex<window_policy::VisibilityLeaseMachine>);
 
 const THEME_SESSION_EVENT: &str = "lmm://theme-preview";
 
@@ -637,7 +638,7 @@ fn build_window(app: &AppHandle, spec: WindowSpec) -> Result<WebviewWindow, Stri
         .transparent(true)
         .shadow(true)
         .skip_taskbar(spec.skip_taskbar)
-        .visible(spec.label == "mini")
+        .visible(false)
         .build()
         .map_err(|error| {
             let reason = format!("failed to create {} window: {error}", spec.label);
@@ -1316,60 +1317,28 @@ fn safe_window_position(window: &WebviewWindow) -> Result<(), String> {
         width: size.width,
         height: size.height,
     };
-    if let Ok(work_area) = platform::work_area_for_rect(window_rect) {
-        let scale = window.scale_factor().map_err(|error| error.to_string())?;
-        let (x, y) = platform::fallback_to_work_area(
-            window_rect,
-            work_area,
-            scale,
-            platform::MINI_EDGE_FALLBACK_MARGIN_LOGICAL_PX,
-        );
-        if x != position.x || y != position.y {
-            window
-                .set_position(Position::Physical(PhysicalPosition::new(x, y)))
-                .map_err(|error| error.to_string())?;
-        }
-        return Ok(());
-    }
-    let monitors = window
-        .available_monitors()
-        .map_err(|error| error.to_string())?;
-    let center_x = position.x.saturating_add((size.width / 2) as i32);
-    let center_y = position.y.saturating_add((size.height / 2) as i32);
-    let selected = monitors
-        .iter()
-        .find(|monitor| {
-            let origin = monitor.position();
-            let monitor_size = monitor.size();
-            platform::point_in_rect(
-                center_x,
-                center_y,
-                platform::Rect {
-                    x: origin.x,
-                    y: origin.y,
-                    width: monitor_size.width,
-                    height: monitor_size.height,
-                },
-            )
-        })
-        .cloned()
-        .or_else(|| window.primary_monitor().ok().flatten())
-        .or_else(|| monitors.into_iter().next());
-
-    let Some(monitor) = selected else {
-        return Ok(());
-    };
-    let origin = monitor.position();
-    let monitor_size = monitor.size();
-    let (x, y) = platform::clamp_window_to_monitor(
-        window_rect,
-        platform::Rect {
+    let work_area = platform::work_area_for_rect(window_rect).or_else(|_| {
+        let monitor = window
+            .primary_monitor()
+            .map_err(|error| error.to_string())?
+            .ok_or_else(|| "primary_monitor_unavailable".to_string())?;
+        let origin = monitor.position();
+        let monitor_size = monitor.size();
+        Ok::<platform::Rect, String>(platform::Rect {
             x: origin.x,
             y: origin.y,
             width: monitor_size.width,
             height: monitor_size.height,
-        },
-        12,
+        })
+    })?;
+    let scale = window.scale_factor().map_err(|error| error.to_string())?;
+    let (grab_width, grab_height) = window_policy::safe_grab_logical_size(window.label());
+    let (x, y) = window_policy::recover_to_safe_grab_region(
+        window_rect,
+        work_area,
+        scale,
+        grab_width,
+        grab_height,
     );
     if x != position.x || y != position.y {
         window
@@ -1379,7 +1348,11 @@ fn safe_window_position(window: &WebviewWindow) -> Result<(), String> {
     Ok(())
 }
 
-fn apply_window_policy(app: &AppHandle, window: &WebviewWindow, label: &str) -> Result<(), String> {
+fn apply_window_policy_inner(
+    app: &AppHandle,
+    window: &WebviewWindow,
+    label: &str,
+) -> Result<(), String> {
     let spec = window_spec(label)?;
     append_log(app, "window.policy_started", &format!("label={label}"));
     window
@@ -1397,9 +1370,15 @@ fn apply_window_policy(app: &AppHandle, window: &WebviewWindow, label: &str) -> 
             .lock()
             .map(|config| config.clone())
             .unwrap_or_default();
-        window
-            .set_always_on_top(config.mini_window_always_on_top)
-            .map_err(|error| error.to_string())?;
+        if let Err(error) = window.set_always_on_top(config.mini_window_always_on_top) {
+            let reason = format!("always_on_top:{error}");
+            append_log(
+                app,
+                "window.policy.failed",
+                &format!("label=mini policy=always_on_top reason={error}"),
+            );
+            schedule_window_operation_failure(app, "mini", "always_on_top", &reason);
+        }
         if let Some(position) = config.mini_window_position {
             window
                 .set_position(Position::Physical(PhysicalPosition::new(
@@ -1494,6 +1473,24 @@ fn apply_window_policy(app: &AppHandle, window: &WebviewWindow, label: &str) -> 
         &format!("label={label} skip_taskbar={}", spec.skip_taskbar),
     );
     Ok(())
+}
+
+fn apply_window_policy(app: &AppHandle, window: &WebviewWindow, label: &str) -> Result<(), String> {
+    append_log(app, "window.policy.requested", &format!("label={label}"));
+    match apply_window_policy_inner(app, window, label) {
+        Ok(()) => {
+            append_log(app, "window.policy.applied", &format!("label={label}"));
+            Ok(())
+        }
+        Err(error) => {
+            append_log(
+                app,
+                "window.policy.failed",
+                &format!("label={label} reason={error}"),
+            );
+            Err(format!("window_policy_failed:{label}:{error}"))
+        }
+    }
 }
 
 fn window_show_error(app: &AppHandle, label: &str, stage: &str, error: String) -> String {
@@ -1625,13 +1622,113 @@ fn resume_webview_internal(app: &AppHandle, window: &WebviewWindow, label: &str)
 #[cfg(not(target_os = "windows"))]
 fn resume_webview_internal(_app: &AppHandle, _window: &WebviewWindow, _label: &str) {}
 
-fn show_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
-    append_log(app, "window.show_requested", &format!("label={label}"));
+fn dispatch_window_lifecycle_event(
+    app: &AppHandle,
+    window: &WebviewWindow,
+    label: &str,
+    event: &str,
+    source: &str,
+) {
+    let event = serde_json::to_string(event).unwrap_or_else(|_| "\"lmm:window-event\"".into());
+    let source = serde_json::to_string(source).unwrap_or_else(|_| "\"unknown\"".into());
+    let script = format!(
+        "window.dispatchEvent(new CustomEvent({event}, {{ detail: {{ source: {source} }} }}))"
+    );
+    if let Err(error) = window.eval(&script) {
+        append_log(
+            app,
+            "window.lifecycle_event_failed",
+            &format!("label={label} event={event} source={source} reason={error}"),
+        );
+    }
+}
+
+fn dispatch_window_operation_failure(app: &AppHandle, label: &str, operation: &str, reason: &str) {
+    let Some(window) = app.get_webview_window(label) else {
+        return;
+    };
+    let detail = serde_json::json!({
+        "label": label,
+        "operation": operation,
+        "reason": reason,
+    });
+    let script = format!(
+        "window.dispatchEvent(new CustomEvent('lmm:window-operation-failed', {{ detail: {} }}))",
+        detail
+    );
+    if let Err(error) = window.eval(&script) {
+        append_log(
+            app,
+            "window.operation_feedback_failed",
+            &format!("label={label} operation={operation} reason={error}"),
+        );
+    }
+}
+
+fn schedule_window_operation_failure(app: &AppHandle, label: &str, operation: &str, reason: &str) {
+    let app = app.clone();
+    let label = label.to_string();
+    let operation = operation.to_string();
+    let reason = reason.to_string();
+    thread::spawn(move || {
+        thread::sleep(Duration::from_millis(500));
+        dispatch_window_operation_failure(&app, &label, &operation, &reason);
+    });
+}
+
+fn apply_mini_topmost_policy(app: &AppHandle, window: &WebviewWindow) -> Result<(), String> {
+    let always_on_top = app
+        .state::<RuntimeConfig>()
+        .0
+        .lock()
+        .map_err(|_| "config_lock_failed".to_string())?
+        .mini_window_always_on_top;
+    append_log(
+        app,
+        "window.policy.requested",
+        &format!("label=mini policy=always_on_top value={always_on_top}"),
+    );
+    if let Err(error) = window.set_always_on_top(always_on_top) {
+        let reason = format!("always_on_top:{error}");
+        append_log(
+            app,
+            "window.policy.failed",
+            &format!("label=mini policy=always_on_top reason={error}"),
+        );
+        schedule_window_operation_failure(app, "mini", "always_on_top", &reason);
+        return Ok(());
+    }
+    append_log(
+        app,
+        "window.policy.applied",
+        &format!("label=mini policy=always_on_top value={always_on_top}"),
+    );
+    Ok(())
+}
+
+fn show_window_with_options(
+    app: &AppHandle,
+    label: &str,
+    source: &str,
+    focus: bool,
+    apply_policy: bool,
+    emit_lifecycle: bool,
+) -> Result<(), String> {
+    append_log(
+        app,
+        "window.show_requested",
+        &format!("label={label} source={source} focus={focus}"),
+    );
     let window = ensure_window(app, label)
         .map_err(|error| window_show_error(app, label, "ensure", error))?;
     append_log(app, "window.ensure_completed", &format!("label={label}"));
-    apply_window_policy(app, &window, label)
-        .map_err(|error| window_show_error(app, label, "policy", error))?;
+    if apply_policy {
+        apply_window_policy(app, &window, label)
+            .map_err(|error| window_show_error(app, label, "policy", error))?;
+    } else if label == "mini" {
+        apply_mini_topmost_policy(app, &window)
+            .map_err(|error| window_show_error(app, label, "policy", error))?;
+    }
     resume_webview_internal(app, &window, label);
     window
         .show()
@@ -1640,39 +1737,47 @@ fn show_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
     window
         .unminimize()
         .map_err(|error| window_show_error(app, label, "unminimize", error.to_string()))?;
-    window.set_focus().map_err(|error| {
-        append_log(
-            app,
-            "window.activation_failed",
-            &format!("label={label} reason={error}"),
-        );
-        window_show_error(app, label, "focus", error.to_string())
-    })?;
-    append_log(app, "window.focused", &format!("label={label}"));
-    if let Err(error) = window.eval("window.dispatchEvent(new CustomEvent('lmm:window-shown'))") {
-        append_log(
-            app,
-            "window.lifecycle_event_failed",
-            &format!("label={label} event=shown reason={error}"),
-        );
+    if focus {
+        window.set_focus().map_err(|error| {
+            append_log(
+                app,
+                "window.activation_failed",
+                &format!("label={label} reason={error}"),
+            );
+            window_show_error(app, label, "focus", error.to_string())
+        })?;
+        append_log(app, "window.focused", &format!("label={label}"));
     }
-    append_log(app, "window.shown", &format!("label={label}"));
+    if emit_lifecycle {
+        dispatch_window_lifecycle_event(app, &window, label, "lmm:window-shown", source);
+    }
+    append_log(
+        app,
+        "window.shown",
+        &format!("label={label} source={source} focus={focus}"),
+    );
+    Ok(())
+}
+
+fn show_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
+    show_window_with_options(app, label, "user_request", true, true, true)
+}
+
+fn hide_window_with_source(app: &AppHandle, label: &str, source: &str) -> Result<(), String> {
+    let window = ensure_window(app, label)?;
+    window.hide().map_err(|error| error.to_string())?;
+    dispatch_window_lifecycle_event(app, &window, label, "lmm:window-hidden", source);
+    append_log(
+        app,
+        "window.hidden",
+        &format!("label={label} source={source}"),
+    );
+    suspend_webview_internal(app, &window, label);
     Ok(())
 }
 
 fn hide_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
-    let window = ensure_window(app, label)?;
-    if let Err(error) = window.eval("window.dispatchEvent(new CustomEvent('lmm:window-hidden'))") {
-        append_log(
-            app,
-            "window.lifecycle_event_failed",
-            &format!("label={label} event=hidden reason={error}"),
-        );
-    }
-    window.hide().map_err(|error| error.to_string())?;
-    append_log(app, "window.hidden", &format!("label={label}"));
-    suspend_webview_internal(app, &window, label);
-    Ok(())
+    hide_window_with_source(app, label, "user_request")
 }
 
 fn toggle_mini_window(app: &AppHandle) -> Result<(), String> {
@@ -1681,20 +1786,298 @@ fn toggle_mini_window(app: &AppHandle) -> Result<(), String> {
         if mini_edge_status_internal(app)?.visibility == "retracted" {
             set_mini_edge_retracted_internal(app, false, "tray_restore", true)?;
             window.set_focus().map_err(|error| error.to_string())?;
-            if let Err(error) =
-                window.eval("window.dispatchEvent(new CustomEvent('lmm:window-shown'))")
-            {
-                append_log(
-                    app,
-                    "window.lifecycle_event_failed",
-                    &format!("label=mini event=shown reason={error}"),
-                );
-            }
+            dispatch_window_lifecycle_event(
+                app,
+                &window,
+                "mini",
+                "lmm:window-shown",
+                "tray_restore_privacy",
+            );
             return Ok(());
         }
         hide_window_internal(app, "mini")
     } else {
         show_window_internal(app, "mini")
+    }
+}
+
+fn mini_pre_visibility(app: &AppHandle) -> Result<window_policy::MiniPreVisibility, String> {
+    let Some(window) = app.get_webview_window("mini") else {
+        return Ok(window_policy::MiniPreVisibility::NotPresent);
+    };
+    if !window.is_visible().map_err(|error| error.to_string())? {
+        return Ok(window_policy::MiniPreVisibility::HiddenByUser);
+    }
+    let visibility = app
+        .state::<MiniEdgeRuntime>()
+        .state
+        .lock()
+        .map_err(|_| "mini_edge_state_lock_failed".to_string())?
+        .visibility;
+    Ok(if visibility == MiniEdgeVisibility::Retracted {
+        window_policy::MiniPreVisibility::PrivacyRetracted
+    } else {
+        window_policy::MiniPreVisibility::Expanded
+    })
+}
+
+fn transition_visibility_lease(
+    app: &AppHandle,
+    transaction_id: u64,
+    phase: window_policy::VisibilityLeasePhase,
+) -> Result<(), String> {
+    let runtime = app.state::<WindowVisibilityRuntime>();
+    let mut machine = runtime
+        .0
+        .lock()
+        .map_err(|_| "window_visibility_lock_failed".to_string())?;
+    let lease = machine
+        .transition(transaction_id, phase)
+        .ok_or_else(|| "window_visibility_stale_transaction".to_string())?;
+    append_log(
+        app,
+        "window.visibility_lease.transition",
+        &format!(
+            "transaction_id={} phase={} mini_before={}",
+            lease.transaction_id,
+            lease.phase.label(),
+            lease.mini_before.label()
+        ),
+    );
+    Ok(())
+}
+
+fn current_visibility_lease(app: &AppHandle) -> Result<window_policy::VisibilityLease, String> {
+    app.state::<WindowVisibilityRuntime>()
+        .0
+        .lock()
+        .map(|machine| machine.current())
+        .map_err(|_| "window_visibility_lock_failed".to_string())
+}
+
+fn restore_mini_pre_visibility(
+    app: &AppHandle,
+    mini_before: window_policy::MiniPreVisibility,
+) -> Result<(), String> {
+    match window_policy::mini_restore_action(mini_before) {
+        window_policy::MiniRestoreAction::ShowExpanded => {
+            show_window_with_options(app, "mini", "workbench_restore_expanded", false, true, true)
+        }
+        window_policy::MiniRestoreAction::ShowPrivacyRetracted => {
+            show_window_with_options(app, "mini", "workbench_restore_privacy", false, false, true)
+        }
+        window_policy::MiniRestoreAction::KeepHidden => Ok(()),
+    }
+}
+
+fn schedule_workbench_open_watchdog(app: &AppHandle, transaction_id: u64) {
+    let app = app.clone();
+    thread::spawn(move || {
+        thread::sleep(Duration::from_secs(8));
+        let Ok(lease) = current_visibility_lease(&app) else {
+            return;
+        };
+        if lease.transaction_id != transaction_id
+            || lease.phase != window_policy::VisibilityLeasePhase::Opening
+        {
+            return;
+        }
+        append_log(
+            &app,
+            "window.visibility_lease.timeout",
+            &format!("transaction_id={transaction_id} label=workbench"),
+        );
+        let _ = hide_window_with_source(&app, "workbench", "workbench_initialization_timeout");
+        let _ = transition_visibility_lease(
+            &app,
+            transaction_id,
+            window_policy::VisibilityLeasePhase::Failed,
+        );
+    });
+}
+
+fn open_workbench_transaction(app: &AppHandle, source: &str) -> Result<(), String> {
+    let workbench_preexisted = app.get_webview_window("workbench").is_some();
+    let mini_before = mini_pre_visibility(app)?;
+    let (lease, started) = {
+        let runtime = app.state::<WindowVisibilityRuntime>();
+        let mut machine = runtime
+            .0
+            .lock()
+            .map_err(|_| "window_visibility_lock_failed".to_string())?;
+        machine.begin(mini_before)
+    };
+    append_log(
+        app,
+        "window.visibility_lease.requested",
+        &format!(
+            "transaction_id={} phase={} mini_before={} started={started} source={source}",
+            lease.transaction_id,
+            lease.phase.label(),
+            lease.mini_before.label()
+        ),
+    );
+    show_window_with_options(app, "workbench", source, true, true, true).inspect_err(|_error| {
+        let _ = transition_visibility_lease(
+            app,
+            lease.transaction_id,
+            window_policy::VisibilityLeasePhase::Failed,
+        );
+    })?;
+    if started {
+        match window_policy::workbench_ready_strategy(workbench_preexisted) {
+            window_policy::WorkbenchReadyStrategy::AwaitFrontend => {
+                schedule_workbench_open_watchdog(app, lease.transaction_id);
+            }
+            window_policy::WorkbenchReadyStrategy::ConfirmNatively => {
+                confirm_workbench_ready_internal(app, Some(lease.transaction_id))?;
+            }
+        }
+    }
+    Ok(())
+}
+
+fn confirm_workbench_ready_internal(
+    app: &AppHandle,
+    expected_transaction_id: Option<u64>,
+) -> Result<(), String> {
+    let lease = current_visibility_lease(app)?;
+    if expected_transaction_id.is_some_and(|expected| expected != lease.transaction_id) {
+        return Err("window_visibility_stale_transaction".to_string());
+    }
+    if lease.phase == window_policy::VisibilityLeasePhase::Open {
+        return Ok(());
+    }
+    if lease.phase != window_policy::VisibilityLeasePhase::Opening {
+        return Err(format!(
+            "window_visibility_invalid_phase:{}",
+            lease.phase.label()
+        ));
+    }
+    let hide_result = match lease.mini_before {
+        window_policy::MiniPreVisibility::Expanded
+        | window_policy::MiniPreVisibility::PrivacyRetracted => {
+            hide_window_with_source(app, "mini", "workbench_ready")
+        }
+        window_policy::MiniPreVisibility::HiddenByUser
+        | window_policy::MiniPreVisibility::NotPresent => Ok(()),
+    };
+    if let Err(error) = hide_result {
+        let _ = hide_window_with_source(app, "workbench", "workbench_open_compensation");
+        let _ = restore_mini_pre_visibility(app, lease.mini_before);
+        let _ = transition_visibility_lease(
+            app,
+            lease.transaction_id,
+            window_policy::VisibilityLeasePhase::Failed,
+        );
+        return Err(format!("window_visibility_mini_hide_failed:{error}"));
+    }
+    transition_visibility_lease(
+        app,
+        lease.transaction_id,
+        window_policy::VisibilityLeasePhase::Open,
+    )
+}
+
+fn close_workbench_transaction(app: &AppHandle, source: &str) -> Result<(), String> {
+    let lease = current_visibility_lease(app)?;
+    if matches!(
+        lease.phase,
+        window_policy::VisibilityLeasePhase::Closed | window_policy::VisibilityLeasePhase::Failed
+    ) {
+        return hide_window_with_source(app, "workbench", source);
+    }
+    transition_visibility_lease(
+        app,
+        lease.transaction_id,
+        window_policy::VisibilityLeasePhase::Compensating,
+    )?;
+    if lease.phase == window_policy::VisibilityLeasePhase::Open {
+        if let Err(error) = restore_mini_pre_visibility(app, lease.mini_before) {
+            let _ = transition_visibility_lease(
+                app,
+                lease.transaction_id,
+                window_policy::VisibilityLeasePhase::Failed,
+            );
+            return Err(format!("window_visibility_mini_restore_failed:{error}"));
+        }
+    }
+    if let Err(error) = hide_window_with_source(app, "workbench", source) {
+        if matches!(
+            lease.mini_before,
+            window_policy::MiniPreVisibility::Expanded
+                | window_policy::MiniPreVisibility::PrivacyRetracted
+        ) {
+            let _ = hide_window_with_source(app, "mini", "workbench_close_compensation");
+        }
+        let _ = transition_visibility_lease(
+            app,
+            lease.transaction_id,
+            window_policy::VisibilityLeasePhase::Failed,
+        );
+        return Err(format!("window_visibility_workbench_hide_failed:{error}"));
+    }
+    transition_visibility_lease(
+        app,
+        lease.transaction_id,
+        window_policy::VisibilityLeasePhase::Closed,
+    )
+}
+
+fn compensate_workbench_loss(app: &AppHandle, source: &str) -> Result<(), String> {
+    let lease = current_visibility_lease(app)?;
+    if matches!(
+        lease.phase,
+        window_policy::VisibilityLeasePhase::Closed | window_policy::VisibilityLeasePhase::Failed
+    ) {
+        return Ok(());
+    }
+    if lease.phase == window_policy::VisibilityLeasePhase::Opening {
+        transition_visibility_lease(
+            app,
+            lease.transaction_id,
+            window_policy::VisibilityLeasePhase::Failed,
+        )?;
+        append_log(
+            app,
+            "window.visibility_lease.compensated",
+            &format!(
+                "transaction_id={} source={source} mini_restored=false reason=workbench_lost_during_opening",
+                lease.transaction_id
+            ),
+        );
+        return Ok(());
+    }
+    transition_visibility_lease(
+        app,
+        lease.transaction_id,
+        window_policy::VisibilityLeasePhase::Compensating,
+    )?;
+    match restore_mini_pre_visibility(app, lease.mini_before) {
+        Ok(()) => {
+            transition_visibility_lease(
+                app,
+                lease.transaction_id,
+                window_policy::VisibilityLeasePhase::Closed,
+            )?;
+            append_log(
+                app,
+                "window.visibility_lease.compensated",
+                &format!(
+                    "transaction_id={} source={source} mini_restored=true",
+                    lease.transaction_id
+                ),
+            );
+            Ok(())
+        }
+        Err(error) => {
+            let _ = transition_visibility_lease(
+                app,
+                lease.transaction_id,
+                window_policy::VisibilityLeasePhase::Failed,
+            );
+            Err(error)
+        }
     }
 }
 
@@ -1735,7 +2118,7 @@ fn dispatch_tray_command(app: &AppHandle, id: &str) {
     }
     let result = match id {
         platform::TRAY_TOGGLE_MINI => toggle_mini_window(app),
-        platform::TRAY_WORKBENCH => show_window_internal(app, "workbench"),
+        platform::TRAY_WORKBENCH => open_workbench_transaction(app, "tray"),
         platform::TRAY_SETTINGS => show_window_internal(app, "settings"),
         platform::TRAY_WIZARD => show_window_internal(app, "wizard"),
         platform::TRAY_DATA_DIR => open_data_directory_internal(app).map(|_| ()),
@@ -1842,21 +2225,36 @@ fn implementation_phase() -> &'static str {
 async fn show_app_window(app: AppHandle, label: String) -> Result<(), String> {
     let task_app = app.clone();
     let task_label = label.clone();
-    tauri::async_runtime::spawn_blocking(move || show_window_internal(&task_app, &task_label))
-        .await
-        .map_err(|error| {
-            window_show_error(
-                &app,
-                &label,
-                "dispatch",
-                format!("window show task failed: {error}"),
-            )
-        })?
+    tauri::async_runtime::spawn_blocking(move || {
+        if task_label == "workbench" {
+            open_workbench_transaction(&task_app, "ui")
+        } else {
+            show_window_internal(&task_app, &task_label)
+        }
+    })
+    .await
+    .map_err(|error| {
+        window_show_error(
+            &app,
+            &label,
+            "dispatch",
+            format!("window show task failed: {error}"),
+        )
+    })?
 }
 
 #[tauri::command]
 fn hide_app_window(app: AppHandle, label: String) -> Result<(), String> {
-    hide_window_internal(&app, &label)
+    if label == "workbench" {
+        close_workbench_transaction(&app, "ui")
+    } else {
+        hide_window_internal(&app, &label)
+    }
+}
+
+#[tauri::command]
+fn workbench_ready(app: AppHandle) -> Result<(), String> {
+    confirm_workbench_ready_internal(&app, None)
 }
 
 #[tauri::command]
@@ -1864,8 +2262,34 @@ fn move_app_window(app: AppHandle, label: String, x: i32, y: i32) -> Result<(), 
     let window = ensure_window(&app, &label)?;
     window
         .set_position(Position::Physical(PhysicalPosition::new(x, y)))
-        .map_err(|error| error.to_string())?;
-    safe_window_position(&window)
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn finalize_window_drag(app: AppHandle, label: String) -> Result<(), String> {
+    if label == "mini" {
+        return complete_mini_drag_internal(&app, true).map(|_| ());
+    }
+    let window = ensure_window(&app, &label)?;
+    safe_window_position(&window)?;
+    append_log(
+        &app,
+        "window.drag_finalized",
+        &format!("label={label} recovery=minimal_safe_grab"),
+    );
+    Ok(())
+}
+
+#[tauri::command]
+fn recover_app_window(app: AppHandle, label: String, source: String) -> Result<(), String> {
+    let window = ensure_window(&app, &label)?;
+    safe_window_position(&window)?;
+    append_log(
+        &app,
+        "window.position_recovered",
+        &format!("label={label} source={source} recovery=minimal_safe_grab"),
+    );
+    Ok(())
 }
 
 #[tauri::command]
@@ -2096,6 +2520,10 @@ pub fn run() {
             )));
             app.manage(ExitState(AtomicBool::new(false)));
             app.manage(PositionSaveRevision(AtomicU64::new(0)));
+            app.manage(WindowVisibilityRuntime(Mutex::new(
+                window_policy::VisibilityLeaseMachine::default(),
+            )));
+            app.manage(services::overtime_service::OvertimeRuntime::default());
             app.manage(PlatformRuntime(Mutex::new(PlatformCapabilities {
                 webview2_available: platform::webview2_runtime_available(),
                 tray_available: false,
@@ -2134,9 +2562,14 @@ pub fn run() {
                 );
             }
             if configuration_initialized {
-                if let Some(mini) = app.get_webview_window("mini") {
-                    apply_window_policy(app.handle(), &mini, "mini")?;
-                }
+                show_window_with_options(
+                    app.handle(),
+                    "mini",
+                    "startup",
+                    false,
+                    true,
+                    true,
+                )?;
             }
             match build_tray(app.handle()) {
                 Ok(()) => {
@@ -2209,11 +2642,35 @@ pub fn run() {
                                 ),
                             )
                         }
-                    } else if hide_window_internal(window.app_handle(), window.label()).is_ok() {
+                    } else if (if window.label() == "workbench" {
+                        close_workbench_transaction(window.app_handle(), "system_close")
+                    } else {
+                        hide_window_internal(window.app_handle(), window.label())
+                    })
+                    .is_ok()
+                    {
                         append_log(
                             window.app_handle(),
                             "window.close_hidden",
                             &format!("label={}", window.label()),
+                        );
+                    }
+                }
+            }
+            WindowEvent::Destroyed if window.label() == "workbench" => {
+                let exiting = window
+                    .app_handle()
+                    .state::<ExitState>()
+                    .0
+                    .load(Ordering::SeqCst);
+                if !exiting {
+                    if let Err(error) =
+                        compensate_workbench_loss(window.app_handle(), "workbench_destroyed")
+                    {
+                        append_log(
+                            window.app_handle(),
+                            "window.visibility_lease.compensation_failed",
+                            &format!("source=workbench_destroyed reason={error}"),
                         );
                     }
                 }
@@ -2227,10 +2684,13 @@ pub fn run() {
             toggle_mini,
             set_mini_window_state,
             move_app_window,
+            finalize_window_drag,
+            recover_app_window,
             window_drag_origin,
             mini_edge_status,
             complete_mini_drag,
             set_mini_edge_retracted,
+            workbench_ready,
             window_snapshot,
             platform_capabilities,
             open_data_directory,
@@ -2241,6 +2701,11 @@ pub fn run() {
             commands::income::resolve_schedule_owner_date,
             commands::income::resolve_calendar_month,
             commands::income::resolve_next_workday,
+            commands::overtime::read_overtime_record,
+            commands::overtime::read_overtime_month,
+            commands::overtime::save_overtime_record,
+            commands::overtime::delete_overtime_record,
+            commands::overtime::recover_overtime_records,
             read_configuration,
             read_theme_session,
             update_theme_session,
@@ -2264,3 +2729,4 @@ mod platform;
 mod repositories;
 mod services;
 mod support;
+mod window_policy;

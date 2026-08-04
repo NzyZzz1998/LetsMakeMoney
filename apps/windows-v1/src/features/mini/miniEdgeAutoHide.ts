@@ -151,8 +151,9 @@ export function createMiniEdgeAutoHideController(
     state = { ...state, phase: "retract_pending" };
     publish();
     emit("mini.edge.retract.scheduled", source);
-    timer = scheduler.set(() => {
-      timer = null;
+    let scheduledTimer = 0;
+    scheduledTimer = scheduler.set(() => {
+      if (timer === scheduledTimer) timer = null;
       if (
         disposed
         || expectedGeneration !== generation
@@ -179,6 +180,7 @@ export function createMiniEdgeAutoHideController(
           dependencies.onError?.(error);
         });
     }, delay);
+    timer = scheduledTimer;
   };
 
   const reveal = async (source: string) => {

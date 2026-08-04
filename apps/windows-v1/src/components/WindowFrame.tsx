@@ -5,6 +5,7 @@ import {
   windowService,
   type WindowKind,
 } from "../services/windowService";
+import { WINDOW_SURFACE_ATTRIBUTES } from "./windowSurfaceContract";
 
 export function WindowFrame({
   kind,
@@ -21,17 +22,14 @@ export function WindowFrame({
 }) {
   const drag = useWindowDrag(kind);
   const close = onClose ?? (() => {
-    void windowService.hide(kind).catch(() => {
-      // Browser preview intentionally has no native window to hide.
-    });
+    void windowService.hide(kind).catch(() => undefined);
   });
 
   return (
     <main
       className={`window-frame ${className}`}
       data-window={kind}
-      data-surface-owner="window-frame"
-      data-shadow-owner="native-window"
+      {...WINDOW_SURFACE_ATTRIBUTES}
       {...drag.handlers}
     >
       <header className="titlebar">

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "milestone": "V107-M3",
+  "captured_at": "2026-08-03",
+  "candidate": {
+    "kind": "dirty-intermediate-m3-source",
+    "source_branch": "main",
+    "source_head": "12b6b03ce91b716d49590e21eb8dd7fe90fa283c",
+    "source_tree_dirty": true,
+    "release_eligible": false
+  },
+  "implementation": {
+    "shared_date_override_editor": true,
+    "date_override_entry_points": ["today", "calendar"],
+    "overtime_schema_version": 1,
+    "overtime_storage": "%APPDATA%\\LetsMakeMoney\\overtime-records.json",
+    "overtime_commands": 5,
+    "overtime_ipc_scenarios": 7,
+    "config_version_changed": false,
+    "database_added": false
+  },
+  "behavior_contracts": {
+    "date_override": ["saved", "unchanged", "cancelled", "closed", "failed"],
+    "overtime": ["read_date", "read_month", "create", "update", "delete", "recover"],
+    "duration": "0-24 hours, at most two decimals, rounded to the nearest minute; zero deletes",
+    "rate_snapshot": "create captures current hourly rate; edit preserves the original snapshot; delete and recreate captures a new snapshot",
+    "corruption": "preserve corrupt evidence, refuse false zero, require explicit recovery",
+    "write_safety": "serialized writes, temporary file, read-back verification, previous backup and atomic replacement"
+  },
+  "automated_verification": {
+    "verify_v107_m3": "passed",
+    "verify_windows_current": "passed",
+    "typescript_behavior": {
+      "date_override": "6/6",
+      "overtime_state": "13/13",
+      "overtime_service": "5/5",
+      "ipc_scenarios_total": 15
+    },
+    "rust_tests": {
+      "passed": 66,
+      "failed": 0
+    },
+    "vite_build": {
+      "result": "passed",
+      "javascript_bytes": 738450,
+      "javascript_gzip_bytes": 136750
+    },
+    "cargo_fmt": "passed",
+    "cargo_clippy_deny_warnings": "passed",
+    "git_diff_check": "passed"
+  },
+  "scope": {
+    "frontend_boundary": "src/features/calendar",
+    "rust_boundary": "src-tauri/src/window_policy.rs",
+    "command_layer": "thin parameter and state adaptation",
+    "public_ipc_compatibility": "preserved"
+  },
+  "evidence_limits": [
+    "M3 只证明领域、事务、IPC 和构建合同，不替代真实 Windows GUI 验收。",
+    "中间工作树未提交且包含后续开发改动，不得用作 Release 候选身份。",
+    "月度聚合、日历标记和六周布局属于 V107-M4，未在本证据中宣称完成。"
+  ]
+}

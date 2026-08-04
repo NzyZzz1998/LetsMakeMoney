@@ -70,7 +70,7 @@ pub struct AppConfig {
 
 impl Default for AppConfig {
     fn default() -> Self {
-        serde_json::from_str(include_str!("../../contracts/config-v102-defaults.json"))
+        serde_json::from_str(include_str!("../../contracts/config-v8-defaults.json"))
             .expect("embedded config defaults must remain valid")
     }
 }

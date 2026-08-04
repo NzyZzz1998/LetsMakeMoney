@@ -14,6 +14,7 @@ const state = {
   dialogAction: null,
   calendarYear: 2026,
   calendarMonth: 6,
+  calendarWeeks: 5,
   calendarMode: "official",
   naturalToday: "2026-07-27",
   selectedDate: "2026-07-27",
@@ -21,6 +22,10 @@ const state = {
     ["2026-07-23", "workday"],
     ["2026-07-27", "paid_rest"],
     ["2026-07-28", "unpaid_rest"],
+  ]),
+  overtimeRecords: new Map([
+    ["2026-07-23", { minutes: 90, hourlyRateCents: 6250 }],
+    ["2026-08-03", { minutes: 60, hourlyRateCents: 6250 }],
   ]),
   businessState: "working_after_rest",
   persistedTheme: "light",
@@ -33,6 +38,7 @@ const state = {
   todayVariant: "corner",
   surfaceMode: "single",
   longContent: false,
+  miniWorkbenchLease: null,
 };
 
 const salaryInput = document.querySelector("#salary-input");
@@ -43,6 +49,7 @@ const traySimulation = document.querySelector("#tray-simulation");
 const toastStack = document.querySelector("#toast-stack");
 const productDialog = document.querySelector("#product-dialog");
 const calendarOverrideDialog = document.querySelector("#calendar-override-dialog");
+const overtimeDialog = document.querySelector("#overtime-dialog");
 const calendarGrid = document.querySelector(".calendar-grid");
 const calendarStatus = document.querySelector("#calendar-status");
 const themeModeControl = document.querySelector("#theme-mode");
@@ -53,6 +60,7 @@ const miniWindow = windows.mini;
 const privacyEdgeTab = document.querySelector("#privacy-edge-tab");
 const privacyEdgeCopy = document.querySelector("#privacy-edge-copy");
 let miniDockTimer = null;
+let activeCombobox = null;
 
 function normalizeTheme(value) {
   return value === "dark" ? "dark" : "light";
@@ -242,7 +250,7 @@ function revertEdgeAutoHideDraft({ syncControl = false } = {}) {
   applyEdgeAutoHidePreview(state.persistedEdgeAutoHide, { syncControl, restoreDock: true });
 }
 
-function showWindow(name) {
+function showWindow(name, { restoreMiniLease = false } = {}) {
   if (!windows[name]) return;
   clearMiniDockTimer();
   const previous = state.currentWindow;
@@ -256,9 +264,36 @@ function showWindow(name) {
   state.currentWindow = name;
   traySimulation.hidden = true;
   if (name === "mini") {
-    revealMiniDock();
-    queueMiniDockRetract();
+    if (restoreMiniLease && state.miniWorkbenchLease) {
+      state.miniDock = state.miniWorkbenchLease.dock;
+      state.miniDockRetracted = state.miniWorkbenchLease.retracted;
+      state.miniWorkbenchLease = null;
+      applyMiniDockVisual();
+      if (!state.miniDockRetracted) queueMiniDockRetract();
+    } else {
+      revealMiniDock();
+      queueMiniDockRetract();
+    }
   }
+}
+
+function openWorkbenchTransaction() {
+  if (state.currentWindow === "mini") {
+    state.miniWorkbenchLease = {
+      dock: state.miniDock,
+      retracted: state.miniDockRetracted,
+    };
+  }
+  if (document.querySelector("#failure-mode").checked) {
+    state.miniWorkbenchLease = null;
+    showToast("今日工作台打开失败，迷你视图保持原状态。", true);
+    return;
+  }
+  showWindow("workbench");
+}
+
+function closeWorkbenchTransaction() {
+  showWindow("mini", { restoreMiniLease: true });
 }
 
 function hideToTray() {
@@ -649,6 +684,7 @@ function setBusinessState(value) {
   });
   renderTimeline(presentation.timeline);
   applyMiniDockVisual();
+  updateMonthSummary();
 }
 
 function formatDateKey(year, month, day) {
@@ -659,6 +695,47 @@ function getAutomaticDayKind(year, month, day) {
   if (formatDateKey(year, month, day) === "2026-07-25") return "adjusted";
   const weekday = new Date(year, month, day).getDay();
   return weekday === 0 || weekday === 6 ? "restday" : "workday";
+}
+
+function resolveDayKind(year, month, day) {
+  const dateKey = formatDateKey(year, month, day);
+  const automaticKind = getAutomaticDayKind(year, month, day);
+  const manualKind = state.calendarOverrides.get(dateKey);
+  if (!manualKind || manualKind === "auto") return automaticKind;
+  return manualKind.replaceAll("_", "-");
+}
+
+function formatDuration(minutes) {
+  const safeMinutes = Math.max(0, Math.round(minutes));
+  const hours = Math.floor(safeMinutes / 60);
+  const remainder = safeMinutes % 60;
+  if (!hours) return `${remainder} 分钟`;
+  if (!remainder) return `${hours} 小时`;
+  return `${hours} 小时 ${remainder} 分`;
+}
+
+function updateMonthSummary() {
+  const daysInMonth = new Date(state.calendarYear, state.calendarMonth + 1, 0).getDate();
+  let plannedMinutes = 0;
+  let elapsedPlannedMinutes = 0;
+  let overtimeMinutes = 0;
+  const monthPrefix = `${state.calendarYear}-${String(state.calendarMonth + 1).padStart(2, "0")}-`;
+  const todayKey = state.naturalToday.startsWith(monthPrefix) ? state.naturalToday : state.selectedDate;
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const dateKey = formatDateKey(state.calendarYear, state.calendarMonth, day);
+    const kind = resolveDayKind(state.calendarYear, state.calendarMonth, day);
+    if (["workday", "adjusted"].includes(kind)) {
+      plannedMinutes += 8 * 60;
+      if (dateKey < todayKey) elapsedPlannedMinutes += 8 * 60;
+      if (dateKey === todayKey && !["before_work", "rest_day", "paid_rest", "unpaid_rest"].includes(state.businessState)) {
+        elapsedPlannedMinutes += state.businessState === "after_work" ? 8 * 60 : 4 * 60;
+      }
+    }
+    overtimeMinutes += state.overtimeRecords.get(dateKey)?.minutes || 0;
+  }
+  document.querySelector("#summary-planned").textContent = formatDuration(plannedMinutes);
+  document.querySelector("#summary-elapsed").textContent = formatDuration(elapsedPlannedMinutes);
+  document.querySelector("#summary-overtime").textContent = formatDuration(overtimeMinutes);
 }
 
 function updateCalendarStatus(mode) {
@@ -708,6 +785,7 @@ function buildCalendar() {
   const root = calendarGrid;
   root.replaceChildren();
   root.className = "calendar-grid";
+  root.dataset.weeks = String(state.calendarWeeks);
   root.removeAttribute("data-empty-message");
   document.querySelector("#calendar-month-label").textContent =
     `${state.calendarYear} 年 ${state.calendarMonth + 1} 月`;
@@ -738,9 +816,7 @@ function buildCalendar() {
     const dateKey = formatDateKey(state.calendarYear, state.calendarMonth, day);
     const automaticKind = getAutomaticDayKind(state.calendarYear, state.calendarMonth, day);
     const manualKind = state.calendarOverrides.get(dateKey);
-    const resolvedClass = manualKind && manualKind !== "auto"
-      ? manualKind.replaceAll("_", "-")
-      : automaticKind;
+    const resolvedClass = resolveDayKind(state.calendarYear, state.calendarMonth, day);
     cell.className = `calendar-cell ${resolvedClass}`;
     if (manualKind && manualKind !== "auto") cell.classList.add("manual");
     if (dateKey === state.naturalToday) cell.classList.add("today");
@@ -786,6 +862,15 @@ function buildCalendar() {
       marker.setAttribute("aria-hidden", "true");
       cell.append(marker);
     }
+    const overtime = state.overtimeRecords.get(dateKey);
+    if (overtime?.minutes) {
+      const overtimeMarker = document.createElement("span");
+      overtimeMarker.className = "calendar-overtime-marker";
+      overtimeMarker.textContent = `+${Math.round((overtime.minutes / 60) * 100) / 100}h`;
+      overtimeMarker.setAttribute("aria-hidden", "true");
+      cell.append(overtimeMarker);
+      cell.setAttribute("aria-label", `${cell.getAttribute("aria-label")}；加班 ${formatDuration(overtime.minutes)}`);
+    }
     cell.addEventListener("click", () => {
       state.selectedDate = dateKey;
       buildCalendar();
@@ -793,9 +878,18 @@ function buildCalendar() {
     root.append(cell);
   }
 
+  const usedSlots = firstWeekday + daysInMonth;
+  const targetSlots = Math.max(state.calendarWeeks * 7, Math.ceil(usedSlots / 7) * 7);
+  for (let empty = usedSlots; empty < targetSlots; empty += 1) {
+    const cell = document.createElement("span");
+    cell.className = "calendar-cell empty";
+    root.append(cell);
+  }
+
   if (state.calendarMode === "loading") root.classList.add("is-loading");
   if (state.calendarMode === "stale") root.classList.add("is-stale");
   if (state.calendarMode === "estimated") root.classList.add("is-estimated");
+  updateMonthSummary();
 }
 
 function setCalendarMode(mode) {
@@ -878,6 +972,84 @@ function applyCalendarOverride() {
   showToast("日期调整已应用，相关收入与状态已重新计算。");
 }
 
+function setCalendarWeeks(value) {
+  state.calendarWeeks = value === "6" ? 6 : 5;
+  if (state.calendarWeeks === 6) {
+    state.calendarYear = 2026;
+    state.calendarMonth = 7;
+    state.selectedDate = "2026-08-03";
+  } else {
+    state.calendarYear = 2026;
+    state.calendarMonth = 6;
+    state.selectedDate = state.naturalToday;
+  }
+  setCalendarMode("official");
+}
+
+function openOvertimeDialog() {
+  if (["error", "loading"].includes(state.calendarMode)) {
+    showToast("当前日历尚不可记录加班，请先恢复可用数据。", true);
+    return;
+  }
+  const [year, month, day] = state.selectedDate.split("-").map(Number);
+  const record = state.overtimeRecords.get(state.selectedDate);
+  document.querySelector("#overtime-date-title").textContent = `${year} 年 ${month} 月 ${day} 日`;
+  document.querySelector("#overtime-hours").value = record
+    ? String(Math.round((record.minutes / 60) * 100) / 100)
+    : "";
+  document.querySelector("#overtime-delete").disabled = !record;
+  document.querySelector("#overtime-error").hidden = true;
+  overtimeDialog.showModal();
+  window.setTimeout(() => document.querySelector("#overtime-hours").focus(), 0);
+}
+
+function closeOvertimeDialog() {
+  document.querySelector("#overtime-error").hidden = true;
+  overtimeDialog.close();
+}
+
+function parseOvertimeMinutes(rawValue) {
+  const normalized = rawValue.trim();
+  if (!/^\d{1,2}(?:\.\d{1,2})?$/.test(normalized)) return null;
+  const hours = Number(normalized);
+  if (!Number.isFinite(hours) || hours < 0 || hours > 24) return null;
+  return Math.round(hours * 60);
+}
+
+function saveOvertimeRecord() {
+  const input = document.querySelector("#overtime-hours");
+  const minutes = parseOvertimeMinutes(input.value);
+  const error = document.querySelector("#overtime-error");
+  if (minutes === null) {
+    error.textContent = "请输入 0–24 之间的小时数，最多保留两位小数。";
+    error.hidden = false;
+    input.focus();
+    return;
+  }
+  if (document.querySelector("#failure-mode").checked) {
+    error.textContent = "保存失败：旧记录没有变化，当前输入已保留，可重试。";
+    error.hidden = false;
+    return;
+  }
+  if (minutes === 0) {
+    state.overtimeRecords.delete(state.selectedDate);
+  } else {
+    state.overtimeRecords.set(state.selectedDate, {
+      minutes,
+      hourlyRateCents: 6250,
+    });
+  }
+  buildCalendar();
+  closeOvertimeDialog();
+  showToast(minutes === 0 ? "加班记录已删除。" : `已记录加班 ${formatDuration(minutes)}。`);
+}
+
+function deleteOvertimeRecord() {
+  if (!state.overtimeRecords.has(state.selectedDate)) return;
+  document.querySelector("#overtime-hours").value = "0";
+  saveOvertimeRecord();
+}
+
 function showSettingsPanel(name) {
   const copy = {
     income: ["收入与作息", "用于计算日薪、时薪、今日收益和工作进度。"],
@@ -935,15 +1107,124 @@ function syncAlternatingWeekChoice() {
     : estimates[selectedRest];
 }
 
+function getComboboxValue(triggerId) {
+  return document.querySelector(`#${triggerId}`)?.dataset.value || "";
+}
+
+function closeCombobox(root, { returnFocus = false } = {}) {
+  if (!root) return;
+  const trigger = root.querySelector("[role='combobox']");
+  const listbox = root.querySelector("[role='listbox']");
+  root.classList.remove("is-open", "opens-up");
+  trigger.setAttribute("aria-expanded", "false");
+  listbox.hidden = true;
+  if (activeCombobox === root) activeCombobox = null;
+  if (returnFocus) trigger.focus();
+}
+
+function openCombobox(root, { focus = "selected" } = {}) {
+  if (!root) return;
+  if (activeCombobox && activeCombobox !== root) closeCombobox(activeCombobox);
+  const trigger = root.querySelector("[role='combobox']");
+  const listbox = root.querySelector("[role='listbox']");
+  const options = [...listbox.querySelectorAll("[role='option']")];
+  listbox.hidden = false;
+  root.classList.add("is-open");
+  trigger.setAttribute("aria-expanded", "true");
+  root.classList.toggle(
+    "opens-up",
+    root.getBoundingClientRect().bottom + listbox.scrollHeight + 16 > window.innerHeight,
+  );
+  activeCombobox = root;
+  if (focus) {
+    const selectedIndex = Math.max(0, options.findIndex((option) => option.getAttribute("aria-selected") === "true"));
+    const targetIndex = focus === "last" ? options.length - 1 : focus === "first" ? 0 : selectedIndex;
+    window.setTimeout(() => options[targetIndex]?.focus(), 0);
+  }
+}
+
+function setComboboxValue(triggerId, value, { emit = true } = {}) {
+  const trigger = document.querySelector(`#${triggerId}`);
+  const root = trigger?.closest("[data-combobox]");
+  if (!trigger || !root) return;
+  const options = [...root.querySelectorAll("[role='option']")];
+  const selected = options.find((option) => option.dataset.value === value);
+  options.forEach((option) => option.setAttribute("aria-selected", String(option === selected)));
+  trigger.dataset.value = selected?.dataset.value || "";
+  trigger.querySelector("[data-combobox-value]").textContent = selected?.textContent.trim() || "请选择";
+  closeCombobox(root);
+  if (emit) {
+    trigger.dispatchEvent(new Event("input", { bubbles: true }));
+    trigger.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+}
+
+function initializeComboboxes() {
+  document.querySelectorAll("[data-combobox]").forEach((root) => {
+    const trigger = root.querySelector("[role='combobox']");
+    const listbox = root.querySelector("[role='listbox']");
+    const options = [...listbox.querySelectorAll("[role='option']")];
+    const selected = options.find((option) => option.getAttribute("aria-selected") === "true");
+    trigger.dataset.value = selected?.dataset.value || "";
+    options.forEach((option) => {
+      option.tabIndex = -1;
+      option.addEventListener("click", () => setComboboxValue(trigger.id, option.dataset.value));
+    });
+    trigger.addEventListener("click", () => {
+      if (root.classList.contains("is-open")) closeCombobox(root);
+      else openCombobox(root, { focus: "selected" });
+    });
+    trigger.addEventListener("keydown", (event) => {
+      if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+        event.preventDefault();
+        const focus = event.key === "ArrowUp" || event.key === "End" ? "last" : "first";
+        openCombobox(root, { focus });
+      } else if (["Enter", " "].includes(event.key)) {
+        event.preventDefault();
+        if (root.classList.contains("is-open")) closeCombobox(root);
+        else openCombobox(root, { focus: "selected" });
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        closeCombobox(root);
+      }
+    });
+    listbox.addEventListener("keydown", (event) => {
+      const currentIndex = Math.max(0, options.indexOf(document.activeElement));
+      if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+        event.preventDefault();
+        const nextIndex = event.key === "Home"
+          ? 0
+          : event.key === "End"
+            ? options.length - 1
+            : (currentIndex + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length;
+        options[nextIndex]?.focus();
+      } else if (["Enter", " "].includes(event.key)) {
+        event.preventDefault();
+        const option = options[currentIndex];
+        if (option) setComboboxValue(trigger.id, option.dataset.value);
+        trigger.focus();
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        closeCombobox(root, { returnFocus: true });
+      } else if (event.key === "Tab") {
+        closeCombobox(root);
+      }
+    });
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (activeCombobox && !activeCombobox.contains(event.target)) closeCombobox(activeCombobox);
+  });
+}
+
 function syncSettingsWeekChoice() {
-  const isAlternating = document.querySelector("#rest-mode").value === "大小周";
+  const isAlternating = getComboboxValue("rest-mode") === "大小周";
   document.querySelector("#settings-week-type-row").hidden = !isAlternating;
 }
 
 function restoreDefaults() {
   salaryInput.value = "10,000";
-  document.querySelector("#rest-mode").value = "双休";
-  document.querySelector("#settings-week-type").value = "";
+  setComboboxValue("rest-mode", "双休", { emit: false });
+  setComboboxValue("settings-week-type", "", { emit: false });
   document.querySelector("#work-start").value = "08:00";
   document.querySelector("#lunch-duration").value = "2 小时";
   document.querySelector("#lunch-start").value = "12:00";
@@ -955,7 +1236,11 @@ function restoreDefaults() {
 }
 
 document.querySelectorAll("[data-window]").forEach((button) => {
-  button.addEventListener("click", () => showWindow(button.dataset.window));
+  button.addEventListener("click", () => {
+    if (button.dataset.window === "workbench") openWorkbenchTransaction();
+    else if (button.dataset.window === "mini" && state.miniWorkbenchLease) closeWorkbenchTransaction();
+    else showWindow(button.dataset.window);
+  });
 });
 
 document.querySelectorAll("[data-mini-dock]").forEach((button) => {
@@ -985,9 +1270,9 @@ miniWindow.addEventListener("focusin", revealMiniDock);
 miniWindow.addEventListener("focusout", queueMiniDockRetract);
 privacyEdgeTab.addEventListener("click", revealMiniDock);
 
-document.querySelector("#open-workbench").addEventListener("click", () => showWindow("workbench"));
+document.querySelector("#open-workbench").addEventListener("click", openWorkbenchTransaction);
 document.querySelector("#workbench-settings").addEventListener("click", () => showWindow("settings"));
-document.querySelector("#workbench-close").addEventListener("click", () => showWindow("mini"));
+document.querySelector("#workbench-close").addEventListener("click", closeWorkbenchTransaction);
 document.querySelector("#settings-close").addEventListener("click", () => {
   if (state.dirty) {
     openDialog({
@@ -1083,6 +1368,8 @@ document.querySelectorAll(".nav-item[data-view]").forEach((button) => {
 document.querySelector("#calendar-prev").addEventListener("click", () => moveCalendarMonth(-1));
 document.querySelector("#calendar-next").addEventListener("click", () => moveCalendarMonth(1));
 document.querySelector("#calendar-adjust").addEventListener("click", openCalendarOverride);
+document.querySelector("#calendar-overtime").addEventListener("click", openOvertimeDialog);
+document.querySelector("#calendar-weeks").addEventListener("change", (event) => setCalendarWeeks(event.target.value));
 document.querySelector("#adjust-today").addEventListener("click", () => {
   state.calendarYear = 2026;
   state.calendarMonth = 6;
@@ -1117,6 +1404,16 @@ document.querySelectorAll('input[name="override-kind"]').forEach((control) => {
 document.querySelector("#override-close").addEventListener("click", closeCalendarOverride);
 document.querySelector("#override-cancel").addEventListener("click", closeCalendarOverride);
 document.querySelector("#override-apply").addEventListener("click", applyCalendarOverride);
+document.querySelector("#overtime-close").addEventListener("click", closeOvertimeDialog);
+document.querySelector("#overtime-cancel").addEventListener("click", closeOvertimeDialog);
+document.querySelector("#overtime-save").addEventListener("click", saveOvertimeRecord);
+document.querySelector("#overtime-delete").addEventListener("click", deleteOvertimeRecord);
+document.querySelector("#overtime-hours").addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    saveOvertimeRecord();
+  }
+});
 document.querySelectorAll("[data-settings-panel]").forEach((button) => {
   button.addEventListener("click", () => showSettingsPanel(button.dataset.settingsPanel));
 });
@@ -1142,7 +1439,7 @@ edgeAutoHideControl.addEventListener("change", () => {
   );
 });
 
-document.querySelectorAll("#settings-form input, #settings-form select").forEach((control) => {
+document.querySelectorAll("#settings-form input, #settings-form select, #settings-form .combobox-trigger").forEach((control) => {
   control.addEventListener("input", () => {
     state.dirty = true;
     salaryError.hidden = true;
@@ -1235,6 +1532,7 @@ document.querySelector("#dialog-confirm").addEventListener("click", () => {
 });
 
 state.persistedTheme = normalizeTheme(window.localStorage.getItem("lmm-v102-prototype-theme"));
+initializeComboboxes();
 applyTheme(state.persistedTheme);
 state.persistedEdgeAutoHide = window.localStorage.getItem("lmm-v104-prototype-edge-hide") !== "false";
 state.previewEdgeAutoHide = state.persistedEdgeAutoHide;

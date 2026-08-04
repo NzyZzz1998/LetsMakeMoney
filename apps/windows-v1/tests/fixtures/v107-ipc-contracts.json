@@ -1,0 +1,142 @@
+{
+  "$schema": "../../contracts/ipc-fixture-v1.schema.json",
+  "contract_version": 1,
+  "config_version": 8,
+  "scenarios": [
+    {
+      "id": "config-save-success",
+      "domain": "configuration",
+      "implementation_status": "active",
+      "command": "save_configuration",
+      "request": {"draft": {"config_version": 8, "monthly_salary": 10000}},
+      "expected": {"status": "saved", "draft_preserved": false},
+      "invariants": ["persist_before_runtime_update", "broadcast_after_success"]
+    },
+    {
+      "id": "config-save-unchanged",
+      "domain": "configuration",
+      "implementation_status": "active",
+      "command": "save_configuration",
+      "request": {"draft": {"config_version": 8, "monthly_salary": 10000}},
+      "expected": {"status": "unchanged", "draft_preserved": false},
+      "invariants": ["no_file_rewrite", "no_duplicate_side_effect"]
+    },
+    {
+      "id": "config-save-failure-preserves-old-config",
+      "domain": "configuration",
+      "implementation_status": "active",
+      "command": "save_configuration",
+      "request": {"draft": {"config_version": 8, "monthly_salary": 12000}, "fault": "temp_write_denied"},
+      "expected": {"status": "failed", "draft_preserved": true, "error": "config_write_failed"},
+      "invariants": ["old_config_unchanged", "user_draft_retained", "failure_logged"]
+    },
+    {
+      "id": "dashboard-authoritative-success",
+      "domain": "dashboard",
+      "implementation_status": "active",
+      "command": "calculate_today_income",
+      "request": {"owner_date": "2026-08-03", "now_time": "10:00:00"},
+      "expected": {"state": "working", "owner_date": "2026-08-03"},
+      "invariants": ["authoritative_snapshot_replaces_previous", "seconds_tick_is_local_only"]
+    },
+    {
+      "id": "dashboard-authoritative-failure",
+      "domain": "dashboard",
+      "implementation_status": "active",
+      "command": "calculate_today_income",
+      "request": {"owner_date": "invalid", "now_time": "10:00:00"},
+      "expected": {"error": "invalid_date"},
+      "invariants": ["last_valid_snapshot_retained", "failure_logged"]
+    },
+    {
+      "id": "window-show-success",
+      "domain": "window",
+      "implementation_status": "active",
+      "command": "show_app_window",
+      "request": {"label": "workbench"},
+      "expected": {"status": "shown"},
+      "invariants": ["target_visible", "semantic_event_emitted"]
+    },
+    {
+      "id": "window-show-failure-compensates",
+      "domain": "window",
+      "implementation_status": "active",
+      "command": "show_app_window",
+      "request": {"label": "workbench", "fault": "create_failed"},
+      "expected": {"error": "window_show_failed", "compensation": "restore_previous_visibility"},
+      "invariants": ["no_query_navigation_fallback", "failure_logged"]
+    },
+    {
+      "id": "window-hide-success",
+      "domain": "window",
+      "implementation_status": "active",
+      "command": "hide_app_window",
+      "request": {"label": "mini"},
+      "expected": {"status": "hidden"},
+      "invariants": ["target_hidden", "semantic_event_emitted"]
+    },
+    {
+      "id": "overtime-read-date",
+      "domain": "overtime",
+      "implementation_status": "active",
+      "command": "read_overtime_record",
+      "request": {"business_date": "2026-08-03"},
+      "expected": {"status": "empty", "records": [], "schema_version": 1},
+      "invariants": ["business_date_is_explicit", "no_config_field_shortcut"]
+    },
+    {
+      "id": "overtime-read-month",
+      "domain": "overtime",
+      "implementation_status": "active",
+      "command": "read_overtime_month",
+      "request": {"month": "2026-08"},
+      "expected": {"status": "ready", "schema_version": 1},
+      "invariants": ["records_sorted_by_business_date", "cross_month_records_excluded"]
+    },
+    {
+      "id": "overtime-save",
+      "domain": "overtime",
+      "implementation_status": "active",
+      "command": "save_overtime_record",
+      "request": {"business_date": "2026-08-03", "minutes": 90, "hourly_rate_fen_snapshot": 6250},
+      "expected": {"status": "saved", "schema_version": 1},
+      "invariants": ["rate_snapshot_persisted_on_create", "rate_snapshot_preserved_on_edit", "transaction_is_atomic"]
+    },
+    {
+      "id": "overtime-delete",
+      "domain": "overtime",
+      "implementation_status": "active",
+      "command": "delete_overtime_record",
+      "request": {"business_date": "2026-08-03"},
+      "expected": {"status": "deleted", "schema_version": 1},
+      "invariants": ["zero_hours_maps_to_delete", "transaction_is_atomic"]
+    },
+    {
+      "id": "overtime-invalid-range",
+      "domain": "overtime",
+      "implementation_status": "active",
+      "command": "save_overtime_record",
+      "request": {"business_date": "2026-08-03", "minutes": 1500, "hourly_rate_fen_snapshot": 6250},
+      "expected": {"error": "overtime_minutes_out_of_range", "schema_version": 1},
+      "invariants": ["old_record_unchanged", "failure_logged"]
+    },
+    {
+      "id": "overtime-corrupt-read",
+      "domain": "overtime",
+      "implementation_status": "active",
+      "command": "read_overtime_record",
+      "request": {"business_date": "2026-08-03", "fault": "corrupt_store"},
+      "expected": {"error": "overtime_store_corrupt", "schema_version": 1},
+      "invariants": ["corrupt_source_preserved_for_recovery", "no_silent_empty_result"]
+    },
+    {
+      "id": "overtime-corrupt-recovery",
+      "domain": "overtime",
+      "implementation_status": "active",
+      "command": "recover_overtime_records",
+      "request": {"confirm": true},
+      "expected": {"status": "recovered", "schema_version": 1},
+      "invariants": ["corrupt_source_archived", "empty_store_created_only_after_explicit_confirmation"]
+    }
+  ]
+}

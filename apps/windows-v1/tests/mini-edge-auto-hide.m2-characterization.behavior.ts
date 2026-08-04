@@ -95,19 +95,17 @@ for (const dock of ["left", "right"] as const) {
   harness.setStatus(nativeStatus(dock));
   await harness.controller.dragCompleted();
 
-  assert(harness.controller.snapshot().pointerInside, `${dock}: drag completion retains pointerInside`);
+  assert(!harness.controller.snapshot().pointerInside, `${dock}: drag completion clears stale pointer intent`);
   assert(harness.controller.snapshot().dock === dock, `${dock}: native dock result is applied`);
   assert(
-    harness.scheduler.pendingCount() === 0,
-    `${dock}: the stale pointer blocks first retraction without pointerleave`,
+    harness.scheduler.pendingCount() === 1,
+    `${dock}: first retraction is scheduled without waiting for pointerleave`,
   );
 
-  harness.controller.pointerLeft();
-  assert(harness.scheduler.pendingCount() === 1, `${dock}: pointerleave is currently required`);
   harness.scheduler.fire(harness.scheduler.firstId());
   await settle();
-  assert(harness.controller.snapshot().phase === "retracted", `${dock}: pointerleave path retracts`);
-  assert(harness.calls.at(-1) === "retract:pointer_leave", `${dock}: semantic retract source is retained`);
+  assert(harness.controller.snapshot().phase === "retracted", `${dock}: drag completion path retracts`);
+  assert(harness.calls.at(-1) === "retract:drag_complete", `${dock}: semantic retract source is retained`);
   harness.controller.dispose();
 }
 
@@ -148,5 +146,5 @@ for (const dock of ["left", "right"] as const) {
 }
 
 console.log(
-  "M2 Mini characterization passed: current no-pointerleave failure is reproducible on both edges",
+  "M2 Mini characterization passed: no-pointerleave retraction works on both edges",
 );

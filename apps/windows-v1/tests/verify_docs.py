@@ -93,7 +93,6 @@ def check_release_identity() -> None:
                 fail(f"{path.relative_to(ROOT)} 缺少 v1.0 {label} SHA256")
 
     v101_identity_docs = [
-        ROOT / "doc" / "current.md",
         ROOT / "doc" / "releases" / "v1.0.1" / "release-notes.md",
         ROOT / "doc" / "releases" / "v1.0.1" / "verification.md",
     ]
@@ -108,7 +107,6 @@ def check_release_identity() -> None:
                 fail(f"{path.relative_to(ROOT)} 缺少 v1.0.1 {label} SHA256")
 
     v102_identity_docs = [
-        ROOT / "doc" / "current.md",
         ROOT / "doc" / "releases" / "v1.0.2" / "release-notes.md",
         ROOT / "doc" / "releases" / "v1.0.2" / "verification.md",
     ]
@@ -124,7 +122,6 @@ def check_release_identity() -> None:
                 fail(f"{path.relative_to(ROOT)} 缺少 v1.0.2 {label}")
 
     v103_identity_docs = [
-        ROOT / "doc" / "current.md",
         ROOT / "doc" / "releases" / "v1.0.3" / "release-notes.md",
         ROOT / "doc" / "releases" / "v1.0.3" / "verification.md",
     ]
@@ -140,7 +137,6 @@ def check_release_identity() -> None:
                 fail(f"{path.relative_to(ROOT)} 缺少 v1.0.3 {label}")
 
     v104_identity_docs = [
-        ROOT / "doc" / "current.md",
         ROOT / "doc" / "releases" / "v1.0.4" / "release-notes.md",
         ROOT / "doc" / "releases" / "v1.0.4" / "verification.md",
     ]
@@ -156,7 +152,6 @@ def check_release_identity() -> None:
                 fail(f"{path.relative_to(ROOT)} 缺少 v1.0.4 {label}")
 
     v105_identity_docs = [
-        ROOT / "doc" / "current.md",
         ROOT / "doc" / "releases" / "v1.0.5" / "release-notes.md",
         ROOT / "doc" / "releases" / "v1.0.5" / "verification.md",
     ]
@@ -172,7 +167,6 @@ def check_release_identity() -> None:
                 fail(f"{path.relative_to(ROOT)} 缺少 v1.0.5 {label}")
 
     v106_identity_docs = [
-        ROOT / "doc" / "current.md",
         ROOT / "doc" / "releases" / "v1.0.6" / "release-notes.md",
         ROOT / "doc" / "releases" / "v1.0.6" / "verification.md",
     ]
@@ -200,9 +194,9 @@ def check_current_readmes() -> None:
             release_url,
             V106_SOURCE_COMMIT,
             V106_ZIP_SHA256,
-            "package_v106.ps1",
-            "verify_v106_package.ps1",
-            "verify_v106.ps1",
+            "package_v107.ps1",
+            "verify_v107_package.ps1",
+            "verify_v107.ps1",
         )
         for marker in required:
             if marker not in text:
@@ -215,9 +209,9 @@ def check_current_readmes() -> None:
         fail("apps/windows-v1/README.md current public version drift")
     if "v1.0.6 Stable；该版本已完成独立验收" not in app_readme:
         fail("apps/windows-v1/README.md current release state drift")
-    if "scripts\\verify_v106.ps1" not in app_readme:
+    if "scripts\\verify_windows_current.ps1" not in app_readme:
         fail("apps/windows-v1/README.md missing current aggregate verification command")
-    if "scripts\\package_v106.ps1" not in app_readme:
+    if "scripts\\package_v107.ps1" not in app_readme:
         fail("apps/windows-v1/README.md missing current isolated packaging command")
 
     for path, text in (
@@ -303,27 +297,28 @@ def main() -> int:
         fail("doc/current.md 未声明当前公开版本为 v1.0.6 Stable")
     if "当前公开 tag | `v1.0.6`" not in current:
         fail("doc/current.md 未声明当前公开 tag 为 v1.0.6")
+    if "当前开发版本 | Windows v1.0.7 Stable" not in current or "V107-M7" not in current:
+        fail("doc/current.md 未声明 v1.0.7 当前开发身份与里程碑")
     if "v0.9-beta" not in current:
         fail("doc/current.md 缺少 v0.9 回退基线")
-    if "已通过并发布" not in current or "v1.0` tag 指向发布提交" not in current:
-        fail("doc/current.md 未声明 v1.0 已通过并发布")
-    if "`main`、`v1.0.1` tag 与 GitHub Release 已完成" not in current:
-        fail("doc/current.md 未声明 v1.0.1 已完成发布")
-    if "`v1.0.2` annotated tag 与 GitHub Stable Release 已发布" not in current:
-        fail("doc/current.md 未声明 v1.0.2 已完成发布")
-    if "`v1.0.3` annotated tag 指向上述发布源提交" not in current:
-        fail("doc/current.md 未声明 v1.0.3 已完成发布")
-    if "`v1.0.4` annotated tag 指向该发布源" not in current:
-        fail("doc/current.md 未声明 v1.0.4 已完成发布")
-    if "`v1.0.5` annotated tag 指向该提交" not in current:
-        fail("doc/current.md 未声明 v1.0.5 tag 发布事实")
-    if "v1.0.5 已完成 GitHub Stable Release" not in current:
-        fail("doc/current.md 未声明 v1.0.5 GitHub Release 发布事实")
     if "v1.0.6 已完成 GitHub Stable Release" not in current:
         fail("doc/current.md 未声明 v1.0.6 GitHub Release 发布事实")
-    if "tag：`v1.0.6`" not in current or V106_SOURCE_COMMIT not in current:
+    if V106_SOURCE_COMMIT not in current:
         fail("doc/current.md 未声明 v1.0.6 tag 与发布源提交")
-    if "多显示器安全回落因当前设备仅有一台显示器，标记为待补证" not in current:
+    history_links = (
+        "releases/v1.0/README.md",
+        "releases/v1.0.1/README.md",
+        "releases/v1.0.2/README.md",
+        "releases/v1.0.3/release-notes.md",
+        "releases/v1.0.4/release-notes.md",
+        "releases/v1.0.5/README.md",
+        "releases/v1.0.6/README.md",
+    )
+    if any(link not in current for link in history_links):
+        fail("doc/current.md 历史事实入口不完整")
+    if len(current.splitlines()) > 100:
+        fail("doc/current.md 重新膨胀为历史事实复述")
+    if "多显示器：项目所有者确认暂不验证" not in current:
         fail("doc/current.md 未保留多显示器待补证边界")
 
     if FAILURES:
@@ -332,10 +327,10 @@ def main() -> int:
             print(f"- {item}")
         return 1
 
-    print("v1.0 至 v1.0.6 发布文档检查通过")
+    print("v1.0 至 v1.0.7 当前与历史文档检查通过")
     print(f"- UTF-8 与乱码：{len(DOCUMENTS)} 份文档")
     print("- v1.0 至 v1.0.6 发布事实源及本地链接完整")
-    print("- current、release notes、verification 的历史与当前发布哈希一致")
+    print("- current 保持精简入口，历史事实由对应 release 文档承接")
     return 0
 
 

@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "milestone": "V107-M2",
+  "captured_at": "2026-08-03",
+  "candidate": {
+    "kind": "dirty-intermediate-m2-gui",
+    "source_branch": "main",
+    "source_head": "12b6b03ce91b716d49590e21eb8dd7fe90fa283c",
+    "source_tree_dirty": true,
+    "release_eligible": false,
+    "exe_sha256": "2B8A33286F127F0872C0D43A24F57E806B1084092D444411C4DE73394268B04A",
+    "webview2_loader_sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
+  },
+  "automated_verification": {
+    "verify_v107_m2": "passed",
+    "verify_windows_current": "passed",
+    "rust_tests": {
+      "passed": 60,
+      "failed": 0
+    },
+    "cargo_fmt": "passed",
+    "cargo_clippy": "passed",
+    "deterministic_auto_hide_sequences": {
+      "count": 10000,
+      "base_seed": 275775490,
+      "result": "passed"
+    },
+    "safe_grab_unit_matrix": {
+      "dpi_scales": [100, 125, 150],
+      "result": "passed"
+    }
+  },
+  "windows_gui": {
+    "environment": "Windows 11 single display",
+    "system_dpi_percent": 100,
+    "left_edge_docks": {
+      "passed": 15,
+      "total": 15,
+      "retracted_width_px": [21, 23]
+    },
+    "right_edge_docks": {
+      "passed": 15,
+      "total": 15,
+      "retracted_width_px": [21]
+    },
+    "second_click_required_after_drag": false,
+    "workbench_expanded_prestate_restore": "passed",
+    "restart_reachability": "passed",
+    "multi_display": "not_verified_by_scope"
+  },
+  "semantic_log_summary": {
+    "window_policy_requested": 4,
+    "window_policy_applied": 4,
+    "window_policy_failed": 0,
+    "visibility_lease_transactions_observed": 1,
+    "visibility_lease_terminal_phase": "closed",
+    "mini_edge_failures": 0
+  },
+  "conditional_decisions": {
+    "auto_hide": "implement_minimal_fix",
+    "reason": "旧状态机存在无 pointerleave 时的迟到 timer 所有权风险；generation-safe timer 与拖动完成后的 stale pointer/focus 清理已通过 10000 条序列和 30 次真实贴边。",
+    "shared_window_state_rewrite": "not_required"
+  },
+  "environment_restore": {
+    "candidate_processes_remaining": 0,
+    "config_json_sha256_restored": true,
+    "config_previous_sha256_restored": true,
+    "debug_log_sha256_restored": true
+  },
+  "raw_evidence": {
+    "logical_id": "local-raw-v107-m2-gui-20260803T123612Z",
+    "repository_tracked": false,
+    "contains": [
+      "left-dock-results.json",
+      "right-dock-results.json",
+      "left-dock-final.jpg",
+      "right-dock-final.jpg",
+      "debug.test-session.log",
+      "config.test-session.json"
+    ]
+  },
+  "evidence_limits": [
+    "该候选来自脏工作树，仅用于 M2 开发验证，不得进入发布流程。",
+    "真实 125% 和 150% DPI 由后续综合验收补证；本里程碑只完成逻辑像素矩阵和 100% DPI 真实壳验证。",
+    "四种 Mini 进入前状态由 Rust 状态机单元测试覆盖；真实 GUI 已覆盖 expanded 恢复，其他状态留在独立候选验收复核。"
+  ]
+}

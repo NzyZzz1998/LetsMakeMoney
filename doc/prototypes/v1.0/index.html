@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LetsMakeMoney v1.0.5 高保真产品原型</title>
+  <title>LetsMakeMoney v1.0.7 高保真产品原型</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="lab-brand">
       <span class="lab-mark" aria-hidden="true">¥</span>
       <div>
-        <strong>v1.0.5 开发前方案评审</strong>
-        <span>隐私竖条 · 日历导航 · 单一窗口表面</span>
+        <strong>v1.0.7 收官完整方案评审</strong>
+        <span>窗口事务 · 加班记录 · 月度总结 · 条件视觉 Spike</span>
       </div>
     </div>
 
@@ -75,6 +75,13 @@
           <option value="loading">加载中</option>
           <option value="stale">使用旧数据</option>
           <option value="error">加载失败</option>
+        </select>
+      </label>
+      <label class="lab-select">
+        <span>月历周数</span>
+        <select id="calendar-weeks">
+          <option value="5" selected>5 周</option>
+          <option value="6">6 周</option>
         </select>
       </label>
       <label class="toggle-line">
@@ -233,7 +240,10 @@
                 <h1>收入日历</h1>
                 <p>区分工作日、带薪休息、不带薪休息与收入结果</p>
               </div>
-              <button class="secondary-button" id="calendar-adjust">调整所选日期</button>
+              <div class="heading-actions">
+                <button class="secondary-button" id="calendar-overtime">记录加班</button>
+                <button class="secondary-button" id="calendar-adjust">调整所选日期</button>
+              </div>
             </header>
             <div class="calendar-status is-official" id="calendar-status" role="status" aria-live="polite">
               <span></span>
@@ -250,6 +260,20 @@
               </button>
             </div>
             <div class="calendar-grid" aria-label="2026 年 7 月收入日历"></div>
+            <section class="month-summary" aria-labelledby="month-summary-title">
+              <div class="month-summary-heading">
+                <div>
+                  <span class="section-label">月度总结</span>
+                  <h2 id="month-summary-title">只统计计划与主动记录</h2>
+                </div>
+                <span class="summary-note">不代表实际出勤</span>
+              </div>
+              <dl class="month-summary-grid">
+                <div><dt>计划工时</dt><dd id="summary-planned">184 小时</dd></div>
+                <div><dt>已流逝计划工时</dt><dd id="summary-elapsed">103 小时 30 分</dd></div>
+                <div><dt>加班工时</dt><dd id="summary-overtime">1 小时 30 分</dd></div>
+              </dl>
+            </section>
             <div class="calendar-legend">
               <span><i class="legend-dot workday"></i>工作日</span>
               <span><i class="legend-dot restday"></i>休息日</span>
@@ -422,28 +446,39 @@
                 </span>
               </label>
               <div class="inline-error" id="salary-error" hidden>请输入大于 0 的金额。</div>
-              <label class="setting-row" for="rest-mode">
+              <div class="setting-row">
                 <span>
                   <strong>休息模式</strong>
                   <small>影响每月工作日和日薪计算</small>
                 </span>
-                <select id="rest-mode">
-                  <option>双休</option>
-                  <option>单休</option>
-                  <option>大小周</option>
-                </select>
-              </label>
-              <label class="setting-row" for="settings-week-type" id="settings-week-type-row" hidden>
+                <div class="custom-combobox" data-combobox="rest-mode">
+                  <button type="button" id="rest-mode" class="combobox-trigger" role="combobox" aria-controls="rest-mode-listbox" aria-expanded="false" aria-haspopup="listbox">
+                    <span data-combobox-value>双休</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+                  </button>
+                  <div id="rest-mode-listbox" class="combobox-listbox" role="listbox" tabindex="-1" hidden>
+                    <button type="button" role="option" aria-selected="true" data-value="双休">双休</button>
+                    <button type="button" role="option" aria-selected="false" data-value="单休">单休</button>
+                    <button type="button" role="option" aria-selected="false" data-value="大小周">大小周</button>
+                  </div>
+                </div>
+              </div>
+              <div class="setting-row" id="settings-week-type-row" hidden>
                 <span>
                   <strong>本周类型</strong>
                   <small>明确本周是大周还是小周，不使用默认值</small>
                 </span>
-                <select id="settings-week-type">
-                  <option value="">请选择</option>
-                  <option value="big">大周</option>
-                  <option value="small">小周</option>
-                </select>
-              </label>
+                <div class="custom-combobox" data-combobox="settings-week-type">
+                  <button type="button" id="settings-week-type" class="combobox-trigger" role="combobox" aria-controls="settings-week-type-listbox" aria-expanded="false" aria-haspopup="listbox">
+                    <span data-combobox-value>请选择</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+                  </button>
+                  <div id="settings-week-type-listbox" class="combobox-listbox" role="listbox" tabindex="-1" hidden>
+                    <button type="button" role="option" aria-selected="false" data-value="big">大周</button>
+                    <button type="button" role="option" aria-selected="false" data-value="small">小周</button>
+                  </div>
+                </div>
+              </div>
             </fieldset>
 
             <fieldset class="setting-group">
@@ -629,6 +664,37 @@
       <footer>
         <button class="secondary-button" id="override-cancel">取消</button>
         <button class="primary-button" id="override-apply">应用</button>
+      </footer>
+    </dialog>
+
+    <dialog class="overtime-dialog" id="overtime-dialog">
+      <header>
+        <div>
+          <span class="section-label">加班记录</span>
+          <h2 id="overtime-date-title">2026 年 7 月 23 日</h2>
+        </div>
+        <button class="window-button" id="overtime-close" aria-label="关闭加班记录">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"/></svg>
+        </button>
+      </header>
+      <div class="overtime-body">
+        <p>按业务日期保存。时长会换算为最近一分钟，修改记录不会追溯更新录入时费率。</p>
+        <label class="overtime-field" for="overtime-hours">
+          <span><strong>加班时长</strong><small>0–24 小时，最多两位小数；0 表示删除</small></span>
+          <span class="input-with-unit"><input id="overtime-hours" type="text" inputmode="decimal" value="1.50"><span>小时</span></span>
+        </label>
+        <div class="overtime-snapshot">
+          <span>录入时费率快照</span>
+          <strong>¥ 62.50 / 小时 · 1.0×</strong>
+          <small>工资变化后不追溯历史记录；月度总结只展示加班工时。</small>
+        </div>
+        <div class="inline-error" id="overtime-error" hidden>保存失败：旧记录没有变化，当前输入已保留，可重试。</div>
+      </div>
+      <footer>
+        <button class="danger-ghost-button" id="overtime-delete">删除记录</button>
+        <span class="footer-spacer"></span>
+        <button class="secondary-button" id="overtime-cancel">取消</button>
+        <button class="primary-button" id="overtime-save">保存</button>
       </footer>
     </dialog>
 

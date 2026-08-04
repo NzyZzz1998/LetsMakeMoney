@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "milestone": "V107-M6",
+  "captured_at": "2026-08-03",
+  "source_head": "12b6b03ce91b716d49590e21eb8dd7fe90fa283c",
+  "source_tree_dirty": true,
+  "release_eligible": false,
+  "formal_non_csp_artifact": {
+    "name": "letsmakemoney_windows_v1.exe",
+    "size": 10297344,
+    "sha256": "54A092546A1C2952A905B5788944E79D732FBDD8F4A6FD9AA2E7A23ABD0508D5"
+  },
+  "script_governance": {
+    "unique_current_entry": "scripts/verify_windows_current.ps1",
+    "lifecycle_index": "scripts/script-lifecycle.json",
+    "historical_misuse_negative_tests": "passed"
+  },
+  "support": {
+    "verified": [
+      "Windows 11 x86_64 single display 100% DPI"
+    ],
+    "pending_release_gate": [
+      "Windows 11 x86_64 single display 125% DPI",
+      "Windows 11 x86_64 single display 150% DPI"
+    ],
+    "unverified": [
+      "Windows 10 x86_64"
+    ],
+    "excluded": [
+      "multi-display"
+    ]
+  },
+  "csp": {
+    "candidate_exe_size": 10298368,
+    "candidate_exe_sha256": "6C61429F8615629D118AEC47D09355106AA002E58D3568BBACFFE3F2F0E97C09",
+    "formal_configuration": null,
+    "candidate_contains_unsafe_eval": false,
+    "mini_document_ready": true,
+    "theme_ready": false,
+    "tauri_bridge_ready": false,
+    "ipc_and_update_ready": false,
+    "failure_code": "mini_bootstrap_unavailable",
+    "decision": "withdrawn",
+    "raw_evidence_logical_id": "V107-M6-CSP-RAW",
+    "raw_evidence_sha256": "2375A2A64900967654C9E5A8815193CB353A9A89F8876B73BAA86C97C177140B"
+  },
+  "performance": {
+    "sample_count": {
+      "cold": 10,
+      "warm": 10
+    },
+    "thresholds": {
+      "cold_start_p95_ms": 2000,
+      "mini_first_frame_p95_ms": 1200,
+      "workbench_first_frame_p95_ms": 1500,
+      "js_gzip_bytes": 184320,
+      "long_task_ms": 100,
+      "minimum_optimization_gain_percent": 15
+    },
+    "metrics": {
+      "cold_mini_ready_p95_ms": 6154,
+      "warm_mini_ready_p95_ms": 1067,
+      "cold_workbench_ready_p95_ms": 6527,
+      "warm_workbench_ready_p95_ms": 1442,
+      "max_long_task_ms": 0,
+      "js_raw_bytes": 758176,
+      "js_gzip_bytes": 140841
+    },
+    "threshold_assessment": {
+      "cold_mini_exceeds": true,
+      "warm_mini_exceeds": false,
+      "cold_workbench_exceeds": true,
+      "warm_workbench_exceeds": false,
+      "js_gzip_exceeds": false,
+      "long_task_exceeds": false
+    },
+    "targeted_experiment": "skip_tray_initialization",
+    "targeted_experiment_gain_at_least_15_percent": false,
+    "decision": "stop_without_retaining_optimization",
+    "raw_evidence_logical_id": "V107-M6-PERF-RAW",
+    "raw_evidence_sha256": "07A35DA26171DF61E5B54D1FE3835737105E2795B4CE05B643B70AE5D24B6606"
+  },
+  "environment_restore": {
+    "candidate_processes_remaining": 0,
+    "config_sha256_restored": "451B16466CD23EA71B0CEB336900B0EB61F36F0A913ECF0149C16D11B30FC2BC",
+    "debug_log_sha256_restored": "E5F7D56E430719ACEB96BC77E0101F52A00D24307763D5EDD3A15A55C5149469"
+  },
+  "limits": [
+    "This evidence belongs to a dirty development tree and cannot identify a Release candidate.",
+    "Windows 10 and multi-display are not verified.",
+    "Real Windows 125% and 150% DPI remain final-candidate gates.",
+    "Cold-start thresholds are exceeded and remain quantified performance debt."
+  ]
+}
