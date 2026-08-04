@@ -1,4 +1,8 @@
 import type { DateOverrideKind } from "../domain/configuration";
+import type {
+  OvertimeBoundarySnapshot,
+  OvertimeOrigin,
+} from "../features/calendar/overtimeModel";
 import {
   appRuntime,
   type AppRuntime,
@@ -19,6 +23,25 @@ export interface DateOverrideSaveResult {
   status: "saved" | "unchanged" | "failed";
   message: string;
   draft_preserved: boolean;
+}
+
+export type LinkedOvertimeAction =
+  | { action: "keep" }
+  | { action: "delete" }
+  | {
+      action: "upsert";
+      request: {
+        business_date: string;
+        minutes: number;
+        hourly_rate_fen_snapshot: number;
+        origin: OvertimeOrigin;
+        boundary_snapshot: OvertimeBoundarySnapshot;
+        linked_override_date: string | null;
+      };
+    };
+
+export interface DateOvertimeTransactionResult extends DateOverrideSaveResult {
+  overtime_changed: boolean;
 }
 
 export interface DashboardService {
@@ -49,6 +72,11 @@ export interface DashboardService {
     date: string,
     kind: DateOverrideKind | null,
   ): Promise<DateOverrideSaveResult>;
+  saveDateOvertimeTransaction(
+    date: string,
+    kind: DateOverrideKind | null,
+    overtime: LinkedOvertimeAction,
+  ): Promise<DateOvertimeTransactionResult>;
   listenConfigurationUpdated(handler: () => void): Promise<() => void>;
 }
 
@@ -87,6 +115,10 @@ export function createDashboardService(runtime: AppRuntime): DashboardService {
       }
       return result;
     },
+    saveDateOvertimeTransaction: (date, kind, overtime) =>
+      runtime.invoke("save_date_overtime_transaction", {
+        request: { date, kind, overtime },
+      }),
     listenConfigurationUpdated: handler =>
       runtime.listen("lmm://configuration-updated", handler),
   };

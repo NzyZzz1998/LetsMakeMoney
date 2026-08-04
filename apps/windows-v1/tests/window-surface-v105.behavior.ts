@@ -28,17 +28,17 @@ check(
   "WindowFrame must bind the web-content surface contract",
 );
 check(
-  WINDOW_SURFACE_ATTRIBUTES["data-shadow-owner"] === "native-window",
-  "native window must own the external shadow",
+  WINDOW_SURFACE_ATTRIBUTES["data-shadow-owner"] === "none",
+  "transparent windows must not add a second external shadow",
 );
 check(/\.window-frame\s*\{\s*box-shadow:\s*none;/s.test(styles), "WindowFrame CSS shadow must be disabled");
 check(/\.mini-window\s*\{\s*box-shadow:\s*none;/s.test(styles), "Mini must not draw a second web shadow");
 check(/body\s*\{[^}]*background:\s*transparent;/s.test(styles), "WebView root must stay transparent");
 check(/\.window-frame,\s*\.mini-window\s*\{[^}]*border:[^}]*border-radius:[^}]*background:/s.test(styles), "web surface must retain border, radius and background");
 check(rust.includes(".transparent(true)"), "dynamic native windows must stay transparent");
-check(rust.includes(".shadow(true)"), "dynamic native windows must retain DWM shadow");
+check(rust.includes(".shadow(false)"), "dynamic native windows must disable the duplicate DWM arc");
 check(tauri.app.windows[0].transparent === true, "Mini native root must stay transparent");
-check(tauri.app.windows[0].shadow === true, "Mini native shadow must stay enabled");
+check(tauri.app.windows[0].shadow === false, "Mini native shadow must stay disabled");
 const frameKinds = [...app.matchAll(/<WindowFrame kind="([^"]+)"/g)].map(match => match[1]);
 check(
   new Set(frameKinds).size === 3

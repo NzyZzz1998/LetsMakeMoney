@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LetsMakeMoney F2 PC 平面配色第二轮</title>
+  <style>
+    :root {
+      font-family: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", sans-serif;
+      color: #2b2923;
+      background: #f7f6f1;
+      --surface: #fffefa;
+      --subtle: #f0f0eb;
+      --line: #d8d7cf;
+      --muted: #716d64;
+      --gold: #e5a326;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f7f6f1; }
+    button, a { font: inherit; letter-spacing: 0; }
+    svg { display: block; }
+    .page { width: min(1180px, calc(100% - 48px)); margin: 0 auto; padding: 34px 0 72px; }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: end;
+      padding: 28px 30px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .eyebrow { color: #865d0e; font-size: 11px; font-weight: 760; }
+    h1 { margin: 10px 0 12px; font-size: 38px; line-height: 1.16; }
+    h2 { margin: 0 0 7px; font-size: 22px; }
+    h3 { margin: 0 0 6px; font-size: 15px; }
+    p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .hero p { max-width: 760px; }
+    .back {
+      display: inline-flex;
+      min-height: 36px;
+      align-items: center;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: #2b2923;
+      background: #fff;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .principles {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      margin-top: 15px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--line);
+    }
+    .principles div { min-height: 78px; padding: 15px 17px; background: var(--surface); }
+    .principles strong { display: block; margin-bottom: 5px; font-size: 11px; }
+    .principles span { color: var(--muted); font-size: 10px; line-height: 1.55; }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: end;
+      margin: 31px 0 13px;
+    }
+    .section-head p { max-width: 600px; text-align: right; }
+    .family {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .family-intro {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 344px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f1efe7;
+    }
+    .family-intro b { font-size: 12px; }
+    .family-intro small { color: var(--muted); font-size: 10px; line-height: 1.55; }
+    .family-index { color: #9b6a0d; font-size: 36px; font-weight: 760; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+    .candidate {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .candidate[aria-current="true"] { border-color: #a66f0d; box-shadow: 0 0 0 1px #a66f0d; }
+    .stage { display: grid; min-height: 206px; place-items: center; background: var(--subtle); }
+    .stage svg { width: 148px; height: 148px; filter: drop-shadow(0 8px 9px rgba(28, 27, 23, .13)); }
+    .copy { min-height: 137px; padding: 15px 16px; border-top: 1px solid var(--line); }
+    .copy p { min-height: 44px; font-size: 10px; }
+    .swatches { display: flex; gap: 5px; margin-top: 8px; }
+    .swatches i { width: 15px; height: 15px; border: 1px solid rgba(0,0,0,.12); border-radius: 50%; background: var(--c); }
+    .pick {
+      width: 100%;
+      min-height: 33px;
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: #2b2923;
+      background: #fff;
+      cursor: pointer;
+    }
+    .pick:hover { border-color: #ad7612; }
+    .pick[aria-pressed="true"] { border-color: #76551e; color: #fffaf0; background: #76551e; font-weight: 740; }
+    .context { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 12px; }
+    .context article { min-height: 144px; padding: 17px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+    .context span { color: var(--muted); font-size: 10px; font-weight: 700; }
+    .titlebar { display: flex; height: 52px; align-items: center; gap: 10px; margin-top: 15px; padding: 0 13px; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+    .titlebar svg { width: 29px; height: 29px; }
+    .titlebar strong { font-size: 12px; }
+    .taskbar { display: flex; gap: 9px; margin-top: 15px; padding: 17px; border-radius: 7px; background: #252622; }
+    .taskbar i { display: grid; width: 37px; height: 37px; place-items: center; border-radius: 6px; background: #393a35; }
+    .taskbar svg { width: 26px; height: 26px; }
+    .small { display: flex; align-items: end; gap: 13px; min-height: 75px; margin-top: 15px; }
+    .small div { display: grid; justify-items: center; gap: 7px; color: var(--muted); font-size: 9px; }
+    .small svg { width: var(--s); height: var(--s); filter: drop-shadow(0 3px 3px rgba(0,0,0,.12)); }
+    .decision {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 22px;
+      align-items: center;
+      margin-top: 22px;
+      padding: 20px 22px;
+      border: 1px solid #d7ab51;
+      border-radius: 8px;
+      background: #fff6df;
+    }
+    .decision output { min-width: 240px; padding: 11px 14px; border-radius: 7px; color: #624506; background: #ffe4a4; font-size: 12px; font-weight: 750; text-align: center; }
+    @media (max-width: 900px) {
+      .family { grid-template-columns: 1fr; }
+      .family-intro { min-height: 0; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .principles, .context { grid-template-columns: 1fr; }
+      .hero { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .page { width: calc(100% - 24px); padding-top: 14px; }
+      .hero { padding: 21px; }
+      h1 { font-size: 30px; }
+      .grid { grid-template-columns: 1fr; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 6px; text-align: left; }
+      .decision { grid-template-columns: 1fr; }
+      .decision output { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true">
+    <defs>
+      <symbol id="flat-mark" viewBox="0 0 96 96">
+        <rect width="96" height="96" rx="28" fill="var(--shell)"/>
+        <path d="M18 60 36 27 49 48 42 60ZM47 48 60 27 78 60H54Z" fill="var(--mark)"/>
+        <rect x="18" y="68" width="60" height="10" rx="5" fill="var(--track)"/>
+        <rect x="18" y="68" width="36" height="10" rx="5" fill="var(--active)"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <main class="page">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">F2 · PC FLAT COLORWAYS / ROUND 02</div>
+        <h1>只沿前三名继续细分。</h1>
+        <p>保留完全一致的 PC 平面造型，将 P1 深咖、P2 暖纸和 P3 石墨分别细化为三个色温。没有渐变、材质、描边变化或几何微调。</p>
+      </div>
+      <a class="back" href="logo-f2-flat-colorways.html">返回第一轮</a>
+    </header>
+
+    <section class="principles" aria-label="第二轮规则">
+      <div><strong>识别色不漂移</strong><span>金币黄、香槟金仍是主标记，绿色只承担进度余量。</span></div>
+      <div><strong>比较色温</strong><span>每组只改变冷暖、明度与饱和度，不改变图形结构。</span></div>
+      <div><strong>小尺寸先行</strong><span>最终判断以标题栏、任务栏和 16–32px 可辨识度为准。</span></div>
+    </section>
+
+    <div class="section-head">
+      <div><div class="eyebrow">01 / REFINED FAMILIES</div><h2>九个精细配色</h2></div>
+      <p>优先比较 D1、L1 与 G1，它们分别是第一轮 P1、P2、P3 的直接精修版。</p>
+    </div>
+
+    <section class="family" aria-labelledby="family-dark">
+      <div class="family-intro"><div><div class="family-index">D</div><h3 id="family-dark">深咖家族</h3><p>保留最强品牌识别，比较黑咖、可可与橄榄石墨三种底色。</p></div><small>源自 P1 · 深咖金币</small></div>
+      <div class="grid">
+        <article class="candidate" style="--shell:#24231e;--mark:#f0aa22;--active:#f0aa22;--track:#687a50" aria-current="false">
+          <div class="stage"><svg aria-label="D1 黑咖金币"><use href="#flat-mark"/></svg></div>
+          <div class="copy"><h3>D1 · 黑咖金币</h3><p>比 P1 略深，金币更干净，适合任务栏与深色桌面。</p><div class="swatches"><i style="--c:#24231e"></i><i style="--c:#f0aa22"></i><i style="--c:#687a50"></i></div><button class="pick" data-pick="D1 黑咖金币" aria-pressed="false">选择 D1</button></div>
+        </article>
+        <article class="candidate" style="--shell:#342e28;--mark:#edb644;--active:#e4a326;--track:#7b896f">
+          <div class="stage"><svg aria-label="D2 可可黄铜"><use href="#flat-mark"/></svg></div>
+          <div class="copy"><h3>D2 · 可可黄铜</h3><p>底色更暖，黄铜色柔和，适合浅色主题的暖调品牌。</p><div class="swatches"><i style="--c:#342e28"></i><i style="--c:#edb644"></i><i style="--c:#7b896f"></i></div><button class="pick" data-pick="D2 可可黄铜" aria-pressed="false">选择 D2</button></div>
+        </article>
+        <article class="candidate" style="--shell:#2d302a;--mark:#f0c166;--active:#e5aa36;--track:#92a087">
+          <div class="stage"><svg aria-label="D3 橄榄香槟"><use href="#flat-mark"/></svg></div>
+          <div class="copy"><h3>D3 · 橄榄香槟</h3><p>深咖向灰绿偏移，气质克制，状态色与底色更统一。</p><div class="swatches"><i style="--c:#2d302a"></i><i style="--c:#f0c166"></i><i style="--c:#92a087"></i></div><button class="pick" data-pick="D3 橄榄香槟" aria-pressed="false">选择 D3</button></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="family" aria-labelledby="family-light">
+      <div class="family-intro"><div><div class="family-index">L</div><h3 id="family-light">暖纸家族</h3><p>面向浅色界面，比较象牙纸、燕麦灰与羊皮纸三种外壳。</p></div><small>源自 P2 · 暖纸咖啡</small></div>
+      <div class="grid">
+        <article class="candidate" style="--shell:#fff4de;--mark:#372f27;--active:#e8a520;--track:#7d967f">
+          <div class="stage"><svg aria-label="L1 暖象牙"><use href="#flat-mark"/></svg></div>
+          <div class="copy"><h3>L1 · 暖象牙</h3><p>延续 P2，但降低黄感；与浅色窗口最自然。</p><div class="swatches"><i style="--c:#fff4de"></i><i style="--c:#372f27"></i><i style="--c:#7d967f"></i></div><button class="pick" data-pick="L1 暖象牙" aria-pressed="false">选择 L1</button></div>
+        </article>
+        <article class="candidate" style="--shell:#eee9df;--mark:#30302b;--active:#d89b26;--track:#778b7b" aria-current="true">
+          <div class="stage"><svg aria-label="L2 燕麦石墨"><use href="#flat-mark"/></svg></div>
+          <div class="copy"><h3>L2 · 燕麦石墨</h3><p>偏中性、耐看，浅色界面与深色桌面都能保持稳定识别。</p><div class="swatches"><i style="--c:#eee9df"></i><i style="--c:#30302b"></i><i style="--c:#778b7b"></i></div><button class="pick" data-pick="L2 燕麦石墨" aria-pressed="true">正式选择</button></div>
+        </article>
+        <article class="candidate" style="--shell:#e7dac2;--mark:#332f29;--active:#cc8f20;--track:#657966">
+          <div class="stage"><svg aria-label="L3 羊皮咖啡"><use href="#flat-mark"/></svg></div>
+          <div class="copy"><h3>L3 · 羊皮咖啡</h3><p>纸张感更明显，品牌个性更强，任务栏对比仍需重点看。</p><div class="swatches"><i style="--c:#e7dac2"></i><i style="--c:#332f29"></i><i style="--c:#657966"></i></div><button class="pick" data-pick="L3 羊皮咖啡" aria-pressed="false">选择 L3</button></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="family" aria-labelledby="family-graphite">
+      <div class="family-intro"><div><div class="family-index">G</div><h3 id="family-graphite">石墨家族</h3><p>强调成熟与稳定，比较中性石墨、蓝石墨与咖啡石墨。</p></div><small>源自 P3 · 石墨香槟</small></div>
+      <div class="grid">
+        <article class="candidate" style="--shell:#30312d;--mark:#efc56d;--active:#e7a72e;--track:#899d8c">
+          <div class="stage"><svg aria-label="G1 石墨香槟"><use href="#flat-mark"/></svg></div>
+          <div class="copy"><h3>G1 · 石墨香槟</h3><p>第一轮 P3 的直接精修，成熟但仍保留收入工具的温度。</p><div class="swatches"><i style="--c:#30312d"></i><i style="--c:#efc56d"></i><i style="--c:#899d8c"></i></div><button class="pick" data-pick="G1 石墨香槟" aria-pressed="false">选择 G1</button></div>
+        </article>
+        <article class="candidate" style="--shell:#293036;--mark:#e8be65;--active:#dfa22c;--track:#718c86">
+          <div class="stage"><svg aria-label="G2 蓝调石墨"><use href="#flat-mark"/></svg></div>
+          <div class="copy"><h3>G2 · 蓝调石墨</h3><p>加入少量冷蓝，Windows 系统感更强，品牌暖意更克制。</p><div class="swatches"><i style="--c:#293036"></i><i style="--c:#e8be65"></i><i style="--c:#718c86"></i></div><button class="pick" data-pick="G2 蓝调石墨" aria-pressed="false">选择 G2</button></div>
+        </article>
+        <article class="candidate" style="--shell:#39322d;--mark:#eabd66;--active:#dda02d;--track:#879173">
+          <div class="stage"><svg aria-label="G3 咖啡石墨"><use href="#flat-mark"/></svg></div>
+          <div class="copy"><h3>G3 · 咖啡石墨</h3><p>介于 P1 与 P3 之间，稳重、温暖，跨主题适应最均衡。</p><div class="swatches"><i style="--c:#39322d"></i><i style="--c:#eabd66"></i><i style="--c:#879173"></i></div><button class="pick" data-pick="G3 咖啡石墨" aria-pressed="false">选择 G3</button></div>
+        </article>
+      </div>
+    </section>
+
+    <div class="section-head">
+      <div><div class="eyebrow">02 / WINDOWS CONTEXT</div><h2>当前选择的 PC 表现</h2></div>
+      <p>选择任一候选后，下方同步更新标题栏、任务栏与 16–48px 图标。</p>
+    </div>
+    <section class="context">
+      <article><span>标题栏 29px</span><div class="titlebar"><svg id="title-icon" style="--shell:#24231e;--mark:#f0aa22;--active:#f0aa22;--track:#687a50"><use href="#flat-mark"/></svg><strong>LetsMakeMoney</strong></div></article>
+      <article><span>Windows 任务栏</span><div class="taskbar"><i><svg id="task-icon" style="--shell:#24231e;--mark:#f0aa22;--active:#f0aa22;--track:#687a50"><use href="#flat-mark"/></svg></i></div></article>
+      <article><span>16–48px</span><div class="small" id="small-icons"></div></article>
+    </section>
+
+    <section class="decision">
+      <div><h2>正式采用 L2 · 燕麦石墨</h2><p>燕麦外壳衔接浅色产品界面，石墨双峰保证小尺寸识别，金币黄与灰绿色进度条延续收入进度语义。</p></div>
+      <output id="decision" aria-live="polite">正式 Logo：L2 燕麦石墨</output>
+    </section>
+  </main>
+
+  <script>
+    const buttons = [...document.querySelectorAll('[data-pick]')];
+    const output = document.querySelector('#decision');
+    const titleIcon = document.querySelector('#title-icon');
+    const taskIcon = document.querySelector('#task-icon');
+    const smallIcons = document.querySelector('#small-icons');
+
+    function applyCandidate(article) {
+      const names = ['--shell', '--mark', '--active', '--track'];
+      const values = Object.fromEntries(names.map(name => [name, article.style.getPropertyValue(name)]));
+      for (const icon of [titleIcon, taskIcon]) {
+        for (const [name, value] of Object.entries(values)) icon.style.setProperty(name, value);
+      }
+      smallIcons.replaceChildren();
+      for (const size of [48, 32, 24, 20, 16]) {
+        const box = document.createElement('div');
+        const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        icon.style.setProperty('--s', `${size}px`);
+        for (const [name, value] of Object.entries(values)) icon.style.setProperty(name, value);
+        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttribute('href', '#flat-mark');
+        icon.append(use);
+        const label = document.createElement('span');
+        label.textContent = size;
+        box.append(icon, label);
+        smallIcons.append(box);
+      }
+    }
+
+    for (const button of buttons) {
+      button.addEventListener('click', () => {
+        for (const current of buttons) {
+          const selected = current === button;
+          current.setAttribute('aria-pressed', String(selected));
+          current.closest('.candidate').setAttribute('aria-current', String(selected));
+          current.textContent = selected ? '当前选择' : `选择 ${current.dataset.pick.slice(0, 2)}`;
+        }
+        output.textContent = `当前选择：${button.dataset.pick}`;
+        applyCandidate(button.closest('.candidate'));
+      });
+    }
+    applyCandidate(document.querySelector('.candidate[aria-current="true"]'));
+  </script>
+</body>
+</html>

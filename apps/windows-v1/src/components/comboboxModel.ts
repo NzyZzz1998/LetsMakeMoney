@@ -10,22 +10,42 @@ export function normalizeComboboxIndex(index: number, optionCount: number): numb
   return Math.min(Math.max(index, 0), optionCount - 1);
 }
 
-export function selectedComboboxIndex(value: string, values: readonly string[]): number {
+export function selectedComboboxIndex(
+  value: string,
+  values: readonly string[],
+  disabled: readonly boolean[] = [],
+): number {
   const selected = values.indexOf(value);
-  return selected >= 0 ? selected : 0;
+  if (selected >= 0 && !disabled[selected]) return selected;
+  return enabledIndex(0, 1, values.length, disabled);
+}
+
+function enabledIndex(
+  start: number,
+  direction: 1 | -1,
+  optionCount: number,
+  disabled: readonly boolean[],
+): number {
+  if (optionCount <= 0) return -1;
+  for (let offset = 0; offset < optionCount; offset += 1) {
+    const index = (start + direction * offset + optionCount) % optionCount;
+    if (!disabled[index]) return index;
+  }
+  return -1;
 }
 
 export function nextComboboxIndex(
   currentIndex: number,
   key: "ArrowDown" | "ArrowUp" | "Home" | "End",
   optionCount: number,
+  disabled: readonly boolean[] = [],
 ): number {
   if (optionCount <= 0) return -1;
-  if (key === "Home") return 0;
-  if (key === "End") return optionCount - 1;
+  if (key === "Home") return enabledIndex(0, 1, optionCount, disabled);
+  if (key === "End") return enabledIndex(optionCount - 1, -1, optionCount, disabled);
   const current = normalizeComboboxIndex(currentIndex, optionCount);
   const delta = key === "ArrowDown" ? 1 : -1;
-  return (current + delta + optionCount) % optionCount;
+  return enabledIndex(current + delta, delta, optionCount, disabled);
 }
 
 export function comboboxKeyAction({
@@ -34,12 +54,14 @@ export function comboboxKeyAction({
   activeIndex,
   selectedIndex,
   optionCount,
+  disabled = [],
 }: {
   key: string;
   open: boolean;
   activeIndex: number;
   selectedIndex: number;
   optionCount: number;
+  disabled?: readonly boolean[];
 }): ComboboxKeyAction {
   if (key === "Escape") {
     return open ? { type: "close", restoreFocus: true } : { type: "none" };
@@ -60,7 +82,7 @@ export function comboboxKeyAction({
           : selectedIndex;
       return { type: "open", index: normalizeComboboxIndex(initial, optionCount) };
     }
-    return { type: "move", index: nextComboboxIndex(activeIndex, key, optionCount) };
+    return { type: "move", index: nextComboboxIndex(activeIndex, key, optionCount, disabled) };
   }
   return { type: "none" };
 }

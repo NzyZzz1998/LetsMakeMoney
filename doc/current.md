@@ -9,12 +9,14 @@
 | 当前公开版本 | Windows v1.0.7 Stable |
 | 当前公开 tag | `v1.0.7` |
 | v1.0.7 发布源提交 | `f500ed4e7de28ec68b2a848da6fa2340420b91b2` |
-| 当前开发版本 | v1.0.7 发布后观察 |
-| 开发基线 | `main@f500ed4e7de28ec68b2a848da6fa2340420b91b2` |
-| 当前里程碑 | v1.0.7 GitHub Stable Release 已发布并复核 |
-| 总体状态 | 已发布 |
+| 当前开发版本 | v1.0.F（公开版本固定为 v1.0.8） |
+| 开发基线 | `main@1801626a153a9644f448729dabc51ee9f88a0d9e`（dirty PRD/品牌/视觉取证基线） |
+| 当前里程碑 | v1.0.F / v1.0.8 M7 聚合门禁与验收准备 |
+| 总体状态 | 开发实现完成；等待干净候选与独立验收；不可发布 |
 
 v1.0.7 已从干净源提交构建、通过 current gate、候选包验证、真实 GUI 身份冒烟与 GitHub 下载包复核，并完成 GitHub Stable Release。正式便携 Zip SHA256 为 `D656B96973F64632896715ADCBB9CAFEAED4D06D44BA1C098824335AC673E3F2`，发布地址为 [GitHub Release v1.0.7](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7)。此前 dirty 候选的首次失败、修复与 DPI 定向复验证据继续按历史事实保留，均不得冒充正式附件。
+
+v1.0.F 是 v1.0 系列收官质量版本的内部代号，公开版本固定为 `v1.0.8`。M1-M7 实现、current gate、发布包 fixture 与验收文档均已完成；下一步是从项目所有者批准的干净提交生成唯一候选并执行独立验收。当前工作区仍为 dirty，尚无干净候选或可发布哈希；实现完成不等于发布通过。
 
 ## v1.0.7 范围
 
@@ -38,6 +40,14 @@ v1.0.7 已从干净源提交构建、通过 current gate、候选包验证、真
 完整矩阵见 [v1.0.7 支持矩阵](releases/v1.0.7/support-matrix.md)。
 
 ## 当前入口
+
+- [v1.0.F PRD](releases/v1.0.F/prd.md)
+- [v1.0.F 追踪矩阵](releases/v1.0.F/traceability.md)
+- [v1.0.F Idea Pool](releases/v1.0.F/idea-pool.md)
+- [v1.0.F Review](releases/v1.0.F/review.md)
+- [v1.0.F 进度](releases/v1.0.F/progress_v1.0.F.md)
+- [v1.0.F 验证](releases/v1.0.F/verification.md)
+- [v1.0.F 手动验收](releases/v1.0.F/manual-verification.md)
 
 - [v1.0.7 PRD](releases/v1.0.7/prd.md)
 - [v1.0.7 追踪矩阵](releases/v1.0.7/traceability.md)

@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LetsMakeMoney 品牌标识候选 · 第二轮</title>
+  <style>
+    :root {
+      font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+      color: #282620;
+      background: #e9ece7;
+      --paper: #fbfbf8;
+      --white: #fff;
+      --ink: #282620;
+      --muted: #716d64;
+      --line: #d6d8d1;
+      --gold: #ebaa24;
+      --gold-soft: #fff0c6;
+      --green: #5f8969;
+      --green-soft: #e2eee4;
+      --rust: #b85a43;
+      --blue: #52758b;
+      --shadow: 0 20px 58px rgb(40 38 32 / 11%);
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #e9ece7; }
+    svg { display: block; }
+    button, a { font: inherit; letter-spacing: 0; }
+    a { color: inherit; }
+
+    .page { width: min(1280px, calc(100% - 48px)); margin: 0 auto; padding: 36px 0 72px; }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 42px;
+      align-items: end;
+      padding: 30px 32px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .round { margin: 0 0 14px; color: #8b6516; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+    h1 { margin: 0; max-width: 760px; font-size: clamp(30px, 4vw, 48px); line-height: 1.08; }
+    .hero p:last-child { max-width: 780px; margin: 16px 0 0; color: var(--muted); font-size: 14px; line-height: 1.75; }
+    .hero__links { display: flex; gap: 8px; }
+    .hero__links a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--white); font-size: 12px; font-weight: 700; text-decoration: none; }
+    .hero__links a:last-child { border-color: #d69a21; background: var(--gold-soft); }
+
+    .spectrum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 30px 0 16px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--line); }
+    .spectrum div { min-height: 76px; padding: 17px 18px; background: var(--paper); }
+    .spectrum strong { display: block; margin-bottom: 5px; font-size: 12px; }
+    .spectrum span { color: var(--muted); font-size: 11px; line-height: 1.5; }
+
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .candidate { overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+    .candidate__top { display: grid; grid-template-columns: 210px minmax(0, 1fr); min-height: 252px; border-bottom: 1px solid var(--line); }
+    .candidate__visual { display: grid; place-items: center; padding: 24px; background: var(--candidate-bg, #f4f4ef); }
+    .candidate__visual svg { width: 144px; height: 144px; }
+    .candidate__copy { padding: 25px 24px; }
+    .candidate__code { color: var(--muted); font-size: 10px; font-weight: 800; }
+    .candidate h2 { margin: 24px 0 8px; font-size: 22px; }
+    .candidate__copy p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .traits { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
+    .traits span { padding: 5px 8px; border: 1px solid var(--line); border-radius: 999px; background: rgb(255 255 255 / 60%); font-size: 10px; }
+
+    .candidate__tests { padding: 20px 22px 22px; }
+    .sizes { display: flex; align-items: end; gap: 16px; min-height: 72px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+    .size { display: grid; justify-items: center; gap: 7px; color: var(--muted); font-size: 9px; }
+    .size svg { width: var(--s); height: var(--s); }
+    .uses { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(160px, .65fr); gap: 10px; padding-top: 16px; }
+    .titlebar { display: flex; align-items: center; gap: 9px; height: 48px; padding: 0 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--white); }
+    .titlebar svg { width: 26px; height: 26px; }
+    .titlebar strong { font-size: 12px; }
+    .mono { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; border: 1px solid var(--line); border-radius: 7px; }
+    .mono div { display: grid; place-items: center; }
+    .mono div:first-child { color: var(--ink); background: #f4f4ef; }
+    .mono div:last-child { color: #f7f5ed; background: #24251f; }
+    .mono svg { width: 20px; height: 20px; }
+    .mono .m-bg { fill: currentColor !important; }
+    .mono .m-stroke { stroke: currentColor !important; }
+    .mono .m-dot { fill: currentColor !important; }
+
+    .candidate__footer { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px; margin-top: 15px; }
+    .candidate__footer p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .pick { min-height: 34px; padding: 0 12px; border: 1px solid #c9c9c1; border-radius: 7px; color: var(--ink); background: var(--white); cursor: pointer; }
+    .pick:hover { border-color: #c18a19; }
+    .pick[aria-pressed="true"] { border-color: #c18a19; background: var(--gold); font-weight: 800; }
+
+    .shortlist { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 28px; margin-top: 24px; padding: 22px 24px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+    .shortlist h2 { margin: 0; font-size: 18px; }
+    .shortlist p { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .shortlist__value { min-width: 160px; padding: 12px 14px; border-left: 1px solid var(--line); color: #775300; font-size: 13px; font-weight: 800; text-align: center; }
+
+    @media (max-width: 980px) {
+      .hero { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 680px) {
+      .page { width: calc(100% - 24px); padding-top: 14px; }
+      .hero { padding: 22px; }
+      .hero__links { flex-wrap: wrap; }
+      .spectrum { grid-template-columns: 1fr; }
+      .candidate__top { grid-template-columns: 1fr; }
+      .candidate__visual { min-height: 230px; }
+      .uses { grid-template-columns: 1fr; }
+      .shortlist { grid-template-columns: 1fr; }
+      .shortlist__value { border-top: 1px solid var(--line); border-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true">
+    <defs>
+      <symbol id="mark-d" viewBox="0 0 64 64">
+        <rect class="m-bg" x="4" y="4" width="56" height="56" rx="16" fill="#f0b43b"/>
+        <path class="m-stroke" d="M18 17v30h29" fill="none" stroke="#282620" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <path class="m-stroke" d="m27 39 8-9 7 5 6-9" fill="none" stroke="#fff4d6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="mark-e" viewBox="0 0 64 64">
+        <rect class="m-bg" x="4" y="4" width="56" height="56" rx="16" fill="#f8f7f1"/>
+        <rect x="15" y="37" width="10" height="10" rx="3" fill="#31563b"/>
+        <rect x="27" y="27" width="10" height="20" rx="3" fill="#5f8969"/>
+        <rect x="39" y="17" width="10" height="30" rx="3" fill="#ebaa24"/>
+        <circle class="m-dot" cx="44" cy="17" r="4" fill="#b85a43"/>
+      </symbol>
+      <symbol id="mark-f" viewBox="0 0 64 64">
+        <rect class="m-bg" x="4" y="4" width="56" height="56" rx="16" fill="#282620"/>
+        <path class="m-stroke" d="M16 44V20l9 13 7-10 7 10 9-13v24" fill="none" stroke="#f7f3e8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path class="m-stroke" d="M16 44h32" fill="none" stroke="#ebaa24" stroke-width="5" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="mark-g" viewBox="0 0 64 64">
+        <circle class="m-bg" cx="32" cy="32" r="28" fill="#e2eee4"/>
+        <path class="m-stroke" d="M45 17a20 20 0 1 0 5 22" fill="none" stroke="#31563b" stroke-width="7" stroke-linecap="round"/>
+        <path d="M32 13v19l13 8" fill="none" stroke="#ebaa24" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="m-dot" cx="32" cy="32" r="4" fill="#b85a43"/>
+      </symbol>
+      <symbol id="mark-h" viewBox="0 0 64 64">
+        <rect class="m-bg" x="4" y="4" width="56" height="56" rx="16" fill="#b85a43"/>
+        <path class="m-stroke" d="M17 45V22c0-3 2-5 5-5h20c3 0 5 2 5 5v23" fill="none" stroke="#fff7ee" stroke-width="6" stroke-linecap="round"/>
+        <path d="M20 39h9l6-8 9-10" fill="none" stroke="#f0b43b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="m-dot" cx="44" cy="21" r="3.5" fill="#fff1c9"/>
+      </symbol>
+      <symbol id="mark-i" viewBox="0 0 64 64">
+        <rect class="m-bg" x="4" y="4" width="56" height="56" rx="16" fill="#52758b"/>
+        <path class="m-stroke" d="M17 38c0-9 6-15 15-15s15 6 15 15" fill="none" stroke="#f8f6ee" stroke-width="7" stroke-linecap="round"/>
+        <path class="m-stroke" d="M17 38c0 6 4 10 10 10 9 0 9-32 19-32" fill="none" stroke="#ebaa24" stroke-width="6" stroke-linecap="round"/>
+        <circle class="m-dot" cx="46" cy="16" r="4" fill="#fff1c9"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <main class="page">
+    <header class="hero">
+      <div>
+        <p class="round">Brand Mark Study 03 · 第二轮</p>
+        <h1>不只解释收入，也要留下自己的性格。</h1>
+        <p>这一轮故意拉开差异：从最克制的几何到更有温度的消费产品标识。全部方案仍使用 LMM 现有色彩，但不再局限于上升箭头或人民币符号。</p>
+      </div>
+      <nav class="hero__links" aria-label="候选轮次">
+        <a href="logo-candidates.html">查看第一轮</a>
+        <a href="#candidates">第二轮候选</a>
+      </nav>
+    </header>
+
+    <section class="spectrum" aria-label="本轮探索范围">
+      <div><strong>品牌优先</strong><span>F、I 更抽象，更容易形成自己的识别资产。</span></div>
+      <div><strong>产品优先</strong><span>D、E 一眼能理解进度与积累，学习成本最低。</span></div>
+      <div><strong>情绪优先</strong><span>G、H 更温和，更像日常陪伴型消费产品。</span></div>
+    </section>
+
+    <section class="grid" id="candidates" aria-label="第二轮 Logo 候选">
+      <article class="candidate" style="--candidate-bg:#fff0c6">
+        <div class="candidate__top">
+          <div class="candidate__visual"><svg aria-label="折线 L 候选"><use href="#mark-d"/></svg></div>
+          <div class="candidate__copy"><span class="candidate__code">D / EARNING L</span><h2>折线 L</h2><p>L 是品牌首字母，也是收入从时间中生长出来的坐标。整体更有力量，比普通图表图标更接近专属标记。</p><div class="traits"><span>直接</span><span>清楚</span><span>偏工具</span></div></div>
+        </div>
+        <div class="candidate__tests">
+          <div class="sizes"><div class="size"><svg style="--s:64px"><use href="#mark-d"/></svg><span>64</span></div><div class="size"><svg style="--s:32px"><use href="#mark-d"/></svg><span>32</span></div><div class="size"><svg style="--s:24px"><use href="#mark-d"/></svg><span>24</span></div><div class="size"><svg style="--s:16px"><use href="#mark-d"/></svg><span>16</span></div></div>
+          <div class="uses"><div class="titlebar"><svg><use href="#mark-d"/></svg><strong>LetsMakeMoney</strong></div><div class="mono"><div><svg><path class="m-stroke" d="M5 4v15h14M9 15l4-4 3 2 3-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><svg><path class="m-stroke" d="M5 4v15h14M9 15l4-4 3 2 3-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+          <div class="candidate__footer"><p>小尺寸稳定，但“进度图”联想仍然较强。</p><button class="pick" data-pick="D">收藏 D</button></div>
+        </div>
+      </article>
+
+      <article class="candidate" style="--candidate-bg:#edf1e8">
+        <div class="candidate__top">
+          <div class="candidate__visual"><svg aria-label="日进一格候选"><use href="#mark-e"/></svg></div>
+          <div class="candidate__copy"><span class="candidate__code">E / DAILY STEPS</span><h2>日进一格</h2><p>用三个高度不同的圆角单元表达每日积累。没有箭头，语气更平静，也能与产品中的日历和月度总结形成联系。</p><div class="traits"><span>有序</span><span>可信</span><span>易延展</span></div></div>
+        </div>
+        <div class="candidate__tests">
+          <div class="sizes"><div class="size"><svg style="--s:64px"><use href="#mark-e"/></svg><span>64</span></div><div class="size"><svg style="--s:32px"><use href="#mark-e"/></svg><span>32</span></div><div class="size"><svg style="--s:24px"><use href="#mark-e"/></svg><span>24</span></div><div class="size"><svg style="--s:16px"><use href="#mark-e"/></svg><span>16</span></div></div>
+          <div class="uses"><div class="titlebar"><svg><use href="#mark-e"/></svg><strong>LetsMakeMoney</strong></div><div class="mono"><div><svg><rect class="m-dot" x="4" y="13" width="4" height="7" rx="1"/><rect class="m-dot" x="10" y="9" width="4" height="11" rx="1"/><rect class="m-dot" x="16" y="4" width="4" height="16" rx="1"/></svg></div><div><svg><rect class="m-dot" x="4" y="13" width="4" height="7" rx="1"/><rect class="m-dot" x="10" y="9" width="4" height="11" rx="1"/><rect class="m-dot" x="16" y="4" width="4" height="16" rx="1"/></svg></div></div></div>
+          <div class="candidate__footer"><p>整洁耐看，专属性取决于后续比例精修。</p><button class="pick" data-pick="E">收藏 E</button></div>
+        </div>
+      </article>
+
+      <article class="candidate" style="--candidate-bg:#303029">
+        <div class="candidate__top">
+          <div class="candidate__visual"><svg aria-label="双峰字标候选"><use href="#mark-f"/></svg></div>
+          <div class="candidate__copy"><span class="candidate__code">F / TWIN PEAK</span><h2>双峰字标</h2><p>把 LMM 压缩成一个更柔和的双峰结构，底部金线代表每日进度。它不解释功能，但最容易成为真正的品牌符号。</p><div class="traits"><span>专属</span><span>稳重</span><span>品牌感</span></div></div>
+        </div>
+        <div class="candidate__tests">
+          <div class="sizes"><div class="size"><svg style="--s:64px"><use href="#mark-f"/></svg><span>64</span></div><div class="size"><svg style="--s:32px"><use href="#mark-f"/></svg><span>32</span></div><div class="size"><svg style="--s:24px"><use href="#mark-f"/></svg><span>24</span></div><div class="size"><svg style="--s:16px"><use href="#mark-f"/></svg><span>16</span></div></div>
+          <div class="uses"><div class="titlebar"><svg><use href="#mark-f"/></svg><strong>LetsMakeMoney</strong></div><div class="mono"><div><svg><path class="m-stroke" d="M3 18V6l4 7 4-6 4 6 5-7v12" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><svg><path class="m-stroke" d="M3 18V6l4 7 4-6 4 6 5-7v12" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+          <div class="candidate__footer"><p>品牌性最强，需要确认你是否接受抽象标识。</p><button class="pick" data-pick="F">收藏 F</button></div>
+        </div>
+      </article>
+
+      <article class="candidate" style="--candidate-bg:#e2eee4">
+        <div class="candidate__top">
+          <div class="candidate__visual"><svg aria-label="时间切片候选"><use href="#mark-g"/></svg></div>
+          <div class="candidate__copy"><span class="candidate__code">G / TIME SLICE</span><h2>时间切片</h2><p>圆环负责时间，金色指针负责收入正在累积的方向。比传统时钟更柔和，也保留了清楚的时间语义。</p><div class="traits"><span>平静</span><span>友好</span><span>时间感</span></div></div>
+        </div>
+        <div class="candidate__tests">
+          <div class="sizes"><div class="size"><svg style="--s:64px"><use href="#mark-g"/></svg><span>64</span></div><div class="size"><svg style="--s:32px"><use href="#mark-g"/></svg><span>32</span></div><div class="size"><svg style="--s:24px"><use href="#mark-g"/></svg><span>24</span></div><div class="size"><svg style="--s:16px"><use href="#mark-g"/></svg><span>16</span></div></div>
+          <div class="uses"><div class="titlebar"><svg><use href="#mark-g"/></svg><strong>LetsMakeMoney</strong></div><div class="mono"><div><svg><path class="m-stroke" d="M17 5a8 8 0 1 0 2 10M12 4v8l5 3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><svg><path class="m-stroke" d="M17 5a8 8 0 1 0 2 10M12 4v8l5 3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+          <div class="candidate__footer"><p>亲和力最好，但与时钟类应用接近。</p><button class="pick" data-pick="G">收藏 G</button></div>
+        </div>
+      </article>
+
+      <article class="candidate" style="--candidate-bg:#f4e5df">
+        <div class="candidate__top">
+          <div class="candidate__visual"><svg aria-label="收入窗口候选"><use href="#mark-h"/></svg></div>
+          <div class="candidate__copy"><span class="candidate__code">H / EARNING WINDOW</span><h2>收入窗口</h2><p>把 Windows 桌面窗口本身变成品牌记忆点，内部金线只暗示进度。强调这是常驻桌面的本地工具，而非普通记账应用。</p><div class="traits"><span>桌面感</span><span>温暖</span><span>识别明确</span></div></div>
+        </div>
+        <div class="candidate__tests">
+          <div class="sizes"><div class="size"><svg style="--s:64px"><use href="#mark-h"/></svg><span>64</span></div><div class="size"><svg style="--s:32px"><use href="#mark-h"/></svg><span>32</span></div><div class="size"><svg style="--s:24px"><use href="#mark-h"/></svg><span>24</span></div><div class="size"><svg style="--s:16px"><use href="#mark-h"/></svg><span>16</span></div></div>
+          <div class="uses"><div class="titlebar"><svg><use href="#mark-h"/></svg><strong>LetsMakeMoney</strong></div><div class="mono"><div><svg><path class="m-stroke" d="M5 19V7c0-2 1-3 3-3h8c2 0 3 1 3 3v12M7 16h4l3-4 4-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><svg><path class="m-stroke" d="M5 19V7c0-2 1-3 3-3h8c2 0 3 1 3 3v12M7 16h4l3-4 4-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+          <div class="candidate__footer"><p>很贴合 Windows 产品，但平台迁移时语义变弱。</p><button class="pick" data-pick="H">收藏 H</button></div>
+        </div>
+      </article>
+
+      <article class="candidate" style="--candidate-bg:#dfe8ed">
+        <div class="candidate__top">
+          <div class="candidate__visual"><svg aria-label="时光结候选"><use href="#mark-i"/></svg></div>
+          <div class="candidate__copy"><span class="candidate__code">I / EARNED LOOP</span><h2>时光结</h2><p>两条轨迹在一个节点相遇，表达时间与收入彼此转化。它最不像传统财务工具，也拥有更柔和的情感温度。</p><div class="traits"><span>独特</span><span>柔和</span><span>消费产品</span></div></div>
+        </div>
+        <div class="candidate__tests">
+          <div class="sizes"><div class="size"><svg style="--s:64px"><use href="#mark-i"/></svg><span>64</span></div><div class="size"><svg style="--s:32px"><use href="#mark-i"/></svg><span>32</span></div><div class="size"><svg style="--s:24px"><use href="#mark-i"/></svg><span>24</span></div><div class="size"><svg style="--s:16px"><use href="#mark-i"/></svg><span>16</span></div></div>
+          <div class="uses"><div class="titlebar"><svg><use href="#mark-i"/></svg><strong>LetsMakeMoney</strong></div><div class="mono"><div><svg><path class="m-stroke" d="M4 15c0-5 3-8 8-8s8 3 8 8M4 15c0 3 2 5 5 5 5 0 5-17 11-17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></div><div><svg><path class="m-stroke" d="M4 15c0-5 3-8 8-8s8 3 8 8M4 15c0 3 2 5 5 5 5 0 5-17 11-17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></div></div></div>
+          <div class="candidate__footer"><p>视觉最有性格，但需要接受它不直说“收入”。</p><button class="pick" data-pick="I">收藏 I</button></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="shortlist">
+      <div><h2>本轮建议先缩到两条线</h2><p>想要容易理解，优先看 E；想要更像真正品牌，优先看 F 或 I。可以多选收藏，再让 Codex针对入选方向各做一轮精修。</p></div>
+      <div class="shortlist__value" id="shortlist" aria-live="polite">尚未收藏</div>
+    </section>
+  </main>
+
+  <script>
+    const selected = new Set();
+    const output = document.querySelector('#shortlist');
+    for (const button of document.querySelectorAll('[data-pick]')) {
+      button.addEventListener('click', () => {
+        const id = button.dataset.pick;
+        selected.has(id) ? selected.delete(id) : selected.add(id);
+        button.setAttribute('aria-pressed', String(selected.has(id)));
+        button.textContent = selected.has(id) ? `已收藏 ${id}` : `收藏 ${id}`;
+        output.textContent = selected.size ? `已收藏：${[...selected].join('、')}` : '尚未收藏';
+      });
+    }
+  </script>
+</body>
+</html>

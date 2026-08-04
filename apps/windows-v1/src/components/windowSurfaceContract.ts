@@ -1,4 +1,4 @@
-export type WindowSurfaceVariant = "native-shadow" | "web-shadow" | "opaque-outer";
+export type WindowSurfaceVariant = "single-web-surface" | "native-shadow" | "opaque-outer";
 
 export interface WindowSurfaceDecision {
   variant: WindowSurfaceVariant;
@@ -8,22 +8,22 @@ export interface WindowSurfaceDecision {
 
 export const WINDOW_SURFACE_ATTRIBUTES = {
   "data-surface-owner": "web-content",
-  "data-shadow-owner": "native-window",
+  "data-shadow-owner": "none",
 } as const;
 
 export function evaluateWindowSurfaceVariant(variant: WindowSurfaceVariant): WindowSurfaceDecision {
-  if (variant === "native-shadow") {
+  if (variant === "single-web-surface") {
     return {
       variant,
       accepted: true,
-      reason: "原生窗口独占外部阴影，Web 内容层独占圆角、边框和背景。",
+      reason: "Web 内容层独占圆角、边框和背景，透明原生窗口不再叠加外部弧线。",
     };
   }
-  if (variant === "web-shadow") {
+  if (variant === "native-shadow") {
     return {
       variant,
       accepted: false,
-      reason: "透明 WebView 的 Web 阴影会与原生阴影叠加，形成双弧或裁切风险。",
+      reason: "透明窗口的 DWM 阴影会在 Web 圆角外形成第二层弧线。",
     };
   }
   return {

@@ -8,12 +8,12 @@ const cases = [
   {
     name: "loading",
     input: { state: "loading" as const },
-    expected: "正在同步",
+    expected: "同步中",
   },
   {
     name: "error",
     input: { state: "error" as const },
-    expected: "点击展开查看",
+    expected: "点击展开",
   },
   {
     name: "before work",
@@ -23,7 +23,7 @@ const cases = [
       nextBoundaryKind: "work_start" as const,
       nextBoundarySeconds: 90 * 60,
     },
-    expected: "距离上班 1小时30分",
+    expected: "距离上班1时30分",
   },
   {
     name: "working before rest",
@@ -33,7 +33,7 @@ const cases = [
       nextBoundaryKind: "rest_start" as const,
       nextBoundarySeconds: 45 * 60,
     },
-    expected: "距离休息 45分钟",
+    expected: "距离休息45分",
   },
   {
     name: "rest",
@@ -53,7 +53,7 @@ const cases = [
       nextBoundaryKind: "work_end" as const,
       nextBoundarySeconds: 100 * 60 * 60,
     },
-    expected: "距离下班 99+小时",
+    expected: "距离下班99时+",
   },
   {
     name: "after work",
@@ -63,7 +63,7 @@ const cases = [
       nextBoundaryKind: null,
       nextBoundarySeconds: null,
     },
-    expected: "今日工作已结束",
+    expected: "今日结束",
   },
   ...(["rest_day", "paid_rest", "unpaid_rest"] as const).map(phase => ({
     name: phase,

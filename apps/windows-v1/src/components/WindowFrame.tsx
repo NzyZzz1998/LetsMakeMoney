@@ -5,6 +5,7 @@ import {
   windowService,
   type WindowKind,
 } from "../services/windowService";
+import { AppMark } from "./AppMark";
 import { WINDOW_SURFACE_ATTRIBUTES } from "./windowSurfaceContract";
 
 export function WindowFrame({
@@ -34,7 +35,7 @@ export function WindowFrame({
     >
       <header className="titlebar">
         <div className="titlebar__identity">
-          <span className="coin-mark" aria-hidden="true">¥</span>
+          <AppMark />
           <strong>{title}</strong>
         </div>
         <IconButton

@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LetsMakeMoney F2 质感精修</title>
+  <style>
+    :root {
+      font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+      color: #292720;
+      background: #e9ece7;
+      --canvas: #e9ece7;
+      --surface: #fbfbf8;
+      --raised: #ffffff;
+      --ink: #292720;
+      --muted: #716d64;
+      --line: #d7d8d2;
+      --gold: #ebaa24;
+      --gold-light: #f4c45d;
+      --gold-soft: #fff1c9;
+      --cream: #fff7e5;
+      --green: #50745a;
+      --dark: #20211e;
+    }
+
+    * { box-sizing: border-box; }
+    html { color-scheme: light; }
+    body { margin: 0; background: var(--canvas); }
+    svg { display: block; }
+    button, a { font: inherit; letter-spacing: 0; }
+
+    .page {
+      width: min(1280px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 36px 0 72px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 36px;
+      align-items: end;
+      padding: 30px 32px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .hero__label {
+      display: inline-flex;
+      width: fit-content;
+      min-height: 26px;
+      align-items: center;
+      padding: 0 9px;
+      border-radius: 999px;
+      color: #6f4d08;
+      background: var(--gold-soft);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 16px 0 0;
+      font-size: 42px;
+      line-height: 1.12;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    .hero p {
+      max-width: 780px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.75;
+      text-wrap: pretty;
+    }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--ink);
+      background: var(--raised);
+      font-size: 12px;
+      font-weight: 650;
+      text-decoration: none;
+    }
+
+    .principles {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 1px;
+      margin: 24px 0 16px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--line);
+    }
+
+    .principles div { padding: 17px 19px; background: var(--surface); }
+    .principles strong { display: block; margin-bottom: 6px; font-size: 12px; }
+    .principles span { color: var(--muted); font-size: 11px; line-height: 1.55; }
+
+    .section-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin: 30px 0 14px;
+    }
+
+    .section-heading h2 { margin: 0; font-size: 22px; }
+    .section-heading p { max-width: 680px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; text-align: right; }
+
+    .variants {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .variant {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .variant[data-recommended="true"] { border-color: #c88c15; box-shadow: 0 0 0 1px #c88c15; }
+
+    .stage {
+      display: grid;
+      min-height: 310px;
+      place-items: center;
+      background: var(--stage);
+    }
+
+    .stage svg { width: 196px; height: 196px; }
+
+    .variant__copy { min-height: 190px; padding: 22px 24px 20px; border-top: 1px solid var(--line); }
+    .variant__code { color: var(--muted); font-size: 10px; font-weight: 750; }
+    .variant__copy h3 { margin: 14px 0 8px; font-size: 21px; }
+    .variant__copy p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .tags span { display: inline-flex; min-height: 24px; align-items: center; padding: 0 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--raised); font-size: 10px; font-weight: 650; }
+    .tags .recommended { border-color: #dba63b; color: #715006; background: var(--gold-soft); }
+
+    .variant__tests { padding: 18px 22px 22px; border-top: 1px solid var(--line); }
+    .sizes { display: flex; min-height: 76px; align-items: end; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+    .size { display: grid; justify-items: center; gap: 7px; color: var(--muted); font-size: 9px; }
+    .size svg { width: var(--s); height: var(--s); }
+
+    .titlebar {
+      display: flex;
+      height: 48px;
+      align-items: center;
+      gap: 9px;
+      margin-top: 14px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--raised);
+    }
+
+    .titlebar svg { width: 27px; height: 27px; }
+    .titlebar strong { font-size: 12px; }
+
+    .mono {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 46px;
+      margin-top: 9px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+    }
+
+    .mono div { display: grid; place-items: center; }
+    .mono div:first-child { color: var(--ink); background: #f4f4ef; }
+    .mono div:last-child { color: #f7f5ed; background: var(--dark); }
+    .mono svg { width: 21px; height: 21px; }
+
+    .pick {
+      width: 100%;
+      min-height: 38px;
+      margin-top: 14px;
+      border: 1px solid #c9c8c1;
+      border-radius: 7px;
+      color: var(--ink);
+      background: var(--raised);
+      cursor: pointer;
+    }
+
+    .pick:hover { border-color: #bd8310; }
+    .pick[aria-pressed="true"] { border-color: #bd8310; color: #2d2108; background: var(--gold); font-weight: 750; }
+
+    .construction {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 1px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--line);
+    }
+
+    .construction__mark { display: grid; place-items: center; min-height: 330px; background: #fff4d7; }
+    .construction__mark svg { width: 220px; height: 220px; }
+    .construction__notes { display: grid; grid-template-rows: repeat(3, 1fr); background: var(--surface); }
+    .construction__notes div { display: grid; grid-template-columns: 36px 1fr; gap: 14px; align-content: center; padding: 20px 24px; border-bottom: 1px solid var(--line); }
+    .construction__notes div:last-child { border-bottom: 0; }
+    .construction__notes b { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; color: #5e4208; background: var(--gold-soft); font-size: 12px; }
+    .construction__notes strong { display: block; font-size: 13px; }
+    .construction__notes p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+
+    .contexts {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .context {
+      min-height: 142px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .context > span { color: var(--muted); font-size: 10px; font-weight: 700; }
+    .context__window { display: flex; height: 52px; align-items: center; gap: 10px; margin-top: 15px; padding: 0 13px; border: 1px solid var(--line); border-radius: 8px; background: var(--raised); }
+    .context__window svg { width: 28px; height: 28px; }
+    .context__window strong { font-size: 12px; }
+    .context__taskbar { display: flex; gap: 8px; margin-top: 15px; }
+    .context__taskbar i { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 6px; background: #2b2c28; }
+    .context__taskbar svg { width: 25px; height: 25px; }
+    .context__dark { display: grid; height: 76px; place-items: center; margin-top: 15px; border-radius: 8px; background: var(--dark); }
+    .context__dark svg { width: 34px; height: 34px; }
+
+    .decision {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: center;
+      margin-top: 24px;
+      padding: 22px 24px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .decision h2 { margin: 0; font-size: 18px; }
+    .decision p { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .decision__value { min-width: 196px; padding: 12px 16px; border: 1px solid #d9a43a; border-radius: 7px; color: #6a4905; background: var(--gold-soft); font-size: 12px; font-weight: 750; text-align: center; }
+
+    @media (max-width: 980px) {
+      .variants, .contexts { grid-template-columns: 1fr; }
+      .construction { grid-template-columns: 1fr; }
+      .principles { grid-template-columns: 1fr; }
+      .hero { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      .page { width: calc(100% - 24px); padding-top: 14px; }
+      .hero { padding: 22px; }
+      h1 { font-size: 32px; }
+      .section-heading { display: block; }
+      .section-heading p { margin-top: 7px; text-align: left; }
+      .decision { grid-template-columns: 1fr; }
+      .decision__value { min-width: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true">
+    <defs>
+      <symbol id="f2a" viewBox="0 0 96 96">
+        <rect x="5" y="5" width="86" height="86" rx="25" fill="#ebaa24"/>
+        <rect x="9" y="9" width="78" height="78" rx="21" fill="none" stroke="#f5c966" stroke-width="2"/>
+        <path d="M22 66V31c0-4 5-5 7-2l14 19 10-15 13 15 13-19c2-3 7-2 7 2v35c0 5-4 9-9 9H31c-5 0-9-4-9-9Z" fill="#292720"/>
+        <rect x="29" y="62" width="50" height="7" rx="3.5" fill="#fff7e5"/>
+      </symbol>
+
+      <symbol id="f2b" viewBox="0 0 96 96">
+        <rect x="5" y="5" width="86" height="86" rx="25" fill="#ebaa24"/>
+        <path d="M20 68V29c0-4 5-5 7-2l16 23 10-16 11 16 16-23c2-3 7-2 7 2v39c0 4-3 7-7 7H27c-4 0-7-3-7-7Z" fill="#292720"/>
+        <path d="M32 62h42a4 4 0 0 1 4 4v2H30v-4a2 2 0 0 1 2-2Z" fill="#fff7e5"/>
+        <path d="M43 50 53 34l11 16" fill="none" stroke="#ebaa24" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+
+      <symbol id="f2c" viewBox="0 0 96 96">
+        <rect x="5" y="5" width="86" height="86" rx="25" fill="#ebaa24"/>
+        <rect x="16" y="16" width="64" height="64" rx="20" fill="#fff7e5"/>
+        <path d="M27 64V34c0-3 4-4 6-2l11 16 9-13 10 13 11-16c2-2 6-1 6 2v30c0 4-3 7-7 7H34c-4 0-7-3-7-7Z" fill="#292720"/>
+        <rect x="34" y="60" width="39" height="6" rx="3" fill="#ebaa24"/>
+      </symbol>
+
+      <symbol id="core-a" viewBox="0 0 64 64">
+        <path d="M8 45V17c0-3 4-4 6-1l11 15 8-12 11 12 10-15c2-3 6-2 6 1v28c0 4-3 7-7 7H15c-4 0-7-3-7-7Z" fill="currentColor"/>
+        <rect x="14" y="41" width="40" height="6" rx="3" fill="var(--slot, #ebaa24)"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <main class="page">
+    <header class="hero">
+      <div>
+        <span class="hero__label">F2 · 质感精修</span>
+        <h1>让双峰成为一个完整的标记。</h1>
+        <p>保留 F2 与产品浅色主题一致的金币黄，但把原来的粗描边升级为有体量的实体结构。质感来自外壳、内嵌边界、形体比例和光学校正，不依赖渐变与厚重阴影。</p>
+      </div>
+      <a class="back" href="logo-f-finalists.html">返回 F 组</a>
+    </header>
+
+    <section class="principles" aria-label="精修原则">
+      <div><strong>核心标记</strong><span>双峰、进度槽与底部承托形成一个实体轮廓，脱离应用图标外壳后仍成立。</span></div>
+      <div><strong>应用外壳</strong><span>金币黄是品牌表面，内嵌边界只增加结构感，不模拟玻璃、金属或高光。</span></div>
+      <div><strong>小尺寸</strong><span>16px 优先保留黑色主体与奶白进度槽；细节按尺寸降级，而不是机械缩放。</span></div>
+    </section>
+
+    <div class="section-heading">
+      <h2>三种实体化方向</h2>
+      <p>三版共用同一视觉基因，差异只在体量、留白和应用图标的层次。A 最接近当前产品，也最适合继续精修为正式版本。</p>
+    </div>
+
+    <section class="variants" aria-label="F2 精修候选">
+      <article class="variant" data-recommended="true">
+        <div class="stage" style="--stage:#fff1c9"><svg aria-label="F2A 内刻双峰"><use href="#f2a"/></svg></div>
+        <div class="variant__copy">
+          <span class="variant__code">F2A / INSET CREST</span>
+          <h3>内刻双峰</h3>
+          <p>外壳有一圈克制的内嵌边界，中央双峰改为完整深色实体，奶白色进度槽像从标记中切出。结构最稳，也最贴近 LMM 当前浅色界面。</p>
+          <div class="tags"><span class="recommended">建议继续</span><span>温暖</span><span>工具感</span><span>小尺寸稳</span></div>
+        </div>
+        <div class="variant__tests">
+          <div class="sizes">
+            <div class="size"><svg style="--s:64px"><use href="#f2a"/></svg><span>64</span></div>
+            <div class="size"><svg style="--s:40px"><use href="#f2a"/></svg><span>40</span></div>
+            <div class="size"><svg style="--s:32px"><use href="#f2a"/></svg><span>32</span></div>
+            <div class="size"><svg style="--s:24px"><use href="#f2a"/></svg><span>24</span></div>
+            <div class="size"><svg style="--s:16px"><use href="#f2a"/></svg><span>16</span></div>
+          </div>
+          <div class="titlebar"><svg><use href="#f2a"/></svg><strong>LetsMakeMoney</strong></div>
+          <div class="mono"><div><svg><use href="#core-a"/></svg></div><div style="--slot:#20211e"><svg><use href="#core-a"/></svg></div></div>
+          <button class="pick" data-pick="F2A">选择 F2A</button>
+        </div>
+      </article>
+
+      <article class="variant">
+        <div class="stage" style="--stage:#f3f4ef"><svg aria-label="F2B 折带双峰"><use href="#f2b"/></svg></div>
+        <div class="variant__copy">
+          <span class="variant__code">F2B / FOLDED PEAK</span>
+          <h3>折带双峰</h3>
+          <p>在实体主体中保留一条金色折线，形成“时间被折算成进度”的内在结构。识别更独特，但 16px 时需要专门简化，品牌感比工具感更强。</p>
+          <div class="tags"><span>识别强</span><span>品牌化</span><span>细节较多</span></div>
+        </div>
+        <div class="variant__tests">
+          <div class="sizes">
+            <div class="size"><svg style="--s:64px"><use href="#f2b"/></svg><span>64</span></div>
+            <div class="size"><svg style="--s:40px"><use href="#f2b"/></svg><span>40</span></div>
+            <div class="size"><svg style="--s:32px"><use href="#f2b"/></svg><span>32</span></div>
+            <div class="size"><svg style="--s:24px"><use href="#f2b"/></svg><span>24</span></div>
+            <div class="size"><svg style="--s:16px"><use href="#f2b"/></svg><span>16</span></div>
+          </div>
+          <div class="titlebar"><svg><use href="#f2b"/></svg><strong>LetsMakeMoney</strong></div>
+          <div class="mono"><div><svg><use href="#core-a"/></svg></div><div style="--slot:#20211e"><svg><use href="#core-a"/></svg></div></div>
+          <button class="pick" data-pick="F2B">选择 F2B</button>
+        </div>
+      </article>
+
+      <article class="variant">
+        <div class="stage" style="--stage:#303129"><svg aria-label="F2C 内嵌章牌"><use href="#f2c"/></svg></div>
+        <div class="variant__copy">
+          <span class="variant__code">F2C / MEDALLION</span>
+          <h3>内嵌章牌</h3>
+          <p>用奶白内芯隔开金币黄外壳和深色字标，层次最明显，任务栏表现柔和。代价是外壳与字标关系更复杂，容易更像徽章而不是桌面工具。</p>
+          <div class="tags"><span>层次明显</span><span>柔和</span><span>徽章感</span></div>
+        </div>
+        <div class="variant__tests">
+          <div class="sizes">
+            <div class="size"><svg style="--s:64px"><use href="#f2c"/></svg><span>64</span></div>
+            <div class="size"><svg style="--s:40px"><use href="#f2c"/></svg><span>40</span></div>
+            <div class="size"><svg style="--s:32px"><use href="#f2c"/></svg><span>32</span></div>
+            <div class="size"><svg style="--s:24px"><use href="#f2c"/></svg><span>24</span></div>
+            <div class="size"><svg style="--s:16px"><use href="#f2c"/></svg><span>16</span></div>
+          </div>
+          <div class="titlebar"><svg><use href="#f2c"/></svg><strong>LetsMakeMoney</strong></div>
+          <div class="mono"><div><svg><use href="#core-a"/></svg></div><div style="--slot:#20211e"><svg><use href="#core-a"/></svg></div></div>
+          <button class="pick" data-pick="F2C">选择 F2C</button>
+        </div>
+      </article>
+    </section>
+
+    <div class="section-heading">
+      <h2>F2A 的质感从哪里来</h2>
+      <p>这不是给线条加阴影，而是让每一层都有清楚职责。核心字标本身仍保持平面、可缩放、可单色化。</p>
+    </div>
+
+    <section class="construction">
+      <div class="construction__mark"><svg aria-label="F2A 分层展示"><use href="#f2a"/></svg></div>
+      <div class="construction__notes">
+        <div><b>1</b><section><strong>金币黄外壳</strong><p>承担品牌识别与 Windows 应用图标轮廓；圆角与 LMM 窗口语言一致，但不做拟物高光。</p></section></div>
+        <div><b>2</b><section><strong>深色实体双峰</strong><p>把原本松散的折线收成一个稳定形体，底部宽度和双峰间距经过光学校正。</p></section></div>
+        <div><b>3</b><section><strong>奶白进度槽</strong><p>保留“时间转化为可见进度”的产品含义，同时在 16px 下提供必要的横向识别点。</p></section></div>
+      </div>
+    </section>
+
+    <div class="section-heading">
+      <h2>真实使用场景</h2>
+      <p>应用外壳用于窗口、任务栏和快捷方式；单色核心标记用于托盘、文档及极小尺寸。两者同源，但不强迫一个 SVG 机械覆盖所有场景。</p>
+    </div>
+
+    <section class="contexts">
+      <article class="context"><span>浅色窗口标题栏</span><div class="context__window"><svg><use href="#f2a"/></svg><strong>LetsMakeMoney</strong></div></article>
+      <article class="context"><span>Windows 任务栏</span><div class="context__taskbar"><i><svg><use href="#f2a"/></svg></i><i style="background:#383934"><svg><use href="#f2a"/></svg></i></div></article>
+      <article class="context"><span>深色与单色</span><div class="context__dark" style="color:#f5f2e8;--slot:#ebaa24"><svg><use href="#core-a"/></svg></div></article>
+    </section>
+
+    <section class="decision">
+      <div><h2>本轮只确认造型，不立即替换应用</h2><p>确认候选后，再对入选方向分别校正 16、20、24、32、40、48、64、128、256px，并生成 SVG、PNG、ICO 与单色托盘资源。</p></div>
+      <div class="decision__value" id="decision" aria-live="polite">建议：F2A 内刻双峰</div>
+    </section>
+  </main>
+
+  <script>
+    const output = document.querySelector('#decision');
+    const buttons = [...document.querySelectorAll('[data-pick]')];
+    for (const button of buttons) {
+      button.addEventListener('click', () => {
+        for (const current of buttons) current.setAttribute('aria-pressed', String(current === button));
+        output.textContent = `当前选择：${button.dataset.pick}`;
+      });
+    }
+  </script>
+</body>
+</html>

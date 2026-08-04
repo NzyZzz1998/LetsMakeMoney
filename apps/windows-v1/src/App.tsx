@@ -10,6 +10,7 @@ import {
   Switch,
 } from "./components";
 import { AccessibleCombobox } from "./components/AccessibleCombobox";
+import { TimeField } from "./components/TimeField";
 import { WindowFrame } from "./components/WindowFrame";
 import { DateOverrideEditor } from "./features/calendar/DateOverrideEditor";
 import { OvertimeEditor } from "./features/calendar/OvertimeEditor";
@@ -128,6 +129,15 @@ function WindowOperationNotice() {
   return <div className="window-operation-notice" role="status">{message}</div>;
 }
 
+function BrowserPreviewNotice() {
+  if (windowService.isDesktop) return null;
+  return (
+    <div className="browser-preview-notice" role="status">
+      开发预览 · 收入与日历为非权威模拟数据
+    </div>
+  );
+}
+
 function useNativeCloseRequest(requestClose: () => void) {
   useEffect(() => {
     window.addEventListener("lmm:window-close-requested", requestClose);
@@ -208,6 +218,7 @@ function TodayView({ snapshot, refresh }: ReturnType<typeof useDashboard>) {
         <DateOverrideEditor
           key={`today-date-${ownerDay.date}`}
           day={ownerDay}
+          currentHourlyRateFen={Math.max(0, Math.round(snapshot.hourlySalary * 100))}
           onApplied={finishEditor}
           onClose={() => setEditor(null)}
         />
@@ -579,6 +590,11 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
                       setEditorMode(null);
                       setOverrideFeedback(null);
                     }}
+                    onDoubleClick={() => {
+                      setSelectedDate(daySnapshot.date);
+                      setEditorMode("date");
+                      setOverrideFeedback(null);
+                    }}
                   >
                     {contract.todayCue && (
                       <span className="calendar-day__today" aria-hidden="true">{contract.todayCue}</span>
@@ -596,11 +612,10 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
                   <span className="eyebrow">月度总结</span>
                   <h2 id="month-summary-title">只统计计划与主动记录</h2>
                 </div>
-                <span>不代表实际出勤</span>
               </div>
               <dl className="month-summary__grid">
                 <div><dt>计划工时</dt><dd>{formatWorkMinutes(monthlySummary.plannedMinutes)}</dd></div>
-                <div><dt>已流逝计划工时</dt><dd>{formatWorkMinutes(monthlySummary.elapsedPlannedMinutes)}</dd></div>
+                <div><dt>实际工时</dt><dd>{formatWorkMinutes(monthlySummary.elapsedPlannedMinutes)}</dd></div>
                 <div>
                   <dt>加班工时</dt>
                   <dd>
@@ -645,6 +660,7 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
         <DateOverrideEditor
           key={selectedDate}
           day={calendarMonth.days.find(day => day.date === selectedDate)!}
+          currentHourlyRateFen={Math.max(0, Math.round(snapshot.hourlySalary * 100))}
           onApplied={message => {
             setOverrideFeedback(message);
             setEditorMode(null);
@@ -846,8 +862,8 @@ function WizardWindow() {
                 <h1>你的工作时间</h1>
                 <p>默认每天工作 8 小时，休息时间不计入有效工时。</p>
                 <div className="form-grid">
-                  <Field label="上班时间" value={config.draft.work_start_time} type="time" onChange={event => updateStart(event.target.value)} />
-                  <Field label="休息开始" value={config.draft.lunch_start_time} type="time" onChange={event => updateLunchStart(event.target.value)} />
+                  <TimeField label="上班时间" value={config.draft.work_start_time} onChange={updateStart} />
+                  <TimeField label="休息开始" value={config.draft.lunch_start_time} onChange={updateLunchStart} />
                   <Field
                     label="休息时长"
                     value={lunchDurationInput}
@@ -857,7 +873,7 @@ function WizardWindow() {
                     onChange={event => updateLunchDuration(event.target.value)}
                     onBlur={commitLunchDuration}
                   />
-                  <Field label="推算下班时间" value={config.draft.work_end_time} type="time" readOnly />
+                  <TimeField label="推算下班时间" value={config.draft.work_end_time} readOnly />
                 </div>
                 <Feedback tone="success">
                   有效工时 {config.draft.work_hours_per_day} 小时 · {config.draft.lunch_start_time === config.draft.lunch_end_time
@@ -1052,6 +1068,7 @@ function IncomeSettings({ config }: { config: ReturnType<typeof useConfigDraft> 
               value={config.draft.alternating_anchor_week_type ?? ""}
               placeholder="请选择"
               error={config.errors.alternating_anchor_week_type}
+              showError={false}
               options={[
                 { value: "big", label: "大周" },
                 { value: "small", label: "小周" },
@@ -1061,7 +1078,7 @@ function IncomeSettings({ config }: { config: ReturnType<typeof useConfigDraft> 
           </div>
         )}
       </section>
-      <section><h2>工作与休息</h2><div className="form-grid"><Field label="上班时间" value={config.draft.work_start_time} type="time" onChange={event => config.update("work_start_time", event.target.value)} /><Field label="下班时间" value={config.draft.work_end_time} type="time" onChange={event => config.update("work_end_time", event.target.value)} /><Field label="休息开始" value={config.draft.lunch_start_time} type="time" onChange={event => config.update("lunch_start_time", event.target.value)} /><Field label="休息结束" value={config.draft.lunch_end_time} type="time" onChange={event => config.update("lunch_end_time", event.target.value)} /></div></section>
+      <section><h2>工作与休息</h2><div className="form-grid"><TimeField label="上班时间" value={config.draft.work_start_time} onChange={value => config.update("work_start_time", value)} /><TimeField label="下班时间" value={config.draft.work_end_time} onChange={value => config.update("work_end_time", value)} /><TimeField label="休息开始" value={config.draft.lunch_start_time} onChange={value => config.update("lunch_start_time", value)} /><TimeField label="休息结束" value={config.draft.lunch_end_time} onChange={value => config.update("lunch_end_time", value)} /></div></section>
     </div>
   );
 }
@@ -1253,5 +1270,5 @@ export function App() {
       : kind === "wizard"
         ? <WizardWindow />
         : <MiniWindow onOpenWindow={label => { void showWindow(label); }} />;
-  return <>{content}<WindowOperationNotice /></>;
+  return <>{content}<BrowserPreviewNotice /><WindowOperationNotice /></>;
 }

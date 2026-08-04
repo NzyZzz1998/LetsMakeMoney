@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LetsMakeMoney v1.0.7 高保真产品原型</title>
+  <title>LetsMakeMoney v1.0.F / v1.0.8 高保真产品原型</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,8 +11,8 @@
     <div class="lab-brand">
       <span class="lab-mark" aria-hidden="true">¥</span>
       <div>
-        <strong>v1.0.7 收官完整方案评审</strong>
-        <span>窗口事务 · 加班记录 · 月度总结 · 条件视觉 Spike</span>
+        <strong>v1.0.F 收官 PRD 评审 · 公开版本 v1.0.8</strong>
+        <span>动态加班边界 · 周末联动事务 · 品牌与窗口质量门禁</span>
       </div>
     </div>
 
@@ -82,6 +82,15 @@
         <select id="calendar-weeks">
           <option value="5" selected>5 周</option>
           <option value="6">6 周</option>
+        </select>
+      </label>
+      <label class="lab-select">
+        <span>加班场景</span>
+        <select id="overtime-scenario">
+          <option value="planned" selected>计划班次 · 动态上限</option>
+          <option value="weekend_linked">自然周末 · 联动工作日</option>
+          <option value="rest_independent">普通休息日 · 独立录入</option>
+          <option value="linked_revert">恢复自动 · 处理关联记录</option>
         </select>
       </label>
       <label class="toggle-line">
@@ -650,6 +659,25 @@
             <span><strong>设为不带薪休息</strong><small>不计算工时，并从本月预计收入中扣除当天金额</small></span>
           </label>
         </fieldset>
+        <section class="linked-overtime-panel" id="linked-overtime-panel" hidden>
+          <div class="linked-panel-heading">
+            <span><strong>同时记录加班</strong><small>仅自然周六、周日手动设为工作日时出现</small></span>
+            <span class="contract-badge">原子保存</span>
+          </div>
+          <label class="overtime-field compact" for="linked-overtime-hours">
+            <span><strong>加班时长</strong><small id="linked-overtime-limit">默认 8 小时；本次上限 24 小时</small></span>
+            <span class="input-with-unit"><input id="linked-overtime-hours" type="text" inputmode="decimal" value="8"><span>小时</span></span>
+          </label>
+          <p class="boundary-copy" id="linked-overtime-boundary">本次 18:00 下班；下一次真实工作于周一 09:00 开始，间隔超过 24 小时，按 24 小时封顶。</p>
+        </section>
+        <section class="linked-removal-panel" id="linked-removal-panel" hidden>
+          <div class="linked-panel-heading">
+            <span><strong>该日期有关联加班</strong><small>恢复自动或改为休息时，不会静默删除记录</small></span>
+            <span class="contract-badge is-warning">需要确认</span>
+          </div>
+          <label><input type="radio" name="linked-overtime-action" value="keep" checked><span><strong>保留加班</strong><small>解除联动，转为独立记录</small></span></label>
+          <label><input type="radio" name="linked-overtime-action" value="delete"><span><strong>一并删除</strong><small>日期调整与关联加班在同一事务中删除</small></span></label>
+        </section>
         <p class="override-leave-hint" id="override-leave-hint" hidden>
           该日期按当前日历本就是休息日，无需设置请假；可恢复自动或改为工作日。
         </p>
@@ -678,11 +706,19 @@
         </button>
       </header>
       <div class="overtime-body">
-        <p>按业务日期保存。时长会换算为最近一分钟，修改记录不会追溯更新录入时费率。</p>
+        <div class="overtime-context-row">
+          <p>按业务日期保存。时长换算为最近一分钟，修改记录不追溯更新费率。</p>
+          <span class="contract-badge" id="overtime-origin">独立录入</span>
+        </div>
         <label class="overtime-field" for="overtime-hours">
-          <span><strong>加班时长</strong><small>0–24 小时，最多两位小数；0 表示删除</small></span>
+          <span><strong>加班时长</strong><small id="overtime-limit-copy">本次动态上限 15 小时；0 表示删除</small></span>
           <span class="input-with-unit"><input id="overtime-hours" type="text" inputmode="decimal" value="1.50"><span>小时</span></span>
         </label>
+        <div class="boundary-card" id="overtime-boundary-card">
+          <span>边界依据</span>
+          <strong id="overtime-boundary-title">本次下班至下一次真实上班</strong>
+          <small id="overtime-boundary-copy">7 月 23 日 18:00 → 7 月 24 日 09:00，共 15 小时</small>
+        </div>
         <div class="overtime-snapshot">
           <span>录入时费率快照</span>
           <strong>¥ 62.50 / 小时 · 1.0×</strong>

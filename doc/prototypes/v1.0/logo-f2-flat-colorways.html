@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LetsMakeMoney F2 PC 平面配色</title>
+  <style>
+    :root {
+      font-family: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", sans-serif;
+      color: #2b2923;
+      background: #e9eae5;
+      --paper: #f8f7f2;
+      --surface: #fffefa;
+      --line: #d6d5ce;
+      --muted: #716d64;
+      --gold: #edaa22;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); }
+    button, a { font: inherit; letter-spacing: 0; }
+    svg { display: block; }
+    .page { width: min(1220px, calc(100% - 48px)); margin: 0 auto; padding: 34px 0 70px; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: end; padding: 28px 30px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+    .eyebrow { color: #8a6110; font-size: 11px; font-weight: 750; }
+    h1 { margin: 11px 0 12px; font-size: 40px; line-height: 1.16; }
+    h2 { margin: 0 0 7px; font-size: 22px; }
+    h3 { margin: 0 0 6px; font-size: 15px; }
+    p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .hero p { max-width: 760px; }
+    .back { display: inline-flex; min-height: 36px; align-items: center; padding: 0 12px; border: 1px solid var(--line); border-radius: 7px; color: #2b2923; background: #fff; text-decoration: none; font-size: 12px; font-weight: 650; }
+
+    .rules { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 16px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--line); }
+    .rules div { min-height: 82px; padding: 16px 18px; background: var(--surface); }
+    .rules strong { display: block; margin-bottom: 5px; font-size: 11px; }
+    .rules span { color: var(--muted); font-size: 10px; line-height: 1.55; }
+
+    .section-head { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin: 32px 0 13px; }
+    .section-head p { max-width: 620px; text-align: right; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
+    .candidate { overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+    .candidate[aria-current="true"] { border-color: #ae7410; box-shadow: 0 0 0 1px #ae7410; }
+    .stage { display: grid; min-height: 260px; place-items: center; background: #f1f1ed; }
+    .stage svg { width: 176px; height: 176px; filter: drop-shadow(0 9px 10px rgba(28, 27, 23, .13)); }
+    .copy { min-height: 158px; padding: 17px 18px; border-top: 1px solid var(--line); }
+    .copy p { min-height: 49px; font-size: 10px; }
+    .pick { width: 100%; min-height: 34px; margin-top: 11px; border: 1px solid var(--line); border-radius: 7px; color: #2b2923; background: #fff; cursor: pointer; }
+    .pick:hover { border-color: #ad7612; }
+    .pick[aria-pressed="true"] { border-color: #75551e; color: #fffaf0; background: #75551e; font-weight: 750; }
+
+    .context { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 12px; }
+    .context article { min-height: 145px; padding: 17px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+    .context span { color: var(--muted); font-size: 10px; font-weight: 700; }
+    .titlebar { display: flex; height: 52px; align-items: center; gap: 10px; margin-top: 15px; padding: 0 13px; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+    .titlebar svg { width: 29px; height: 29px; }
+    .titlebar strong { font-size: 12px; }
+    .taskbar { display: flex; gap: 9px; margin-top: 15px; padding: 17px; border-radius: 7px; background: #252622; }
+    .taskbar i { display: grid; width: 37px; height: 37px; place-items: center; border-radius: 6px; background: #393a35; }
+    .taskbar svg { width: 26px; height: 26px; }
+    .small { display: flex; align-items: end; gap: 13px; min-height: 75px; margin-top: 15px; }
+    .small div { display: grid; justify-items: center; gap: 7px; color: var(--muted); font-size: 9px; }
+    .small svg { width: var(--s); height: var(--s); filter: drop-shadow(0 3px 3px rgba(0,0,0,.12)); }
+
+    .decision { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 22px; align-items: center; margin-top: 22px; padding: 20px 22px; border: 1px solid #dbad4c; border-radius: 8px; background: #fff6df; }
+    .decision output { min-width: 210px; padding: 11px 14px; border-radius: 7px; color: #624506; background: #ffe4a4; font-size: 12px; font-weight: 750; text-align: center; }
+
+    @media (max-width: 920px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .rules, .context { grid-template-columns: 1fr; }
+      .hero { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .page { width: calc(100% - 24px); padding-top: 14px; }
+      .hero { padding: 21px; }
+      h1 { font-size: 31px; }
+      .grid { grid-template-columns: 1fr; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 6px; text-align: left; }
+      .decision { grid-template-columns: 1fr; }
+      .decision output { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true">
+    <defs>
+      <symbol id="flat-mark" viewBox="0 0 96 96">
+        <rect width="96" height="96" rx="28" fill="var(--shell)"/>
+        <path d="M18 60 36 27 49 48 42 60ZM47 48 60 27 78 60H54Z" fill="var(--mark)"/>
+        <rect x="18" y="68" width="60" height="10" rx="5" fill="var(--track)"/>
+        <rect x="18" y="68" width="36" height="10" rx="5" fill="var(--active)"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <main class="page">
+    <header class="hero">
+      <div><div class="eyebrow">F2 · PC FLAT COLORWAYS</div><h1>锁定平面结构，只比较颜色。</h1><p>完全沿用你圈出的圆角方形、双峰与进度条结构。本轮不使用渐变、金属纹理、内嵌线或拟物高光，只验证 Windows 标题栏、任务栏和托盘里的配色稳定性。</p></div>
+      <a class="back" href="logo-f2-material-refinement.html">返回材质稿</a>
+    </header>
+
+    <section class="rules" aria-label="平面图标规则">
+      <div><strong>纯平面</strong><span>正式 SVG 只有四个纯色填充，不包含渐变和滤镜。</span></div>
+      <div><strong>三层颜色</strong><span>外壳、双峰、进度条分别承担背景、识别和状态。</span></div>
+      <div><strong>PC 优先</strong><span>先验证 16–32px，再考虑商店与宣传图的大尺寸表现。</span></div>
+      <div><strong>同一造型</strong><span>八版几何完全一致，禁止用形状差异影响配色判断。</span></div>
+    </section>
+
+    <div class="section-head"><div><div class="eyebrow">01 / COLOR MATRIX</div><h2>八套平面配色</h2></div><p>前四套延续 LMM 暖色体系，后四套用于验证浅色、绿色和单色边界。默认推荐 P1。</p></div>
+
+    <section class="grid" aria-label="平面 Logo 配色候选">
+      <article class="candidate" style="--shell:#25251f;--mark:#f0ab20;--active:#f0ab20;--track:#687a50" aria-current="true">
+        <div class="stage"><svg aria-label="P1 深咖金币"><use href="#flat-mark"/></svg></div>
+        <div class="copy"><h3>P1 · 深咖金币</h3><p>你圈出的原方向。深咖比纯黑柔和，金色负责识别，灰绿只留在进度余量。</p><button class="pick" data-pick="P1 深咖金币" aria-pressed="true">当前建议</button></div>
+      </article>
+      <article class="candidate" style="--shell:#fff6e4;--mark:#3a3329;--active:#e9a627;--track:#789176">
+        <div class="stage"><svg aria-label="P2 暖纸咖啡"><use href="#flat-mark"/></svg></div>
+        <div class="copy"><h3>P2 · 暖纸咖啡</h3><p>与浅色界面最融合，适合标题栏；但在浅色桌面上需要系统图标底板保证边界。</p><button class="pick" data-pick="P2 暖纸咖啡" aria-pressed="false">选择 P2</button></div>
+      </article>
+      <article class="candidate" style="--shell:#30322d;--mark:#efc15a;--active:#efad2a;--track:#869b82">
+        <div class="stage"><svg aria-label="P3 石墨香槟"><use href="#flat-mark"/></svg></div>
+        <div class="copy"><h3>P3 · 石墨香槟</h3><p>降低黄色冲击，香槟色更克制；视觉比 P1 稳重，但品牌活力略弱。</p><button class="pick" data-pick="P3 石墨香槟" aria-pressed="false">选择 P3</button></div>
+      </article>
+      <article class="candidate" style="--shell:#e9aa2c;--mark:#292720;--active:#fff0c9;--track:#65734e">
+        <div class="stage"><svg aria-label="P4 金币反转"><use href="#flat-mark"/></svg></div>
+        <div class="copy"><h3>P4 · 金币反转</h3><p>金币黄成为外壳，深咖承担标记。任务栏最醒目，但大面积黄色仍可能偏强。</p><button class="pick" data-pick="P4 金币反转" aria-pressed="false">选择 P4</button></div>
+      </article>
+      <article class="candidate" style="--shell:#687b62;--mark:#fff2d5;--active:#e8ab2f;--track:#3f4b3d">
+        <div class="stage"><svg aria-label="P5 苔绿奶油"><use href="#flat-mark"/></svg></div>
+        <div class="copy"><h3>P5 · 苔绿奶油</h3><p>工作状态感最强，整体柔和耐看；更像效率工具，弱化了“收入”识别。</p><button class="pick" data-pick="P5 苔绿奶油" aria-pressed="false">选择 P5</button></div>
+      </article>
+      <article class="candidate" style="--shell:#fff8ea;--mark:#dc7b31;--active:#dc7b31;--track:#58715e">
+        <div class="stage"><svg aria-label="P6 奶油暖橙"><use href="#flat-mark"/></svg></div>
+        <div class="copy"><h3>P6 · 奶油暖橙</h3><p>继承早期橘猫时代的暖橙记忆，但会让无宠物的 v1 产品产生旧品牌联想。</p><button class="pick" data-pick="P6 奶油暖橙" aria-pressed="false">选择 P6</button></div>
+      </article>
+      <article class="candidate" style="--shell:#233a30;--mark:#f1b63f;--active:#f1b63f;--track:#b7c7ae">
+        <div class="stage"><svg aria-label="P7 深绿暖金"><use href="#flat-mark"/></svg></div>
+        <div class="copy"><h3>P7 · 深绿暖金</h3><p>深绿色比黑色更有温度，状态色统一；深色主题表现好，浅色标题栏稍跳。</p><button class="pick" data-pick="P7 深绿暖金" aria-pressed="false">选择 P7</button></div>
+      </article>
+      <article class="candidate" style="--shell:#f1f0ea;--mark:#292720;--active:#292720;--track:#b8b8af">
+        <div class="stage"><svg aria-label="P8 石墨单色"><use href="#flat-mark"/></svg></div>
+        <div class="copy"><h3>P8 · 石墨单色</h3><p>单色安全版本，适合文档、打印和系统限制场景，不作为默认应用图标。</p><button class="pick" data-pick="P8 石墨单色" aria-pressed="false">选择 P8</button></div>
+      </article>
+    </section>
+
+    <div class="section-head"><div><div class="eyebrow">02 / WINDOWS CONTEXT</div><h2>PC 场景校验</h2></div><p>下面场景会跟随当前选择更新，便于同时判断标题栏、任务栏和小尺寸表现。</p></div>
+    <section class="context">
+      <article><span>标题栏 29px</span><div class="titlebar"><svg id="title-icon" style="--shell:#25251f;--mark:#f0ab20;--active:#f0ab20;--track:#687a50"><use href="#flat-mark"/></svg><strong>LetsMakeMoney</strong></div></article>
+      <article><span>Windows 任务栏</span><div class="taskbar"><i><svg id="task-icon" style="--shell:#25251f;--mark:#f0ab20;--active:#f0ab20;--track:#687a50"><use href="#flat-mark"/></svg></i></div></article>
+      <article><span>16–48px</span><div class="small" id="small-icons"></div></article>
+    </section>
+
+    <section class="decision"><div><h2>建议先从 P1、P2、P3 中选</h2><p>P1 品牌识别最强，P2 最贴合浅色界面，P3 是两者之间更成熟的折中。已沿这三条路线继续制作第二轮精细配色。</p><p style="margin-top:10px"><a class="back" href="logo-f2-flat-colorways-round-2.html">查看第二轮 9 个候选</a></p></div><output id="decision" aria-live="polite">当前选择：P1 深咖金币</output></section>
+  </main>
+
+  <script>
+    const buttons = [...document.querySelectorAll('[data-pick]')];
+    const output = document.querySelector('#decision');
+    const titleIcon = document.querySelector('#title-icon');
+    const taskIcon = document.querySelector('#task-icon');
+    const smallIcons = document.querySelector('#small-icons');
+
+    function applyCandidate(article) {
+      const colors = ['--shell', '--mark', '--active', '--track'];
+      const values = Object.fromEntries(colors.map(name => [name, article.style.getPropertyValue(name)]));
+      for (const icon of [titleIcon, taskIcon]) for (const [name, value] of Object.entries(values)) icon.style.setProperty(name, value);
+      smallIcons.replaceChildren();
+      for (const size of [48, 32, 24, 20, 16]) {
+        const box = document.createElement('div');
+        const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        icon.style.setProperty('--s', `${size}px`);
+        for (const [name, value] of Object.entries(values)) icon.style.setProperty(name, value);
+        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttribute('href', '#flat-mark');
+        icon.append(use);
+        const label = document.createElement('span');
+        label.textContent = size;
+        box.append(icon, label);
+        smallIcons.append(box);
+      }
+    }
+
+    for (const button of buttons) {
+      button.addEventListener('click', () => {
+        for (const current of buttons) {
+          const selected = current === button;
+          current.setAttribute('aria-pressed', String(selected));
+          current.closest('.candidate').setAttribute('aria-current', String(selected));
+          current.textContent = selected ? '当前选择' : `选择 ${current.dataset.pick.slice(0, 2)}`;
+        }
+        output.textContent = `当前选择：${button.dataset.pick}`;
+        applyCandidate(button.closest('.candidate'));
+      });
+    }
+    applyCandidate(document.querySelector('.candidate[aria-current="true"]'));
+  </script>
+</body>
+</html>

@@ -17,20 +17,26 @@ if (-not $esbuild) {
 $behaviorTests = @(
     "architecture-runtime.behavior.ts",
     "authoritative-sync.behavior.ts",
+    "browser-preview-boundary.behavior.ts",
     "calendar-v105-presentation.behavior.ts",
     "calendar-state.behavior.ts",
+    "combobox.behavior.ts",
     "configuration-domain.behavior.ts",
     "dashboard-lifecycle.behavior.ts",
+    "date-overtime-decision.behavior.ts",
     "date-override-state.behavior.ts",
     "desktop-services.behavior.ts",
     "high-risk-combinations.behavior.ts",
     "mini-edge-auto-hide.behavior.ts",
+    "monthly-summary.behavior.ts",
+    "overtime-month-state.behavior.ts",
     "overtime-service.behavior.ts",
     "overtime-state.behavior.ts",
     "privacy-tab-presentation.behavior.ts",
     "presentation.behavior.ts",
     "presentation-utils.behavior.ts",
     "theme.behavior.ts",
+    "time-field.behavior.ts",
     "window-surface-v105.behavior.ts"
 )
 

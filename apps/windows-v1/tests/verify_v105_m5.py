@@ -148,14 +148,16 @@ def verify_source_contract() -> None:
     native = (APP_ROOT / "src-tauri" / "src" / "lib.rs").read_text(encoding="utf-8")
     behavior = (APP_ROOT / "tests" / "window-surface-v105.behavior.ts").read_text(encoding="utf-8")
 
-    require('data-surface-owner="window-frame"' in frame, "WindowFrame surface owner marker missing")
-    require('data-shadow-owner="native-window"' in frame, "WindowFrame shadow owner marker missing")
+    contract = (APP_ROOT / "src" / "components" / "windowSurfaceContract.ts").read_text(encoding="utf-8")
+    require("WINDOW_SURFACE_ATTRIBUTES" in frame, "WindowFrame surface contract binding missing")
+    require('"data-surface-owner": "web-content"' in contract, "WindowFrame surface owner marker missing")
+    require('"data-shadow-owner": "none"' in contract, "WindowFrame shadow owner marker missing")
     require(re.search(r"\.window-frame\s*\{\s*box-shadow:\s*none;\s*\}", styles) is not None, "WindowFrame CSS shadow not removed")
-    require(re.search(r"\.mini-window\s*\{\s*box-shadow:\s*var\(--shadow-window\);\s*\}", styles) is not None, "Mini shadow contract changed")
+    require(re.search(r"\.mini-window\s*\{\s*box-shadow:\s*none;\s*\}", styles) is not None, "Mini shadow contract changed")
     require(app.count("<WindowFrame ") == 3, "WindowFrame consumer count drift")
     require("MiniWindow" in app and '<WindowFrame kind="mini"' not in app, "Mini was incorrectly moved into WindowFrame")
-    require(".transparent(true)" in native and ".shadow(true)" in native, "native transparent/shadow contract drift")
-    require("window surface contract ${assertions}/16 passed" in behavior, "window surface behavior assertion count drift")
+    require(".transparent(true)" in native and ".shadow(false)" in native, "native transparent/shadow contract drift")
+    require("window surface contract ${assertions}/18 passed" in behavior, "window surface behavior assertion count drift")
 
 
 def validate_document_routing(progress: str, verification: str, current: str, traceability: str, spike: str) -> None:

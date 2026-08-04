@@ -1,0 +1,40 @@
+{
+  "fixture_version": 1,
+  "contract": {
+    "dock_threshold_logical_px": 16,
+    "privacy_tab_logical_px": 34,
+    "undock_threshold_logical_px": 24,
+    "fallback_margin_logical_px": 12
+  },
+  "dock_cases": [
+    {
+      "id": "right-edge-100",
+      "scale_factor": 1.0,
+      "work_area": { "x": 0, "y": 0, "width": 1920, "height": 1040 },
+      "window": { "x": 1576, "y": 900, "width": 344, "height": 108 },
+      "expected_side": "right",
+      "expected_expanded": { "x": 1576, "y": 900 },
+      "expected_retracted": { "x": 1886, "y": 900 }
+    },
+    {
+      "id": "left-edge-125-negative-monitor",
+      "scale_factor": 1.25,
+      "work_area": { "x": -1536, "y": 0, "width": 1536, "height": 824 },
+      "window": { "x": -1536, "y": 100, "width": 430, "height": 135 },
+      "expected_side": "left",
+      "expected_expanded": { "x": -1536, "y": 100 },
+      "expected_retracted": { "x": -1923, "y": 100 }
+    },
+    {
+      "id": "right-edge-150",
+      "scale_factor": 1.5,
+      "work_area": { "x": 0, "y": 0, "width": 2560, "height": 1392 },
+      "window": { "x": 2044, "y": 1180, "width": 516, "height": 162 },
+      "expected_side": "right",
+      "expected_expanded": { "x": 2044, "y": 1180 },
+      "expected_retracted": { "x": 2509, "y": 1180 }
+    }
+  ],
+  "fallback_cases": [],
+  "undock_cases": []
+}

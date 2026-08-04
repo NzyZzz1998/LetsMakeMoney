@@ -90,7 +90,7 @@ struct WindowDragOrigin {
     scale_factor: f64,
 }
 
-struct RuntimeConfig(Mutex<config::AppConfig>);
+pub(crate) struct RuntimeConfig(pub(crate) Mutex<config::AppConfig>);
 struct ConfigurationState(AtomicBool);
 struct ExitState(AtomicBool);
 struct PositionSaveRevision(AtomicU64);
@@ -636,7 +636,7 @@ fn build_window(app: &AppHandle, spec: WindowSpec) -> Result<WebviewWindow, Stri
         .resizable(spec.resizable)
         .decorations(false)
         .transparent(true)
-        .shadow(true)
+        .shadow(false)
         .skip_taskbar(spec.skip_taskbar)
         .visible(false)
         .build()
@@ -2217,11 +2217,6 @@ fn build_tray(app: &AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn implementation_phase() -> &'static str {
-    "M6"
-}
-
-#[tauri::command]
 async fn show_app_window(app: AppHandle, label: String) -> Result<(), String> {
     let task_app = app.clone();
     let task_label = label.clone();
@@ -2504,6 +2499,19 @@ pub fn run() {
             // The configured Mini window is the only startup WebView. Secondary
             // windows are created by ensure_window when the user opens them.
             let data_dir = app.path().app_data_dir()?;
+            match services::date_overtime_transaction::recover_pending(&data_dir) {
+                Ok(Some(state)) => append_log(
+                    app.handle(),
+                    "date_overtime.transaction_recovered",
+                    &format!("previous_state={state}"),
+                ),
+                Ok(None) => {}
+                Err(error) => append_log(
+                    app.handle(),
+                    "date_overtime.transaction_recovery_failed",
+                    &format!("reason={}", error.replace(['\r', '\n'], " ")),
+                ),
+            }
             let config_path = data_dir.join("config.json");
             let previous_config_version = config::stored_config_version(&config_path);
             let theme_fallback_required = config::stored_theme_requires_fallback(&config_path);
@@ -2678,7 +2686,6 @@ pub fn run() {
             _ => {}
         })
         .invoke_handler(tauri::generate_handler![
-            implementation_phase,
             show_app_window,
             hide_app_window,
             toggle_mini,
@@ -2701,11 +2708,13 @@ pub fn run() {
             commands::income::resolve_schedule_owner_date,
             commands::income::resolve_calendar_month,
             commands::income::resolve_next_workday,
+            commands::overtime::resolve_overtime_boundary,
             commands::overtime::read_overtime_record,
             commands::overtime::read_overtime_month,
             commands::overtime::save_overtime_record,
             commands::overtime::delete_overtime_record,
             commands::overtime::recover_overtime_records,
+            commands::overtime::save_date_overtime_transaction,
             read_configuration,
             read_theme_session,
             update_theme_session,
