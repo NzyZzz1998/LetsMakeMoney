@@ -1,6 +1,6 @@
 # LetsMakeMoney Windows v1.0.7 发布说明
 
-> 状态：草案，验收与项目所有者发布授权已完成，等待干净最终候选身份。
+> 状态：已发布。
 
 ## 本版重点
 
@@ -27,4 +27,16 @@
 1. `LetsMakeMoney-v1.0.7-windows-x86_64.zip`
 2. `SHA256SUMS.txt`
 
-最终源提交、文件大小与 SHA256 必须在独立验收通过后写入，当前不得使用开发构建占位。
+## 发布身份
+
+| 对象 | 身份 |
+| --- | --- |
+| 发布源提交 | `f500ed4e7de28ec68b2a848da6fa2340420b91b2` |
+| Tag | `v1.0.7` |
+| 便携 Zip | `LetsMakeMoney-v1.0.7-windows-x86_64.zip`，3,317,879 字节，SHA256 `D656B96973F64632896715ADCBB9CAFEAED4D06D44BA1C098824335AC673E3F2` |
+| EXE | 10,271,744 字节，SHA256 `58F7F64060584FCAF6BABE0720DC3EF61067669D088DC0CCFBF25DA703E45C3C` |
+| Native DLL | 160,320 字节，SHA256 `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C` |
+| SHA256SUMS.txt | 107 字节，SHA256 `E16B8EFDBD89C478598821E7A08312587F4377AF200C4D8F65D60068D2202CE4` |
+| Release | [GitHub Release v1.0.7](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7) |
+
+GitHub Release 仅包含便携 Zip 与 `SHA256SUMS.txt`。附件已重新下载并通过 published 模式包体验证。

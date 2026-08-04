@@ -5,10 +5,10 @@
 | 字段 | 内容 |
 | --- | --- |
 | 目标版本 | Windows v1.0.7 Stable |
-| 开发基线 | `main@12b6b03ce91b716d49590e21eb8dd7fe90fa283c` |
-| 当前公开版本 | v1.0.6 Stable |
-| 当前阶段 | V107-ACC 锁定 dirty 候选验收通过；项目所有者已批准发布收口 |
-| 总体状态 | 验收通过，发布门禁未完成 |
+| 开发基线 | `main@f500ed4e7de28ec68b2a848da6fa2340420b91b2` |
+| 当前公开版本 | v1.0.7 Stable |
+| 当前阶段 | 已发布，进入发布后观察 |
+| 总体状态 | 通过并已发布 |
 | PRD | `prd.md` |
 | 开发计划 | `dev_plan_v1.0.7.md` |
 | 追踪矩阵 | `traceability.md` |
@@ -30,9 +30,9 @@
 | V107-M4 月度总结与六周日历 | 已完成 | 10/10 | 无 | 首次高 DPI 失败修复后，真实 100%/125%/150% DPI 通过 |
 | V107-M5 Combobox 与窗口表面条件 Spike | 已完成 | 12/12 | 无 | 四窗口三档 DPI、双主题、键盘/ARIA 和窗口表面最终结论通过 |
 | V107-M6 治理、证据、安全与性能条件门禁 | 已完成 | 14/14 | 无 | M6 门禁 6/6；CSP 撤回，10+10 性能基线完成 |
-| V107-M7 聚合门禁与唯一候选 | 部分完成 | 10/12 | 干净发布提交与最终候选尚未建立 | 修复 dirty 候选、M7/current 聚合门禁与包内容审计通过 |
-| V107-ACC 独立候选验收与状态收口 | 部分通过 | 14/14 | 干净发布身份 | 首次失败、阻塞修复及 `evidence/acceptance-dpi-summary.json` 均已记录 |
-| **合计** | **部分通过** | **110/112** | **干净发布提交与最终候选身份仍待完成** | **三项产品阻塞已关闭；dirty 候选仍禁止发布** |
+| V107-M7 聚合门禁与唯一候选 | 已完成 | 12/12 | 无 | 干净候选、最终哈希、tag、Release 与 published 包验通过 |
+| V107-ACC 独立候选验收与状态收口 | 通过 | 14/14 | 无 | 首次失败、阻塞修复、DPI 复验及最终发布身份均已记录 |
+| **合计** | **通过并已发布** | **112/112** | **无** | **GitHub Stable Release 与下载附件复核通过** |
 
 ## Checklist
 
@@ -153,8 +153,8 @@
 - [x] V107-M7-006 Rust 与 release build
 - [x] V107-M7-007 v1.0.7 聚合门禁
 - [x] V107-M7-008 文档、隐私和 diff 检查
-- [ ] V107-M7-009 干净提交唯一候选
-- [ ] V107-M7-010 产物哈希锁定
+- [x] V107-M7-009 干净提交唯一候选
+- [x] V107-M7-010 产物哈希锁定
 - [x] V107-M7-011 包内容审计
 - [x] V107-M7-012 验收文档候选身份
 
@@ -165,15 +165,15 @@
 - [x] V107-ACC-003 首次置顶：托盘真实鼠标组合补证后通过
 - [x] V107-ACC-004 Mini/Workbench 显示事务：修复后通过，首次失败证据保留
 - [x] V107-ACC-005 自动隐藏最终结论：通过
-- [x] V107-ACC-006 拖动、回落与找回：部分通过
+- [x] V107-ACC-006 拖动、回落与找回：通过；单显示器范围内完成
 - [x] V107-ACC-007 共享日期事务：通过
 - [x] V107-ACC-008 加班全流程：通过，休息日、跨夜 owner date 与重启持久化已补证
 - [x] V107-ACC-009 月度总结与六周日历：通过
 - [x] V107-ACC-010 Combobox/窗口表面最终结论：通过
 - [x] V107-ACC-011 Win11 双主题与三档 DPI：首次失败修复后通过
 - [x] V107-ACC-012 核心回归：版本与更新链路修复后通过
-- [x] V107-ACC-013 Win10 与多显示器边界：部分通过
-- [x] V107-ACC-014 环境恢复与发布判断：部分通过，环境已恢复但发布门禁未完成
+- [x] V107-ACC-013 Win10 与多显示器边界：已明确不进入通过声明
+- [x] V107-ACC-014 环境恢复与发布判断：通过，环境恢复且发布完成
 
 ## 当前阻塞
 
@@ -183,7 +183,7 @@
 - Windows 10 已收窄为未验证环境；多显示器暂不验证。二者均不得进入 v1.0.7 通过声明。
 - M4/M5 的真实 100%/125%/150% DPI 已完成，首次失败证据与修复后通过证据均已保留。
 - `V107-M7-DIRTY-20260804-03` 只允许用于 DPI 定向复验；源树为 dirty，禁止作为 Release 附件。
-- 项目所有者已批准发布收口；V107-M7-009 与 V107-M7-010 仍需以干净提交重新构建并锁定最终身份。
+- 最终候选已从干净发布源提交构建，tag、Release 和下载附件身份已复核，无发布阻塞。
 
 ## 最近验证
 
@@ -215,6 +215,9 @@
 - `V107-ACC-COMPLETION` 最终补证：休息日 1.25 小时保存为 75 分钟，跨夜 owner date 0.5 小时保存为 30 分钟，两项均在重启后持久化；月度汇总从 1 小时 15 分钟更新为 1 小时 45 分钟。
 - 关闭 Workbench 后 Mini 按进入前展开状态恢复，窗口生命周期与 timer 暂停/恢复日志成对。
 - 托盘真实鼠标组合通过：左键隐藏后 Mini 不可见但进程存活，再次左键恢复进入前隐私竖条，右键原生菜单打开；隐藏后任务栏固定快捷图标无运行中横线。
+- 最终发布候选 `V107-RELEASE-20260804-FINAL`：源提交 `f500ed4e7de28ec68b2a848da6fa2340420b91b2`，`source_tree_dirty=false`；Zip SHA256 `D656B96973F64632896715ADCBB9CAFEAED4D06D44BA1C098824335AC673E3F2`，EXE SHA256 `58F7F64060584FCAF6BABE0720DC3EF61067669D088DC0CCFBF25DA703E45C3C`。
+- 最终干净工作树 `scripts/verify_windows_current.ps1` 通过；候选包验证、最终 EXE GUI 身份冒烟、GitHub 下载附件哈希与 published 模式包体验证均通过。
+- Annotated tag `v1.0.7` 与 GitHub Stable Release 已发布；Release 仅包含便携 Zip 和 `SHA256SUMS.txt`。
 - DPI 复验结束后 Windows 缩放恢复 100%，原始 `config.json` 与 `config.json.previous` 哈希恢复一致，候选进程为 0。
 - 定向复验结束后原始 `config.json`、`config.json.previous` 和 `debug.log` 哈希恢复一致，候选进程为 0。
 - 验收结束后原始 `config.json`、`config.json.previous` 和 `debug.log` 哈希恢复一致，候选进程为 0，无新增加班文件残留。
@@ -244,12 +247,13 @@
 - DPI 修复脱敏摘要：`doc/releases/v1.0.7/evidence/acceptance-dpi-summary.json`
 - 最终业务矩阵脱敏摘要：`doc/releases/v1.0.7/evidence/acceptance-completion-summary.json`
 - 托盘真实鼠标脱敏摘要：`doc/releases/v1.0.7/evidence/acceptance-tray-summary.json`
+- 发布脱敏摘要：`doc/releases/v1.0.7/evidence/release-publication-summary.json`
 - 外部原始证据索引：`doc/releases/v1.0.7/evidence/external-evidence-index.md`
 - 开发验证汇总：`doc/releases/v1.0.7/verification.md`
 
 ## 下一步
 
-项目所有者已批准提交、推送、tag 和 GitHub Release。下一步创建干净发布提交，重新构建并锁定最终候选身份。
+v1.0.7 已发布。下一步只进行发布后观察，真实缺陷另行登记，不在本版本继续扩展功能。
 
 ## 记录边界
 

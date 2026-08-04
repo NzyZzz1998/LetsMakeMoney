@@ -6,7 +6,7 @@
   <a href="README.md">简体中文</a> ·
   <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">Download</a> ·
   <a href="doc/current.md">Current status</a> ·
-  <a href="doc/releases/v1.0.6/progress_v1.0.6.md">v1.0.6 bugfix status</a>
+  <a href="doc/releases/v1.0.7/progress_v1.0.7.md">v1.0.7 release status</a>
 </div>
 
 ## Know what today is worth
@@ -30,17 +30,17 @@ The compact earnings window is designed to stay on the desktop. Open the Today a
 
 ## Current release status
 
-The current public release is [**v1.0.6 Stable**](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.6). This maintenance release completed independent acceptance, required CI, a clean-source build, GitHub Release publication, and a round-trip verification of the published assets.
+The current public release is [**v1.0.7 Stable**](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7). This final v1.0 feature release completed independent acceptance, required CI, a clean-source build, GitHub Release publication, and a round-trip verification of the published assets.
 
-- The v1.0.6 release source commit is `51e4c08da5260af9b9f4808c4f6d29591319e655`.
-- The portable Zip SHA256 is `AEE4BC4A41D3839E421138D0B152EA5A8B0FBDC60C5B189EA11790DE4ED8B66A`; the Release contains only the portable Zip and `SHA256SUMS.txt`.
-- v1.0.6 fixes stale per-WebView theme state and adds first-frame, cross-window ThemeSession, configuration-hydration, and native-close transaction gates. See the [v1.0.6 status](doc/releases/v1.0.6/progress_v1.0.6.md).
+- The v1.0.7 release source commit is `f500ed4e7de28ec68b2a848da6fa2340420b91b2`.
+- The portable Zip SHA256 is `D656B96973F64632896715ADCBB9CAFEAED4D06D44BA1C098824335AC673E3F2`; the Release contains only the portable Zip and `SHA256SUMS.txt`.
+- v1.0.7 completes window/privacy reliability, shared date adjustment, per-day overtime records, monthly hour summaries, six-week calendars, and release engineering. See the [v1.0.7 status](doc/releases/v1.0.7/progress_v1.0.7.md).
 - The Mini window can retract salary details at the left or right work-area edge and can be revealed by hover or the system tray while retaining its normal saved position.
 - Years not covered by official calendar data use an explicitly labeled work-pattern estimate; the app never invents official holidays or adjusted workdays.
 - Hidden windows pause local ticks and authoritative synchronization, then recalibrate immediately when restored.
 - Windows sleep recovery, forward and backward system-time jumps, a real time-zone switch, and a continuous 120-minute run have been accepted.
 - Stage copy, timeline alignment, overnight ownership, adjusted-workday sources, compound calendar states, and light/dark themes retain the v1.0.2 contracts.
-- v1.0.6 does not include pets, cloud sync, an installer, system-following themes, or custom themes.
+- v1.0.7 does not include pets, cloud sync, an installer, system-following themes, or custom themes.
 - Users who need the desktop-pet experience can remain on v0.9 Beta, which is also the explicit rollback baseline.
 
 See the [current status source](doc/current.md) for the latest release identity and checksums.
@@ -49,7 +49,7 @@ See the [current status source](doc/current.md) for the latest release identity 
 
 ### Requirements
 
-- Windows 11 x86_64 (the verified v1.0.7 environment is single-display; real 125%/150% DPI evidence remains a final-candidate gate)
+- Windows 11 x86_64 (v1.0.7 is verified on a single display at 100%/125%/150% DPI)
 - Windows 10 x86_64 is best-effort only because no real device or VM evidence is currently available
 - Node.js 22+
 - Rust stable with the MSVC toolchain
@@ -71,7 +71,7 @@ npm run tauri dev
 powershell -ExecutionPolicy Bypass -File .\scripts\package_v107.ps1
 ```
 
-v1.0.7 development candidates are written only to `.artifacts\candidates\v1.0.7\<candidate-id>\`; they do not overwrite `releases\` or a GitHub-downloaded cache. The flow must not depend on undeclared local paths or private files, and a same-named local file does not establish GitHub Release identity. The current public download remains v1.0.6 Stable.
+v1.0.7 development candidates are written only to `.artifacts\candidates\v1.0.7\<candidate-id>\`; they do not overwrite `releases\` or a GitHub-downloaded cache. The flow must not depend on undeclared local paths or private files, and a same-named local file does not establish GitHub Release identity. The current public download is the v1.0.7 GitHub Release.
 
 See the [v1.0.7 support matrix](doc/releases/v1.0.7/support-matrix.md) for the exact environment boundary. Multi-display and Windows 10 are excluded from the v1.0.7 verified-pass statement.
 
@@ -109,6 +109,7 @@ shared/                Holiday and shared data
 scripts/               Verification, packaging, and compliance checks
 doc/current.md         Single internal source of current project truth
 doc/releases/v1.0.6/   v1.0.6 theme bugfix review, progress, and verification docs
+doc/releases/v1.0.7/   v1.0.7 final feature release PRD, progress, acceptance, and publication docs
 ```
 
 ## Contributing

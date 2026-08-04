@@ -28,6 +28,9 @@ V105_SOURCE_COMMIT = "ffc431af3fbf7c3b54bca8aaff44946cc8d6aeaf"
 V106_ZIP_SHA256 = "AEE4BC4A41D3839E421138D0B152EA5A8B0FBDC60C5B189EA11790DE4ED8B66A"
 V106_EXE_SHA256 = "21EAC751534F4D0787DEC07545F315326E9C5D773F39D65D9F46AA1879518659"
 V106_SOURCE_COMMIT = "51e4c08da5260af9b9f4808c4f6d29591319e655"
+V107_ZIP_SHA256 = "D656B96973F64632896715ADCBB9CAFEAED4D06D44BA1C098824335AC673E3F2"
+V107_EXE_SHA256 = "58F7F64060584FCAF6BABE0720DC3EF61067669D088DC0CCFBF25DA703E45C3C"
+V107_SOURCE_COMMIT = "f500ed4e7de28ec68b2a848da6fa2340420b91b2"
 LOADER_SHA256 = "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
 
 DOCUMENTS = [
@@ -42,7 +45,9 @@ DOCUMENTS = [
     *sorted((ROOT / "doc" / "releases" / "v1.0.4").glob("*.md")),
     *sorted((ROOT / "doc" / "releases" / "v1.0.5").glob("*.md")),
     *sorted((ROOT / "doc" / "releases" / "v1.0.6").glob("*.md")),
+    *sorted((ROOT / "doc" / "releases" / "v1.0.7").glob("*.md")),
     ROOT / "doc" / "logs" / "v1.0.6-bugfix-log.md",
+    ROOT / "doc" / "logs" / "v1.0.7-bugfix-log.md",
 ]
 
 
@@ -181,19 +186,34 @@ def check_release_identity() -> None:
             if expected not in text:
                 fail(f"{path.relative_to(ROOT)} 缺少 v1.0.6 {label}")
 
+    v107_identity_docs = [
+        ROOT / "doc" / "releases" / "v1.0.7" / "release-notes.md",
+        ROOT / "doc" / "releases" / "v1.0.7" / "verification.md",
+    ]
+    for path in v107_identity_docs:
+        text = read_utf8(path)
+        for label, expected in (
+            ("Zip", V107_ZIP_SHA256),
+            ("EXE", V107_EXE_SHA256),
+            ("WebView2Loader", LOADER_SHA256),
+            ("发布源码提交", V107_SOURCE_COMMIT),
+        ):
+            if expected not in text:
+                fail(f"{path.relative_to(ROOT)} 缺少 v1.0.7 {label}")
+
 
 def check_current_readmes() -> None:
     root_zh = read_utf8(ROOT / "README.md")
     root_en = read_utf8(ROOT / "README.en.md")
     app_readme = read_utf8(ROOT / "apps" / "windows-v1" / "README.md")
-    release_url = "https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.6"
+    release_url = "https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7"
 
     for label, text in (("README.md", root_zh), ("README.en.md", root_en)):
         required = (
-            "v1.0.6 Stable",
+            "v1.0.7 Stable",
             release_url,
-            V106_SOURCE_COMMIT,
-            V106_ZIP_SHA256,
+            V107_SOURCE_COMMIT,
+            V107_ZIP_SHA256,
             "package_v107.ps1",
             "verify_v107_package.ps1",
             "verify_v107.ps1",
@@ -205,9 +225,9 @@ def check_current_readmes() -> None:
             if stale in text:
                 fail(f"{label} still uses stale default command: {stale}")
 
-    if "当前公开版本为 v1.0.6 Stable" not in app_readme:
+    if "当前公开版本为 v1.0.7 Stable" not in app_readme:
         fail("apps/windows-v1/README.md current public version drift")
-    if "v1.0.6 Stable；该版本已完成独立验收" not in app_readme:
+    if "v1.0.7 Stable；该版本已完成独立验收" not in app_readme:
         fail("apps/windows-v1/README.md current release state drift")
     if "scripts\\verify_windows_current.ps1" not in app_readme:
         fail("apps/windows-v1/README.md missing current aggregate verification command")
@@ -293,18 +313,18 @@ def main() -> int:
     check_current_readmes()
 
     current = read_utf8(ROOT / "doc" / "current.md")
-    if "当前公开版本 | Windows v1.0.6 Stable" not in current:
-        fail("doc/current.md 未声明当前公开版本为 v1.0.6 Stable")
-    if "当前公开 tag | `v1.0.6`" not in current:
-        fail("doc/current.md 未声明当前公开 tag 为 v1.0.6")
-    if "当前开发版本 | Windows v1.0.7 Stable" not in current or "V107-M7" not in current:
-        fail("doc/current.md 未声明 v1.0.7 当前开发身份与里程碑")
+    if "当前公开版本 | Windows v1.0.7 Stable" not in current:
+        fail("doc/current.md 未声明当前公开版本为 v1.0.7 Stable")
+    if "当前公开 tag | `v1.0.7`" not in current:
+        fail("doc/current.md 未声明当前公开 tag 为 v1.0.7")
+    if "当前开发版本 | v1.0.7 发布后观察" not in current or "v1.0.7 GitHub Stable Release 已发布并复核" not in current:
+        fail("doc/current.md 未声明 v1.0.7 发布后身份与里程碑")
     if "v0.9-beta" not in current:
         fail("doc/current.md 缺少 v0.9 回退基线")
-    if "v1.0.6 已完成 GitHub Stable Release" not in current:
-        fail("doc/current.md 未声明 v1.0.6 GitHub Release 发布事实")
-    if V106_SOURCE_COMMIT not in current:
-        fail("doc/current.md 未声明 v1.0.6 tag 与发布源提交")
+    if "v1.0.7 已从干净源提交构建" not in current:
+        fail("doc/current.md 未声明 v1.0.7 GitHub Release 发布事实")
+    if V107_SOURCE_COMMIT not in current:
+        fail("doc/current.md 未声明 v1.0.7 tag 与发布源提交")
     history_links = (
         "releases/v1.0/README.md",
         "releases/v1.0.1/README.md",
@@ -313,6 +333,7 @@ def main() -> int:
         "releases/v1.0.4/release-notes.md",
         "releases/v1.0.5/README.md",
         "releases/v1.0.6/README.md",
+        "releases/v1.0.7/README.md",
     )
     if any(link not in current for link in history_links):
         fail("doc/current.md 历史事实入口不完整")
@@ -329,7 +350,7 @@ def main() -> int:
 
     print("v1.0 至 v1.0.7 当前与历史文档检查通过")
     print(f"- UTF-8 与乱码：{len(DOCUMENTS)} 份文档")
-    print("- v1.0 至 v1.0.6 发布事实源及本地链接完整")
+    print("- v1.0 至 v1.0.7 发布事实源及本地链接完整")
     print("- current 保持精简入口，历史事实由对应 release 文档承接")
     return 0
 

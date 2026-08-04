@@ -59,9 +59,9 @@ def verify_current_and_support_documents() -> None:
     current = read_utf8(current_path)
     require(len(current.splitlines()) <= 100, "doc/current.md must remain a concise current entry")
     for phrase in (
-        "Windows v1.0.6 Stable",
         "Windows v1.0.7 Stable",
-        "V107-M6",
+        "v1.0.7 GitHub Stable Release 已发布并复核",
+        "f500ed4e7de28ec68b2a848da6fa2340420b91b2",
         "releases/v1.0.7/progress_v1.0.7.md",
         "v0.9-beta",
     ):
