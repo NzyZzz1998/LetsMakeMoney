@@ -31,6 +31,7 @@ jobs:
         with:
           toolchain: "1.97.1"
           targets: x86_64-pc-windows-msvc
+          components: rustfmt, clippy
       - name: Fetch locked Rust dependencies
         working-directory: apps/windows-v1/src-tauri
         run: cargo fetch --locked
