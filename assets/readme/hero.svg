@@ -1,53 +1,61 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
   <title id="title">LetsMakeMoney</title>
-  <desc id="desc">A Windows income progress utility with a compact earnings window and daily workbench.</desc>
+  <desc id="desc">A local-first Windows earnings progress utility with the Oatmeal Graphite identity and a compact Mini view.</desc>
+
   <defs>
-    <linearGradient id="progress" x1="0" x2="1">
-      <stop offset="0" stop-color="#78A781"/>
-      <stop offset="1" stop-color="#EBAA24"/>
-    </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
-      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#262522" flood-opacity=".14"/>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#30302B" flood-opacity=".12"/>
+    </filter>
+    <filter id="miniShadow" x="-20%" y="-30%" width="140%" height="180%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#30302B" flood-opacity=".15"/>
     </filter>
   </defs>
 
-  <rect width="1200" height="420" rx="28" fill="#F1F2EF"/>
-  <circle cx="74" cy="66" r="22" fill="#EBAA24"/>
-  <text x="74" y="74" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" fill="#342600">¥</text>
-  <text x="112" y="73" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600" fill="#67645E">WINDOWS · LOCAL FIRST · v1.0</text>
+  <rect width="1200" height="420" rx="30" fill="#F7F4EE"/>
+  <path d="M0 354C213 323 357 385 556 358c218-29 343-104 644-70v132H0Z" fill="#EEE9DF"/>
 
-  <text x="64" y="160" font-family="Segoe UI, Arial, sans-serif" font-size="58" font-weight="720" fill="#262522">LetsMakeMoney</text>
-  <text x="66" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="32" font-weight="650" fill="#262522">把工作时间，变成看得见的收入进度</text>
-  <text x="66" y="246" font-family="Segoe UI, Arial, sans-serif" font-size="23" fill="#67645E">今日已赚 · 工作进度 · 距离下班</text>
-
-  <g transform="translate(66 294)">
-    <rect width="168" height="42" rx="10" fill="#FFF1C9" stroke="#EBAA24"/>
-    <text x="84" y="28" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600" fill="#342600">无需账号</text>
-    <rect x="180" width="168" height="42" rx="10" fill="#FCFCFA" stroke="#C9C8C1"/>
-    <text x="264" y="28" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600" fill="#262522">数据留在本机</text>
-    <rect x="360" width="168" height="42" rx="10" fill="#E8F1E9" stroke="#78A781"/>
-    <text x="444" y="28" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600" fill="#3F704B">Windows x86_64</text>
+  <g transform="translate(62 53)" filter="url(#shadow)">
+    <rect width="82" height="82" rx="24" fill="#EEE9DF" stroke="#D8D1C5"/>
+    <path d="M15 51 31 22l12 19-6 10Zm27-10 12-19 16 29H49Z" fill="#30302B"/>
+    <rect x="15" y="59" width="55" height="9" rx="4.5" fill="#778B7B"/>
+    <rect x="15" y="59" width="33" height="9" rx="4.5" fill="#D89B26"/>
   </g>
 
-  <g transform="translate(710 62)" filter="url(#shadow)">
-    <rect width="420" height="290" rx="18" fill="#FCFCFA" stroke="#C9C8C1"/>
-    <rect x="1" y="1" width="418" height="50" rx="17" fill="#FFFFFF"/>
-    <path d="M1 50h418" stroke="#DEDED8"/>
-    <circle cx="29" cy="26" r="14" fill="#EBAA24"/>
-    <text x="29" y="32" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#342600">¥</text>
-    <text x="54" y="32" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="650" fill="#262522">今日收入进度</text>
+  <text x="166" y="78" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="17" font-weight="650" fill="#6E6A62">WINDOWS · LOCAL FIRST · v1.0 FINAL</text>
+  <text x="62" y="185" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="62" font-weight="730" fill="#30302B">LetsMakeMoney</text>
+  <text x="64" y="231" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="30" font-weight="650" fill="#30302B">把今天的工作，变成看得见的收入进度</text>
+  <text x="64" y="275" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="21" fill="#6E6A62">今日已赚 · 阶段倒计时 · 日历与加班 · 数据只留在本机</text>
 
-    <rect x="26" y="76" width="368" height="124" rx="12" fill="#FFFAF0" stroke="#E8DCC1"/>
-    <text x="48" y="105" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#67645E">今日已赚</text>
-    <text x="48" y="153" font-family="Segoe UI, Arial, sans-serif" font-size="40" font-weight="720" fill="#262522">¥ 301.08</text>
-    <text x="48" y="180" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#67645E">日薪 ¥500.00 · 时薪 ¥62.50</text>
+  <g transform="translate(64 314)">
+    <rect width="146" height="40" rx="20" fill="#30302B"/>
+    <text x="73" y="26" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="17" font-weight="650" fill="#F7F4EE">无需账号</text>
+    <rect x="158" width="174" height="40" rx="20" fill="#FFFFFF" stroke="#D8D1C5"/>
+    <text x="245" y="26" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="17" font-weight="650" fill="#30302B">浅色 / 深色</text>
+    <rect x="344" width="192" height="40" rx="20" fill="#E3ECE4"/>
+    <text x="440" y="26" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="17" font-weight="650" fill="#46684E">Windows 11</text>
+  </g>
 
-    <rect x="26" y="218" width="368" height="7" rx="4" fill="#E8E7E1"/>
-    <rect x="26" y="218" width="221" height="7" rx="4" fill="url(#progress)"/>
-    <text x="26" y="252" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#67645E">工作进度</text>
-    <text x="394" y="252" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#262522">60%</text>
-    <circle cx="31" cy="273" r="5" fill="#5E8D6B"/>
-    <text x="45" y="279" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#3F704B">工作中</text>
-    <text x="394" y="279" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#67645E">距离下班 03:10:58</text>
+  <g transform="translate(760 92)" filter="url(#miniShadow)">
+    <rect width="372" height="176" rx="22" fill="#FFFDFC" stroke="#D8D1C5"/>
+    <g transform="translate(24 23)">
+      <circle cx="21" cy="21" r="21" fill="#EEE9DF"/>
+      <path d="M10 27 17 13l6 9-3 5Zm13-5 6-9 8 14h-11Z" fill="#30302B"/>
+      <rect x="10" y="31" width="27" height="4.5" rx="2.25" fill="#778B7B"/>
+      <rect x="10" y="31" width="16" height="4.5" rx="2.25" fill="#D89B26"/>
+    </g>
+    <text x="83" y="36" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="15" fill="#6E6A62">工作中</text>
+    <text x="83" y="72" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="34" font-weight="720" fill="#30302B">¥ 186.42</text>
+    <text x="348" y="36" text-anchor="end" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="14" fill="#55765D">本地计算</text>
+    <rect x="24" y="101" width="324" height="8" rx="4" fill="#E7E3DA"/>
+    <rect x="24" y="101" width="181" height="8" rx="4" fill="#D89B26"/>
+    <text x="24" y="134" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="15" fill="#6E6A62">工作进度 56%</text>
+    <text x="348" y="134" text-anchor="end" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#30302B">距离下班 04:38:20</text>
+    <circle cx="28" cy="157" r="5" fill="#778B7B"/>
+    <text x="42" y="162" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="14" fill="#55765D">配置与记录仅保存在本机</text>
+  </g>
+
+  <g transform="translate(1005 286)">
+    <rect width="128" height="42" rx="21" fill="#30302B"/>
+    <text x="64" y="27" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="16" font-weight="650" fill="#F7F4EE">Mini 视图</text>
   </g>
 </svg>

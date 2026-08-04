@@ -1,61 +1,92 @@
 <div align="center">
-  <img src="assets/readme/hero.svg" width="100%" alt="LetsMakeMoney turns work time into visible earnings progress">
+  <img src="assets/readme/hero.svg" width="100%" alt="LetsMakeMoney keeps today's earnings progress visible on the Windows desktop">
 </div>
 
 <div align="center">
   <a href="README.md">简体中文</a> ·
-  <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">Download</a> ·
-  <a href="doc/current.md">Current status</a> ·
-  <a href="doc/releases/v1.0.7/progress_v1.0.7.md">v1.0.7 release status</a>
+  <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">Download stable</a> ·
+  <a href="doc/current.md">Project status</a> ·
+  <a href="doc/releases/v1.0.F/README.md">v1.0 Final candidate</a>
 </div>
 
-## Know what today is worth
+## What is today's work worth?
 
-LetsMakeMoney is a local-first Windows earnings-progress utility. After you configure your monthly salary, rest pattern, and work schedule, it turns an abstract monthly number into today's estimated earnings, work progress, time until the end of the workday, and monthly totals.
+LetsMakeMoney is a local-first Windows earnings-progress utility. Configure a monthly salary, work schedule, and rest pattern, and it turns that abstract monthly number into today's estimated earnings, work progress, the next stage countdown, and monthly hour summaries.
 
-The compact earnings window is designed to stay on the desktop. Open the Today and Calendar workbench only when you need more detail. No account is required, and configuration and logs remain on the local device.
+The Mini view stays quietly on the desktop. Open the full workbench only when you need to adjust a date, record overtime, or inspect the month. No account is required; salary, schedule, overtime, and logs remain on the local machine.
 
 <div align="center">
-  <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney Windows Today earnings workbench">
+  <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney Today workbench with demonstration data">
+  <br>
+  <sub>Real Windows interface shown with demonstration data.</sub>
 </div>
 
-## What it covers
+## Core experience
 
-| Daily visibility | Configuration and reliability | Windows experience |
-| --- | --- | --- |
-| Today's earnings, progress, and time remaining | Three-step onboarding and task-oriented Settings | Draggable compact earnings window |
-| Daily schedule, daily rate, hourly rate, monthly total | Saved, unchanged, and failed-with-input-preserved states | Native tray hide, restore, and exit |
-| Single weekend, double weekend, alternating weeks, and rest periods | Damaged-config recovery and local diagnostics | Verified at 100%, 125%, and 150% DPI |
-| Workdays, weekends, holidays, and manual overrides | User-confirmed update checks | No silent updates or unnecessary taskbar entry |
+| See progress at a glance | Understand each workday | Keep the desktop private | Run locally and reliably |
+| --- | --- | --- | --- |
+| Today's earnings, stage countdown, and progress | Single weekend, double weekend, alternating weeks, and overnight shifts | Mini retracts sensitive amounts at a work-area edge | Transactional configuration, recovery, and diagnostics |
+| Daily schedule, daily rate, hourly rate, and monthly total | Official calendar data, estimated years, and manual date overrides | Hover to reveal, leave to retract, tray to recover | Light/dark themes with local persistence |
+| Per-day overtime and monthly hour summaries | Paid rest, unpaid rest, and adjusted workdays | Mini hides while the workbench is open | Verified at 100%, 125%, and 150% DPI |
 
-## Current release status
+## Start in three steps
 
-The current public release is [**v1.0.7 Stable**](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7). This final v1.0 feature release completed independent acceptance, required CI, a clean-source build, GitHub Release publication, and a round-trip verification of the published assets.
+1. Download the latest stable portable Zip from [Releases](https://github.com/NzyZzz1998/LetsMakeMoney/releases).
+2. Extract it, run `LetsMakeMoney.exe`, and enter your salary, rest pattern, and schedule.
+3. Use Mini for live progress; open the workbench, Settings, or onboarding from the system tray.
 
-- The v1.0.7 release source commit is `f500ed4e7de28ec68b2a848da6fa2340420b91b2`.
-- The portable Zip SHA256 is `D656B96973F64632896715ADCBB9CAFEAED4D06D44BA1C098824335AC673E3F2`; the Release contains only the portable Zip and `SHA256SUMS.txt`.
-- v1.0.7 completes window/privacy reliability, shared date adjustment, per-day overtime records, monthly hour summaries, six-week calendars, and release engineering. See the [v1.0.7 status](doc/releases/v1.0.7/progress_v1.0.7.md).
-- The Mini window can retract salary details at the left or right work-area edge and can be revealed by hover or the system tray while retaining its normal saved position.
-- Years not covered by official calendar data use an explicitly labeled work-pattern estimate; the app never invents official holidays or adjusted workdays.
-- Hidden windows pause local ticks and authoritative synchronization, then recalibrate immediately when restored.
-- Windows sleep recovery, forward and backward system-time jumps, a real time-zone switch, and a continuous 120-minute run have been accepted.
-- Stage copy, timeline alignment, overnight ownership, adjusted-workday sources, compound calendar states, and light/dark themes retain the v1.0.2 contracts.
-- v1.0.7 does not include pets, cloud sync, an installer, system-following themes, or custom themes.
-- Users who need the desktop-pet experience can remain on v0.9 Beta, which is also the explicit rollback baseline.
+There is currently no installer or silent update. Update checks only proceed after user confirmation.
 
-See the [current status source](doc/current.md) for the latest release identity and checksums.
+## v1.0 Final candidate
+
+| Fact | Current status |
+| --- | --- |
+| Public stable release | [v1.0.7 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7) |
+| Candidate on `test` | v1.0.8, internal codename v1.0.F |
+| Candidate purpose | Final quality release in the v1.0 line; no tag or Release yet |
+| Completed | Automated gates, core GUI, light/dark themes, Windows 11 single-display 100%/125%/150% DPI |
+| Evidence still needed | Real notification-area mouse flow and taskbar policy |
+
+The v1.0.8 candidate further closes the v1.0 line:
+
+- Adopts the L2 “Oatmeal Graphite” identity across the app, windows, taskbar, and tray.
+- Applies schedule-aware overtime limits and links manual weekend work with overtime in one transaction.
+- Protects date and overtime mutations with rollback and legacy-data preservation.
+- Unifies TimeField, Combobox, window surfaces, and the privacy strip.
+- Uses one current gate for cold start, candidate identity, version facts, and package integrity.
+
+See the [v1.0 Final verification record](doc/releases/v1.0.F/verification.md) for candidate hashes and acceptance boundaries. The `test` branch is for release review and does not replace a published Release.
+
+## Data and privacy
+
+```text
+%APPDATA%\io.letsmakemoney.windows\
+```
+
+- No account is required; salary, schedule, date overrides, and overtime are not uploaded.
+- Diagnostic summaries redact machine-specific paths.
+- Mini can retract amounts at the left or right work-area edge and retain only a non-monetary stage label.
+- Years outside the bundled official calendar are clearly marked as estimates; the app never invents official holidays or adjusted workdays.
+- The historical desktop-pet release remains available as [`v0.9-beta`](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta) and is not part of the current v1.0 product line.
+
+## Support boundary
+
+- **Verified:** Windows 11 x86_64, single display, 100% / 125% / 150% DPI.
+- **Runtime requirement:** Microsoft Edge WebView2 Runtime.
+- **Best effort:** Windows 10 x86_64; no real-device or VM evidence is currently available.
+- **Not verified:** multi-display setups are excluded from the verified-pass statement.
+
+See the [v1.0 Final support matrix](doc/releases/v1.0.F/support-matrix.md) for details.
 
 ## Run from source
 
 ### Requirements
 
-- Windows 11 x86_64 (v1.0.7 is verified on a single display at 100%/125%/150% DPI)
-- Windows 10 x86_64 is best-effort only because no real device or VM evidence is currently available
 - Node.js 22+
-- Rust stable with the MSVC toolchain
-- Microsoft Edge WebView2 Runtime
-
-### Start the app
+- Python 3.12
+- Rust 1.97.1 with the MSVC toolchain
+- Visual Studio 2022 Build Tools with Desktop development with C++
+- Windows SDK and Microsoft Edge WebView2 Runtime
 
 ```powershell
 git clone https://github.com/NzyZzz1998/LetsMakeMoney.git
@@ -64,62 +95,30 @@ npm install
 npm run tauri dev
 ```
 
-### Build the portable package
+### Verify and package
 
 ```powershell
-# Run from the repository root to create an isolated v1.0.7 development candidate
-powershell -ExecutionPolicy Bypass -File .\scripts\package_v107.ps1
-```
-
-v1.0.7 development candidates are written only to `.artifacts\candidates\v1.0.7\<candidate-id>\`; they do not overwrite `releases\` or a GitHub-downloaded cache. The flow must not depend on undeclared local paths or private files, and a same-named local file does not establish GitHub Release identity. The current public download is the v1.0.7 GitHub Release.
-
-See the [v1.0.7 support matrix](doc/releases/v1.0.7/support-matrix.md) for the exact environment boundary. Multi-display and Windows 10 are excluded from the v1.0.7 verified-pass statement.
-
-## Data, privacy, and rollback
-
-The v1.0 Windows line stores configuration and logs under:
-
-```text
-%APPDATA%\io.letsmakemoney.windows\
-```
-
-- No account is required, and salary or schedule data is not uploaded.
-- Diagnostic summaries redact local paths and similar machine-specific details.
-- The first migration from v0.9 keeps a compatibility backup.
-- Exit v1.0 before restoring the old configuration with the [v0.9 rollback guide](doc/releases/v1.0/v0.9-rollback.md).
-
-## Verification
-
-```powershell
+# Repository root: the only current verification entry point
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_windows_current.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
-# After packaging a v1.0.7 development candidate, pass the emitted Zip path to the M7 gate
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v107.ps1 -Milestone M7 -CandidatePath <v1.0.7 candidate Zip path>
-# Verify a controlled candidate independently; published mode additionally requires the tag, Release URL, and downloaded checksum file
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v107_package.ps1 -Mode candidate -PackagePath <candidate Zip path> -ExpectedSourceHead <40-character commit> -ExpectedZipSha256 <SHA256>
+
+# Create an isolated local v1.0.8 candidate without replacing published assets
+powershell -ExecutionPolicy Bypass -File .\scripts\package_v10f.ps1
 ```
 
-Automated checks cover earnings calculations, configuration transactions, window contracts, the tray bridge, documentation, and package integrity. Real notification-area, taskbar, DPI, and restart-recovery behavior remains part of Windows desktop acceptance.
+Local candidates are written only to `.artifacts\candidates\v1.0.8\<candidate-id>\`. A same-named local Zip does not establish GitHub Release identity; published downloads must be verified against the Releases page and its SHA256 file.
 
 ## Repository map
 
 ```text
-apps/windows-v1/       Production v1.0 Tauri + React client
-shared/                Holiday and shared data
-scripts/               Verification, packaging, and compliance checks
-doc/current.md         Single internal source of current project truth
-doc/releases/v1.0.6/   v1.0.6 theme bugfix review, progress, and verification docs
-doc/releases/v1.0.7/   v1.0.7 final feature release PRD, progress, acceptance, and publication docs
+apps/windows-v1/       Tauri 2 + React 19 Windows client
+shared/                Official calendar and shared data
+scripts/               Current gate, packaging, and compliance checks
+doc/current.md         Current project fact source
+doc/releases/v1.0.F/   v1.0.8 PRD, progress, acceptance, and release preparation
 ```
 
-## Contributing
+## Contributing and license
 
-Code, documentation, testing, and Windows-experience contributions are welcome. Start with:
+Code, documentation, tests, and Windows-experience improvements are welcome. Start with the [contributing guide](CONTRIBUTING.md), [Code of Conduct](CODE_OF_CONDUCT.md), and [security policy](SECURITY.md).
 
-- [Contributing guide](CONTRIBUTING.md)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Security policy](SECURITY.md)
-
-## License
-
-Project-authored code and documentation use the [MIT License](LICENSE). The current v1.0 package contains no pet or other restricted visual assets. Historical v0.9 artwork remains governed by the restricted asset terms in that release. Third-party components and redistribution terms are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Project-authored code and documentation use the [MIT License](LICENSE). v1.0 packages contain no pet or other restricted visual assets. Third-party components and redistribution terms are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

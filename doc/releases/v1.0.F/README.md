@@ -1,5 +1,5 @@
 # LetsMakeMoney Windows v1.0.F
-> 内部代号：v1.0.F；公开版本：v1.0.8 Stable；状态：开发实现完成，等待干净候选与独立验收。
+> 内部代号：v1.0.F；公开版本：v1.0.8 Stable；状态：开发实现完成，本地候选与 GUI 验收完成，等待托盘人工补证和发布授权。
 
 v1.0.8 是 v1.0 系列的收官质量版本。需求范围由 [PRD](prd.md) 和 [追踪矩阵](traceability.md) 冻结，开发实施由 [开发计划](dev_plan_v1.0.F.md) 与 [进度](progress_v1.0.F.md) 记录。
 
@@ -16,9 +16,10 @@ v1.0.8 是 v1.0 系列的收官质量版本。需求范围由 [PRD](prd.md) 和 
 ## 身份边界
 
 - 当前公开版本仍为 v1.0.7 Stable。
-- 当前工作区包含 v1.0.8 有意实现，但尚未形成干净发布提交。
-- 当前 dirty 工作区不得生成正式候选；任何本地 release build 仅是开发证据。
-- 正式候选必须通过 `scripts/package_v10f.ps1` 从干净提交生成，并由 `scripts/verify_v10f_package.ps1` 锁定源提交与哈希。
+- 本地发布源为 `main@81abae364ad577a394c3c9dcda3a1d1c15e83b99`。
+- 唯一候选为 `V10F-20260804-final-81abae36`，Zip SHA256 为 `07D9B1766CECE8DA092CE31C234E6018D4820049F3D2A310033478BF5EB69DDA`。
+- 自动门禁、核心 GUI 和 Windows 11 单显示器 100%/125%/150% DPI 已通过；托盘真实鼠标流程待人工补证。
+- 当前没有发布授权，不得自动执行 push、tag 或 GitHub Release。
 
 ## 唯一自动验证入口
 

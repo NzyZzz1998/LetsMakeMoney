@@ -2,47 +2,77 @@
 
 ## 当前结论
 
-开发实现完成，M1-M7 current gate 已通过。当前尚无可发布结论：工作区未提交且为 dirty，候选身份、真实 Windows GUI、三档 DPI 和独立验收仍未锁定。
+本地发布源提交、唯一候选、自动门禁和真实 Windows 11 单显示器 GUI 验收已完成。候选未发现新的发布阻塞缺陷；Windows 通知区真实鼠标左键/右键、任务栏入口策略仍需项目所有者补证，因此当前结论为 **部分通过，可进入最终人工补证与发布授权点**。
+
+本轮未执行 push、远端 tag、GitHub Release 或仓库设置修改。
 
 ## 候选身份
 
-| 字段 | 当前值 |
+| 字段 | 锁定值 |
 | --- | --- |
-| 开发基线 | `main@1801626a153a9644f448729dabc51ee9f88a0d9e` |
-| 公开目标 | `v1.0.8` |
-| Source tree | dirty |
-| Candidate ID | 尚未生成 |
-| Zip / EXE / DLL SHA256 | 尚未生成 |
-| 发布许可 | 禁止 |
+| 分支 | `main` |
+| 发布源 HEAD | `81abae364ad577a394c3c9dcda3a1d1c15e83b99` |
+| Source tree | 构建时 clean |
+| Candidate ID | `V10F-20260804-final-81abae36` |
+| Build UTC | `2026-08-04T15:53:34.5718680Z` |
+| Zip 大小 | `3,418,747` 字节 |
+| Zip SHA256 | `07D9B1766CECE8DA092CE31C234E6018D4820049F3D2A310033478BF5EB69DDA` |
+| EXE 大小 | `10,287,616` 字节 |
+| EXE SHA256 | `8D2ABDB6EB1E32F8B568BA9E12A2BAD0A52A9099B19C6CF7CEE3A040FF71ED3B` |
+| WebView2Loader.dll 大小 | `160,320` 字节 |
+| DLL SHA256 | `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C` |
+| 包内 README SHA256 | `6B8E20D50B864A07549E1567D0E0382D2E8B361302CA0448A7B6FF12B6DCF706` |
+| 包内 README.en SHA256 | `2C9C4C5DD83CECA7C930FA24B5994ACB11A377820721380A6DFA4A31C4441B5D` |
+| 发布许可 | 未授权；等待托盘补证和项目所有者批准 |
 
-正式候选必须从项目所有者批准的干净提交重新构建。开发期 `target/release` EXE 与 M6 性能证据不能替代最终候选身份。
+候选路径：`.artifacts/candidates/v1.0.8/V10F-20260804-final-81abae36/`。GUI 只运行独立解压目录中的 EXE，没有使用开发目录或 `target/release` 代替。
 
 ## 自动验证
 
 | 范围 | 结论 | 证据 |
 | --- | --- | --- |
-| M1 版本、品牌与 current 合同 | 通过 | npm、Cargo、Tauri、L2 资产与 current manifest |
-| M2 加班 schema v2 与事务 | 通过 | 迁移、动态边界、联动保存、失败回滚与兼容导出 |
-| M3 加班和日期界面 | 通过 | 日历双击、周末联动、动态上限、创建/修改/删除与月度汇总 |
-| M4 UI 与窗口质量 | 通过 | TimeField、Combobox、单一窗口表面、隐私竖条及行为测试 |
-| M5 治理与支持边界 | 通过 | 浏览器预览边界、支持矩阵、证据、品牌和 v2 债务合同 |
-| M6 冷启动条件 Spike | 通过并保留优化 | 冷启动 Mini `6217ms → 861ms`，收益 `86.151%` |
-| M7 发布工程与聚合门禁 | 通过 | current manifest、candidate/published fixture、私密日志拒绝、TypeScript/Vite、77 项 Rust 测试、fmt、clippy 与 `git diff --check` |
+| M1-M7 current gate | 通过 | `scripts/verify_windows_current.ps1 -Milestone M7` |
+| 前端行为测试 | 通过 | 22 组行为测试 |
+| Rust | 通过 | 77/77 tests、fmt、clippy |
+| TypeScript 与构建 | 通过 | strict、Vite production build |
+| 候选身份 | 通过 | candidate mode 连续复核两次 |
+| 包内合同 | 通过 | BUILD-INFO、README、许可、日历 manifest 与 SHA256 |
+| 文档与文本 | 通过 | UTF-8、乱码和 `git diff --check` |
+| 敏感信息 | 通过（能力受限） | 降级文本扫描未发现明显命中；未将其描述为专业秘密扫描 |
 
-自动化脱敏摘要：`evidence/m7-automation-summary.json`。该摘要记录的是 dirty 开发树门禁，不是正式候选验收结果。
+## 真实 GUI 验收
 
-## M6 性能证据
+| 范围 | 结论 | 真实证据摘要 |
+| --- | --- | --- |
+| 首次启动与 Wizard | 通过 | 空配置进入浅色 Wizard；三步默认值、禁用态、推算和完成链路正确；150% 三步无裁切 |
+| Mini | 通过 | 浅/深主题、拖动、左侧贴边、34px 隐私竖条、点击展开、失焦收起、冷启动恢复正确 |
+| Workbench | 通过 | 打开时 Mini 隐藏；关闭后只恢复 Mini；时间线、日历和六周布局正确 |
+| 日期调整 | 通过 | 双击日期、自动判断、工作日切换、取消和应用可用 |
+| 加班事务 | 通过 | 周末联动默认 8 小时；修改为 7.25 小时；重开持久化；删除确认后归零 |
+| 月度总结 | 通过 | 计划工时、实际工时和加班工时随事务同步更新 |
+| Settings | 通过 | 五页可达；保存、无变化、放弃未保存变更、恢复主题和维护入口正确 |
+| 主题 | 通过 | 跨窗口即时预览、取消回滚、保存持久化；冷启动直接恢复深色，无浅色首帧 |
+| TimeField / Combobox | 通过 | 圆角弹层、选项、取消/确认、Escape 关闭和焦点态可用 |
+| 诊断与更新 | 通过 | 诊断摘要脱敏提示正确；更新检查显示当前为最新版；版本为 1.0.8 |
+| 100% / 125% / 150% DPI | 通过 | Mini、Workbench、Settings、Wizard 无裁切、重叠或整月溢出；验收后已恢复 100% |
+| 托盘与任务栏 | 待人工补证 | Computer Use 无法可靠定位 Windows 通知区图标，不伪造左键/右键和任务栏策略结论 |
 
-- 基线：`evidence/m6-cold-start-performance-baseline.json`。
-- 优化后：`evidence/m6-cold-start-performance.json`。
-- 根因：Tauri 已成功创建 WebView 后，启动路径仍同步运行多次 `reg.exe query` 探测 WebView2。
-- 定向修复：Windows 运行时以已创建的 Tauri WebView 作为能力证据，不再重复执行注册表子进程。
-- 未宣称：CPU 降低、内存泄漏修复或最终发布环境性能。
+## 日志与配置
 
-## 待验证
+- 配置保持 `config_version: 8`，主题、日期调整、窗口位置和 Mini 隐私状态均持久化。
+- 加班记录完成创建、修改和删除，最终测试数据为空集合；旧记录保留在测试目录的 previous 文件中。
+- `debug.log` 包含主题加载、窗口 show/hide、WebView suspend/resume、权威同步、owner date、官方日历和隐私收起语义事件。
+- 本轮原始测试配置、日志和截图只保存在本机验收目录，不进入发布包。
 
-1. 从干净提交生成唯一候选并锁定 Zip、EXE、WebView2Loader、README 和 BUILD-INFO 哈希。
-2. 真实 Windows 11 单显示器 100%、125%、150% DPI。
-3. 浅色/深色、Mini、Workbench、Settings、Wizard、日期事务、加班事务、托盘与窗口找回。
-4. 独立 `/acceptance` 和用户环境恢复。
-5. Windows 10 无真实证据时继续收窄支持声明；多显示器暂不验证。
+## 环境与支持边界
+
+- Windows 11 x86_64、单显示器、100%/125%/150%：通过。
+- Windows 10：未取得真实设备或 VM 证据，仅尽力兼容，不进入已验证支持声明。
+- 多显示器：项目所有者已批准暂不验证，不进入通过声明。
+- Windows 通知区和任务栏真实鼠标流程：待人工补证。
+
+## 下一门禁
+
+1. 项目所有者使用真实鼠标补证通知区左键隐藏/恢复、右键菜单、退出和任务栏入口策略。
+2. 恢复用户原始环境并确认无候选进程、启动项或测试配置残留。
+3. 补证通过后，单独批准发布提交、push、annotated tag 与 GitHub Release；本轮不执行远端动作。
