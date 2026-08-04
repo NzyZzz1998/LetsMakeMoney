@@ -2,9 +2,27 @@
 
 ## 当前结论
 
-v1.0.7 首次 dirty 候选的独立验收结论为**未通过**，该历史结论与原始证据保持不变。随后 `V107-BUG-001`、`V107-BUG-002` 与高 DPI 验收发现的 `V107-BUG-003` 均已修复，自动门禁和真实 GUI 定向复验通过；通知区真实鼠标组合也已补齐。锁定 dirty 候选的验收结论现为**通过**，项目所有者已批准发布收口；但候选源树仍为 dirty，干净发布身份尚未建立，因此当前仍没有可发布候选。
+v1.0.7 首次 dirty 候选的独立验收结论为**未通过**，该历史结论与原始证据保持不变。随后 `V107-BUG-001`、`V107-BUG-002` 与高 DPI 验收发现的 `V107-BUG-003` 均已修复，自动门禁和真实 GUI 定向复验通过；通知区真实鼠标组合也已补齐。最终候选已从干净发布源提交重新构建，current gate、候选包验证、真实 GUI 身份冒烟、GitHub Release 和下载包复核均通过，v1.0.7 已正式发布。
 
-M0 至 M6 已完成，M7 完成 10/12；Windows 11 单显示器 100%/125%/150% DPI 已取得真实证据。CSP 候选已按失败门禁撤销，正式配置保持不变；性能基线保留冷启动量化债务，未保留无证据优化。
+M0 至 M7 已完成 112/112；Windows 11 单显示器 100%/125%/150% DPI 已取得真实证据。CSP 候选已按失败门禁撤销，正式配置保持不变；性能基线保留冷启动量化债务，未保留无证据优化。
+
+## 最终发布身份
+
+| 字段 | 值 |
+| --- | --- |
+| Candidate ID | `V107-RELEASE-20260804-FINAL` |
+| 发布源提交 | `f500ed4e7de28ec68b2a848da6fa2340420b91b2` |
+| Source tree | clean |
+| 构建时间 | `2026-08-04T03:03:54.0838940Z` |
+| Zip | `LetsMakeMoney-v1.0.7-windows-x86_64.zip` |
+| Zip 大小 / SHA256 | `3,317,879` 字节 / `D656B96973F64632896715ADCBB9CAFEAED4D06D44BA1C098824335AC673E3F2` |
+| EXE 大小 / SHA256 | `10,271,744` 字节 / `58F7F64060584FCAF6BABE0720DC3EF61067669D088DC0CCFBF25DA703E45C3C` |
+| WebView2Loader 大小 / SHA256 | `160,320` 字节 / `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C` |
+| Tag | `v1.0.7` |
+| Release | [GitHub Release v1.0.7](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7) |
+| 发布许可 | 允许；已发布 |
+
+最终 EXE 以锁定路径启动，进程身份与哈希一致，Mini 正常显示且无崩溃。GitHub 附件重新下载后 Zip 哈希一致，`verify_v107_package.ps1 -Mode published` 通过。Release 仅包含便携 Zip 与 `SHA256SUMS.txt`。
 
 ## 自动验证
 
@@ -124,8 +142,7 @@ M0 至 M6 已完成，M7 完成 10/12；Windows 11 单显示器 100%/125%/150% D
 
 ## 剩余发布门禁
 
-1. 创建干净发布提交。
-2. 从干净提交重建唯一最终候选，重新锁定并复核全部发布身份。
+无。v1.0.7 已发布。
 
 ## 待补证
 
@@ -146,8 +163,9 @@ M0 至 M6 已完成，M7 完成 10/12；Windows 11 单显示器 100%/125%/150% D
 - `doc/releases/v1.0.7/evidence/acceptance-dpi-summary.json`
 - `doc/releases/v1.0.7/evidence/acceptance-completion-summary.json`
 - `doc/releases/v1.0.7/evidence/acceptance-tray-summary.json`
+- `doc/releases/v1.0.7/evidence/release-publication-summary.json`
 - `doc/releases/v1.0.7/evidence/external-evidence-index.md`
 
 ## 边界
 
-当前修复候选由脏工作树构建，只能作为验收证据对象。真实 100%/125%/150% DPI 与托盘真实鼠标组合已完成，锁定对象验收通过；项目所有者已经批准发布收口，发布判断仍必须等待干净提交重建和最终身份复核。冷启动 P95 未达预设目标，作为已量化性能债保留；它不是对候选功能正确性的通过声明。
+dirty 候选继续仅作为历史验收证据对象，正式附件只认最终干净候选与 GitHub 下载复核结果。Windows 10 未验证、多显示器暂不验证，不进入通过声明。冷启动 P95 未达预设目标，作为已量化性能债保留；它不影响本次功能正确性结论。

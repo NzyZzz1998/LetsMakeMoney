@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "version": "1.0.7",
+  "published_at": "2026-08-04T03:08:04Z",
+  "source_head": "f500ed4e7de28ec68b2a848da6fa2340420b91b2",
+  "source_tree_dirty": false,
+  "tag": "v1.0.7",
+  "release_url": "https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7",
+  "artifacts": [
+    {
+      "name": "LetsMakeMoney-v1.0.7-windows-x86_64.zip",
+      "size_bytes": 3317879,
+      "sha256": "D656B96973F64632896715ADCBB9CAFEAED4D06D44BA1C098824335AC673E3F2"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size_bytes": 107,
+      "sha256": "E16B8EFDBD89C478598821E7A08312587F4377AF200C4D8F65D60068D2202CE4"
+    }
+  ],
+  "package_content": {
+    "exe_size_bytes": 10271744,
+    "exe_sha256": "58F7F64060584FCAF6BABE0720DC3EF61067669D088DC0CCFBF25DA703E45C3C",
+    "webview2_loader_size_bytes": 160320,
+    "webview2_loader_sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
+  },
+  "verification": {
+    "github_ci": "passed",
+    "current_gate": "passed",
+    "candidate_package": "passed",
+    "final_gui_identity_smoke": "passed",
+    "published_package": "passed"
+  },
+  "support": {
+    "windows_11_x86_64_single_display": "verified",
+    "windows_10": "unverified_best_effort",
+    "multi_display": "not_validated"
+  }
+}

@@ -6,7 +6,7 @@
   <a href="README.en.md">English</a> ·
   <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">下载</a> ·
   <a href="doc/current.md">当前状态</a> ·
-  <a href="doc/releases/v1.0.6/progress_v1.0.6.md">v1.0.6 修复状态</a>
+  <a href="doc/releases/v1.0.7/progress_v1.0.7.md">v1.0.7 发布状态</a>
 </div>
 
 ## 一眼知道今天赚了多少
@@ -30,17 +30,17 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪
 
 ## 当前版本
 
-当前公开版本为 [**v1.0.6 Stable**](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.6)。该维护版本已完成独立验收、必需 CI、干净提交构建、GitHub Release 发布及线上附件回下载核验。
+当前公开版本为 [**v1.0.7 Stable**](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7)。该收官功能版本已完成独立验收、必需 CI、干净提交构建、GitHub Release 发布及线上附件回下载核验。
 
-- v1.0.6 发布源提交为 `51e4c08da5260af9b9f4808c4f6d29591319e655`。
-- 便携 Zip SHA256 为 `AEE4BC4A41D3839E421138D0B152EA5A8B0FBDC60C5B189EA11790DE4ED8B66A`；Release 仅包含便携 Zip 与 `SHA256SUMS.txt`。
-- v1.0.6 修复浅色配置下辅助窗口可能采用旧深色缓存的问题，并补齐首帧、跨窗口 ThemeSession、配置 hydration 与原生关闭事务门禁；完整证据见 [v1.0.6 进度](doc/releases/v1.0.6/progress_v1.0.6.md)。
+- v1.0.7 发布源提交为 `f500ed4e7de28ec68b2a848da6fa2340420b91b2`。
+- 便携 Zip SHA256 为 `D656B96973F64632896715ADCBB9CAFEAED4D06D44BA1C098824335AC673E3F2`；Release 仅包含便携 Zip 与 `SHA256SUMS.txt`。
+- v1.0.7 完成窗口与隐私可靠性、日期调整、按日加班记录、月度工时总结、六周日历和发布工程收口；完整证据见 [v1.0.7 进度](doc/releases/v1.0.7/progress_v1.0.7.md)。
 - Mini 可在贴近左右工作区边缘后收起收入信息，并通过悬停或托盘找回；正常位置仍可持久化恢复。
 - 官方日历未覆盖的年份会使用明确标注的休息模式估算，不伪造官方节假日或调休数据。
 - 隐藏窗口暂停本地计时与权威同步，恢复时立即重新校准，避免后台重复工作。
 - Windows 睡眠恢复、系统时间前后跳变、真实时区切换和连续 120 分钟运行已经过验收。
 - 阶段倒计时、今日安排、跨夜归属、调休来源、日历复合状态和浅色/深色双主题继续沿用 v1.0.2 合同。
-- v1.0.6 是无宠物的正式产品主线，暂不包含云同步、安装器、系统跟随主题或自定义主题。
+- v1.0.7 是无宠物的正式产品主线，暂不包含云同步、安装器、系统跟随主题或自定义主题。
 - 需要桌宠体验时，可以继续使用 `v0.9-beta` tag 对应的 v0.9 Beta；它也是 v1.0 的明确回退基线。
 
 最新事实与发布哈希以 [当前状态入口](doc/current.md) 为准。
@@ -49,7 +49,7 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。配置月薪
 
 ### 环境
 
-- Windows 11 x86_64（v1.0.7 已验证支持环境为单显示器；125%/150% DPI 在最终候选阶段补证）
+- Windows 11 x86_64（v1.0.7 已验证环境为单显示器 100%/125%/150% DPI）
 - Windows 10 x86_64 仅保留尽力兼容，当前没有真实设备或 VM 证据
 - Node.js 22+
 - Python 3.12
@@ -80,7 +80,7 @@ npm run tauri dev
 powershell -ExecutionPolicy Bypass -File .\scripts\package_v107.ps1
 ```
 
-v1.0.7 本地候选只写入 `.artifacts\candidates\v1.0.7\<candidate-id>\`，不会覆盖 `releases\` 或 GitHub 回下载缓存。构建和验证不应依赖未声明的本机路径或私有文件；本地同名文件不能替代 GitHub Release 附件身份。当前公开下载仍是 v1.0.6 Stable。
+v1.0.7 本地候选只写入 `.artifacts\candidates\v1.0.7\<candidate-id>\`，不会覆盖 `releases\` 或 GitHub 回下载缓存。构建和验证不应依赖未声明的本机路径或私有文件；本地同名文件不能替代 GitHub Release 附件身份。当前公开下载以 v1.0.7 GitHub Release 为准。
 
 v1.0.7 的详细环境边界见 [支持矩阵](doc/releases/v1.0.7/support-matrix.md)。多显示器和 Windows 10 不进入 v1.0.7 已验证通过声明。
 
@@ -118,6 +118,7 @@ shared/                节假日与共享数据
 scripts/               验证、打包和合规检查
 doc/current.md         当前唯一内部事实入口
 doc/releases/v1.0.6/   v1.0.6 主题修复 Review、进度与验证文档
+doc/releases/v1.0.7/   v1.0.7 收官功能版本 PRD、进度、验收与发布文档
 ```
 
 ## 参与项目

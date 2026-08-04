@@ -6,15 +6,15 @@
 
 | 字段 | 内容 |
 | --- | --- |
-| 当前公开版本 | Windows v1.0.6 Stable |
-| 当前公开 tag | `v1.0.6` |
-| v1.0.6 发布源提交 | `51e4c08da5260af9b9f4808c4f6d29591319e655` |
-| 当前开发版本 | Windows v1.0.7 Stable |
-| 开发基线 | `main@12b6b03ce91b716d49590e21eb8dd7fe90fa283c` |
-| 当前里程碑 | V107-ACC 锁定 dirty 候选验收通过，项目所有者已批准发布收口 |
-| 总体状态 | 验收通过，尚无可发布候选 |
+| 当前公开版本 | Windows v1.0.7 Stable |
+| 当前公开 tag | `v1.0.7` |
+| v1.0.7 发布源提交 | `f500ed4e7de28ec68b2a848da6fa2340420b91b2` |
+| 当前开发版本 | v1.0.7 发布后观察 |
+| 开发基线 | `main@f500ed4e7de28ec68b2a848da6fa2340420b91b2` |
+| 当前里程碑 | v1.0.7 GitHub Stable Release 已发布并复核 |
+| 总体状态 | 已发布 |
 
-v1.0.6 已完成 GitHub Stable Release，现有 tag、附件和哈希保持不变。v1.0.7 已完成 V107-M0 至 V107-M6，并完成 M7 的聚合门禁、隔离打包和 dirty 候选审计。首次独立 GUI 验收发现的版本读取、Workbench 复用超时和高 DPI 六周日历摘要重叠均已修复；`V107-M7-DIRTY-20260804-03` 的自动门禁、包体验证、真实 100%/125%/150% DPI、业务矩阵和托盘真实鼠标组合均通过，首次失败记录继续保留。项目所有者已批准提交、推送、tag 和 GitHub Release；当前进入干净发布提交、最终候选重建和身份复核，dirty 候选禁止发布。
+v1.0.7 已从干净源提交构建、通过 current gate、候选包验证、真实 GUI 身份冒烟与 GitHub 下载包复核，并完成 GitHub Stable Release。正式便携 Zip SHA256 为 `D656B96973F64632896715ADCBB9CAFEAED4D06D44BA1C098824335AC673E3F2`，发布地址为 [GitHub Release v1.0.7](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7)。此前 dirty 候选的首次失败、修复与 DPI 定向复验证据继续按历史事实保留，均不得冒充正式附件。
 
 ## v1.0.7 范围
 
@@ -69,5 +69,6 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_windows_current.ps1
 | v1.0.4 Stable | [v1.0.4 release notes](releases/v1.0.4/release-notes.md) |
 | v1.0.5 Stable | [v1.0.5 README](releases/v1.0.5/README.md) |
 | v1.0.6 Stable | [v1.0.6 README](releases/v1.0.6/README.md) |
+| v1.0.7 Stable | [v1.0.7 README](releases/v1.0.7/README.md) |
 
 旧版完整 PRD、进度、验收、发布说明和 bugfix log 继续保留在对应 release 目录，不在本文件复述。
