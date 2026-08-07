@@ -15,11 +15,26 @@ LetsMakeMoney is a local-first Windows earnings-progress utility. Configure a mo
 
 The Mini view stays quietly on the desktop. Open the full workbench only when you need to adjust a date, record overtime, or inspect the month. No account is required; salary, schedule, overtime, and logs remain on the local machine.
 
+## Real interface
+
 <div align="center">
   <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney Today workbench with demonstration data">
   <br>
-  <sub>Real Windows interface shown with demonstration data.</sub>
+  <sub>Real v1.0.8 Windows Today workbench shown with demonstration data.</sub>
 </div>
+
+<table>
+  <tr>
+    <th align="center">Mini earnings view</th>
+    <th align="center">Earnings calendar and monthly hours</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="assets/readme/mini.png" width="344" alt="LetsMakeMoney Mini earnings view"></td>
+    <td align="center"><img src="assets/readme/calendar.png" width="560" alt="LetsMakeMoney earnings calendar, date states, and monthly hour summary"></td>
+  </tr>
+</table>
+
+<p align="center"><sub>All screenshots come from the current v1.0.8 Windows application. Amounts, dates, and hours are demonstration data.</sub></p>
 
 ## Core experience
 
@@ -44,8 +59,8 @@ There is currently no installer or silent update. Update checks only proceed aft
 | Public stable release | [v1.0.7 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7) |
 | Candidate on `test` | v1.0.8, internal codename v1.0.F |
 | Candidate purpose | Final quality release in the v1.0 line; no tag or Release yet |
-| Completed | Automated gates, core GUI, light/dark themes, Windows 11 single-display 100%/125%/150% DPI |
-| Evidence still needed | Real notification-area mouse flow and taskbar policy |
+| Acceptance status | Locked-candidate gates, core GUI, light/dark themes, three DPI levels, notification-area and taskbar flows passed |
+| Remaining before publication | Rebuild from the final release commit, update SHA256 values, and verify the published-asset identity |
 
 The v1.0.8 candidate further closes the v1.0 line:
 

@@ -15,11 +15,26 @@ LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。设置月薪
 
 Mini 收入视图可以安静地留在桌面；需要调整日期、记录加班或查看整月安排时，再打开完整工作台。无需账号，工资、作息、加班记录和日志都保存在本机。
 
+## 真实界面
+
 <div align="center">
   <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney 今日收入工作台，使用演示数据">
   <br>
-  <sub>真实 Windows 界面，图中为演示数据。</sub>
+  <sub>v1.0.8 真实 Windows 今日工作台，图中为演示数据。</sub>
 </div>
+
+<table>
+  <tr>
+    <th align="center">Mini 迷你收入视图</th>
+    <th align="center">收入日历与月度工时</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="assets/readme/mini.png" width="344" alt="LetsMakeMoney Mini 迷你收入视图"></td>
+    <td align="center"><img src="assets/readme/calendar.png" width="560" alt="LetsMakeMoney 收入日历、日期状态和月度工时总结"></td>
+  </tr>
+</table>
+
+<p align="center"><sub>截图均来自当前 v1.0.8 Windows 实际运行界面；金额、日期与工时仅用于演示。</sub></p>
 
 ## 核心体验
 
@@ -44,8 +59,8 @@ Mini 收入视图可以安静地留在桌面；需要调整日期、记录加班
 | 当前公开稳定版 | [v1.0.7 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7) |
 | `test` 分支候选 | v1.0.8，内部代号 v1.0.F |
 | 候选定位 | v1.0 系列最终质量版本，尚未打 tag 或创建 Release |
-| 已完成 | 自动门禁、核心 GUI、浅/深主题、Windows 11 单显示器 100%/125%/150% DPI |
-| 待补证 | Windows 通知区真实鼠标流程与任务栏策略 |
+| 验收状态 | 锁定候选的自动门禁、核心 GUI、浅/深主题、三档 DPI、通知区与任务栏流程均已通过 |
+| 发布前剩余 | 从最终发布提交重新构建，更新 SHA256 并复核正式附件身份 |
 
 v1.0.8 候选进一步收口了：
 

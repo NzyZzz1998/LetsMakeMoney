@@ -3,44 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LMM Windows v0.9 Design Builder</title>
+  <title>LetsMakeMoney v1.0.8 产品全链路生成器</title>
   <style>
     :root { color-scheme: light dark; font-family: Inter, "Microsoft YaHei UI", sans-serif; }
     body { margin: 0; padding: 20px; background: var(--figma-color-bg); color: var(--figma-color-text); }
     h1 { margin: 0 0 8px; font-size: 18px; }
-    p { margin: 0 0 16px; color: var(--figma-color-text-secondary); font-size: 12px; line-height: 1.6; }
-    .pages { margin: 0 0 12px; padding: 12px; border: 1px solid var(--figma-color-border); border-radius: 6px; font-size: 12px; line-height: 1.8; }
+    p { margin: 0 0 16px; color: var(--figma-color-text-secondary); font-size: 12px; line-height: 1.65; }
+    .page { margin: 0 0 12px; padding: 12px; border: 1px solid var(--figma-color-border); border-radius: 8px; font-size: 12px; line-height: 1.8; }
+    .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 14px; }
+    .fact { padding: 9px; border-radius: 7px; background: var(--figma-color-bg-secondary); font-size: 11px; line-height: 1.5; }
     .warning { margin: 0 0 16px; color: var(--figma-color-text-secondary); font-size: 11px; line-height: 1.55; }
-    button { width: 100%; height: 36px; border: 0; border-radius: 6px; background: var(--figma-color-bg-brand); color: var(--figma-color-text-onbrand); font-weight: 600; cursor: pointer; }
+    .actions { display: grid; gap: 8px; }
+    button { width: 100%; min-height: 38px; padding: 8px 12px; border: 0; border-radius: 8px; background: var(--figma-color-bg-brand); color: var(--figma-color-text-onbrand); font-weight: 600; cursor: pointer; }
+    button.secondary { border: 1px solid var(--figma-color-border); background: var(--figma-color-bg-secondary); color: var(--figma-color-text); }
     button:disabled { opacity: .55; cursor: default; }
-    #status { min-height: 40px; margin-top: 14px; padding: 10px; border-radius: 6px; background: var(--figma-color-bg-secondary); font-size: 12px; line-height: 1.5; white-space: pre-wrap; }
+    #status { min-height: 44px; margin-top: 14px; padding: 10px; border-radius: 8px; background: var(--figma-color-bg-secondary); font-size: 12px; line-height: 1.5; white-space: pre-wrap; }
   </style>
 </head>
 <body>
-  <h1>LMM Windows v0.9 Design Builder</h1>
-  <p>生成 LetsMakeMoney 单页全产品可编辑设计：桌宠、Panel、今日详情、Wizard、Settings、菜单、托盘、诊断、更新、反馈和就近控件契约集中在 LMM 01 大画布。</p>
-  <div class="pages">
-    LMM 01 Full Product Flow<br>
-    <small>旧 LMM 页面仅在 Shared Plugin Data 所有权验证通过后移除；其他页面保持不变。</small>
+  <h1>LetsMakeMoney v1.0.8 产品全链路生成器</h1>
+  <p>在同一个受管页面中重建当前 Rust、Tauri 与 React 产品：迷你收入视图、隐私贴边、今日、日历、日期调整、加班、首次配置、设置、托盘、支持状态与就近开发契约。</p>
+  <div class="page">
+    <strong>LMM 01 产品全链路</strong><br>
+    <small>旧 LMM 页面仅在共享插件数据所有权验证通过后移除；非 LMM 页面保持不变。</small>
   </div>
-  <div class="warning">插件不会创建新的 Figma 文件，不调用 Figma MCP，也不嵌入 Godot 运行截图。</div>
-  <button id="build">生成 / 更新 LMM 设计</button>
+  <div class="facts">
+    <div class="fact">真实窗口<br><strong>4 个</strong></div>
+    <div class="fact">主题<br><strong>浅色 + 深色</strong></div>
+    <div class="fact">运行截图<br><strong>0 张</strong></div>
+    <div class="fact">产品素材<br><strong>L2 品牌标识</strong></div>
+  </div>
+  <div class="warning">插件不会创建新的 Figma 文件，不调用 Figma MCP；v0.9 桌宠、Godot 和动画合同会从受管画布移除。</div>
+  <div class="actions">
+    <button id="improve">增量优化现有画布（保留手动修改）</button>
+    <button id="build" class="secondary">完整重建 v1.0.8 设计</button>
+  </div>
   <div id="status">准备就绪</div>
   <script>
     const assets = __ASSET_PAYLOAD_JSON__;
     const button = document.getElementById("build");
+    const improveButton = document.getElementById("improve");
     const status = document.getElementById("status");
-    button.onclick = () => {
-      button.disabled = true;
-      status.textContent = "正在验证页面所有权、素材哈希并重建 LMM 设计...";
-      parent.postMessage({ pluginMessage: { type: "build", assets } }, "*");
+    function base64Bytes(value) {
+      const binary = window.atob(value);
+      const bytes = new Uint8Array(binary.length);
+      for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+      return bytes;
+    }
+    async function verifyAssets() {
+      const verified = {};
+      for (const [name, metadata] of Object.entries(assets)) {
+        const bytes = base64Bytes(metadata.base64);
+        if (bytes.length !== metadata.bytes) throw new Error(`${name} 字节数不一致`);
+        const signature = [137, 80, 78, 71, 13, 10, 26, 10];
+        if (!signature.every((value, index) => bytes[index] === value)) throw new Error(`${name} 不是有效 PNG`);
+        verified[name] = { ...metadata, buildVerifiedSha256: metadata.sha256 };
+      }
+      return verified;
+    }
+    function setBusy(busy) { button.disabled = busy; improveButton.disabled = busy; }
+    improveButton.onclick = async () => {
+      setBusy(true);
+      status.textContent = "正在校验素材并保护现有画布…";
+      try {
+        const verifiedAssets = await verifyAssets();
+        status.textContent = "正在保留手动修改，压缩首次配置空白、更新 Logo 留档并中文化受管图层菜单…";
+        parent.postMessage({ pluginMessage: { type: "improve-contracts", assets: verifiedAssets } }, "*");
+      }
+      catch (error) {
+        status.textContent = `增量优化失败（UI 素材校验）：${error.message || String(error)}`;
+        setBusy(false);
+      }
+    };
+    button.onclick = async () => {
+      setBusy(true);
+      status.textContent = "正在校验 L2 素材载荷…";
+      try {
+        const verifiedAssets = await verifyAssets();
+        status.textContent = "素材校验通过，正在重建当前产品全链路…";
+        parent.postMessage({ pluginMessage: { type: "build", assets: verifiedAssets } }, "*");
+      }
+      catch (error) {
+        status.textContent = `生成失败（UI 素材校验）：${error.message || String(error)}`;
+        setBusy(false);
+      }
     };
     onmessage = (event) => {
       const message = event.data && event.data.pluginMessage;
       if (!message) return;
       status.textContent = message.message || message.text || "";
-      if (message.type === "done") button.textContent = "再次运行：幂等更新";
-      if (message.type === "done" || message.type === "error") button.disabled = false;
+      if (message.type === "done" && message.mode === "build") button.textContent = "再次完整重建";
+      if (message.type === "done" && message.mode === "improve-contracts") improveButton.textContent = "再次增量优化现有画布";
+      if (message.type === "done" || message.type === "error") setBusy(false);
     };
   </script>
 </body>

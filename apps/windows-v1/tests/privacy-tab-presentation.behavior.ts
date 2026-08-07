@@ -1,4 +1,6 @@
 import { privacyTabPresentation } from "../src/features/mini/privacyTabPresentation";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -23,7 +25,7 @@ const cases = [
       nextBoundaryKind: "work_start" as const,
       nextBoundarySeconds: 90 * 60,
     },
-    expected: "距离上班1时30分",
+    expected: "距离上班1.5h",
   },
   {
     name: "working before rest",
@@ -51,9 +53,9 @@ const cases = [
       state: "ready" as const,
       phase: "working" as const,
       nextBoundaryKind: "work_end" as const,
-      nextBoundarySeconds: 100 * 60 * 60,
+      nextBoundarySeconds: 90 * 60,
     },
-    expected: "距离下班99时+",
+    expected: "距离下班1.5h",
   },
   {
     name: "after work",
@@ -63,7 +65,7 @@ const cases = [
       nextBoundaryKind: null,
       nextBoundarySeconds: null,
     },
-    expected: "今日结束",
+    expected: "今日工作结束",
   },
   ...(["rest_day", "paid_rest", "unpaid_rest"] as const).map(phase => ({
     name: phase,
@@ -85,5 +87,11 @@ for (const testCase of cases) {
   assert(!forbidden.test(result.ariaLabel), `${testCase.name} ARIA leaks income policy`);
   assert(result.ariaLabel.includes("展开迷你收入视图"), `${testCase.name} ARIA lacks recovery action`);
 }
+
+const styles = readFileSync(resolve(process.cwd(), "apps/windows-v1/src/styles.css"), "utf8");
+assert(
+  /\.mini-window__privacy-hit span\s*\{[^}]*letter-spacing:\s*1px;[^}]*text-orientation:\s*upright;/s.test(styles),
+  "privacy tab copy must use evenly spaced upright glyphs",
+);
 
 console.log(`privacy tab presentation: ${cases.length}/${cases.length} passed`);

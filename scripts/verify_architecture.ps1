@@ -18,6 +18,7 @@ $behaviorTests = @(
     "architecture-runtime.behavior.ts",
     "authoritative-sync.behavior.ts",
     "browser-preview-boundary.behavior.ts",
+    "calendar-layout.behavior.ts",
     "calendar-v105-presentation.behavior.ts",
     "calendar-state.behavior.ts",
     "combobox.behavior.ts",

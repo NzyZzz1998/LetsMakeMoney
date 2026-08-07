@@ -35,13 +35,30 @@
     "overtime_transaction": "passed",
     "settings_and_theme": "passed",
     "timefield_and_combobox": "passed",
-    "tray_and_taskbar": "pending_manual_evidence"
+    "tray_and_taskbar": "passed_project_owner_real_mouse"
+  },
+  "tray_evidence": {
+    "notification_area_left_click_hide_restore": "passed",
+    "right_click_menu": "passed",
+    "taskbar_policy": "passed",
+    "exit_process_termination": "passed",
+    "exit_log_events": [
+      "event=tray.command detail=id=tray-exit",
+      "event=app.exit_requested detail=source=tray"
+    ]
   },
   "support_boundaries": {
     "windows_10": "not_verified_best_effort_only",
     "multi_display": "not_verified",
     "professional_secret_scanner": "not_available_fallback_text_scan_only"
   },
-  "overall": "partially_passed_pending_tray_manual_evidence",
-  "remote_actions_performed": false
+  "overall": "passed_ready_for_release_closure",
+  "remote_actions_performed": true,
+  "remote_action_scope": {
+    "test_branch_pushed": true,
+    "main_pushed": false,
+    "tag_created": false,
+    "release_created": false
+  },
+  "release_closure_note": "Final README changes postdate the locked candidate; rebuild and rehash from the final release commit before public release."
 }

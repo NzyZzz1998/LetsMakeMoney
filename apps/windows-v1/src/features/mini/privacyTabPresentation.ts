@@ -21,13 +21,15 @@ function compactBoundaryAction(action: BoundaryAction) {
 
 function durationText(seconds: number, compact = false) {
   const minutes = Math.max(1, Math.ceil(seconds / 60));
-  if (minutes > 99 * 60) return compact ? "99时+" : "99+小时";
+  if (minutes > 99 * 60) return compact ? "99h+" : "99+小时";
   const hours = Math.floor(minutes / 60);
   const remainder = minutes % 60;
   if (hours === 0) return compact ? `${minutes}分` : `${minutes}分钟`;
-  return remainder === 0
-    ? compact ? `${hours}时` : `${hours}小时`
-    : compact ? `${hours}时${remainder}分` : `${hours}小时${remainder}分`;
+  if (compact) {
+    const decimalHours = Math.round((minutes / 60) * 10) / 10;
+    return `${decimalHours}h`;
+  }
+  return remainder === 0 ? `${hours}小时` : `${hours}小时${remainder}分钟`;
 }
 
 function boundaryAction(input: PrivacyTabPresentationInput): BoundaryAction | null {
@@ -54,7 +56,7 @@ export function privacyTabPresentation(
     visibleText = "今日休息";
     accessibleText = visibleText;
   } else if (input.state === "ready" && input.phase === "after_work") {
-    visibleText = "今日结束";
+    visibleText = "今日工作结束";
     accessibleText = "今日工作已结束";
   } else if (input.state === "ready") {
     const action = boundaryAction(input);
