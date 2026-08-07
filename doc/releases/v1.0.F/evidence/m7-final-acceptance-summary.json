@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0",
+  "product": "LetsMakeMoney",
+  "public_version": "1.0.8",
+  "candidate_id": "V10F-20260804-final-81abae36",
+  "source_head": "81abae364ad577a394c3c9dcda3a1d1c15e83b99",
+  "source_tree_dirty_at_build": false,
+  "build_timestamp_utc": "2026-08-04T15:53:34.5718680Z",
+  "artifacts": {
+    "zip_sha256": "07D9B1766CECE8DA092CE31C234E6018D4820049F3D2A310033478BF5EB69DDA",
+    "exe_sha256": "8D2ABDB6EB1E32F8B568BA9E12A2BAD0A52A9099B19C6CF7CEE3A040FF71ED3B",
+    "webview2_loader_sha256": "8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C"
+  },
+  "automatic_gates": {
+    "current_m1_to_m7": "passed",
+    "frontend_behavior_groups": 22,
+    "rust_tests_passed": 77,
+    "typescript_strict": "passed",
+    "vite_build": "passed",
+    "rust_fmt": "passed",
+    "rust_clippy": "passed",
+    "candidate_identity": "passed"
+  },
+  "gui_acceptance": {
+    "environment": "Windows 11 x86_64, single display",
+    "dpi": {
+      "100": "passed",
+      "125": "passed",
+      "150": "passed"
+    },
+    "first_run_wizard": "passed",
+    "mini_and_privacy_strip": "passed",
+    "workbench_and_calendar": "passed",
+    "date_adjustment": "passed",
+    "overtime_transaction": "passed",
+    "settings_and_theme": "passed",
+    "timefield_and_combobox": "passed",
+    "tray_and_taskbar": "passed_project_owner_real_mouse"
+  },
+  "tray_evidence": {
+    "notification_area_left_click_hide_restore": "passed",
+    "right_click_menu": "passed",
+    "taskbar_policy": "passed",
+    "exit_process_termination": "passed",
+    "exit_log_events": [
+      "event=tray.command detail=id=tray-exit",
+      "event=app.exit_requested detail=source=tray"
+    ]
+  },
+  "support_boundaries": {
+    "windows_10": "not_verified_best_effort_only",
+    "multi_display": "not_verified",
+    "professional_secret_scanner": "not_available_fallback_text_scan_only"
+  },
+  "overall": "passed_ready_for_release_closure",
+  "remote_actions_performed": true,
+  "remote_action_scope": {
+    "test_branch_pushed": true,
+    "main_pushed": false,
+    "tag_created": false,
+    "release_created": false
+  },
+  "release_closure_note": "Final README changes postdate the locked candidate; rebuild and rehash from the final release commit before public release."
+}

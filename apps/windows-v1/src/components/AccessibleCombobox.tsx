@@ -28,6 +28,7 @@ export function AccessibleCombobox<Value extends string>({
   placeholder = "请选择",
   disabled = false,
   error,
+  showError = true,
 }: {
   ariaLabel: string;
   value: Value | "";
@@ -36,6 +37,7 @@ export function AccessibleCombobox<Value extends string>({
   placeholder?: string;
   disabled?: boolean;
   error?: string;
+  showError?: boolean;
 }) {
   const baseId = useId();
   const listboxId = `${baseId}-listbox`;
@@ -48,7 +50,8 @@ export function AccessibleCombobox<Value extends string>({
   const [opensUp, setOpensUp] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const values = options.map(option => option.value);
-  const selectedIndex = selectedComboboxIndex(value, values);
+  const disabledOptions = options.map(option => Boolean(option.disabled));
+  const selectedIndex = selectedComboboxIndex(value, values, disabledOptions);
   const selected = options.find(option => option.value === value);
 
   const close = (restoreFocus: boolean) => {
@@ -76,6 +79,7 @@ export function AccessibleCombobox<Value extends string>({
       activeIndex,
       selectedIndex,
       optionCount: options.length,
+      disabled: disabledOptions,
     });
     if (action.type === "none") return;
     if (action.type !== "close" || event.key !== "Tab") event.preventDefault();
@@ -164,7 +168,8 @@ export function AccessibleCombobox<Value extends string>({
           </button>
         ))}
       </div>
-      {error && <small id={errorId} className="accessible-combobox__error">{error}</small>}
+      {error && showError && <small id={errorId} className="accessible-combobox__error">{error}</small>}
+      {error && !showError && <span id={errorId} className="sr-only">{error}</span>}
     </div>
   );
 }

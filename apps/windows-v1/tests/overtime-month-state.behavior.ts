@@ -13,6 +13,9 @@ const record: OvertimeRecord = {
   business_date: "2026-08-03",
   minutes: 90,
   hourly_rate_fen_snapshot: 6250,
+  origin: "independent",
+  boundary_snapshot: null,
+  linked_override_date: null,
   created_at: "2026-08-03T11:30:00Z",
   updated_at: "2026-08-03T11:30:00Z",
 };

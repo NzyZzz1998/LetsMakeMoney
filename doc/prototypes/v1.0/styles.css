@@ -2193,6 +2193,37 @@ select:disabled {
   line-height: 1.6;
 }
 
+.overtime-context-row {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.overtime-context-row p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.contract-badge {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  color: var(--success-text);
+  background: var(--success-soft);
+  border: 1px solid color-mix(in srgb, var(--success-text) 22%, transparent);
+  border-radius: 999px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.contract-badge.is-warning {
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
 .overtime-field {
   min-height: 58px;
   padding: 9px 11px;
@@ -2209,6 +2240,23 @@ select:disabled {
 .overtime-snapshot {
   display: grid;
   gap: 3px;
+}
+
+.boundary-card {
+  margin-top: 12px;
+  padding: 11px 12px;
+  display: grid;
+  gap: 3px;
+  color: var(--ink);
+  background: var(--subtle);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.boundary-card > span,
+.boundary-card small {
+  color: var(--muted);
+  font-size: 11px;
 }
 
 .overtime-field small,
@@ -2316,6 +2364,73 @@ select:disabled {
   color: var(--accent-text);
   font-size: 12px;
   line-height: 1.55;
+}
+
+.linked-overtime-panel,
+.linked-removal-panel {
+  margin-top: 14px;
+  padding: 12px;
+  background: var(--subtle);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.linked-panel-heading {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.linked-panel-heading > span:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.linked-panel-heading small,
+.boundary-copy {
+  color: var(--muted);
+}
+
+.overtime-field.compact {
+  background: var(--window);
+}
+
+.boundary-copy {
+  margin: 9px 0 0 !important;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.linked-removal-panel > label {
+  min-height: 50px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--window);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.linked-removal-panel > label + label {
+  margin-top: 7px;
+}
+
+.linked-removal-panel > label:has(input:checked) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.linked-removal-panel > label span {
+  display: grid;
+  gap: 2px;
+}
+
+.linked-removal-panel > label small {
+  color: var(--muted);
 }
 
 .override-impact {

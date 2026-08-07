@@ -42,7 +42,13 @@ function Resolve-V10Tool {
         }
     }
 
-    throw "Required tool '$Name' was not found. Checked $ExplicitVariable, PATH, and repository cache '$CacheRelativePath'."
+    $hint = if ($Name -eq "cargo") {
+        "Install the locked Rust toolchain or set LMM_CARGO, LMM_CARGO_HOME and LMM_RUSTUP_HOME."
+    }
+    else {
+        "Install $Name, add it to PATH, or set $ExplicitVariable."
+    }
+    throw "Required tool '$Name' was not found. Checked $ExplicitVariable, PATH, and repository cache '$CacheRelativePath'. $hint"
 }
 
 function Get-V10NodeResolution {

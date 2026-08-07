@@ -30,8 +30,9 @@ def verify_monthly_summary_contract() -> None:
         "restEnd === restStart",
     ):
         require(token in summary, f"Monthly summary contract is missing {token}")
-    for label in ("计划工时", "已流逝计划工时", "加班工时", "不代表实际出勤"):
+    for label in ("计划工时", "实际工时", "加班工时"):
         require(label in app, f"Calendar summary is missing the qualified label: {label}")
+    require("不代表实际出勤" not in app, "Removed monthly summary disclaimer must not return")
     require("加班收入" not in app, "M4 must not expose overtime income")
 
 
@@ -56,12 +57,14 @@ def verify_calendar_layout() -> None:
     require('.calendar__grid[data-weeks="6"] button { height: 40px; }' in css, "Six-week row height is not fixed")
     require(".calendar__grid button {" in css and "height: 46px" in css, "Five-week row height is not fixed")
     require(
-        ".month-summary { display: grid; grid-template-columns: minmax(190px, .9fr) 1.4fr;" in css,
+        ".month-summary { display: grid; grid-template-columns: minmax(168px, .72fr) 1.6fr;" in css,
         "Summary must keep its copy and metrics in separate columns",
     )
     require("min-height: 64px" in css, "Summary must reserve a stable high-DPI content height")
     require(".month-summary__grid { display: grid; grid-template-columns: repeat(3" in css, "Summary must remain a fixed three-column grid")
     require(".month-summary__grid dt { overflow: hidden;" in css, "Summary labels need bounded single-line layout")
+    require(".month-summary__heading .eyebrow, .month-summary__grid dt" in css, "Summary captions must share one typography contract")
+    require('onDoubleClick={() => {' in app and 'setEditorMode("date")' in app, "Double-clicking a calendar day must open the shared date transaction")
     require("text-overflow: ellipsis; white-space: nowrap" in css, "Summary copy needs high-DPI overflow protection")
     require(".workbench-content--calendar { overflow: hidden; }" in css, "Calendar workbench must not gain a vertical scrollbar")
     workbench = re.search(r'label: "workbench"(?P<body>.*?)(?=WindowSpec \{)', lib, re.S)

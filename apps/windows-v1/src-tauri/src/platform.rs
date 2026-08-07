@@ -19,7 +19,7 @@ pub struct EdgeDockPositions {
 }
 
 pub const MINI_EDGE_DOCK_THRESHOLD_LOGICAL_PX: i32 = 16;
-pub const MINI_EDGE_PRIVACY_TAB_LOGICAL_PX: i32 = 28;
+pub const MINI_EDGE_PRIVACY_TAB_LOGICAL_PX: i32 = 34;
 pub const MINI_EDGE_UNDOCK_THRESHOLD_LOGICAL_PX: i32 = 24;
 pub const MINI_EDGE_FALLBACK_MARGIN_LOGICAL_PX: i32 = 12;
 pub const MINI_EDGE_TRANSITION_MS: u64 = 180;
@@ -237,21 +237,10 @@ pub fn is_known_tray_command(id: &str) -> bool {
 
 #[cfg(target_os = "windows")]
 pub fn webview2_runtime_available() -> bool {
-    const CLIENT: &str =
-        r"SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}";
-    [
-        r"HKLM\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}".to_string(),
-        format!(r"HKLM\{CLIENT}"),
-        format!(r"HKCU\{CLIENT}"),
-    ]
-    .iter()
-    .any(|key| {
-        std::process::Command::new("reg.exe")
-            .args(["query", key, "/v", "pv"])
-            .output()
-            .map(|output| output.status.success())
-            .unwrap_or(false)
-    })
+    // Tauri calls setup only after the startup WebView has been created. Re-querying
+    // the registry here launches up to three reg.exe processes and delays every
+    // startup without providing stronger capability evidence than the live WebView.
+    true
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -345,6 +334,13 @@ mod tests {
             "../../tests/fixtures/v105-mini-edge-geometry.json"
         ))
         .expect("v1.0.5 geometry fixture must parse")
+    }
+
+    fn v107_geometry_fixture() -> GeometryFixture {
+        serde_json::from_str(include_str!(
+            "../../tests/fixtures/v107-mini-edge-geometry.json"
+        ))
+        .expect("v1.0.7 geometry fixture must parse")
     }
 
     #[test]
@@ -446,13 +442,9 @@ mod tests {
     }
 
     #[test]
-    fn v105_privacy_tab_keeps_28_logical_pixels_visible() {
+    fn v105_privacy_tab_geometry_remains_reproducible() {
         let fixture = v105_geometry_fixture();
         assert_eq!(fixture.contract.privacy_tab_logical_px, 28);
-        assert_eq!(
-            MINI_EDGE_PRIVACY_TAB_LOGICAL_PX, fixture.contract.privacy_tab_logical_px,
-            "production privacy-tab width must follow the v1.0.5 contract"
-        );
         for case in fixture.dock_cases {
             let side = match case.expected_side.as_str() {
                 "left" => EdgeDockSide::Left,
@@ -470,6 +462,40 @@ mod tests {
                 .expected_retracted
                 .as_ref()
                 .expect("v1.0.5 docked case needs a retracted position");
+            assert_eq!(
+                positions.retracted,
+                (expected.x, expected.y),
+                "fixture {}",
+                case.id
+            );
+        }
+    }
+
+    #[test]
+    fn v107_privacy_tab_keeps_34_logical_pixels_visible() {
+        let fixture = v107_geometry_fixture();
+        assert_eq!(fixture.contract.privacy_tab_logical_px, 34);
+        assert_eq!(
+            MINI_EDGE_PRIVACY_TAB_LOGICAL_PX, fixture.contract.privacy_tab_logical_px,
+            "production privacy-tab width must follow the v1.0.7 contract"
+        );
+        for case in fixture.dock_cases {
+            let side = match case.expected_side.as_str() {
+                "left" => EdgeDockSide::Left,
+                "right" => EdgeDockSide::Right,
+                other => panic!("unexpected v1.0.7 fixture side: {other}"),
+            };
+            let positions = edge_dock_positions(
+                Rect::from(&case.window),
+                Rect::from(&case.work_area),
+                side,
+                case.scale_factor,
+                fixture.contract.privacy_tab_logical_px,
+            );
+            let expected = case
+                .expected_retracted
+                .as_ref()
+                .expect("v1.0.7 docked case needs a retracted position");
             assert_eq!(
                 positions.retracted,
                 (expected.x, expected.y),

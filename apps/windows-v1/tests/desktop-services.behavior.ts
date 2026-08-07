@@ -50,6 +50,12 @@ const bridge: DesktopBridge = {
         message: "日期调整已应用",
         draft_preserved: false,
       },
+      save_date_overtime_transaction: {
+        status: "saved",
+        message: "日期与关联加班已保存",
+        draft_preserved: false,
+        overtime_changed: true,
+      },
     };
     return results[command] as T;
   },
@@ -212,6 +218,23 @@ await dashboard.resolveOwnerDate("2026-07-24", "10:00:00", schedule);
 await dashboard.resolveMonthDays("2026-07", schedule, calendar);
 await dashboard.resolveNextWorkday("2026-07-24", schedule, calendar);
 await dashboard.saveDateOverride("2026-07-24", "paid_rest");
+await dashboard.saveDateOvertimeTransaction("2026-07-25", "workday", {
+  action: "upsert",
+  request: {
+    business_date: "2026-07-25",
+    minutes: 480,
+    hourly_rate_fen_snapshot: 6250,
+    origin: "manual_weekend_work",
+    boundary_snapshot: {
+      basis: "planned_shift_gap",
+      current_shift_end: "2026-07-25T18:00:00+08:00",
+      next_actual_work_start: "2026-07-27T08:00:00+08:00",
+      maximum_minutes: 1440,
+      calendar_source: "manual",
+    },
+    linked_override_date: "2026-07-25",
+  },
+});
 
 const commandSequence = calls.map(call => call.command).join(",");
 assert(
@@ -223,7 +246,7 @@ assert(
       + "open_data_directory,diagnostic_summary,evaluate_update_response,"
       + "record_semantic_event,load_calendar_year,calculate_month_salary,"
       + "calculate_today_income,resolve_schedule_owner_date,resolve_calendar_month,"
-      + "resolve_next_workday,save_date_override",
+      + "resolve_next_workday,save_date_override,save_date_overtime_transaction",
   "services must preserve the published Rust command contract",
 );
 assert(

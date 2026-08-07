@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "evidence_id": "V10F-M7-AUTOMATION-20260804",
+  "milestone": "M7",
+  "product_version": "1.0.8",
+  "source_head": "1801626a153a9644f448729dabc51ee9f88a0d9e",
+  "source_tree_dirty": true,
+  "executed_at_utc": "2026-08-04T15:34:13.9250670Z",
+  "results": {
+    "current_manifest": "passed",
+    "v10f_m1": "passed",
+    "v10f_m5": "passed",
+    "v10f_m6": "passed",
+    "v10f_m7": "passed",
+    "architecture_behavior": "passed",
+    "typescript_strict": "passed",
+    "vite_production_build": "passed",
+    "rust_tests": {
+      "status": "passed",
+      "passed": 77,
+      "failed": 0
+    },
+    "rust_fmt": "passed",
+    "rust_clippy": "passed",
+    "git_diff_check": "passed"
+  },
+  "package_fixture_results": {
+    "candidate": "passed",
+    "published": "passed",
+    "private_log_rejection": "passed"
+  },
+  "cold_start": {
+    "mini_baseline_ms": 6217,
+    "mini_optimized_ms": 861,
+    "mini_gain_percent": 86.151,
+    "workbench_baseline_ms": 6589,
+    "workbench_optimized_ms": 1211,
+    "workbench_gain_percent": 81.621
+  },
+  "candidate_generated": false,
+  "publication_allowed": false,
+  "remaining_gates": [
+    "Create an owner-approved clean release commit",
+    "Build and hash one isolated v1.0.8 candidate",
+    "Complete real Windows 11 100%, 125%, and 150% DPI acceptance",
+    "Complete independent candidate acceptance"
+  ],
+  "evidence_storage": {
+    "summary": "repository",
+    "raw_console_log": "temporary-local",
+    "screenshots": "not-collected"
+  }
+}

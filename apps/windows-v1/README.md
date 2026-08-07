@@ -32,7 +32,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
 
 也可以运行 `scripts\verify_v10.ps1` 执行聚合验证。
 
-历史增量验证入口位于仓库根目录，并只用于复核对应版本。当前开发聚合入口为 `scripts\verify_windows_current.ps1`；当前开发合同由 `scripts\current-manifest.json` 标识。v1.0.7 使用 `scripts\package_v107.ps1` 生成隔离候选，并由 `scripts\verify_v107.ps1` 与 `scripts\verify_v107_package.ps1` 复核；当前公开发布身份以仓库根目录 `README.md`、`doc/current.md` 和 v1.0.7 GitHub Release 为准。
+历史增量验证入口位于仓库根目录，并只用于复核对应版本。当前开发聚合入口为 `scripts\verify_windows_current.ps1`；当前开发合同由 `scripts\current-manifest.json` 标识。v1.0.8 开发候选使用 `scripts\package_v10f.ps1` 生成，并由 `scripts\verify_v10f_package.ps1` 复核；在 v1.0.8 正式发布前，公开发布身份仍以仓库根目录 `README.md`、`doc/current.md` 和 v1.0.7 GitHub Release 为准。
 
 ## 架构行为验证
 

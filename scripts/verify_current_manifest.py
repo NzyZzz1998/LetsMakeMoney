@@ -91,7 +91,7 @@ def validate_manifest_data(
         raise ManifestError("current Zip filename does not match version")
     if artifacts.get("checksum_name") != "SHA256SUMS.txt":
         raise ManifestError("checksum filename contract drift")
-    if artifacts.get("build_info_name") != "BUILD-INFO.txt":
+    if artifacts.get("build_info_name") != "BUILD-INFO.json":
         raise ManifestError("BUILD-INFO filename contract drift")
     if artifacts.get("executable_name") != "LetsMakeMoney.exe":
         raise ManifestError("executable filename contract drift")

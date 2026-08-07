@@ -1,7 +1,21 @@
-import { useCallback, useEffect, useReducer, useRef } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { Button, Feedback, IconButton, SegmentedControl } from "../../components";
 import { recordSemanticEvent, saveDateOverride } from "../../model";
+import { dashboardService, type LinkedOvertimeAction } from "../../services/dashboardService";
 import { formatFullDate } from "../../utils/presentationFormatters";
+import {
+  isManualWeekendWork,
+  resolveDateOvertimeDecision,
+  suggestedOvertimeDraft,
+  type LinkedOvertimeChoice,
+} from "./dateOvertimeDecision";
+import {
+  formatOvertimeHours,
+  parseOvertimeHours,
+  type OvertimeBoundaryResolution,
+  type OvertimeRecord,
+} from "./overtimeModel";
+import { overtimeService } from "./overtimeService";
 import {
   createDateOverrideEditorState,
   reduceDateOverrideEditor,
@@ -18,6 +32,7 @@ export interface DateOverrideDay {
 
 interface DateOverrideEditorProps {
   day: DateOverrideDay;
+  currentHourlyRateFen: number;
   onApplied(message: string): void;
   onClose(): void;
 }
@@ -29,7 +44,12 @@ function nextTransactionId(date: string): string {
   return `date-override-${date}-${transactionSequence}`;
 }
 
-export function DateOverrideEditor({ day, onApplied, onClose }: DateOverrideEditorProps) {
+export function DateOverrideEditor({
+  day,
+  currentHourlyRateFen,
+  onApplied,
+  onClose,
+}: DateOverrideEditorProps) {
   const [state, dispatch] = useReducer(
     reduceDateOverrideEditor,
     createDateOverrideEditorState(
@@ -38,6 +58,18 @@ export function DateOverrideEditor({ day, onApplied, onClose }: DateOverrideEdit
     ),
   );
   const transactionId = useRef(nextTransactionId(day.date));
+  const [linkedRecord, setLinkedRecord] = useState<OvertimeRecord | null>(null);
+  const [boundary, setBoundary] = useState<OvertimeBoundaryResolution | null>(null);
+  const [overtimeDraft, setOvertimeDraft] = useState("8");
+  const [linkedChoice, setLinkedChoice] = useState<LinkedOvertimeChoice>(null);
+  const [linkFeedback, setLinkFeedback] = useState<string | null>(null);
+  const [linkLoading, setLinkLoading] = useState(overtimeService.isDesktop);
+
+  const manualWeekendWork = isManualWeekendWork(state.draft, boundary);
+  const parsedOvertime = useMemo(
+    () => parseOvertimeHours(overtimeDraft, boundary?.snapshot.maximum_minutes),
+    [boundary?.snapshot.maximum_minutes, overtimeDraft],
+  );
 
   useEffect(() => {
     recordSemanticEvent(
@@ -45,6 +77,66 @@ export function DateOverrideEditor({ day, onApplied, onClose }: DateOverrideEdit
       `transaction=${transactionId.current};date=${day.date};automatic=${day.automatic_kind};source=${day.automatic_source};current=${state.persisted}`,
     );
   }, [day.automatic_kind, day.automatic_source, day.date, state.persisted]);
+
+  useEffect(() => {
+    if (!overtimeService.isDesktop) return;
+    let active = true;
+    setLinkLoading(true);
+    overtimeService.readDate(day.date)
+      .then(result => {
+        if (!active) return;
+        if (result.status === "failed" || result.status === "corrupt") {
+          setLinkFeedback(result.message);
+          return;
+        }
+        const record = result.records.find(item =>
+          item.origin === "manual_weekend_work" && item.linked_override_date === day.date,
+        ) ?? null;
+        setLinkedRecord(record);
+        if (record) setOvertimeDraft(formatOvertimeHours(record.minutes));
+      })
+      .catch(error => {
+        if (active) setLinkFeedback(`关联加班读取失败：${error instanceof Error ? error.message : String(error)}`);
+      })
+      .finally(() => {
+        if (active) setLinkLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [day.date]);
+
+  useEffect(() => {
+    if (!overtimeService.isDesktop || state.draft !== "workday") {
+      setBoundary(null);
+      return;
+    }
+    let active = true;
+    setLinkLoading(true);
+    overtimeService.resolveBoundary(
+      day.date,
+      -new Date().getTimezoneOffset(),
+      "workday",
+    )
+      .then(result => {
+        if (!active) return;
+        setBoundary(result);
+        setLinkFeedback(null);
+        const suggestion = suggestedOvertimeDraft(result, linkedRecord);
+        if (suggestion !== null) setOvertimeDraft(suggestion);
+      })
+      .catch(error => {
+        if (!active) return;
+        setBoundary(null);
+        setLinkFeedback(`无法计算联动加班上限：${error instanceof Error ? error.message : String(error)}`);
+      })
+      .finally(() => {
+        if (active) setLinkLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [day.date, linkedRecord, state.draft]);
 
   const close = useCallback(() => {
     dispatch({ type: "cancelled" });
@@ -64,18 +156,49 @@ export function DateOverrideEditor({ day, onApplied, onClose }: DateOverrideEdit
   }, [close]);
 
   const apply = async () => {
-    if (!shouldSubmitDateOverride(state)) {
-      dispatch({ type: "unchanged", message: "日期设置没有变化" });
+    const decision = resolveDateOvertimeDecision({
+      dateChanged: shouldSubmitDateOverride(state),
+      selection: state.draft,
+      boundary,
+      linkedRecord,
+      overtimeDraft,
+      linkedChoice,
+    });
+    if (decision.type === "unchanged") {
+      dispatch({ type: "unchanged", message: decision.message });
       recordSemanticEvent(
         "calendar.override.unchanged",
         `transaction=${transactionId.current};date=${day.date};kind=${state.draft};source=client_guard`,
       );
       return;
     }
+    if (decision.type === "error") {
+      dispatch({ type: "failed", message: decision.message });
+      return;
+    }
     dispatch({ type: "saving" });
     const kind = state.draft === "automatic" ? null : state.draft;
     try {
-      const result = await saveDateOverride(day.date, kind);
+      let result;
+      if (dashboardService.isDesktop && decision.type === "upsert") {
+        if (!boundary) throw new Error("尚未取得本次加班上限");
+        result = await dashboardService.saveDateOvertimeTransaction(day.date, kind, {
+          action: "upsert",
+          request: {
+            business_date: day.date,
+            minutes: decision.minutes,
+            hourly_rate_fen_snapshot: currentHourlyRateFen,
+            origin: boundary.origin,
+            boundary_snapshot: boundary.snapshot,
+            linked_override_date: boundary.linked_override_date,
+          },
+        });
+      } else if (dashboardService.isDesktop && decision.type === "linked") {
+        const overtime: LinkedOvertimeAction = { action: decision.action };
+        result = await dashboardService.saveDateOvertimeTransaction(day.date, kind, overtime);
+      } else {
+        result = await saveDateOverride(day.date, kind);
+      }
       if (result.status === "failed") {
         dispatch({ type: "failed", message: result.message });
         recordSemanticEvent(
@@ -123,7 +246,10 @@ export function DateOverrideEditor({ day, onApplied, onClose }: DateOverrideEdit
         </div>
         <SegmentedControl
           value={state.draft}
-          onChange={value => dispatch({ type: "changed", value: value as DateOverrideSelection })}
+          onChange={value => {
+            setLinkedChoice(null);
+            dispatch({ type: "changed", value: value as DateOverrideSelection });
+          }}
           options={[
             { value: "automatic", label: "自动判断" },
             { value: "workday", label: "工作日" },
@@ -131,6 +257,49 @@ export function DateOverrideEditor({ day, onApplied, onClose }: DateOverrideEdit
             { value: "unpaid_rest", label: "不带薪休息", disabled: automaticIsRest },
           ]}
         />
+        {linkLoading && <p className="date-editor__link-status" role="status">正在核对关联加班…</p>}
+        {manualWeekendWork && boundary && (
+          <section className="date-editor__overtime-link" aria-label="周末工作联动加班">
+            <div>
+              <strong>同时记录加班</strong>
+              <p>自然周末设为工作日时默认 8 小时，并按下次真实开工时间限制上限。</p>
+            </div>
+            <label>
+              <span>加班时长</span>
+              <span className="overtime-editor__input-wrap">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={overtimeDraft}
+                  onChange={event => setOvertimeDraft(event.target.value)}
+                  disabled={state.feedback === "saving"}
+                />
+                <span>小时</span>
+              </span>
+            </label>
+            <small>
+              本次最多 {formatOvertimeHours(boundary.snapshot.maximum_minutes)} 小时；保存时换算为最近一分钟。
+            </small>
+            {!parsedOvertime.ok && <Feedback tone="error">{parsedOvertime.message}</Feedback>}
+          </section>
+        )}
+        {linkedRecord && state.draft !== "workday" && (
+          <section className="date-editor__linked-choice" aria-label="关联加班处理">
+            <strong>该日期还有 {formatOvertimeHours(linkedRecord.minutes)} 小时关联加班</strong>
+            <p>恢复自动判断或休息状态时，请明确处理这条记录。</p>
+            <div>
+              <Button
+                variant={linkedChoice === "keep" ? "primary" : "secondary"}
+                onClick={() => setLinkedChoice("keep")}
+              >保留为独立加班</Button>
+              <Button
+                variant={linkedChoice === "delete" ? "primary" : "secondary"}
+                onClick={() => setLinkedChoice("delete")}
+              >删除关联加班</Button>
+            </div>
+          </section>
+        )}
+        {linkFeedback && <Feedback tone="error">{linkFeedback}</Feedback>}
         <div className="date-editor__actions">
           <Button variant="secondary" onClick={close}>取消</Button>
           <Button onClick={() => void apply()} disabled={state.feedback === "saving"}>

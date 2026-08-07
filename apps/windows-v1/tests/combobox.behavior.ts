@@ -14,10 +14,13 @@ assert(normalizeComboboxIndex(-2, 3) === 0, "negative indices must clamp to the 
 assert(normalizeComboboxIndex(8, 3) === 2, "overflow indices must clamp to the last option");
 assert(selectedComboboxIndex("single", ["double", "single", "alternating"]) === 1, "selected option must resolve");
 assert(selectedComboboxIndex("", ["big", "small"]) === 0, "empty values must keep the first option navigable");
+assert(selectedComboboxIndex("single", ["double", "single", "alternating"], [false, true, false]) === 0, "disabled selected values must fall back to an enabled option");
 assert(nextComboboxIndex(2, "ArrowDown", 3) === 0, "ArrowDown must wrap");
 assert(nextComboboxIndex(0, "ArrowUp", 3) === 2, "ArrowUp must wrap");
 assert(nextComboboxIndex(1, "Home", 3) === 0, "Home must select the first option");
 assert(nextComboboxIndex(1, "End", 3) === 2, "End must select the last option");
+assert(nextComboboxIndex(0, "ArrowDown", 3, [false, true, false]) === 2, "keyboard navigation must skip disabled options");
+assert(nextComboboxIndex(2, "ArrowDown", 3, [false, true, false]) === 0, "disabled-option navigation must wrap");
 
 const open = comboboxKeyAction({ key: "Enter", open: false, activeIndex: 0, selectedIndex: 1, optionCount: 3 });
 assert(open.type === "open" && open.index === 1, "Enter must open at the selected option");
@@ -30,4 +33,4 @@ assert(tab.type === "close" && !tab.restoreFocus, "Tab must close without trappi
 assert(shouldComboboxOpenUp({ triggerTop: 420, triggerBottom: 456, listHeight: 120, viewportHeight: 500 }), "near-bottom controls must open upward");
 assert(!shouldComboboxOpenUp({ triggerTop: 100, triggerBottom: 136, listHeight: 120, viewportHeight: 500 }), "controls with room below must open downward");
 
-console.log("combobox behavior: 14/14 passed");
+console.log("combobox behavior: 17/17 passed");

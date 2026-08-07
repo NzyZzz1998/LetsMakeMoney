@@ -3,7 +3,29 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::models::overtime::{validate_store, OvertimeStore, OvertimeStoreError};
+use serde::Deserialize;
+
+use crate::models::overtime::{
+    validate_store, OvertimeOrigin, OvertimeRecord, OvertimeStore, OvertimeStoreError,
+    LEGACY_OVERTIME_SCHEMA_VERSION, OVERTIME_SCHEMA_VERSION,
+};
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct LegacyOvertimeRecord {
+    business_date: String,
+    minutes: u16,
+    hourly_rate_fen_snapshot: i64,
+    created_at: String,
+    updated_at: String,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct LegacyOvertimeStore {
+    schema_version: u8,
+    records: Vec<LegacyOvertimeRecord>,
+}
 
 pub trait OvertimeRepository {
     fn load(&self) -> Result<OvertimeStore, OvertimeStoreError>;
@@ -55,9 +77,53 @@ impl FileOvertimeRepository {
     }
 
     fn parse_bytes(&self, bytes: &[u8]) -> Result<OvertimeStore, OvertimeStoreError> {
-        let parsed: OvertimeStore = serde_json::from_slice(bytes).map_err(|error| {
-            OvertimeStoreError::new("overtime_store_corrupt", error.to_string())
-        })?;
+        let schema_version = serde_json::from_slice::<serde_json::Value>(bytes)
+            .ok()
+            .and_then(|value| value.get("schema_version").and_then(|value| value.as_u64()))
+            .and_then(|value| u8::try_from(value).ok())
+            .ok_or_else(|| {
+                OvertimeStoreError::new("overtime_store_corrupt", "missing schema_version")
+            })?;
+        let parsed = match schema_version {
+            OVERTIME_SCHEMA_VERSION => serde_json::from_slice(bytes).map_err(|error| {
+                OvertimeStoreError::new("overtime_store_corrupt", error.to_string())
+            })?,
+            LEGACY_OVERTIME_SCHEMA_VERSION => {
+                let legacy: LegacyOvertimeStore =
+                    serde_json::from_slice(bytes).map_err(|error| {
+                        OvertimeStoreError::new("overtime_store_corrupt", error.to_string())
+                    })?;
+                if legacy.schema_version != LEGACY_OVERTIME_SCHEMA_VERSION {
+                    return Err(OvertimeStoreError::new(
+                        "overtime_store_corrupt",
+                        "legacy schema version mismatch",
+                    ));
+                }
+                OvertimeStore {
+                    schema_version: OVERTIME_SCHEMA_VERSION,
+                    records: legacy
+                        .records
+                        .into_iter()
+                        .map(|record| OvertimeRecord {
+                            business_date: record.business_date,
+                            minutes: record.minutes,
+                            hourly_rate_fen_snapshot: record.hourly_rate_fen_snapshot,
+                            origin: OvertimeOrigin::Independent,
+                            boundary_snapshot: None,
+                            linked_override_date: None,
+                            created_at: record.created_at,
+                            updated_at: record.updated_at,
+                        })
+                        .collect(),
+                }
+            }
+            _ => {
+                return Err(OvertimeStoreError::new(
+                    "overtime_store_corrupt",
+                    format!("unsupported overtime schema: {schema_version}"),
+                ))
+            }
+        };
         validate_store(&parsed)
             .map_err(|error| OvertimeStoreError::new("overtime_store_corrupt", error.message))?;
         Ok(parsed)
@@ -168,7 +234,10 @@ impl OvertimeRepository for FileOvertimeRepository {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::overtime::OvertimeRecord;
+    use crate::models::overtime::{
+        OvertimeBoundaryBasis, OvertimeBoundarySnapshot, OvertimeCalendarSource, OvertimeRecord,
+        OVERTIME_MAX_MINUTES,
+    };
 
     fn temp_store(name: &str) -> PathBuf {
         std::env::temp_dir().join(format!(
@@ -183,11 +252,20 @@ mod tests {
 
     fn populated() -> OvertimeStore {
         OvertimeStore {
-            schema_version: 1,
+            schema_version: OVERTIME_SCHEMA_VERSION,
             records: vec![OvertimeRecord {
                 business_date: "2026-08-03".into(),
                 minutes: 90,
                 hourly_rate_fen_snapshot: 6_250,
+                origin: OvertimeOrigin::Independent,
+                boundary_snapshot: Some(OvertimeBoundarySnapshot {
+                    basis: OvertimeBoundaryBasis::RestDayCap,
+                    current_shift_end: None,
+                    next_actual_work_start: None,
+                    maximum_minutes: OVERTIME_MAX_MINUTES,
+                    calendar_source: OvertimeCalendarSource::Estimated,
+                }),
+                linked_override_date: None,
                 created_at: "2026-08-03T11:30:00Z".into(),
                 updated_at: "2026-08-03T11:30:00Z".into(),
             }],
@@ -219,5 +297,39 @@ mod tests {
         assert_eq!(repository.load().unwrap(), OvertimeStore::default());
         let _ = fs::remove_file(path);
         let _ = fs::remove_file(recovered_backup);
+    }
+
+    #[test]
+    fn legacy_v1_records_migrate_in_memory_without_clipping_or_rate_changes() {
+        let path = temp_store("legacy-v1");
+        fs::write(
+            &path,
+            br#"{
+              "schema_version": 1,
+              "records": [{
+                "business_date": "2026-08-03",
+                "minutes": 1440,
+                "hourly_rate_fen_snapshot": 6250,
+                "created_at": "2026-08-03T11:30:00Z",
+                "updated_at": "2026-08-03T11:30:00Z"
+              }]
+            }"#,
+        )
+        .unwrap();
+        let repository = FileOvertimeRepository::new(&path);
+
+        let migrated = repository.load().unwrap();
+        assert_eq!(migrated.schema_version, OVERTIME_SCHEMA_VERSION);
+        assert_eq!(migrated.records[0].minutes, 1_440);
+        assert_eq!(migrated.records[0].hourly_rate_fen_snapshot, 6_250);
+        assert_eq!(migrated.records[0].origin, OvertimeOrigin::Independent);
+        assert!(migrated.records[0].boundary_snapshot.is_none());
+        assert!(migrated.records[0].linked_override_date.is_none());
+
+        repository.save(&migrated).unwrap();
+        let persisted: serde_json::Value =
+            serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+        assert_eq!(persisted["schema_version"], OVERTIME_SCHEMA_VERSION);
+        let _ = fs::remove_file(path);
     }
 }

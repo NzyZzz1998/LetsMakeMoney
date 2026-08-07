@@ -24,9 +24,10 @@ const state = {
     ["2026-07-28", "unpaid_rest"],
   ]),
   overtimeRecords: new Map([
-    ["2026-07-23", { minutes: 90, hourlyRateCents: 6250 }],
-    ["2026-08-03", { minutes: 60, hourlyRateCents: 6250 }],
+    ["2026-07-23", { minutes: 90, hourlyRateCents: 6250, origin: "independent" }],
+    ["2026-08-03", { minutes: 60, hourlyRateCents: 6250, origin: "independent" }],
   ]),
+  overtimeScenario: "planned",
   businessState: "working_after_rest",
   persistedTheme: "light",
   previewTheme: "light",
@@ -50,6 +51,7 @@ const toastStack = document.querySelector("#toast-stack");
 const productDialog = document.querySelector("#product-dialog");
 const calendarOverrideDialog = document.querySelector("#calendar-override-dialog");
 const overtimeDialog = document.querySelector("#overtime-dialog");
+const overtimeScenarioControl = document.querySelector("#overtime-scenario");
 const calendarGrid = document.querySelector(".calendar-grid");
 const calendarStatus = document.querySelector("#calendar-status");
 const themeModeControl = document.querySelector("#theme-mode");
@@ -912,6 +914,69 @@ function moveCalendarMonth(offset) {
   window.setTimeout(() => setCalendarMode("official"), 420);
 }
 
+function getOvertimeScenarioContract() {
+  const contracts = {
+    planned: {
+      selectedDate: "2026-07-23",
+      maxMinutes: 900,
+      origin: "independent",
+      originLabel: "计划班次",
+      title: "本次下班至下一次真实上班",
+      boundary: "7 月 23 日 18:00 → 7 月 24 日 09:00，共 15 小时",
+    },
+    weekend_linked: {
+      selectedDate: "2026-07-25",
+      maxMinutes: 1440,
+      origin: "manual_weekend_work",
+      originLabel: "周末工作联动",
+      title: "周末班次至下一次真实上班",
+      boundary: "周六 18:00 → 周一 09:00，间隔超过 24 小时，按 24 小时封顶",
+    },
+    rest_independent: {
+      selectedDate: "2026-07-26",
+      maxMinutes: 1440,
+      origin: "independent",
+      originLabel: "休息日独立录入",
+      title: "普通休息日独立上限",
+      boundary: "当天没有计划班次，不推断上下班边界；最多记录 24 小时",
+    },
+    linked_revert: {
+      selectedDate: "2026-07-25",
+      maxMinutes: 1440,
+      origin: "manual_weekend_work",
+      originLabel: "周末工作联动",
+      title: "关联日期调整",
+      boundary: "恢复自动或休息状态时，必须选择保留或删除关联加班",
+    },
+  };
+  return contracts[state.overtimeScenario] || contracts.planned;
+}
+
+function setOvertimeScenario(value) {
+  state.overtimeScenario = ["planned", "weekend_linked", "rest_independent", "linked_revert"].includes(value)
+    ? value
+    : "planned";
+  const contract = getOvertimeScenarioContract();
+  state.calendarYear = 2026;
+  state.calendarMonth = 6;
+  state.selectedDate = contract.selectedDate;
+
+  if (state.overtimeScenario === "weekend_linked") {
+    state.calendarOverrides.delete(contract.selectedDate);
+    state.overtimeRecords.delete(contract.selectedDate);
+  } else if (state.overtimeScenario === "linked_revert") {
+    state.calendarOverrides.set(contract.selectedDate, "workday");
+    state.overtimeRecords.set(contract.selectedDate, {
+      minutes: 480,
+      hourlyRateCents: 6250,
+      origin: "manual_weekend_work",
+      linkedOverrideDate: contract.selectedDate,
+      maximumMinutes: 1440,
+    });
+  }
+  setCalendarMode("official");
+}
+
 function openCalendarOverride() {
   if (["error", "loading", "stale"].includes(state.calendarMode)) {
     showToast("当前日历不可调整，请先恢复可用数据。", true);
@@ -937,6 +1002,7 @@ function openCalendarOverride() {
   document.querySelector("#override-leave-hint").hidden = canSetLeave;
   document.querySelector("#override-error").hidden = true;
   updateOverrideImpact();
+  updateLinkedOvertimePanels();
   calendarOverrideDialog.showModal();
 }
 
@@ -949,6 +1015,26 @@ function updateOverrideImpact() {
     unpaid_rest: "不计算工时，并从本月预计收入中扣除当天应计金额",
   };
   document.querySelector("#override-impact-copy").textContent = copy[value];
+  updateLinkedOvertimePanels();
+}
+
+function updateLinkedOvertimePanels() {
+  const value = document.querySelector('input[name="override-kind"]:checked')?.value || "auto";
+  const linkedPanel = document.querySelector("#linked-overtime-panel");
+  const removalPanel = document.querySelector("#linked-removal-panel");
+  const isWeekendLink = state.overtimeScenario === "weekend_linked" && value === "workday";
+  const hasLinkedRecord = state.overtimeRecords.get(state.selectedDate)?.origin === "manual_weekend_work";
+  const leavesWorkday = value !== "workday";
+  linkedPanel.hidden = !isWeekendLink;
+  removalPanel.hidden = !(hasLinkedRecord && leavesWorkday);
+  if (isWeekendLink) {
+    const contract = getOvertimeScenarioContract();
+    const defaultMinutes = Math.min(480, contract.maxMinutes);
+    document.querySelector("#linked-overtime-hours").value = String(defaultMinutes / 60);
+    document.querySelector("#linked-overtime-limit").textContent =
+      `默认 ${formatDuration(defaultMinutes)}；本次上限 ${formatDuration(contract.maxMinutes)}`;
+    document.querySelector("#linked-overtime-boundary").textContent = contract.boundary;
+  }
 }
 
 function closeCalendarOverride() {
@@ -958,7 +1044,20 @@ function closeCalendarOverride() {
 
 function applyCalendarOverride() {
   const value = document.querySelector('input[name="override-kind"]:checked')?.value || "auto";
+  const contract = getOvertimeScenarioContract();
+  const linksWeekendOvertime = state.overtimeScenario === "weekend_linked" && value === "workday";
+  const linkedMinutes = linksWeekendOvertime
+    ? parseOvertimeMinutes(document.querySelector("#linked-overtime-hours").value, contract.maxMinutes)
+    : 0;
+  if (linksWeekendOvertime && linkedMinutes === null) {
+    document.querySelector("#override-error").textContent =
+      `联动加班必须在 0–${contract.maxMinutes / 60} 小时之间，最多两位小数。`;
+    document.querySelector("#override-error").hidden = false;
+    return;
+  }
   if (document.querySelector("#failure-mode").checked) {
+    document.querySelector("#override-error").textContent =
+      "原子保存失败：日期调整与关联加班均未写入，当前输入已保留，可重试。";
     document.querySelector("#override-error").hidden = false;
     return;
   }
@@ -967,9 +1066,33 @@ function applyCalendarOverride() {
   } else {
     state.calendarOverrides.set(state.selectedDate, value);
   }
+  if (linksWeekendOvertime && linkedMinutes > 0) {
+    state.overtimeRecords.set(state.selectedDate, {
+      minutes: linkedMinutes,
+      hourlyRateCents: 6250,
+      origin: "manual_weekend_work",
+      linkedOverrideDate: state.selectedDate,
+      maximumMinutes: contract.maxMinutes,
+    });
+  }
+  const linkedAction = document.querySelector('input[name="linked-overtime-action"]:checked')?.value || "keep";
+  const existingRecord = state.overtimeRecords.get(state.selectedDate);
+  if (existingRecord?.origin === "manual_weekend_work" && value !== "workday") {
+    if (linkedAction === "delete") {
+      state.overtimeRecords.delete(state.selectedDate);
+    } else {
+      state.overtimeRecords.set(state.selectedDate, {
+        ...existingRecord,
+        origin: "independent",
+        linkedOverrideDate: null,
+      });
+    }
+  }
   buildCalendar();
   closeCalendarOverride();
-  showToast("日期调整已应用，相关收入与状态已重新计算。");
+  showToast(linksWeekendOvertime
+    ? "日期调整与关联加班已原子保存。"
+    : "日期调整已应用，相关收入与状态已重新计算。");
 }
 
 function setCalendarWeeks(value) {
@@ -993,11 +1116,19 @@ function openOvertimeDialog() {
   }
   const [year, month, day] = state.selectedDate.split("-").map(Number);
   const record = state.overtimeRecords.get(state.selectedDate);
+  const contract = getOvertimeScenarioContract();
   document.querySelector("#overtime-date-title").textContent = `${year} 年 ${month} 月 ${day} 日`;
   document.querySelector("#overtime-hours").value = record
     ? String(Math.round((record.minutes / 60) * 100) / 100)
     : "";
   document.querySelector("#overtime-delete").disabled = !record;
+  document.querySelector("#overtime-origin").textContent = record?.origin === "manual_weekend_work"
+    ? "周末工作联动"
+    : contract.originLabel;
+  document.querySelector("#overtime-limit-copy").textContent =
+    `本次上限 ${formatDuration(contract.maxMinutes)}；最多两位小数，0 表示删除`;
+  document.querySelector("#overtime-boundary-title").textContent = contract.title;
+  document.querySelector("#overtime-boundary-copy").textContent = contract.boundary;
   document.querySelector("#overtime-error").hidden = true;
   overtimeDialog.showModal();
   window.setTimeout(() => document.querySelector("#overtime-hours").focus(), 0);
@@ -1008,20 +1139,22 @@ function closeOvertimeDialog() {
   overtimeDialog.close();
 }
 
-function parseOvertimeMinutes(rawValue) {
+function parseOvertimeMinutes(rawValue, maximumMinutes = 1440) {
   const normalized = rawValue.trim();
   if (!/^\d{1,2}(?:\.\d{1,2})?$/.test(normalized)) return null;
   const hours = Number(normalized);
-  if (!Number.isFinite(hours) || hours < 0 || hours > 24) return null;
-  return Math.round(hours * 60);
+  const minutes = Math.round(hours * 60);
+  if (!Number.isFinite(hours) || hours < 0 || minutes > maximumMinutes) return null;
+  return minutes;
 }
 
 function saveOvertimeRecord() {
   const input = document.querySelector("#overtime-hours");
-  const minutes = parseOvertimeMinutes(input.value);
+  const contract = getOvertimeScenarioContract();
+  const minutes = parseOvertimeMinutes(input.value, contract.maxMinutes);
   const error = document.querySelector("#overtime-error");
   if (minutes === null) {
-    error.textContent = "请输入 0–24 之间的小时数，最多保留两位小数。";
+    error.textContent = `请输入 0–${contract.maxMinutes / 60} 之间的小时数，最多保留两位小数。`;
     error.hidden = false;
     input.focus();
     return;
@@ -1037,11 +1170,17 @@ function saveOvertimeRecord() {
     state.overtimeRecords.set(state.selectedDate, {
       minutes,
       hourlyRateCents: 6250,
+      origin: recordOriginForScenario(contract),
+      maximumMinutes: contract.maxMinutes,
     });
   }
   buildCalendar();
   closeOvertimeDialog();
   showToast(minutes === 0 ? "加班记录已删除。" : `已记录加班 ${formatDuration(minutes)}。`);
+}
+
+function recordOriginForScenario(contract) {
+  return contract.origin === "manual_weekend_work" ? "manual_weekend_work" : "independent";
 }
 
 function deleteOvertimeRecord() {
@@ -1369,6 +1508,7 @@ document.querySelector("#calendar-prev").addEventListener("click", () => moveCal
 document.querySelector("#calendar-next").addEventListener("click", () => moveCalendarMonth(1));
 document.querySelector("#calendar-adjust").addEventListener("click", openCalendarOverride);
 document.querySelector("#calendar-overtime").addEventListener("click", openOvertimeDialog);
+overtimeScenarioControl.addEventListener("change", (event) => setOvertimeScenario(event.target.value));
 document.querySelector("#calendar-weeks").addEventListener("change", (event) => setCalendarWeeks(event.target.value));
 document.querySelector("#adjust-today").addEventListener("click", () => {
   state.calendarYear = 2026;
@@ -1547,4 +1687,5 @@ showSettingsPanel("income");
 syncAlternatingWeekChoice();
 syncSettingsWeekChoice();
 setWizardStep(1);
+setOvertimeScenario(overtimeScenarioControl.value);
 showWindow("mini");

@@ -1,9 +1,16 @@
 use std::sync::Mutex;
 
+use time::{
+    format_description, format_description::well_known::Rfc3339, Date, Duration, OffsetDateTime,
+};
+
+use crate::domain::{self, DayKind};
 use crate::models::overtime::{
-    now_rfc3339, validate_business_date, OvertimeMutationResponse, OvertimeMutationStatus,
+    now_rfc3339, validate_business_date, OvertimeBoundaryBasis, OvertimeBoundaryResolution,
+    OvertimeBoundarySnapshot, OvertimeMutationResponse, OvertimeMutationStatus, OvertimeOrigin,
     OvertimeReadResponse, OvertimeReadStatus, OvertimeRecord, OvertimeStoreError,
-    SaveOvertimeRequest, OVERTIME_SCHEMA_VERSION,
+    ResolveOvertimeBoundaryRequest, SaveOvertimeRequest, OVERTIME_MAX_MINUTES,
+    OVERTIME_SCHEMA_VERSION,
 };
 use crate::repositories::overtime_repository::OvertimeRepository;
 
@@ -18,6 +25,103 @@ impl Default for OvertimeRuntime {
 pub struct OvertimeService;
 
 impl OvertimeService {
+    pub fn resolve_boundary(
+        request: &ResolveOvertimeBoundaryRequest,
+    ) -> Result<OvertimeBoundaryResolution, OvertimeStoreError> {
+        validate_business_date(&request.business_date)?;
+        if !(-840..=840).contains(&request.utc_offset_minutes) {
+            return Err(OvertimeStoreError::new(
+                "overtime_timezone_invalid",
+                "时区偏移无效",
+            ));
+        }
+        let resolved =
+            domain::resolve_day(&request.business_date, &request.schedule, &request.calendar)
+                .map_err(|error| OvertimeStoreError::new("overtime_boundary_failed", error))?;
+        if resolved.kind == DayKind::RestDay {
+            return Ok(OvertimeBoundaryResolution {
+                snapshot: OvertimeBoundarySnapshot {
+                    basis: OvertimeBoundaryBasis::RestDayCap,
+                    current_shift_end: None,
+                    next_actual_work_start: None,
+                    maximum_minutes: OVERTIME_MAX_MINUTES,
+                    calendar_source: request.calendar_source,
+                },
+                suggested_minutes: None,
+                origin: OvertimeOrigin::Independent,
+                linked_override_date: None,
+                day_source: resolved.source,
+            });
+        }
+
+        let shift_crosses_midnight =
+            request.schedule.work_end_time <= request.schedule.work_start_time;
+        let shift_end_date = if shift_crosses_midnight {
+            add_days(&request.business_date, 1)?
+        } else {
+            request.business_date.clone()
+        };
+        let next_work_date =
+            domain::next_workday(&request.business_date, &request.schedule, &request.calendar)
+                .map_err(|error| OvertimeStoreError::new("overtime_boundary_failed", error))?
+                .ok_or_else(|| {
+                    OvertimeStoreError::new(
+                        "overtime_next_workday_unavailable",
+                        "无法解析下一次真实开工日期",
+                    )
+                })?;
+        let current_shift_end = timestamp(
+            &shift_end_date,
+            &request.schedule.work_end_time,
+            request.utc_offset_minutes,
+        )?;
+        let next_actual_work_start = timestamp(
+            &next_work_date,
+            &request.schedule.work_start_time,
+            request.utc_offset_minutes,
+        )?;
+        let gap_minutes = (next_actual_work_start - current_shift_end).whole_minutes();
+        if gap_minutes <= 0 {
+            return Err(OvertimeStoreError::new(
+                "overtime_boundary_non_positive",
+                "本次下班到下一次开工之间没有可录入时长",
+            ));
+        }
+        let maximum_minutes = gap_minutes.min(i64::from(OVERTIME_MAX_MINUTES)) as u16;
+        let automatic = domain::resolve_day_automatic(
+            &request.business_date,
+            &request.schedule,
+            &request.calendar,
+        )
+        .map_err(|error| OvertimeStoreError::new("overtime_boundary_failed", error))?;
+        let manual_weekend = resolved.source == "manual_workday"
+            && automatic.kind == DayKind::RestDay
+            && is_weekend(&request.business_date)?;
+        let origin = if manual_weekend {
+            OvertimeOrigin::ManualWeekendWork
+        } else {
+            OvertimeOrigin::Independent
+        };
+
+        Ok(OvertimeBoundaryResolution {
+            snapshot: OvertimeBoundarySnapshot {
+                basis: OvertimeBoundaryBasis::PlannedShiftGap,
+                current_shift_end: Some(current_shift_end.format(&Rfc3339).map_err(|error| {
+                    OvertimeStoreError::new("overtime_boundary_failed", error.to_string())
+                })?),
+                next_actual_work_start: Some(next_actual_work_start.format(&Rfc3339).map_err(
+                    |error| OvertimeStoreError::new("overtime_boundary_failed", error.to_string()),
+                )?),
+                maximum_minutes,
+                calendar_source: request.calendar_source,
+            },
+            suggested_minutes: manual_weekend.then_some(480.min(maximum_minutes)),
+            origin,
+            linked_override_date: manual_weekend.then(|| request.business_date.clone()),
+            day_source: resolved.source,
+        })
+    }
+
     pub fn read_record(
         repository: &impl OvertimeRepository,
         business_date: &str,
@@ -90,7 +194,7 @@ impl OvertimeService {
         if let Err(error) = validate_business_date(&request.business_date) {
             return mutation_failure(error);
         }
-        if request.minutes > 1_440 {
+        if request.minutes > OVERTIME_MAX_MINUTES {
             return mutation_failure(OvertimeStoreError::new(
                 "overtime_minutes_out_of_range",
                 "加班时长不能超过 24 小时",
@@ -105,6 +209,21 @@ impl OvertimeService {
         if request.minutes == 0 {
             return Self::delete_record(repository, &request.business_date);
         }
+        let boundary = match request.boundary_snapshot.as_ref() {
+            Some(boundary) => boundary,
+            None => {
+                return mutation_failure(OvertimeStoreError::new(
+                    "overtime_boundary_required",
+                    "保存前必须重新计算本次加班上限",
+                ))
+            }
+        };
+        if request.minutes > boundary.maximum_minutes {
+            return mutation_failure(OvertimeStoreError::new(
+                "overtime_minutes_exceed_boundary",
+                format!("加班时长不能超过本次上限 {} 分钟", boundary.maximum_minutes),
+            ));
+        }
         let mut store = match repository.load() {
             Ok(store) => store,
             Err(error) => return mutation_failure(error),
@@ -118,7 +237,11 @@ impl OvertimeService {
             .iter_mut()
             .find(|record| record.business_date == request.business_date)
         {
-            if existing.minutes == request.minutes {
+            if existing.minutes == request.minutes
+                && existing.origin == request.origin
+                && existing.boundary_snapshot == request.boundary_snapshot
+                && existing.linked_override_date == request.linked_override_date
+            {
                 return OvertimeMutationResponse {
                     status: OvertimeMutationStatus::Unchanged,
                     schema_version: OVERTIME_SCHEMA_VERSION,
@@ -129,6 +252,9 @@ impl OvertimeService {
                 };
             }
             existing.minutes = request.minutes;
+            existing.origin = request.origin;
+            existing.boundary_snapshot = request.boundary_snapshot;
+            existing.linked_override_date = request.linked_override_date;
             existing.updated_at = now;
             existing.clone()
         } else {
@@ -136,6 +262,9 @@ impl OvertimeService {
                 business_date: request.business_date,
                 minutes: request.minutes,
                 hourly_rate_fen_snapshot: request.hourly_rate_fen_snapshot,
+                origin: request.origin,
+                boundary_snapshot: request.boundary_snapshot,
+                linked_override_date: request.linked_override_date,
                 created_at: now.clone(),
                 updated_at: now,
             };
@@ -211,6 +340,48 @@ impl OvertimeService {
     }
 }
 
+fn date_format() -> Result<Vec<format_description::BorrowedFormatItem<'static>>, OvertimeStoreError>
+{
+    format_description::parse_borrowed::<2>("[year]-[month]-[day]")
+        .map_err(|error| OvertimeStoreError::new("overtime_boundary_failed", error.to_string()))
+}
+
+fn parse_date(value: &str) -> Result<Date, OvertimeStoreError> {
+    Date::parse(value, &date_format()?)
+        .map_err(|error| OvertimeStoreError::new("overtime_date_invalid", error.to_string()))
+}
+
+fn add_days(value: &str, days: i64) -> Result<String, OvertimeStoreError> {
+    parse_date(value)?
+        .checked_add(Duration::days(days))
+        .ok_or_else(|| OvertimeStoreError::new("overtime_date_invalid", "date overflow"))?
+        .format(&date_format()?)
+        .map_err(|error| OvertimeStoreError::new("overtime_date_invalid", error.to_string()))
+}
+
+fn is_weekend(value: &str) -> Result<bool, OvertimeStoreError> {
+    Ok(matches!(
+        parse_date(value)?.weekday(),
+        time::Weekday::Saturday | time::Weekday::Sunday
+    ))
+}
+
+fn timestamp(
+    date: &str,
+    hhmm: &str,
+    utc_offset_minutes: i16,
+) -> Result<OffsetDateTime, OvertimeStoreError> {
+    let sign = if utc_offset_minutes < 0 { '-' } else { '+' };
+    let absolute = i32::from(utc_offset_minutes).abs();
+    let value = format!(
+        "{date}T{hhmm}:00{sign}{:02}:{:02}",
+        absolute / 60,
+        absolute % 60
+    );
+    OffsetDateTime::parse(&value, &Rfc3339)
+        .map_err(|error| OvertimeStoreError::new("overtime_boundary_failed", error.to_string()))
+}
+
 fn valid_month(month: &str) -> bool {
     let bytes = month.as_bytes();
     bytes.len() == 7
@@ -262,7 +433,11 @@ fn mutation_failure(error: OvertimeStoreError) -> OvertimeMutationResponse {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::overtime::OvertimeStore;
+    use crate::domain::{CalendarData, DateOverride, DateOverrideKind, RestMode, SalarySchedule};
+    use crate::models::overtime::{
+        OvertimeBoundaryBasis, OvertimeBoundarySnapshot, OvertimeCalendarSource, OvertimeOrigin,
+        OvertimeStore,
+    };
     use std::sync::Mutex;
 
     struct MemoryRepository {
@@ -315,6 +490,29 @@ mod tests {
             business_date: date.into(),
             minutes,
             hourly_rate_fen_snapshot: rate,
+            origin: OvertimeOrigin::Independent,
+            boundary_snapshot: Some(OvertimeBoundarySnapshot {
+                basis: OvertimeBoundaryBasis::RestDayCap,
+                current_shift_end: None,
+                next_actual_work_start: None,
+                maximum_minutes: OVERTIME_MAX_MINUTES,
+                calendar_source: OvertimeCalendarSource::Estimated,
+            }),
+            linked_override_date: None,
+        }
+    }
+
+    fn schedule() -> SalarySchedule {
+        SalarySchedule {
+            monthly_salary_minor: 1_000_000,
+            rest_mode: RestMode::Double,
+            alternating_anchor_date: None,
+            alternating_anchor_week_type: None,
+            work_hours_per_day: 8.0,
+            work_start_time: "09:00".into(),
+            work_end_time: "18:00".into(),
+            lunch_start_time: "12:00".into(),
+            lunch_end_time: "13:00".into(),
         }
     }
 
@@ -364,5 +562,111 @@ mod tests {
         let save = OvertimeService::save_record(&repository, request("2026-08-03", 30, 6_250));
         assert_eq!(save.status, OvertimeMutationStatus::Corrupt);
         assert_eq!(repository.writes(), 0);
+    }
+
+    #[test]
+    fn new_writes_require_and_enforce_a_boundary_snapshot() {
+        let repository = MemoryRepository::empty();
+        let mut missing = request("2026-08-03", 30, 6_250);
+        missing.boundary_snapshot = None;
+        assert_eq!(
+            OvertimeService::save_record(&repository, missing)
+                .error_code
+                .as_deref(),
+            Some("overtime_boundary_required")
+        );
+
+        let mut exceeds = request("2026-08-03", 31, 6_250);
+        exceeds.boundary_snapshot.as_mut().unwrap().maximum_minutes = 30;
+        assert_eq!(
+            OvertimeService::save_record(&repository, exceeds)
+                .error_code
+                .as_deref(),
+            Some("overtime_minutes_exceed_boundary")
+        );
+        assert_eq!(repository.writes(), 0);
+    }
+
+    #[test]
+    fn manual_weekend_work_suggests_eight_hours_but_official_adjustment_does_not() {
+        let manual_calendar = CalendarData {
+            date_overrides: vec![DateOverride {
+                date: "2026-08-08".into(),
+                kind: DateOverrideKind::Workday,
+                note: String::new(),
+            }],
+            ..CalendarData::default()
+        };
+        let manual = OvertimeService::resolve_boundary(&ResolveOvertimeBoundaryRequest {
+            business_date: "2026-08-08".into(),
+            schedule: schedule(),
+            calendar: manual_calendar,
+            calendar_source: OvertimeCalendarSource::Official,
+            utc_offset_minutes: 480,
+        })
+        .unwrap();
+        assert_eq!(manual.origin, OvertimeOrigin::ManualWeekendWork);
+        assert_eq!(manual.suggested_minutes, Some(480));
+        assert_eq!(manual.snapshot.maximum_minutes, 1_440);
+        assert_eq!(manual.linked_override_date.as_deref(), Some("2026-08-08"));
+
+        let official = OvertimeService::resolve_boundary(&ResolveOvertimeBoundaryRequest {
+            business_date: "2026-08-08".into(),
+            schedule: schedule(),
+            calendar: CalendarData {
+                adjusted_workdays: vec!["2026-08-08".into()],
+                ..CalendarData::default()
+            },
+            calendar_source: OvertimeCalendarSource::Official,
+            utc_offset_minutes: 480,
+        })
+        .unwrap();
+        assert_eq!(official.origin, OvertimeOrigin::Independent);
+        assert_eq!(official.suggested_minutes, None);
+        assert_eq!(official.linked_override_date, None);
+    }
+
+    #[test]
+    fn dynamic_cap_can_be_less_than_eight_hours_and_rest_days_keep_the_24_hour_cap() {
+        let mut short_gap_schedule = schedule();
+        short_gap_schedule.work_start_time = "01:00".into();
+        short_gap_schedule.work_end_time = "23:00".into();
+        let calendar = CalendarData {
+            date_overrides: vec![
+                DateOverride {
+                    date: "2026-08-08".into(),
+                    kind: DateOverrideKind::Workday,
+                    note: String::new(),
+                },
+                DateOverride {
+                    date: "2026-08-09".into(),
+                    kind: DateOverrideKind::Workday,
+                    note: String::new(),
+                },
+            ],
+            ..CalendarData::default()
+        };
+        let short = OvertimeService::resolve_boundary(&ResolveOvertimeBoundaryRequest {
+            business_date: "2026-08-08".into(),
+            schedule: short_gap_schedule,
+            calendar,
+            calendar_source: OvertimeCalendarSource::Manual,
+            utc_offset_minutes: 480,
+        })
+        .unwrap();
+        assert_eq!(short.snapshot.maximum_minutes, 120);
+        assert_eq!(short.suggested_minutes, Some(120));
+
+        let rest = OvertimeService::resolve_boundary(&ResolveOvertimeBoundaryRequest {
+            business_date: "2026-08-09".into(),
+            schedule: schedule(),
+            calendar: CalendarData::default(),
+            calendar_source: OvertimeCalendarSource::Estimated,
+            utc_offset_minutes: 480,
+        })
+        .unwrap();
+        assert_eq!(rest.snapshot.basis, OvertimeBoundaryBasis::RestDayCap);
+        assert_eq!(rest.snapshot.maximum_minutes, OVERTIME_MAX_MINUTES);
+        assert_eq!(rest.suggested_minutes, None);
     }
 }

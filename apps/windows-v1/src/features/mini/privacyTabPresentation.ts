@@ -15,15 +15,21 @@ export interface PrivacyTabPresentation {
 
 type BoundaryAction = "上班" | "休息" | "恢复工作" | "下班";
 
-function durationText(seconds: number) {
+function compactBoundaryAction(action: BoundaryAction) {
+  return action === "恢复工作" ? "复工" : action;
+}
+
+function durationText(seconds: number, compact = false) {
   const minutes = Math.max(1, Math.ceil(seconds / 60));
-  if (minutes > 99 * 60) return "99+小时";
+  if (minutes > 99 * 60) return compact ? "99h+" : "99+小时";
   const hours = Math.floor(minutes / 60);
   const remainder = minutes % 60;
-  if (hours === 0) return `${minutes}分钟`;
-  return remainder === 0
-    ? `${hours}小时`
-    : `${hours}小时${remainder}分`;
+  if (hours === 0) return compact ? `${minutes}分` : `${minutes}分钟`;
+  if (compact) {
+    const decimalHours = Math.round((minutes / 60) * 10) / 10;
+    return `${decimalHours}h`;
+  }
+  return remainder === 0 ? `${hours}小时` : `${hours}小时${remainder}分钟`;
 }
 
 function boundaryAction(input: PrivacyTabPresentationInput): BoundaryAction | null {
@@ -37,28 +43,35 @@ function boundaryAction(input: PrivacyTabPresentationInput): BoundaryAction | nu
 export function privacyTabPresentation(
   input: PrivacyTabPresentationInput,
 ): PrivacyTabPresentation {
-  let visibleText = "点击展开查看";
+  let visibleText = "点击展开";
+  let accessibleText = "点击展开查看";
   if (input.state === "loading") {
-    visibleText = "正在同步";
+    visibleText = "同步中";
+    accessibleText = "正在同步";
   } else if (
     input.state === "ready"
     && input.phase
     && ["rest_day", "paid_rest", "unpaid_rest"].includes(input.phase)
   ) {
     visibleText = "今日休息";
+    accessibleText = visibleText;
   } else if (input.state === "ready" && input.phase === "after_work") {
-    visibleText = "今日工作已结束";
+    visibleText = "今日工作结束";
+    accessibleText = "今日工作已结束";
   } else if (input.state === "ready") {
     const action = boundaryAction(input);
     if (action && input.nextBoundarySeconds !== null && input.nextBoundarySeconds !== undefined) {
       visibleText = input.nextBoundarySeconds < 60
         ? `即将${action}`
+        : `距离${compactBoundaryAction(action)}${durationText(input.nextBoundarySeconds, true)}`;
+      accessibleText = input.nextBoundarySeconds < 60
+        ? visibleText
         : `距离${action} ${durationText(input.nextBoundarySeconds)}`;
     }
   }
 
   return {
     visibleText,
-    ariaLabel: `${visibleText}，按 Enter 或空格键展开迷你收入视图`,
+    ariaLabel: `${accessibleText}，按 Enter 或空格键展开迷你收入视图`,
   };
 }

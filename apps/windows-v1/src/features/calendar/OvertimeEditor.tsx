@@ -4,9 +4,11 @@ import { formatMoney, recordSemanticEvent } from "../../model";
 import {
   approximateOvertimeAmountYuan,
   createOvertimeEditorState,
+  formatOvertimeHours,
   overtimeDraftIsUnchanged,
   parseOvertimeHours,
   reduceOvertimeEditor,
+  type OvertimeBoundaryResolution,
 } from "./overtimeModel";
 import { overtimeService } from "./overtimeService";
 
@@ -25,13 +27,21 @@ export function OvertimeEditor({
 }: OvertimeEditorProps) {
   const [state, dispatch] = useReducer(reduceOvertimeEditor, undefined, createOvertimeEditorState);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const parsed = useMemo(() => parseOvertimeHours(state.draftHours), [state.draftHours]);
+  const [boundary, setBoundary] = useState<OvertimeBoundaryResolution | null>(null);
+  const parsed = useMemo(
+    () => parseOvertimeHours(state.draftHours, boundary?.snapshot.maximum_minutes),
+    [boundary?.snapshot.maximum_minutes, state.draftHours],
+  );
   const busy = state.status === "saving" || state.status === "deleting";
 
   const load = useCallback(async () => {
     dispatch({ type: "loading" });
     try {
-      const result = await overtimeService.readDate(businessDate);
+      const [result, resolvedBoundary] = await Promise.all([
+        overtimeService.readDate(businessDate),
+        overtimeService.resolveBoundary(businessDate, -new Date().getTimezoneOffset()),
+      ]);
+      setBoundary(resolvedBoundary);
       if (result.status === "corrupt") {
         dispatch({ type: "corrupt", message: result.message, errorCode: result.error_code });
         return;
@@ -41,6 +51,9 @@ export function OvertimeEditor({
         return;
       }
       dispatch({ type: "loaded", record: result.records[0] ?? null, message: result.message });
+      if (!result.records[0] && resolvedBoundary.suggested_minutes !== null) {
+        dispatch({ type: "changed", value: formatOvertimeHours(resolvedBoundary.suggested_minutes) });
+      }
       recordSemanticEvent(
         "overtime.editor.loaded",
         `date=${businessDate};status=${result.status};schema=${result.schema_version}`,
@@ -91,6 +104,10 @@ export function OvertimeEditor({
   };
 
   const save = async () => {
+    if (!boundary) {
+      dispatch({ type: "failed", message: "尚未取得本次加班上限，请重新读取", errorCode: "overtime_boundary_unavailable" });
+      return;
+    }
     if (!parsed.ok || parsed.minutes === null) {
       dispatch({ type: "failed", message: parsed.message, errorCode: "overtime_input_invalid" });
       return;
@@ -109,6 +126,9 @@ export function OvertimeEditor({
         businessDate,
         minutes: parsed.minutes,
         hourlyRateFenSnapshot: currentHourlyRateFen,
+        origin: boundary.origin,
+        boundarySnapshot: boundary.snapshot,
+        linkedOverrideDate: boundary.linked_override_date,
       });
       if (result.status === "corrupt") {
         dispatch({ type: "corrupt", message: result.message, errorCode: result.error_code });
@@ -199,8 +219,11 @@ export function OvertimeEditor({
               </span>
             </label>
             <p id="overtime-hours-hint" className="overtime-editor__hint">
-              请输入 0–24 小时，最多两位小数；保存时换算为最近一分钟。
+              最多 {formatOvertimeHours(boundary?.snapshot.maximum_minutes ?? 24 * 60)} 小时，最多两位小数；保存时换算为最近一分钟。
             </p>
+            {boundary?.origin === "manual_weekend_work" && (
+              <p className="overtime-editor__hint">该周末已手动设为工作日，默认记录 8 小时；如班次间隔不足则采用当前上限。</p>
+            )}
             {approximateAmount !== null && parsed.minutes !== null && parsed.minutes > 0 && (
               <div className="overtime-editor__summary">
                 <span>{state.persisted ? "按首次录入费率" : "按当前权威时薪"}</span>

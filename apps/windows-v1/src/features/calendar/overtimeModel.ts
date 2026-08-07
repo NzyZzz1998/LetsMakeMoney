@@ -1,9 +1,32 @@
-export const OVERTIME_SCHEMA_VERSION = 1;
+export const OVERTIME_SCHEMA_VERSION = 2;
+
+export type OvertimeOrigin = "independent" | "manual_weekend_work";
+export type OvertimeBoundaryBasis = "planned_shift_gap" | "rest_day_cap";
+export type OvertimeCalendarSource = "official" | "estimated" | "manual";
+
+export interface OvertimeBoundarySnapshot {
+  basis: OvertimeBoundaryBasis;
+  current_shift_end: string | null;
+  next_actual_work_start: string | null;
+  maximum_minutes: number;
+  calendar_source: OvertimeCalendarSource;
+}
+
+export interface OvertimeBoundaryResolution {
+  snapshot: OvertimeBoundarySnapshot;
+  suggested_minutes: number | null;
+  origin: OvertimeOrigin;
+  linked_override_date: string | null;
+  day_source: string;
+}
 
 export interface OvertimeRecord {
   business_date: string;
   minutes: number;
   hourly_rate_fen_snapshot: number;
+  origin: OvertimeOrigin;
+  boundary_snapshot: OvertimeBoundarySnapshot | null;
+  linked_override_date: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -79,16 +102,21 @@ export function formatOvertimeHours(minutes: number): string {
   return hours.toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
 }
 
-export function parseOvertimeHours(value: string): ParsedOvertimeHours {
+export function parseOvertimeHours(value: string, maximumMinutes = 24 * 60): ParsedOvertimeHours {
   const normalized = value.trim();
   if (!/^\d{1,2}(?:\.\d{1,2})?$/.test(normalized)) {
-    return { ok: false, minutes: null, normalizedHours: normalized, message: "请输入 0 至 24 小时，最多两位小数" };
+    return { ok: false, minutes: null, normalizedHours: normalized, message: "请输入有效小时数，最多两位小数" };
   }
   const hours = Number(normalized);
-  if (!Number.isFinite(hours) || hours < 0 || hours > 24) {
-    return { ok: false, minutes: null, normalizedHours: normalized, message: "加班时长必须在 0 至 24 小时之间" };
-  }
   const minutes = Math.round(hours * 60);
+  if (!Number.isFinite(hours) || hours < 0 || minutes > maximumMinutes) {
+    return {
+      ok: false,
+      minutes: null,
+      normalizedHours: normalized,
+      message: `加班时长不能超过 ${formatOvertimeHours(maximumMinutes)} 小时`,
+    };
+  }
   return {
     ok: true,
     minutes,

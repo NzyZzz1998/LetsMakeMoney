@@ -1,5 +1,7 @@
 param(
-    [string]$ManifestPath = ""
+    [string]$ManifestPath = "",
+    [string]$Milestone = "",
+    [string]$PythonExe = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -14,7 +16,12 @@ if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) {
     throw "Current manifest is missing: $ManifestPath"
 }
 
-$Python = Get-V10Python -RepoRoot $RepoRoot
+$Python = if ([string]::IsNullOrWhiteSpace($PythonExe)) {
+    Get-V10Python -RepoRoot $RepoRoot
+}
+else {
+    $PythonExe
+}
 $Node = Get-V10Node -RepoRoot $RepoRoot
 $Cargo = Get-V10Cargo -RepoRoot $RepoRoot
 $RustToolchain = Get-V10RustToolchain

@@ -19,6 +19,7 @@ function Convert-ToDeterministicPng {
         $graphics = [Drawing.Graphics]::FromImage($bitmap)
         $graphics.Clear([Drawing.Color]::Transparent)
         $graphics.CompositingMode = [Drawing.Drawing2D.CompositingMode]::SourceCopy
+        $graphics.InterpolationMode = [Drawing.Drawing2D.InterpolationMode]::NearestNeighbor
         $graphics.DrawImage($source, 0, 0, $source.Width, $source.Height)
 
         $visiblePixels = 0
@@ -29,7 +30,7 @@ function Convert-ToDeterministicPng {
                 if ($bitmap.GetPixel($x, $y).A -gt 0) { $visiblePixels += 1 }
             }
         }
-        if ($visiblePixels -eq 0) { throw "宠物关键帧是空白图片：$SourcePath" }
+        if ($visiblePixels -eq 0) { throw "品牌素材是空白图片：$SourcePath" }
 
         $directory = Split-Path -Parent $OutputPath
         if (-not (Test-Path -LiteralPath $directory -PathType Container)) {
@@ -53,12 +54,6 @@ function Convert-ToDeterministicPng {
     }
 }
 
-$prototypeRoot = Split-Path -Parent $PluginRoot
-$templatePath = Join-Path $PluginRoot "ui.template.html"
-$outputPath = Join-Path $PluginRoot "ui.html"
-$generatedRoot = Join-Path $PluginRoot "generated-assets"
-$manifestOutput = Join-Path $generatedRoot "asset-manifest.json"
-
 function Get-RelativePathText {
     param([string]$BasePath, [string]$TargetPath)
     $baseUri = [Uri]((Resolve-Path -LiteralPath $BasePath).Path.TrimEnd('\') + '\')
@@ -66,42 +61,53 @@ function Get-RelativePathText {
     return [Uri]::UnescapeDataString($baseUri.MakeRelativeUri($targetUri).ToString())
 }
 
-$assetSources = [ordered]@{
-    classicWorking = Join-Path $prototypeRoot "assets\animation-plan\classic\making-money.gif"
-    classicAwake = Join-Path $prototypeRoot "assets\animation-plan\classic\eating.gif"
-    classicSleeping = Join-Path $prototypeRoot "assets\animation-plan\classic\sleeping.gif"
-    duoduoWorking = Join-Path $prototypeRoot "assets\animation-plan\duoduo\making-money.gif"
-    duoduoAwake = Join-Path $prototypeRoot "assets\animation-plan\duoduo\eating.gif"
-    duoduoSleeping = Join-Path $prototypeRoot "assets\animation-plan\duoduo\sleeping.gif"
-}
+$repoRoot = (& git -C $PluginRoot rev-parse --show-toplevel 2>$null)
+if ($LASTEXITCODE -ne 0 -or -not $repoRoot) { throw "无法确定 LetsMakeMoney 仓库根目录" }
+$repoRoot = $repoRoot.Trim()
+$templatePath = Join-Path $PluginRoot "ui.template.html"
+$outputPath = Join-Path $PluginRoot "ui.html"
+$generatedRoot = Join-Path $PluginRoot "generated-assets"
+$manifestOutput = Join-Path $generatedRoot "asset-manifest.json"
+$logoSource = Join-Path $repoRoot "apps\windows-v1\src-tauri\icons\icon.png"
 
-foreach ($requiredPath in @($templatePath) + @($assetSources.Values)) {
+foreach ($requiredPath in @($templatePath, $logoSource)) {
     if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
         throw "缺少 Figma 插件输入文件：$requiredPath"
     }
 }
 
-$payload = [ordered]@{}
-$assetManifest = [ordered]@{
-    schema = "lmm-figma-static-assets/v1"
-    generated_by = "figma-plugin/build.ps1"
-    screenshot_assets = 0
-    assets = [ordered]@{}
+$outputAsset = Join-Path $generatedRoot "appLogo.png"
+$metadata = Convert-ToDeterministicPng -SourcePath $logoSource -OutputPath $outputAsset
+$sourceRelative = Get-RelativePathText -BasePath $repoRoot -TargetPath $logoSource
+$outputRelative = Get-RelativePathText -BasePath $PluginRoot -TargetPath $outputAsset
+$payloadLogo = [ordered]@{
+    base64 = $metadata.base64
+    source = $sourceRelative
+    output = $outputRelative
+    width = $metadata.width
+    height = $metadata.height
+    bytes = $metadata.bytes
+    sha256 = $metadata.sha256
+    role = "product-brand-mark"
+    runtime_screenshot = $false
 }
-
-foreach ($name in $assetSources.Keys) {
-    $outputAsset = Join-Path $generatedRoot "$name.png"
-    $metadata = Convert-ToDeterministicPng -SourcePath $assetSources[$name] -OutputPath $outputAsset
-    $payload[$name] = $metadata
-    $assetManifest.assets[$name] = [ordered]@{
-        source = Get-RelativePathText -BasePath $prototypeRoot -TargetPath $assetSources[$name]
-        output = Get-RelativePathText -BasePath $PluginRoot -TargetPath $outputAsset
-        width = $metadata.width
-        height = $metadata.height
-        bytes = $metadata.bytes
-        sha256 = $metadata.sha256
-        role = "product-pet-keyframe"
-        runtime_screenshot = $false
+$payload = [ordered]@{ appLogo = $payloadLogo }
+$assetManifest = [ordered]@{
+    schema = "lmm-figma-static-assets/v2"
+    generated_by = "figma-plugin/build.ps1"
+    product_version = "v1.0.8"
+    screenshot_assets = 0
+    assets = [ordered]@{
+        appLogo = [ordered]@{
+            source = $sourceRelative
+            output = $outputRelative
+            width = $metadata.width
+            height = $metadata.height
+            bytes = $metadata.bytes
+            sha256 = $metadata.sha256
+            role = "product-brand-mark"
+            runtime_screenshot = $false
+        }
     }
 }
 
@@ -111,8 +117,9 @@ $html = $template.Replace("__ASSET_PAYLOAD_JSON__", $payloadJson)
 if ($html.Contains("__ASSET_PAYLOAD_JSON__")) { throw "ui.html 仍存在素材占位符" }
 
 [IO.File]::WriteAllText($outputPath, $html, [Text.UTF8Encoding]::new($false))
-[IO.File]::WriteAllText($manifestOutput, ($assetManifest | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
+$assetManifestJson = ($assetManifest | ConvertTo-Json -Depth 8).Replace("`r`n", "`n")
+[IO.File]::WriteAllText($manifestOutput, $assetManifestJson, [Text.UTF8Encoding]::new($false))
 
 Write-Host "Figma 插件资源已生成：$outputPath"
-Write-Host "确定性 PNG：$($assetSources.Count) 张"
+Write-Host "确定性产品 PNG：1 张"
 Write-Host "素材清单：$manifestOutput"

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "brand": "L2-oat-graphite",
+  "source": "apps/windows-v1/brand/app-icon-l2.svg",
+  "source_sha256": "E6FC5C6078E97E17060686AAFDBB38CE6113BF3BCE856643B166A5D9754FFA96",
+  "assets": {
+    "icon.png": {
+      "path": "apps/windows-v1/src-tauri/icons/icon.png",
+      "width": 512,
+      "height": 512,
+      "sha256": "3626141EA4C2195813BF41B963AA4F95D6081EB9D6A38CCD1F6B73201E238FEB"
+    },
+    "icon.ico": {
+      "path": "apps/windows-v1/src-tauri/icons/icon.ico",
+      "sizes": [16, 20, 24, 32, 40, 48, 64, 128, 256],
+      "sha256": "AE1527A383FB46AA8715109DAF47D63BAFBFB2E7176875C8B0671C5CC44EC9A4"
+    }
+  }
+}

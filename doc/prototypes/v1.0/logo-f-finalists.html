@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LetsMakeMoney 双峰字标精修</title>
+  <style>
+    :root {
+      font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+      color: #292720;
+      background: #e9ece7;
+      --paper: #fbfbf8;
+      --white: #fff;
+      --ink: #292720;
+      --muted: #716d64;
+      --line: #d7d8d2;
+      --gold: #ebaa24;
+      --gold-soft: #fff0c6;
+      --green: #365a40;
+      --shadow: 0 20px 58px rgb(40 38 32 / 11%);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #e9ece7; }
+    svg { display: block; }
+    button, a { font: inherit; letter-spacing: 0; }
+    a { color: inherit; }
+    .page { width: min(1260px, calc(100% - 48px)); margin: 0 auto; padding: 36px 0 72px; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 36px; align-items: end; padding: 30px 32px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); box-shadow: var(--shadow); }
+    .kicker { margin: 0 0 14px; color: #8a6211; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(31px, 4vw, 48px); line-height: 1.08; }
+    .hero p:last-child { max-width: 760px; margin: 16px 0 0; color: var(--muted); font-size: 14px; line-height: 1.75; }
+    .back { display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--white); font-size: 12px; font-weight: 700; text-decoration: none; }
+    .criteria { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin: 26px 0 16px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--line); }
+    .criteria div { padding: 16px 18px; background: var(--paper); }
+    .criteria strong { display: block; margin-bottom: 5px; font-size: 11px; }
+    .criteria span { color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .finalists { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .finalist { overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+    .finalist[data-recommended="true"] { border-color: #d59a20; box-shadow: 0 0 0 1px #d59a20; }
+    .mark-stage { display: grid; place-items: center; min-height: 274px; background: var(--stage, #f2f2ed); }
+    .mark-stage svg { width: 172px; height: 172px; }
+    .copy { min-height: 164px; padding: 23px 24px 20px; border-top: 1px solid var(--line); }
+    .code { color: var(--muted); font-size: 10px; font-weight: 800; }
+    .copy h2 { margin: 16px 0 8px; font-size: 21px; }
+    .copy p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+    .recommended { display: inline-flex; margin-top: 13px; padding: 5px 8px; border: 1px solid #d7a33c; border-radius: 999px; color: #745000; background: var(--gold-soft); font-size: 10px; font-weight: 800; }
+    .tests { padding: 20px 22px 22px; border-top: 1px solid var(--line); }
+    .sizes { display: flex; align-items: end; gap: 15px; min-height: 72px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+    .size { display: grid; justify-items: center; gap: 7px; color: var(--muted); font-size: 9px; }
+    .size svg { width: var(--s); height: var(--s); }
+    .titlebar { display: flex; align-items: center; gap: 9px; height: 48px; margin-top: 15px; padding: 0 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--white); }
+    .titlebar svg { width: 26px; height: 26px; }
+    .titlebar strong { font-size: 12px; }
+    .mono { display: grid; grid-template-columns: 1fr 1fr; height: 46px; margin-top: 10px; overflow: hidden; border: 1px solid var(--line); border-radius: 7px; }
+    .mono div { display: grid; place-items: center; }
+    .mono div:first-child { color: var(--ink); background: #f4f4ef; }
+    .mono div:last-child { color: #f8f6ef; background: #24251f; }
+    .mono svg { width: 20px; height: 20px; }
+    .pick { width: 100%; min-height: 38px; margin-top: 16px; border: 1px solid #c8c8c0; border-radius: 7px; color: var(--ink); background: var(--white); cursor: pointer; }
+    .pick:hover { border-color: #c38a18; }
+    .pick[aria-pressed="true"] { border-color: #c38a18; background: var(--gold); font-weight: 800; }
+    .decision { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: center; margin-top: 24px; padding: 23px 25px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+    .decision h2 { margin: 0; font-size: 19px; }
+    .decision p { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+    .decision__value { min-width: 180px; padding-left: 24px; border-left: 1px solid var(--line); color: #755100; font-size: 13px; font-weight: 800; text-align: center; }
+    @media (max-width: 980px) { .finalists { grid-template-columns: 1fr; } .hero { grid-template-columns: 1fr; } .criteria { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .page { width: calc(100% - 24px); padding-top: 14px; } .hero { padding: 22px; } .criteria { grid-template-columns: 1fr; } .decision { grid-template-columns: 1fr; } .decision__value { padding: 14px 0 0; border-top: 1px solid var(--line); border-left: 0; } }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true">
+    <defs>
+      <symbol id="f1" viewBox="0 0 64 64">
+        <rect x="4" y="4" width="56" height="56" rx="16" fill="#292720"/>
+        <path d="M16 44V20l9 13 7-10 7 10 9-13v24" fill="none" stroke="#f8f4e9" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M16 44h32" fill="none" stroke="#ebaa24" stroke-width="5" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="f2" viewBox="0 0 64 64">
+        <rect x="4" y="4" width="56" height="56" rx="16" fill="#ebaa24"/>
+        <path d="M16 44V20l9 13 7-10 7 10 9-13v24" fill="none" stroke="#292720" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M17 46h30" fill="none" stroke="#fff4d6" stroke-width="4" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="f3" viewBox="0 0 64 64">
+        <rect x="4" y="4" width="56" height="56" rx="16" fill="#365a40"/>
+        <path d="M15 45V18l10 15 7-10 7 10 10-15v27Z" fill="#fff7e9"/>
+        <rect x="15" y="41" width="34" height="5" rx="2.5" fill="#ebaa24"/>
+      </symbol>
+    </defs>
+  </svg>
+  <main class="page">
+    <header class="hero">
+      <div><p class="kicker">Selected Direction F · Refinement</p><h1>双峰字标，三种最终表达。</h1><p>核心轮廓保持不变：连续双峰代表 LMM，也保留轻微的皇冠联想。三版只调整颜色权重、笔画方式和 16px 的稳健程度。</p></div>
+      <a class="back" href="logo-candidates-round-2.html">返回第二轮</a>
+    </header>
+    <section class="criteria" aria-label="精修标准"><div><strong>轮廓</strong><span>双峰必须一眼成立，不增加其他符号。</span></div><div><strong>小尺寸</strong><span>16px 不糊成一块，单色托盘仍可辨认。</span></div><div><strong>色彩</strong><span>保持金币黄、深咖啡和柔和绿色。</span></div><div><strong>延展</strong><span>可生成 ICO、标题栏、任务栏与文档标识。</span></div></section>
+    <section class="finalists" aria-label="F 方案精修候选">
+      <article class="finalist" data-recommended="true">
+        <div class="mark-stage" style="--stage:#303029"><svg aria-label="F1 深色线性双峰"><use href="#f1"/></svg></div>
+        <div class="copy"><span class="code">F1 / DARK LINE</span><h2>深色线性</h2><p>保留你认可的原始气质。奶白双峰最醒目，金色底线像被点亮的收入进度，标题栏与托盘表现最稳定。</p><span class="recommended">建议主版本</span></div>
+        <div class="tests"><div class="sizes"><div class="size"><svg style="--s:64px"><use href="#f1"/></svg><span>64</span></div><div class="size"><svg style="--s:32px"><use href="#f1"/></svg><span>32</span></div><div class="size"><svg style="--s:24px"><use href="#f1"/></svg><span>24</span></div><div class="size"><svg style="--s:16px"><use href="#f1"/></svg><span>16</span></div></div><div class="titlebar"><svg><use href="#f1"/></svg><strong>LetsMakeMoney</strong></div><div class="mono"><div><svg viewBox="0 0 24 24"><path d="M3 18V6l4 7 4-6 4 6 5-7v12M3 18h17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><svg viewBox="0 0 24 24"><path d="M3 18V6l4 7 4-6 4 6 5-7v12M3 18h17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><button class="pick" data-pick="F1">选择 F1</button></div>
+      </article>
+      <article class="finalist">
+        <div class="mark-stage" style="--stage:#fff0c6"><svg aria-label="F2 金色反转双峰"><use href="#f2"/></svg></div>
+        <div class="copy"><span class="code">F2 / GOLD REVERSE</span><h2>金色反转</h2><p>把品牌主色提升为最大色块，远距离更醒目。整体更活跃、更像消费产品，但在浅色标题栏中存在感会更强。</p></div>
+        <div class="tests"><div class="sizes"><div class="size"><svg style="--s:64px"><use href="#f2"/></svg><span>64</span></div><div class="size"><svg style="--s:32px"><use href="#f2"/></svg><span>32</span></div><div class="size"><svg style="--s:24px"><use href="#f2"/></svg><span>24</span></div><div class="size"><svg style="--s:16px"><use href="#f2"/></svg><span>16</span></div></div><div class="titlebar"><svg><use href="#f2"/></svg><strong>LetsMakeMoney</strong></div><div class="mono"><div><svg viewBox="0 0 24 24"><path d="M3 18V6l4 7 4-6 4 6 5-7v12M3 18h17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><svg viewBox="0 0 24 24"><path d="M3 18V6l4 7 4-6 4 6 5-7v12M3 18h17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><button class="pick" data-pick="F2">选择 F2</button></div>
+      </article>
+      <article class="finalist">
+        <div class="mark-stage" style="--stage:#e2eee4"><svg aria-label="F3 绿色实体双峰"><use href="#f3"/></svg></div>
+        <div class="copy"><span class="code">F3 / SOLID CREST</span><h2>绿色实体</h2><p>用实体轮廓提升 16px 清晰度，绿色更温和，也能避开常见金融软件的黑金印象。代价是皇冠感会更明显。</p></div>
+        <div class="tests"><div class="sizes"><div class="size"><svg style="--s:64px"><use href="#f3"/></svg><span>64</span></div><div class="size"><svg style="--s:32px"><use href="#f3"/></svg><span>32</span></div><div class="size"><svg style="--s:24px"><use href="#f3"/></svg><span>24</span></div><div class="size"><svg style="--s:16px"><use href="#f3"/></svg><span>16</span></div></div><div class="titlebar"><svg><use href="#f3"/></svg><strong>LetsMakeMoney</strong></div><div class="mono"><div><svg viewBox="0 0 24 24"><path d="M3 19V5l5 8 4-6 4 6 5-8v14Z" fill="currentColor"/></svg></div><div><svg viewBox="0 0 24 24"><path d="M3 19V5l5 8 4-6 4 6 5-8v14Z" fill="currentColor"/></svg></div></div><button class="pick" data-pick="F3">选择 F3</button></div>
+      </article>
+    </section>
+    <section class="decision"><div><h2>确认后才进入应用接入</h2><p>最终阶段会为入选方案单独校正 16、20、24、32、48、64、128、256px，并生成 SVG、PNG、ICO 和单色托盘版本。</p></div><div class="decision__value" id="decision" aria-live="polite">尚未选择</div></section>
+  </main>
+  <script>
+    const output = document.querySelector('#decision');
+    const buttons = [...document.querySelectorAll('[data-pick]')];
+    for (const button of buttons) {
+      button.addEventListener('click', () => {
+        for (const current of buttons) current.setAttribute('aria-pressed', String(current === button));
+        output.textContent = `当前选择：${button.dataset.pick}`;
+      });
+    }
+  </script>
+</body>
+</html>

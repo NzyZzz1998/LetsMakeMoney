@@ -9,12 +9,14 @@
 | 当前公开版本 | Windows v1.0.7 Stable |
 | 当前公开 tag | `v1.0.7` |
 | v1.0.7 发布源提交 | `f500ed4e7de28ec68b2a848da6fa2340420b91b2` |
-| 当前开发版本 | v1.0.7 发布后观察 |
-| 开发基线 | `main@f500ed4e7de28ec68b2a848da6fa2340420b91b2` |
-| 当前里程碑 | v1.0.7 GitHub Stable Release 已发布并复核 |
-| 总体状态 | 已发布 |
+| 当前开发版本 | v1.0.F（公开版本固定为 v1.0.8） |
+| 本地发布源 | `main@81abae364ad577a394c3c9dcda3a1d1c15e83b99` |
+| 当前里程碑 | v1.0.F / v1.0.8 发布收口与最终候选重建 |
+| 总体状态 | 锁定候选验收全部通过；`test` 已推送；尚未重建最终候选且未获发布授权，当前不可发布 |
 
 v1.0.7 已从干净源提交构建、通过 current gate、候选包验证、真实 GUI 身份冒烟与 GitHub 下载包复核，并完成 GitHub Stable Release。正式便携 Zip SHA256 为 `D656B96973F64632896715ADCBB9CAFEAED4D06D44BA1C098824335AC673E3F2`，发布地址为 [GitHub Release v1.0.7](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7)。此前 dirty 候选的首次失败、修复与 DPI 定向复验证据继续按历史事实保留，均不得冒充正式附件。
+
+v1.0.F 是 v1.0 系列收官质量版本的内部代号，公开版本固定为 `v1.0.8`。发布源提交 `81abae364ad577a394c3c9dcda3a1d1c15e83b99` 生成的锁定候选 `V10F-20260804-final-81abae36` 已完成 M1-M7、候选身份、核心 GUI、浅深主题、Windows 11 单显示器 100%/125%/150% DPI 及通知区真实鼠标验收，结论为通过。候选 Zip SHA256 为 `07D9B1766CECE8DA092CE31C234E6018D4820049F3D2A310033478BF5EB69DDA`。当前 `test` 已推送至 `b691af76817e6b743a8207825629431ed8da14d2`；由于最终 README 更新晚于锁定候选，正式发布前必须从最终发布提交重新构建、更新哈希并复核包身份。尚未推送 `main`、创建 tag 或 GitHub Release，也未取得这些动作的单独授权，因此当前不可发布。
 
 ## v1.0.7 范围
 
@@ -38,6 +40,14 @@ v1.0.7 已从干净源提交构建、通过 current gate、候选包验证、真
 完整矩阵见 [v1.0.7 支持矩阵](releases/v1.0.7/support-matrix.md)。
 
 ## 当前入口
+
+- [v1.0.F PRD](releases/v1.0.F/prd.md)
+- [v1.0.F 追踪矩阵](releases/v1.0.F/traceability.md)
+- [v1.0.F Idea Pool](releases/v1.0.F/idea-pool.md)
+- [v1.0.F Review](releases/v1.0.F/review.md)
+- [v1.0.F 进度](releases/v1.0.F/progress_v1.0.F.md)
+- [v1.0.F 验证](releases/v1.0.F/verification.md)
+- [v1.0.F 手动验收](releases/v1.0.F/manual-verification.md)
 
 - [v1.0.7 PRD](releases/v1.0.7/prd.md)
 - [v1.0.7 追踪矩阵](releases/v1.0.7/traceability.md)
