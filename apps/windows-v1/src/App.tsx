@@ -156,11 +156,17 @@ function SyncNotice({ state }: { state: "synced" | "syncing" | "stale" }) {
 
 function CalendarCoverageNotice({
   coverage,
+  hideEstimated = false,
 }: {
   coverage: ReturnType<typeof useDashboard>["snapshot"]["calendarCoverage"];
+  hideEstimated?: boolean;
 }) {
   const content = calendarCoveragePresentation(coverage);
-  if (!content.isVisible || content.tone === null) return null;
+  if (
+    !content.isVisible
+    || content.tone === null
+    || (hideEstimated && content.tone === "estimated")
+  ) return null;
   return (
     <div className={`calendar-coverage calendar-coverage--${content.tone}`} role="status">
       <strong>{content.title}</strong>
@@ -537,7 +543,9 @@ function CalendarView({ snapshot }: { snapshot: ReturnType<typeof useDashboard>[
         {calendarMonth.state === "loading" && (
           <div className="calendar__status" role="status">正在读取 {monthLabel} 的日历…</div>
         )}
-        {calendarMonth.coverage && <CalendarCoverageNotice coverage={calendarMonth.coverage} />}
+        {calendarMonth.coverage && (
+          <CalendarCoverageNotice coverage={calendarMonth.coverage} hideEstimated />
+        )}
         {calendarMonth.state === "error" && (
           <div className="calendar__status calendar__status--warning" role="alert">
             <span>日历暂时无法加载，未展示可能错误的日期。</span>

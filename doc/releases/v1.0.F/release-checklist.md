@@ -1,5 +1,5 @@
 # LetsMakeMoney Windows v1.0.8 发布检查
-> 状态：锁定候选验收通过；等待最终候选重建、身份复核和项目所有者发布授权。
+> 状态：v1.0 系列本地收官完成；本地 annotated tag 已获授权，远端发布仍未授权。
 
 ## 代码与身份
 
@@ -16,6 +16,7 @@
 - [x] v1.0.8 package candidate 正负 fixture 与身份复核通过。
 - [x] 文档、UTF-8、乱码和 `git diff --check` 通过。
 - [x] 降级文本扫描未发现明显敏感信息；未宣称专业秘密扫描能力。
+- [x] 最终隐私竖条与日历布局修正后完整 current gate 通过。
 
 ## 候选与包体
 
@@ -34,21 +35,24 @@
 - [x] 用户环境已恢复，无候选进程或测试配置残留。
 - [x] Windows 10 未验证时收窄支持声明；多显示器标记暂不验证。
 
-## 锁定发布产物
+## 历史锁定候选产物
 
 - Zip：`LetsMakeMoney-v1.0.8-windows-x86_64.zip`
 - Zip SHA256：`07D9B1766CECE8DA092CE31C234E6018D4820049F3D2A310033478BF5EB69DDA`
 - EXE SHA256：`8D2ABDB6EB1E32F8B568BA9E12A2BAD0A52A9099B19C6CF7CEE3A040FF71ED3B`
 - WebView2Loader.dll SHA256：`8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`
 
+以上哈希属于早于本次收官提交的历史验收候选，不得作为 `v1.0.8` 收官 tag 的正式发布附件。若后续公开发布，必须重新构建并生成新的锁定哈希。
+
 ## 发布授权
 
 - [x] 项目所有者已批准将候选资料推送到 `test` 分支复核。
+- [x] 项目所有者已批准创建本地 annotated tag `v1.0.8`。
+- [x] 本地 tag `v1.0.8` 指向 v1.0 收官提交。
 - [ ] 从包含最终 README 的发布提交重新构建候选，并更新 Zip、EXE、DLL、README 与校验文件哈希。
 - [ ] 对重建候选复跑 current gate、candidate 包体验证和受影响的身份冒烟。
-- [ ] 项目所有者单独批准推送 `main`、annotated tag 与 GitHub Release。
-- [ ] Tag `v1.0.8` 指向锁定发布源提交。
+- [ ] 项目所有者单独批准推送 `main`、tag 与 GitHub Release。
 - [ ] Release 只上传便携 Zip 与 `SHA256SUMS.txt`。
 - [ ] GitHub 附件重新下载后，published 模式验证与 SHA256 一致。
 
-未勾选项完成前不得创建公开 Release。当前不得推送 `main`、tag 或 Release 附件。
+未勾选项完成前不得创建公开 Release。当前仅允许保留本地 annotated tag；不得推送 `main`、tag 或 Release 附件。

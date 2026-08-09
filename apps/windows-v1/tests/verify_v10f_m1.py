@@ -90,8 +90,14 @@ def verify_brand() -> None:
 def verify_current_boundary() -> None:
     current = (REPO_ROOT / "doc" / "current.md").read_text(encoding="utf-8")
     require("当前公开版本 | Windows v1.0.7 Stable" in current, "published v1.0.7 fact was overwritten")
-    require("当前开发版本 | v1.0.F（公开版本固定为 v1.0.8）" in current, "v1.0.8 development identity is missing")
-    require("不可发布" in current, "development status must not claim release readiness")
+    require(
+        "v1.0 系列收官版本 | v1.0.F（版本号 `v1.0.8`）" in current,
+        "v1.0.8 local closeout identity is missing",
+    )
+    require(
+        "尚未获远端推送或 GitHub Release 授权" in current,
+        "local closeout must not claim remote publication",
+    )
 
 
 def main() -> int:

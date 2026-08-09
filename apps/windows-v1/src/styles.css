@@ -237,23 +237,23 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
   bottom: 0;
   display: grid;
   place-items: center;
-  width: 34px;
-  padding: 4px 5px;
+  width: 40px;
+  padding: 4px;
   border: 0;
   background: var(--subtle);
   color: var(--ink);
   cursor: pointer;
 }
 .mini-window__privacy-hit span {
-  max-width: 24px;
+  max-width: 30px;
   max-height: 100%;
   overflow: hidden;
   font-size: 11px;
-  font-weight: 650;
-  line-height: 1;
+  font-weight: 700;
+  line-height: 1.15;
   letter-spacing: 1px;
   text-align: center;
-  text-orientation: upright;
+  text-orientation: mixed;
   white-space: nowrap;
   word-break: keep-all;
   writing-mode: vertical-rl;
@@ -631,6 +631,9 @@ select { min-width: 146px; height: 36px; padding: 0 32px 0 10px; border: 1px sol
 
 @media (max-width: 840px) {
   .workbench-layout { grid-template-columns: 148px 1fr; }
+}
+
+@media (max-width: 700px) {
   .content-grid { grid-template-columns: 1fr; }
   .stats { grid-template-columns: repeat(3, 1fr); }
   .stats div { border-right: 1px solid var(--line); border-bottom: 0; }
