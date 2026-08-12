@@ -29,7 +29,7 @@ struct WindowSpec {
     skip_taskbar: bool,
 }
 
-const WINDOW_SPECS: [WindowSpec; 4] = [
+const WINDOW_SPECS: [WindowSpec; 5] = [
     WindowSpec {
         label: "mini",
         title: "LetsMakeMoney",
@@ -37,6 +37,16 @@ const WINDOW_SPECS: [WindowSpec; 4] = [
         height: 108.0,
         min_width: 344.0,
         min_height: 108.0,
+        resizable: false,
+        skip_taskbar: true,
+    },
+    WindowSpec {
+        label: "pet",
+        title: "LetsMakeMoney Classic",
+        width: 192.0,
+        height: 208.0,
+        min_width: 192.0,
+        min_height: 208.0,
         resizable: false,
         skip_taskbar: true,
     },
@@ -446,8 +456,170 @@ fn update_theme_session(
     Ok(snapshot)
 }
 
+#[derive(Clone, Copy, Debug)]
+struct CompanionSwitchStage {
+    plan: companion_policy::CompanionSwitchPlan,
+    source_before: companion_policy::CompanionPreVisibility,
+    lease_rebased_to: Option<companion_policy::CompanionPreVisibility>,
+}
+
+fn rollback_companion_switch(app: &AppHandle, stage: CompanionSwitchStage, reason: &str) {
+    if let Some(lease_rebased_to) = stage.lease_rebased_to {
+        let restore_ok = app
+            .state::<WindowVisibilityRuntime>()
+            .0
+            .lock()
+            .map(|mut machine| machine.rebase_companion(lease_rebased_to, stage.source_before))
+            .unwrap_or(false);
+        append_log(
+            app,
+            "desktop_companion.switch_rolled_back",
+            &format!(
+                "source={} target={} source_before={} restore_ok={} workbench_lease=true reason={}",
+                stage.plan.source_label,
+                stage.plan.target_label,
+                stage.source_before.label(),
+                restore_ok,
+                reason.replace(['\r', '\n'], " ")
+            ),
+        );
+        return;
+    }
+    if let Some(target) = app.get_webview_window(stage.plan.target_label) {
+        if target.is_visible().unwrap_or(false) {
+            let _ =
+                hide_window_with_source(app, stage.plan.target_label, "companion_switch_rollback");
+        }
+    }
+    let restore = restore_companion_pre_visibility(app, stage.source_before);
+    append_log(
+        app,
+        "desktop_companion.switch_rolled_back",
+        &format!(
+            "source={} target={} source_before={} restore_ok={} reason={}",
+            stage.plan.source_label,
+            stage.plan.target_label,
+            stage.source_before.label(),
+            restore.is_ok(),
+            reason.replace(['\r', '\n'], " ")
+        ),
+    );
+}
+
+fn stage_companion_switch(
+    app: &AppHandle,
+    current: config::DesktopCompanionMode,
+    requested: config::DesktopCompanionMode,
+) -> Result<Option<CompanionSwitchStage>, String> {
+    let plan = companion_policy::companion_switch_plan(current, requested);
+    if !plan.changed {
+        return Ok(None);
+    }
+    if requested == config::DesktopCompanionMode::Pet {
+        pet_package::preflight().map_err(|error| match error.as_str() {
+            "pet_package_not_approved_for_product" => {
+                "Classic 桌宠包尚未通过产品回归与再分发门禁".to_string()
+            }
+            _ => format!("Classic 桌宠包校验失败：{error}"),
+        })?;
+    }
+
+    let lease = current_visibility_lease(app)?;
+    let lease_strategy = window_policy::companion_switch_lease_strategy(lease.phase);
+    if lease_strategy == window_policy::CompanionSwitchLeaseStrategy::Retry {
+        return Err("今日工作台正在切换，请稍后再试".to_string());
+    }
+    if lease_strategy == window_policy::CompanionSwitchLeaseStrategy::Rebase {
+        let target = ensure_window(app, plan.target_label)?;
+        if target.is_visible().map_err(|error| error.to_string())? {
+            hide_window_with_source(
+                app,
+                plan.target_label,
+                "companion_switch_workbench_enforce_hidden",
+            )?;
+        }
+        let source_before = lease.companion_before;
+        let lease_rebased_to =
+            companion_policy::companion_visibility_after_mode_switch(source_before, requested);
+        let rebased = app
+            .state::<WindowVisibilityRuntime>()
+            .0
+            .lock()
+            .map_err(|_| "window_visibility_lock_failed".to_string())?
+            .rebase_companion(source_before, lease_rebased_to);
+        if !rebased {
+            return Err("桌面陪伴切换状态已变化，请重试".to_string());
+        }
+        append_log(
+            app,
+            "desktop_companion.switch_staged",
+            &format!(
+                "source={} target={} source_before={} target_after={} workbench_lease=true",
+                plan.source_label,
+                plan.target_label,
+                source_before.label(),
+                lease_rebased_to.label(),
+            ),
+        );
+        return Ok(Some(CompanionSwitchStage {
+            plan,
+            source_before,
+            lease_rebased_to: Some(lease_rebased_to),
+        }));
+    }
+
+    let source_before = companion_pre_visibility(app)?;
+    if let Some(target) = app.get_webview_window(plan.target_label) {
+        if target.is_visible().map_err(|error| error.to_string())? {
+            hide_window_with_source(app, plan.target_label, "companion_switch_enforce_exclusive")?;
+        }
+    }
+    if let Some(source_label) = visible_companion_label(source_before) {
+        hide_window_with_source(app, source_label, "companion_switch_source")?;
+        if let Err(error) = show_window_with_options(
+            app,
+            plan.target_label,
+            "companion_switch_target",
+            false,
+            true,
+            true,
+        ) {
+            let _ = restore_companion_pre_visibility(app, source_before);
+            return Err(error);
+        }
+    }
+    append_log(
+        app,
+        "desktop_companion.switch_staged",
+        &format!(
+            "source={} target={} source_before={}",
+            plan.source_label,
+            plan.target_label,
+            source_before.label()
+        ),
+    );
+    Ok(Some(CompanionSwitchStage {
+        plan,
+        source_before,
+        lease_rebased_to: None,
+    }))
+}
+
+async fn stage_companion_switch_async(
+    app: &AppHandle,
+    current: config::DesktopCompanionMode,
+    requested: config::DesktopCompanionMode,
+) -> Result<Option<CompanionSwitchStage>, String> {
+    let task_app = app.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        stage_companion_switch(&task_app, current, requested)
+    })
+    .await
+    .map_err(|error| format!("desktop_companion_switch_dispatch_failed:{error}"))?
+}
+
 #[tauri::command]
-fn save_configuration(
+async fn save_configuration(
     app: AppHandle,
     state: tauri::State<'_, RuntimeConfig>,
     configuration_state: tauri::State<'_, ConfigurationState>,
@@ -457,6 +629,33 @@ fn save_configuration(
         draft.mini_edge_dock = config::MiniEdgeDock::None;
     }
     let requested_edge_auto_hide = draft.mini_edge_auto_hide;
+    let previous_mode = state
+        .0
+        .lock()
+        .map_err(|_| "config_lock_failed".to_string())?
+        .desktop_companion_mode;
+    let switch_stage =
+        match stage_companion_switch_async(&app, previous_mode, draft.desktop_companion_mode).await
+        {
+            Ok(stage) => stage,
+            Err(message) => {
+                append_log(
+                    &app,
+                    "desktop_companion.switch_rejected",
+                    &format!(
+                        "current={previous_mode:?} requested={:?} reason={}",
+                        draft.desktop_companion_mode,
+                        message.replace(['\r', '\n'], " ")
+                    )
+                    .to_lowercase(),
+                );
+                return Ok(config::SaveResult {
+                    status: config::SaveStatus::Failed,
+                    message,
+                    draft_preserved: true,
+                });
+            }
+        };
     let data_dir = app
         .path()
         .app_data_dir()
@@ -474,6 +673,21 @@ fn save_configuration(
     let previous_theme = outcome.previous_theme;
     let requested_theme = outcome.requested_theme;
     let result = outcome.result;
+    if result.status == config::SaveStatus::Failed {
+        if let Some(stage) = switch_stage {
+            rollback_companion_switch(&app, stage, &result.message);
+        }
+    } else if let Some(stage) = switch_stage {
+        append_log(
+            &app,
+            "desktop_companion.switch_committed",
+            &format!(
+                "source={} target={} result={:?}",
+                stage.plan.source_label, stage.plan.target_label, result.status
+            )
+            .to_lowercase(),
+        );
+    }
     let logger = support::RotatingLogger::new(data_dir.join("debug.log"), 2_000_000, 3);
     let event = match result.status {
         config::SaveStatus::Saved => "settings.saved",
@@ -559,6 +773,163 @@ fn save_date_override(
 #[tauri::command]
 fn configuration_initialized(state: tauri::State<'_, ConfigurationState>) -> bool {
     state.0.load(Ordering::SeqCst)
+}
+
+#[tauri::command]
+async fn switch_desktop_companion(
+    app: AppHandle,
+    state: tauri::State<'_, RuntimeConfig>,
+    mode: config::DesktopCompanionMode,
+) -> Result<config::SaveResult, String> {
+    let current = state
+        .0
+        .lock()
+        .map_err(|_| "config_lock_failed".to_string())?
+        .clone();
+    if current.desktop_companion_mode == mode {
+        return Ok(config::SaveResult {
+            status: config::SaveStatus::Unchanged,
+            message: "桌面陪伴模式没有变化".to_string(),
+            draft_preserved: true,
+        });
+    }
+    let stage = match stage_companion_switch_async(&app, current.desktop_companion_mode, mode).await
+    {
+        Ok(Some(stage)) => stage,
+        Ok(None) => unreachable!("changed mode must create a switch stage"),
+        Err(message) => {
+            return Ok(config::SaveResult {
+                status: config::SaveStatus::Failed,
+                message,
+                draft_preserved: true,
+            })
+        }
+    };
+    let mut draft = current;
+    draft.desktop_companion_mode = mode;
+    let data_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|error| error.to_string())?;
+    let repository = repositories::configuration_repository::FileConfigurationRepository::new(
+        data_dir.join("config.json"),
+    );
+    let outcome = services::configuration_service::save_user_configuration(
+        &state.0,
+        &repository,
+        true,
+        draft,
+    )?;
+    if outcome.result.status == config::SaveStatus::Failed {
+        rollback_companion_switch(&app, stage, &outcome.result.message);
+    } else {
+        append_log(
+            &app,
+            "desktop_companion.switch_committed",
+            &format!(
+                "source={} target={} result={:?}",
+                stage.plan.source_label, stage.plan.target_label, outcome.result.status
+            )
+            .to_lowercase(),
+        );
+    }
+    Ok(outcome.result)
+}
+
+#[tauri::command]
+fn pet_package_status() -> pet_package::ProductPackageStatus {
+    pet_package::product_status()
+}
+
+#[tauri::command]
+fn show_desktop_companion(app: AppHandle) -> Result<(), String> {
+    let label = active_companion_label(&app)?;
+    show_window_internal(&app, label)
+}
+
+fn rebase_failed_pet_visibility_lease(app: &AppHandle) -> Result<bool, String> {
+    let runtime = app.state::<WindowVisibilityRuntime>();
+    let mut machine = runtime
+        .0
+        .lock()
+        .map_err(|_| "window_visibility_lock_failed".to_string())?;
+    Ok(machine.rebase_companion(
+        companion_policy::CompanionPreVisibility::PetVisible,
+        companion_policy::CompanionPreVisibility::MiniExpanded,
+    ))
+}
+
+#[tauri::command]
+fn pet_runtime_failed(
+    app: AppHandle,
+    state: tauri::State<'_, RuntimeConfig>,
+    runtime: tauri::State<'_, pet_runtime::PetRuntimeState>,
+    reason: String,
+) -> Result<(), String> {
+    let mut reason = reason.replace(['\r', '\n'], " ");
+    reason.truncate(512);
+    pet_runtime::mark_runtime_failed(&runtime);
+
+    if let Some(pet) = app.get_webview_window("pet") {
+        if pet.is_visible().unwrap_or(false) {
+            let _ = hide_window_with_source(&app, "pet", "pet_runtime_failure");
+        }
+    }
+
+    let current = state
+        .0
+        .lock()
+        .map_err(|_| "config_lock_failed".to_string())?
+        .clone();
+    let mut persisted = true;
+    if current.desktop_companion_mode == config::DesktopCompanionMode::Pet {
+        let mut draft = current;
+        draft.desktop_companion_mode = config::DesktopCompanionMode::Mini;
+        let data_dir = app
+            .path()
+            .app_data_dir()
+            .map_err(|error| error.to_string())?;
+        let repository = repositories::configuration_repository::FileConfigurationRepository::new(
+            data_dir.join("config.json"),
+        );
+        let outcome = services::configuration_service::save_user_configuration(
+            &state.0,
+            &repository,
+            true,
+            draft,
+        )?;
+        persisted = matches!(
+            outcome.result.status,
+            config::SaveStatus::Saved | config::SaveStatus::Unchanged
+        );
+        if !persisted {
+            state
+                .0
+                .lock()
+                .map_err(|_| "config_lock_failed".to_string())?
+                .desktop_companion_mode = config::DesktopCompanionMode::Mini;
+        }
+    }
+
+    let lease_rebased = rebase_failed_pet_visibility_lease(&app)?;
+    if !lease_rebased {
+        show_window_with_options(
+            &app,
+            "mini",
+            "pet_runtime_failure_fallback",
+            false,
+            true,
+            true,
+        )?;
+    }
+    append_log(
+        &app,
+        "desktop_companion.fallback_to_mini",
+        &format!(
+            "source=runtime persisted={persisted} lease_rebased={lease_rebased} reason={reason}"
+        ),
+    );
+    Ok(())
 }
 
 #[tauri::command]
@@ -687,7 +1058,7 @@ fn position_new_window(window: &WebviewWindow, label: &str) -> Result<(), String
     let origin = monitor.position();
     let monitor_size = monitor.size();
     let size = window.inner_size().map_err(|error| error.to_string())?;
-    let (x, y) = if label == "mini" {
+    let (x, y) = if matches!(label, "mini" | "pet") {
         (
             origin.x + monitor_size.width as i32 - size.width as i32 - 28,
             origin.y + monitor_size.height as i32 - size.height as i32 - 76,
@@ -987,7 +1358,7 @@ fn mini_primary_work_area(
 }
 
 fn persist_mini_edge_snapshot(app: &AppHandle) {
-    if let Err(error) = persist_runtime_mini_position(app) {
+    if let Err(error) = persist_runtime_companion_position(app, "mini") {
         append_log(
             app,
             "mini.edge_dock.failed",
@@ -1453,6 +1824,24 @@ fn apply_window_policy_inner(
                 restore_mini_edge_fallback(app, window, "window_shown")?;
             }
         }
+    } else if label == "pet" {
+        let config = app
+            .state::<RuntimeConfig>()
+            .0
+            .lock()
+            .map(|config| config.clone())
+            .unwrap_or_default();
+        apply_companion_topmost_policy(app, window, label)?;
+        if let Some(position) = config.pet_window_position {
+            window
+                .set_position(Position::Physical(PhysicalPosition::new(
+                    position.x.round() as i32,
+                    position.y.round() as i32,
+                )))
+                .map_err(|error| error.to_string())?;
+        } else {
+            position_new_window(window, label)?;
+        }
     }
     append_log(
         app,
@@ -1676,7 +2065,11 @@ fn schedule_window_operation_failure(app: &AppHandle, label: &str, operation: &s
     });
 }
 
-fn apply_mini_topmost_policy(app: &AppHandle, window: &WebviewWindow) -> Result<(), String> {
+fn apply_companion_topmost_policy(
+    app: &AppHandle,
+    window: &WebviewWindow,
+    label: &str,
+) -> Result<(), String> {
     let always_on_top = app
         .state::<RuntimeConfig>()
         .0
@@ -1686,22 +2079,22 @@ fn apply_mini_topmost_policy(app: &AppHandle, window: &WebviewWindow) -> Result<
     append_log(
         app,
         "window.policy.requested",
-        &format!("label=mini policy=always_on_top value={always_on_top}"),
+        &format!("label={label} policy=always_on_top value={always_on_top}"),
     );
     if let Err(error) = window.set_always_on_top(always_on_top) {
         let reason = format!("always_on_top:{error}");
         append_log(
             app,
             "window.policy.failed",
-            &format!("label=mini policy=always_on_top reason={error}"),
+            &format!("label={label} policy=always_on_top reason={error}"),
         );
-        schedule_window_operation_failure(app, "mini", "always_on_top", &reason);
+        schedule_window_operation_failure(app, label, "always_on_top", &reason);
         return Ok(());
     }
     append_log(
         app,
         "window.policy.applied",
-        &format!("label=mini policy=always_on_top value={always_on_top}"),
+        &format!("label={label} policy=always_on_top value={always_on_top}"),
     );
     Ok(())
 }
@@ -1714,6 +2107,10 @@ fn show_window_with_options(
     apply_policy: bool,
     emit_lifecycle: bool,
 ) -> Result<(), String> {
+    if label == "pet" {
+        pet_package::preflight()
+            .map_err(|error| window_show_error(app, label, "package_preflight", error))?;
+    }
     append_log(
         app,
         "window.show_requested",
@@ -1725,8 +2122,8 @@ fn show_window_with_options(
     if apply_policy {
         apply_window_policy(app, &window, label)
             .map_err(|error| window_show_error(app, label, "policy", error))?;
-    } else if label == "mini" {
-        apply_mini_topmost_policy(app, &window)
+    } else if matches!(label, "mini" | "pet") {
+        apply_companion_topmost_policy(app, &window, label)
             .map_err(|error| window_show_error(app, label, "policy", error))?;
     }
     resume_webview_internal(app, &window, label);
@@ -1734,6 +2131,18 @@ fn show_window_with_options(
         .show()
         .map_err(|error| window_show_error(app, label, "show", error.to_string()))?;
     append_log(app, "window.visible", &format!("label={label}"));
+    if label == "pet" {
+        let runtime = app.state::<pet_runtime::PetRuntimeState>();
+        if let Err(error) = pet_runtime::resume_for_window(&window, &runtime) {
+            let _ = window.hide();
+            append_log(
+                app,
+                "pet.native_bridge_resume_failed",
+                &format!("reason={}", error.replace(['\r', '\n'], " ")),
+            );
+            return Err(window_show_error(app, label, "native_bridge_resume", error));
+        }
+    }
     window
         .unminimize()
         .map_err(|error| window_show_error(app, label, "unminimize", error.to_string()))?;
@@ -1765,8 +2174,21 @@ fn show_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
 
 fn hide_window_with_source(app: &AppHandle, label: &str, source: &str) -> Result<(), String> {
     let window = ensure_window(app, label)?;
+    if label == "pet" {
+        dispatch_window_lifecycle_event(app, &window, label, "lmm:window-hidden", source);
+        let runtime = app.state::<pet_runtime::PetRuntimeState>();
+        if let Err(error) = pet_runtime::pause_for_window(&window, &runtime) {
+            append_log(
+                app,
+                "pet.native_bridge_pause_failed",
+                &format!("reason={}", error.replace(['\r', '\n'], " ")),
+            );
+        }
+    }
     window.hide().map_err(|error| error.to_string())?;
-    dispatch_window_lifecycle_event(app, &window, label, "lmm:window-hidden", source);
+    if label != "pet" {
+        dispatch_window_lifecycle_event(app, &window, label, "lmm:window-hidden", source);
+    }
     append_log(
         app,
         "window.hidden",
@@ -1780,33 +2202,55 @@ fn hide_window_internal(app: &AppHandle, label: &str) -> Result<(), String> {
     hide_window_with_source(app, label, "user_request")
 }
 
-fn toggle_mini_window(app: &AppHandle) -> Result<(), String> {
-    let window = ensure_window(app, "mini")?;
+fn active_companion_mode(app: &AppHandle) -> Result<config::DesktopCompanionMode, String> {
+    app.state::<RuntimeConfig>()
+        .0
+        .lock()
+        .map(|config| config.desktop_companion_mode)
+        .map_err(|_| "config_lock_failed".to_string())
+}
+
+fn active_companion_label(app: &AppHandle) -> Result<&'static str, String> {
+    Ok(companion_policy::companion_window_label(
+        active_companion_mode(app)?,
+    ))
+}
+
+fn toggle_desktop_companion(app: &AppHandle) -> Result<(), String> {
+    let label = active_companion_label(app)?;
+    let window = ensure_window(app, label)?;
     if window.is_visible().map_err(|error| error.to_string())? {
-        if mini_edge_status_internal(app)?.visibility == "retracted" {
+        if label == "mini" && mini_edge_status_internal(app)?.visibility == "retracted" {
             set_mini_edge_retracted_internal(app, false, "tray_restore", true)?;
             window.set_focus().map_err(|error| error.to_string())?;
             dispatch_window_lifecycle_event(
                 app,
                 &window,
-                "mini",
+                label,
                 "lmm:window-shown",
                 "tray_restore_privacy",
             );
             return Ok(());
         }
-        hide_window_internal(app, "mini")
+        hide_window_internal(app, label)
     } else {
-        show_window_internal(app, "mini")
+        show_window_internal(app, label)
     }
 }
 
-fn mini_pre_visibility(app: &AppHandle) -> Result<window_policy::MiniPreVisibility, String> {
-    let Some(window) = app.get_webview_window("mini") else {
-        return Ok(window_policy::MiniPreVisibility::NotPresent);
+fn companion_pre_visibility(
+    app: &AppHandle,
+) -> Result<companion_policy::CompanionPreVisibility, String> {
+    let mode = active_companion_mode(app)?;
+    let label = companion_policy::companion_window_label(mode);
+    let Some(window) = app.get_webview_window(label) else {
+        return Ok(companion_policy::CompanionPreVisibility::NotPresent);
     };
     if !window.is_visible().map_err(|error| error.to_string())? {
-        return Ok(window_policy::MiniPreVisibility::HiddenByUser);
+        return Ok(companion_policy::CompanionPreVisibility::HiddenByUser);
+    }
+    if mode == config::DesktopCompanionMode::Pet {
+        return Ok(companion_policy::CompanionPreVisibility::PetVisible);
     }
     let visibility = app
         .state::<MiniEdgeRuntime>()
@@ -1815,10 +2259,22 @@ fn mini_pre_visibility(app: &AppHandle) -> Result<window_policy::MiniPreVisibili
         .map_err(|_| "mini_edge_state_lock_failed".to_string())?
         .visibility;
     Ok(if visibility == MiniEdgeVisibility::Retracted {
-        window_policy::MiniPreVisibility::PrivacyRetracted
+        companion_policy::CompanionPreVisibility::MiniPrivacyRetracted
     } else {
-        window_policy::MiniPreVisibility::Expanded
+        companion_policy::CompanionPreVisibility::MiniExpanded
     })
+}
+
+fn visible_companion_label(
+    visibility: companion_policy::CompanionPreVisibility,
+) -> Option<&'static str> {
+    match visibility {
+        companion_policy::CompanionPreVisibility::MiniExpanded
+        | companion_policy::CompanionPreVisibility::MiniPrivacyRetracted => Some("mini"),
+        companion_policy::CompanionPreVisibility::PetVisible => Some("pet"),
+        companion_policy::CompanionPreVisibility::HiddenByUser
+        | companion_policy::CompanionPreVisibility::NotPresent => None,
+    }
 }
 
 fn transition_visibility_lease(
@@ -1838,10 +2294,10 @@ fn transition_visibility_lease(
         app,
         "window.visibility_lease.transition",
         &format!(
-            "transaction_id={} phase={} mini_before={}",
+            "transaction_id={} phase={} companion_before={}",
             lease.transaction_id,
             lease.phase.label(),
-            lease.mini_before.label()
+            lease.companion_before.label()
         ),
     );
     Ok(())
@@ -1855,18 +2311,21 @@ fn current_visibility_lease(app: &AppHandle) -> Result<window_policy::Visibility
         .map_err(|_| "window_visibility_lock_failed".to_string())
 }
 
-fn restore_mini_pre_visibility(
+fn restore_companion_pre_visibility(
     app: &AppHandle,
-    mini_before: window_policy::MiniPreVisibility,
+    companion_before: companion_policy::CompanionPreVisibility,
 ) -> Result<(), String> {
-    match window_policy::mini_restore_action(mini_before) {
-        window_policy::MiniRestoreAction::ShowExpanded => {
+    match companion_policy::companion_restore_action(companion_before) {
+        companion_policy::CompanionRestoreAction::ShowMiniExpanded => {
             show_window_with_options(app, "mini", "workbench_restore_expanded", false, true, true)
         }
-        window_policy::MiniRestoreAction::ShowPrivacyRetracted => {
+        companion_policy::CompanionRestoreAction::ShowMiniPrivacyRetracted => {
             show_window_with_options(app, "mini", "workbench_restore_privacy", false, false, true)
         }
-        window_policy::MiniRestoreAction::KeepHidden => Ok(()),
+        companion_policy::CompanionRestoreAction::ShowPet => {
+            show_window_with_options(app, "pet", "workbench_restore_pet", false, true, true)
+        }
+        companion_policy::CompanionRestoreAction::KeepHidden => Ok(()),
     }
 }
 
@@ -1898,23 +2357,23 @@ fn schedule_workbench_open_watchdog(app: &AppHandle, transaction_id: u64) {
 
 fn open_workbench_transaction(app: &AppHandle, source: &str) -> Result<(), String> {
     let workbench_preexisted = app.get_webview_window("workbench").is_some();
-    let mini_before = mini_pre_visibility(app)?;
+    let companion_before = companion_pre_visibility(app)?;
     let (lease, started) = {
         let runtime = app.state::<WindowVisibilityRuntime>();
         let mut machine = runtime
             .0
             .lock()
             .map_err(|_| "window_visibility_lock_failed".to_string())?;
-        machine.begin(mini_before)
+        machine.begin(companion_before)
     };
     append_log(
         app,
         "window.visibility_lease.requested",
         &format!(
-            "transaction_id={} phase={} mini_before={} started={started} source={source}",
+            "transaction_id={} phase={} companion_before={} started={started} source={source}",
             lease.transaction_id,
             lease.phase.label(),
-            lease.mini_before.label()
+            lease.companion_before.label()
         ),
     );
     show_window_with_options(app, "workbench", source, true, true, true).inspect_err(|_error| {
@@ -1954,23 +2413,18 @@ fn confirm_workbench_ready_internal(
             lease.phase.label()
         ));
     }
-    let hide_result = match lease.mini_before {
-        window_policy::MiniPreVisibility::Expanded
-        | window_policy::MiniPreVisibility::PrivacyRetracted => {
-            hide_window_with_source(app, "mini", "workbench_ready")
-        }
-        window_policy::MiniPreVisibility::HiddenByUser
-        | window_policy::MiniPreVisibility::NotPresent => Ok(()),
-    };
+    let hide_result = visible_companion_label(lease.companion_before).map_or(Ok(()), |label| {
+        hide_window_with_source(app, label, "workbench_ready")
+    });
     if let Err(error) = hide_result {
         let _ = hide_window_with_source(app, "workbench", "workbench_open_compensation");
-        let _ = restore_mini_pre_visibility(app, lease.mini_before);
+        let _ = restore_companion_pre_visibility(app, lease.companion_before);
         let _ = transition_visibility_lease(
             app,
             lease.transaction_id,
             window_policy::VisibilityLeasePhase::Failed,
         );
-        return Err(format!("window_visibility_mini_hide_failed:{error}"));
+        return Err(format!("window_visibility_companion_hide_failed:{error}"));
     }
     transition_visibility_lease(
         app,
@@ -1993,22 +2447,20 @@ fn close_workbench_transaction(app: &AppHandle, source: &str) -> Result<(), Stri
         window_policy::VisibilityLeasePhase::Compensating,
     )?;
     if lease.phase == window_policy::VisibilityLeasePhase::Open {
-        if let Err(error) = restore_mini_pre_visibility(app, lease.mini_before) {
+        if let Err(error) = restore_companion_pre_visibility(app, lease.companion_before) {
             let _ = transition_visibility_lease(
                 app,
                 lease.transaction_id,
                 window_policy::VisibilityLeasePhase::Failed,
             );
-            return Err(format!("window_visibility_mini_restore_failed:{error}"));
+            return Err(format!(
+                "window_visibility_companion_restore_failed:{error}"
+            ));
         }
     }
     if let Err(error) = hide_window_with_source(app, "workbench", source) {
-        if matches!(
-            lease.mini_before,
-            window_policy::MiniPreVisibility::Expanded
-                | window_policy::MiniPreVisibility::PrivacyRetracted
-        ) {
-            let _ = hide_window_with_source(app, "mini", "workbench_close_compensation");
+        if let Some(label) = visible_companion_label(lease.companion_before) {
+            let _ = hide_window_with_source(app, label, "workbench_close_compensation");
         }
         let _ = transition_visibility_lease(
             app,
@@ -2042,7 +2494,7 @@ fn compensate_workbench_loss(app: &AppHandle, source: &str) -> Result<(), String
             app,
             "window.visibility_lease.compensated",
             &format!(
-                "transaction_id={} source={source} mini_restored=false reason=workbench_lost_during_opening",
+                "transaction_id={} source={source} companion_restored=false reason=workbench_lost_during_opening",
                 lease.transaction_id
             ),
         );
@@ -2053,7 +2505,7 @@ fn compensate_workbench_loss(app: &AppHandle, source: &str) -> Result<(), String
         lease.transaction_id,
         window_policy::VisibilityLeasePhase::Compensating,
     )?;
-    match restore_mini_pre_visibility(app, lease.mini_before) {
+    match restore_companion_pre_visibility(app, lease.companion_before) {
         Ok(()) => {
             transition_visibility_lease(
                 app,
@@ -2064,7 +2516,7 @@ fn compensate_workbench_loss(app: &AppHandle, source: &str) -> Result<(), String
                 app,
                 "window.visibility_lease.compensated",
                 &format!(
-                    "transaction_id={} source={source} mini_restored=true",
+                    "transaction_id={} source={source} companion_restored=true",
                     lease.transaction_id
                 ),
             );
@@ -2117,7 +2569,7 @@ fn dispatch_tray_command(app: &AppHandle, id: &str) {
         return;
     }
     let result = match id {
-        platform::TRAY_TOGGLE_MINI => toggle_mini_window(app),
+        platform::TRAY_TOGGLE_MINI => toggle_desktop_companion(app),
         platform::TRAY_WORKBENCH => open_workbench_transaction(app, "tray"),
         platform::TRAY_SETTINGS => show_window_internal(app, "settings"),
         platform::TRAY_WIZARD => show_window_internal(app, "wizard"),
@@ -2143,7 +2595,7 @@ fn build_tray(app: &AppHandle) -> Result<(), String> {
     let toggle = MenuItem::with_id(
         app,
         platform::TRAY_TOGGLE_MINI,
-        "显示 / 隐藏迷你收入",
+        "显示 / 隐藏桌面陪伴",
         true,
         None::<&str>,
     )
@@ -2198,8 +2650,8 @@ fn build_tray(app: &AppHandle) -> Result<(), String> {
             } = event
             {
                 let app = tray.app_handle();
-                append_log(app, "tray.left_click", "action=toggle_mini");
-                if let Err(error) = toggle_mini_window(app) {
+                append_log(app, "tray.left_click", "action=toggle_desktop_companion");
+                if let Err(error) = toggle_desktop_companion(app) {
                     append_log(app, "tray.left_click_failed", &error);
                 }
             }
@@ -2318,7 +2770,7 @@ fn set_mini_edge_retracted(
     set_mini_edge_retracted_internal(&app, retracted, &source, reduced_motion)
 }
 
-fn persist_runtime_mini_position(app: &AppHandle) -> Result<(), String> {
+fn persist_runtime_companion_position(app: &AppHandle, label: &str) -> Result<(), String> {
     let data_dir = app
         .path()
         .app_data_dir()
@@ -2332,8 +2784,17 @@ fn persist_runtime_mini_position(app: &AppHandle) -> Result<(), String> {
     )?;
     match outcome.result.status {
         config::SaveStatus::Saved | config::SaveStatus::Unchanged => {
-            if outcome.mini_window_position.is_some() {
-                append_log(app, "window.position_saved", "label=mini result=success");
+            let has_position = match label {
+                "mini" => outcome.mini_window_position.is_some(),
+                "pet" => outcome.pet_window_position.is_some(),
+                _ => false,
+            };
+            if has_position {
+                append_log(
+                    app,
+                    "window.position_saved",
+                    &format!("label={label} result=success"),
+                );
             }
             Ok(())
         }
@@ -2341,15 +2802,20 @@ fn persist_runtime_mini_position(app: &AppHandle) -> Result<(), String> {
     }
 }
 
-fn schedule_mini_position_save(app: &AppHandle, position: PhysicalPosition<i32>) {
-    if mini_edge_position_persistence_suppressed(app) {
+fn schedule_companion_position_save(app: &AppHandle, label: &str, position: PhysicalPosition<i32>) {
+    if label == "mini" && mini_edge_position_persistence_suppressed(app) {
         return;
     }
     if let Ok(mut config) = app.state::<RuntimeConfig>().0.lock() {
-        config.mini_window_position = Some(config::WindowPosition {
+        let next = Some(config::WindowPosition {
             x: position.x as f64,
             y: position.y as f64,
         });
+        match label {
+            "mini" => config.mini_window_position = next,
+            "pet" => config.pet_window_position = next,
+            _ => return,
+        }
     }
     let revision = app
         .state::<PositionSaveRevision>()
@@ -2357,17 +2823,18 @@ fn schedule_mini_position_save(app: &AppHandle, position: PhysicalPosition<i32>)
         .fetch_add(1, Ordering::SeqCst)
         + 1;
     let app = app.clone();
+    let label = label.to_string();
     thread::spawn(move || {
         thread::sleep(Duration::from_millis(300));
         if app.state::<PositionSaveRevision>().0.load(Ordering::SeqCst) == revision {
-            if mini_edge_position_persistence_suppressed(&app) {
+            if label == "mini" && mini_edge_position_persistence_suppressed(&app) {
                 return;
             }
-            if let Err(error) = persist_runtime_mini_position(&app) {
+            if let Err(error) = persist_runtime_companion_position(&app, &label) {
                 append_log(
                     &app,
                     "window.position_save_failed",
-                    &format!("label=mini reason={error}"),
+                    &format!("label={label} reason={error}"),
                 );
             }
         }
@@ -2376,7 +2843,7 @@ fn schedule_mini_position_save(app: &AppHandle, position: PhysicalPosition<i32>)
 
 #[tauri::command]
 fn toggle_mini(app: AppHandle) -> Result<(), String> {
-    toggle_mini_window(&app)
+    toggle_desktop_companion(&app)
 }
 
 #[tauri::command]
@@ -2495,6 +2962,7 @@ pub fn run() {
     };
 
     tauri::Builder::default()
+        .manage(pet_runtime::PetRuntimeState::default())
         .setup(|app| {
             // The configured Mini window is the only startup WebView. Secondary
             // windows are created by ensure_window when the user opens them.
@@ -2517,7 +2985,24 @@ pub fn run() {
             let theme_fallback_required = config::stored_theme_requires_fallback(&config_path);
             let config_result = config::load_or_migrate(&config_path);
             let configuration_initialized = config_path.is_file() && config_result.is_ok();
-            let config = config_result.unwrap_or_else(|_| config::AppConfig::default());
+            let mut config = config_result.unwrap_or_else(|_| config::AppConfig::default());
+            let pet_startup_fallback = if config.desktop_companion_mode
+                == config::DesktopCompanionMode::Pet
+            {
+                pet_package::preflight().err().map(|reason| {
+                    let previous = config.clone();
+                    config.desktop_companion_mode = config::DesktopCompanionMode::Mini;
+                    let result = config::save_transactional(
+                        &config_path,
+                        &previous,
+                        &config,
+                        config::SaveFault::None,
+                    );
+                    (reason, result)
+                })
+            } else {
+                None
+            };
             let mini_edge_runtime = MiniEdgeRuntime::new(&config);
             let theme_session = ThemeSession::new(config.theme_mode.clone());
             app.manage(RuntimeConfig(Mutex::new(config)));
@@ -2542,13 +3027,27 @@ pub fn run() {
                 tray_recovery: "TaskbarCreated",
             })));
             app.manage(instance_guard);
-            if matches!(previous_config_version, Some(5..=7)) && configuration_initialized {
+            if let Some((reason, result)) = pet_startup_fallback {
+                append_log(
+                    app.handle(),
+                    "desktop_companion.fallback_to_mini",
+                    &format!(
+                        "source=startup reason={} persisted={}",
+                        reason.replace(['\r', '\n'], " "),
+                        matches!(
+                            result.status,
+                            config::SaveStatus::Saved | config::SaveStatus::Unchanged
+                        )
+                    ),
+                );
+            }
+            if matches!(previous_config_version, Some(5..=8)) && configuration_initialized {
                 if matches!(previous_config_version, Some(5 | 6)) {
                     append_log(
                         app.handle(),
                         "date_override.migrated",
                         &format!(
-                            "from_version={} to_version=8",
+                            "from_version={} to_version=9",
                             previous_config_version.unwrap_or_default()
                         ),
                     );
@@ -2557,7 +3056,7 @@ pub fn run() {
                     app.handle(),
                     "config.migrated",
                     &format!(
-                        "from_version={} to_version=8 theme=light",
+                        "from_version={} to_version=9 theme=light desktop_companion=mini",
                         previous_config_version.unwrap_or_default()
                     ),
                 );
@@ -2570,9 +3069,10 @@ pub fn run() {
                 );
             }
             if configuration_initialized {
+                let companion_label = active_companion_label(app.handle())?;
                 show_window_with_options(
                     app.handle(),
-                    "mini",
+                    companion_label,
                     "startup",
                     false,
                     true,
@@ -2607,8 +3107,8 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(|window, event| match event {
-            WindowEvent::Moved(position) if window.label() == "mini" => {
-                schedule_mini_position_save(window.app_handle(), *position);
+            WindowEvent::Moved(position) if matches!(window.label(), "mini" | "pet") => {
+                schedule_companion_position_save(window.app_handle(), window.label(), *position);
             }
             WindowEvent::CloseRequested { api, .. } => {
                 let exiting = window
@@ -2719,6 +3219,17 @@ pub fn run() {
             read_theme_session,
             update_theme_session,
             save_configuration,
+            switch_desktop_companion,
+            pet_package_status,
+            show_desktop_companion,
+            pet_runtime::read_pet_package_file,
+            pet_runtime::list_pet_package_files,
+            pet_runtime::apply_pet_hit_region,
+            pet_runtime::probe_pet_hit_region,
+            pet_runtime::move_pet_window,
+            pet_runtime::pet_runtime_ready,
+            pet_runtime::record_pet_event,
+            pet_runtime_failed,
             save_date_override,
             configuration_initialized,
             diagnostic_summary,
@@ -2731,9 +3242,12 @@ pub fn run() {
 }
 mod calendar_data;
 mod commands;
+mod companion_policy;
 mod config;
 mod domain;
 mod models;
+mod pet_package;
+mod pet_runtime;
 mod platform;
 mod repositories;
 mod services;

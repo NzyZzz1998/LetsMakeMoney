@@ -20,6 +20,7 @@ import {
 } from "./features/calendar/monthlySummary";
 import { useOvertimeMonth } from "./features/calendar/useOvertimeMonth";
 import { MiniWindow } from "./features/mini/MiniWindow";
+import { PetWindow } from "./features/pet/PetWindow";
 import {
   formatDuration,
   formatMoney,
@@ -48,6 +49,7 @@ import {
 } from "./runtime/timeService";
 import {
   windowService,
+  type PetProductPackageStatus,
   type WindowOperationFailureDetail,
   type WindowKind,
 } from "./services/windowService";
@@ -69,6 +71,7 @@ import {
 
 const WINDOW_LABELS: Record<WindowKind, string> = {
   mini: "迷你收入视图",
+  pet: "Classic 桌宠",
   workbench: "今日工作台",
   settings: "设置",
   wizard: "首次配置",
@@ -920,7 +923,7 @@ function WizardWindow() {
                   else if (await config.save()) {
                     firstRunRequest.current += 1;
                     setFirstRun(false);
-                    await showWindow("mini");
+                    await windowService.showDesktopCompanion();
                     await hideCurrentWindow();
                   }
                 }}
@@ -1149,11 +1152,91 @@ function CalendarSettings() {
 }
 
 function WindowSettings({ config }: { config: ReturnType<typeof useConfigDraft> }) {
+  const [petStatus, setPetStatus] = useState<PetProductPackageStatus | null>(null);
+  const [petStatusError, setPetStatusError] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void windowService.petPackageStatus()
+      .then(status => {
+        if (active) setPetStatus(status);
+      })
+      .catch(() => {
+        if (active) setPetStatusError(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const setEdgeAutoHide = (value: boolean) => {
     config.update("mini_edge_auto_hide", value);
     if (!value) config.update("mini_edge_dock", "none");
   };
-  return <div className="settings-groups"><section><h2>迷你收入视图</h2><label className="setting-row"><span><strong>启动时显示</strong><small>随应用启动显示迷你收入视图</small></span><Switch checked={config.draft.mini_window_visible} onChange={value => config.update("mini_window_visible", value)} label="启动时显示" /></label><label className="setting-row"><span><strong>始终置顶</strong><small>保持在其他普通窗口上方</small></span><Switch checked={config.draft.mini_window_always_on_top} onChange={value => config.update("mini_window_always_on_top", value)} label="始终置顶" /></label><label className="setting-row"><span><strong>贴边自动隐藏</strong><small>靠近屏幕左右边缘后收起，悬停时展开</small></span><Switch checked={config.draft.mini_edge_auto_hide} onChange={setEdgeAutoHide} label="贴边自动隐藏" /></label></section><section><h2>系统</h2><label className="setting-row"><span><strong>开机启动</strong><small>登录 Windows 后启动应用</small></span><Switch checked={config.draft.auto_start} onChange={value => config.update("auto_start", value)} label="开机启动" /></label></section></div>;
+  const petAvailable = petStatus?.available === true;
+  const petDetail = petStatusError
+    ? "暂时无法读取桌宠包状态"
+    : petAvailable
+      ? `已就绪 · ${petStatus.package?.actionCount ?? 0} 个动作`
+      : petStatus
+        ? "已通过沙盒验证，待产品回归与再分发门禁"
+        : "正在核对产品门禁…";
+
+  return (
+    <div className="settings-groups">
+      <section>
+        <h2>桌面陪伴</h2>
+        <div className="companion-mode-grid" role="radiogroup" aria-label="桌面陪伴模式">
+          <button
+            type="button"
+            role="radio"
+            aria-checked={config.draft.desktop_companion_mode === "mini"}
+            className={config.draft.desktop_companion_mode === "mini" ? "is-selected" : ""}
+            onClick={() => config.update("desktop_companion_mode", "mini")}
+          >
+            <span><strong>迷你收入视图</strong><small>显示收入与阶段倒计时</small></span>
+            <span className="status-pill status-pill--success">默认</span>
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={config.draft.desktop_companion_mode === "pet"}
+            aria-describedby="classic-pet-gate"
+            className={config.draft.desktop_companion_mode === "pet" ? "is-selected" : ""}
+            disabled={!petAvailable}
+            onClick={() => config.update("desktop_companion_mode", "pet")}
+          >
+            <span><strong>Classic 桌宠</strong><small id="classic-pet-gate">{petDetail}</small></span>
+            <span className={`status-pill${petAvailable ? " status-pill--success" : ""}`}>
+              {petAvailable ? "可用" : "沙盒"}
+            </span>
+          </button>
+        </div>
+        <p className="setting-note">两种模式严格互斥；保存后只保留当前选择的桌面陪伴。</p>
+        <label className="setting-row">
+          <span><strong>启动时显示</strong><small>随应用启动显示当前桌面陪伴</small></span>
+          <Switch checked={config.draft.mini_window_visible} onChange={value => config.update("mini_window_visible", value)} label="启动时显示" />
+        </label>
+        <label className="setting-row">
+          <span><strong>始终置顶</strong><small>保持当前桌面陪伴在普通窗口上方</small></span>
+          <Switch checked={config.draft.mini_window_always_on_top} onChange={value => config.update("mini_window_always_on_top", value)} label="始终置顶" />
+        </label>
+        {config.draft.desktop_companion_mode === "mini" && (
+          <label className="setting-row">
+            <span><strong>贴边自动隐藏</strong><small>靠近屏幕左右边缘后收起，悬停时展开</small></span>
+            <Switch checked={config.draft.mini_edge_auto_hide} onChange={setEdgeAutoHide} label="贴边自动隐藏" />
+          </label>
+        )}
+      </section>
+      <section>
+        <h2>系统</h2>
+        <label className="setting-row">
+          <span><strong>开机启动</strong><small>登录 Windows 后启动应用</small></span>
+          <Switch checked={config.draft.auto_start} onChange={value => config.update("auto_start", value)} label="开机启动" />
+        </label>
+      </section>
+    </div>
+  );
 }
 
 function ConfirmDialog({ title, detail, confirmLabel, tone = "danger", onCancel, onConfirm }: { title: string; detail: string; confirmLabel: string; tone?: "danger" | "warning"; onCancel(): void; onConfirm(): void }) {
@@ -1277,6 +1360,8 @@ export function App() {
       ? <SettingsWindow />
       : kind === "wizard"
         ? <WizardWindow />
-        : <MiniWindow onOpenWindow={label => { void showWindow(label); }} />;
+        : kind === "pet"
+          ? <PetWindow />
+          : <MiniWindow onOpenWindow={label => { void showWindow(label); }} />;
   return <>{content}<BrowserPreviewNotice /><WindowOperationNotice /></>;
 }

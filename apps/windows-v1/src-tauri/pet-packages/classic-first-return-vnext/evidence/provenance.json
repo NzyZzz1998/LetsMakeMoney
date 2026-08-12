@@ -1,0 +1,10 @@
+{
+  "reviewStatus": "approved",
+  "reviewedBy": "project_owner",
+  "reviewedAt": "2026-08-12T00:00:00+08:00",
+  "productionRoute": "approved-source-curation-no-new-generation",
+  "newGenerationPerformed": false,
+  "reducedScope": true,
+  "productReturnApproved": true,
+  "published": false
+}

@@ -22,23 +22,26 @@ def require(condition: bool, message: str) -> None:
 
 
 def verify_config_contract() -> None:
-    schema = load_json(CONTRACTS / "config-v8.schema.json")
-    defaults = load_json(CONTRACTS / "config-v8-defaults.json")
+    schema = load_json(CONTRACTS / "config-v9.schema.json")
+    defaults = load_json(CONTRACTS / "config-v9-defaults.json")
     properties = schema["properties"]
 
     require(set(schema["required"]) == set(defaults), "Defaults and required config keys differ")
-    require(defaults["config_version"] == 8, "config_version must be 8")
+    require(defaults["config_version"] == 9, "config_version must be 9")
     require(defaults["work_hours_per_day"] == 8, "Default work duration must be 8 hours")
     require(defaults["alternating_anchor_week_type"] is None, "Alternating week type must not default")
     require(properties["alternating_anchor_week_type"]["default"] is None, "Schema must not choose big/small")
     require(defaults["mini_edge_auto_hide"] is True, "Mini edge auto-hide must default on")
     require(defaults["mini_edge_dock"] == "none", "Mini edge dock must start undocked")
     require(properties["mini_edge_dock"]["enum"] == ["none", "left", "right"], "Mini edge dock enum drift")
+    require(defaults["desktop_companion_mode"] == "mini", "Mini must remain the safe default companion")
+    require(properties["desktop_companion_mode"]["enum"] == ["mini", "pet"], "Companion mode enum drift")
+    require(defaults["pet_window_position"] is None, "Pet position must not be invented during migration")
 
     legacy_defaults = load_json(CONTRACTS / "config-defaults.json")
     require(legacy_defaults["config_version"] == 6, "Historical config v6 evidence must remain immutable")
 
-    forbidden = ("pet", "pure_pet", "click_through")
+    forbidden = ("pet_id", "pet_package_id", "pure_pet", "click_through")
     for key in defaults:
         require(not any(marker in key for marker in forbidden), f"Pet field leaked into v1 defaults: {key}")
 
@@ -86,6 +89,8 @@ def verify_platform_contracts() -> None:
 
     by_id = {window["id"]: window for window in windows["windows"]}
     require(by_id["mini"]["default_size"] == [344, 108], "Mini window dimensions drift")
+    require(by_id["pet"]["default_size"] == [192, 208], "Pet window dimensions drift")
+    require(by_id["pet"]["product_gate"] == "closed_until_product_return_approved", "Pet product gate drift")
     require(
         by_id["mini"].get("state_sizes")
         == {
@@ -98,7 +103,7 @@ def verify_platform_contracts() -> None:
     require(by_id["workbench"]["default_size"] == [920, 640], "Workbench dimensions drift")
     require(by_id["settings"]["default_size"] == [760, 560], "Settings dimensions drift")
     require(by_id["wizard"]["default_size"] == [780, 580], "Wizard dimensions drift")
-    require(windows["tray"]["left_click"] == "toggle_mini_visibility", "Tray left click contract drift")
+    require(windows["tray"]["left_click"] == "toggle_active_companion_visibility", "Tray left click contract drift")
     require(windows["single_instance"]["duplicate_windows"] is False, "Duplicate windows must be forbidden")
 
     events = set(logs["events"])
@@ -150,7 +155,7 @@ def verify_formal_project_boundary() -> None:
         "Windows release binary must not open a console window",
     )
 
-    forbidden_fragments = ("petmanager", "pet_id", "pure_pet_mode", "click_through")
+    forbidden_fragments = ("petmanager", "pure_pet_mode")
     text_extensions = {".css", ".html", ".js", ".json", ".md", ".ps1", ".rs", ".toml", ".ts", ".tsx"}
     generated_directories = {"dist", "node_modules", "target"}
     for path in APP_ROOT.rglob("*"):

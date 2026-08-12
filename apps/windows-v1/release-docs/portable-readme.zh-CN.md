@@ -28,7 +28,8 @@ Windows 10/11 需要 Microsoft Edge WebView2 Runtime。启动失败时，请先�
 ## 更新与回退
 
 - 应用内“检查更新”只查询公开 GitHub Release；下载和替换程序始终由用户确认。
-- 本包不包含安装器、静默更新、自动替换程序或宠物功能。
+- 本包不包含安装器、静默更新或自动替换程序。桌面陪伴默认使用 Mini；用户可在设置中显式切换到 Classic 橘猫，二者严格互斥。
+- Classic 资源缺失、损坏或校验失败时，应用会安全回落到 Mini，不影响收入、日历和配置数据。
 - 需要回退时，退出当前版本并重新运行已保留的旧版便携目录；如需恢复旧配置，请先使用自己的配置备份。
 - 发布文件和校验值见 [GitHub Releases](https://github.com/NzyZzz1998/LetsMakeMoney/releases)。
 

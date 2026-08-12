@@ -27,6 +27,7 @@ export {
 export type {
   AppConfig,
   DateOverrideKind,
+  DesktopCompanionMode,
   MiniEdgeDock,
   RestMode,
   WeekType,

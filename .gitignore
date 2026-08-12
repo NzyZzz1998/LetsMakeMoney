@@ -125,3 +125,5 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+# Local desktop-pet spike workspace and raw acceptance evidence.
+/spikes/pet-return-runtime/
