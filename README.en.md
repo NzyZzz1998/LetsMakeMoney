@@ -42,7 +42,7 @@ The Mini view stays quietly on the desktop. In v1.1.0, users may explicitly swit
 | --- | --- | --- | --- |
 | Today's earnings, stage countdown, and progress | Single weekend, double weekend, alternating weeks, and overnight shifts | Mini retracts sensitive amounts at a work-area edge | Transactional configuration, recovery, and diagnostics |
 | Daily schedule, daily rate, hourly rate, and monthly total | Official calendar data, estimated years, and manual date overrides | Hover to reveal, leave to retract, tray to recover | Light/dark themes with local persistence |
-| Per-day overtime and monthly hour summaries | Paid rest, unpaid rest, and adjusted workdays | Mini hides while the workbench is open | Verified at 100%, 125%, and 150% DPI |
+| Per-day overtime and monthly hour summaries | Paid rest, unpaid rest, and adjusted workdays | Mini hides while the workbench is open | UI and transparent hit testing calibrated at three DPI levels |
 | Mini / Classic companion choice | Three Classic base states with state-specific feedback | Transparent pixels pass through | Package failures safely fall back to Mini |
 
 ## Start in three steps
@@ -55,15 +55,19 @@ There is currently no installer or silent update. Update checks only proceed aft
 
 ## v1.1.0 candidate
 
+> [!IMPORTANT]
+> v1.1.0 is being synchronized to the test branch for continued acceptance. It is not a public stable release. Classic size continuity is improved, but direct-machine drag feel remains unverified.
+
 | Fact | Current status |
 | --- | --- |
 | Public stable release | [v1.0.7 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7) |
 | Local v1.0 closeout | `v1.0.8` annotated tag, preserved as historical identity |
 | Current development candidate | Exact version `v1.1.0` |
 | Candidate purpose | Classic-only desktop companion return; Mini remains the default |
-| Rejected candidate | `V110-20260812T163314Z-d9d51cfe-clean`; blocked from release by `V110-BUG-001` |
-| Fix status | Drag interruption recovery passed TDD and targeted 125% DPI verification; a final clean candidate is pending |
-| Remaining before publication | Final-candidate 125%/150% DPI, tray, environment restoration, and exact desktop bad-package evidence |
+| Current clean candidate | `V110-20260813T081246Z-f5ae4ac3-clean` |
+| Candidate Zip SHA256 | `E79D3716400D74E9E2F5419700B97630F273AA67761982081AED07E8C87C6EB7` |
+| Automated gates | Current gate, 91 Rust tests, Clippy, frontend build, and package audit passed |
+| Manual verdict | Partial pass; remote observation cannot establish direct-machine drag quality |
 
 The v1.1.0 candidate adds:
 
@@ -74,6 +78,14 @@ The v1.1.0 candidate adds:
 - A sanitized runtime package containing only production atlases, hit data, manifests, and required license summaries.
 
 See the [v1.1.0 verification record](doc/releases/v1.1.0/verification.md) for candidate hashes and acceptance boundaries. A local candidate does not replace a published Release.
+
+### Not yet verified
+
+- Direct-machine grab continuity, drag responsiveness, rapid direction reversal, and interaction recovery after screenshot or focus interruption.
+- Every tray context-menu command, process termination after Exit, and Settings / Modal input locking with abnormal-close recovery.
+- The complete hold-and-drag chain at 125% and 150% DPI; visibility and transparent hit testing are already covered.
+- Controlled corruption of the package embedded in the exact desktop EXE; isolated bad-package fixtures pass 3/3.
+- Windows 10 and multi-display environments.
 
 ## Data and privacy
 
@@ -90,12 +102,13 @@ See the [v1.1.0 verification record](doc/releases/v1.1.0/verification.md) for ca
 
 ## Support boundary
 
-- **Verified:** Windows 11 x86_64, single display, 100% / 125% / 150% DPI.
+- **Stable release verified:** Windows 11 x86_64, single display, 100% / 125% / 150% DPI.
+- **v1.1.0 candidate:** UI visibility and transparent hit testing pass at all three DPI levels; direct-machine drag remains pending.
 - **Runtime requirement:** Microsoft Edge WebView2 Runtime.
 - **Best effort:** Windows 10 x86_64; no real-device or VM evidence is currently available.
 - **Not verified:** multi-display setups are excluded from the verified-pass statement.
 
-Final v1.1.0 DPI evidence will be recorded against one clean candidate in the [verification record](doc/releases/v1.1.0/verification.md).
+The complete v1.1.0 interaction verdict requires direct-machine input evidence recorded in the [verification record](doc/releases/v1.1.0/verification.md).
 
 ## Run from source
 

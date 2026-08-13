@@ -2,11 +2,11 @@
 
 ## 当前结论
 
-包含 `V110-BUG-001` 修复的干净提交已重建为最终候选 `V110-20260813T042624Z-7eb9f88d-clean`，current gate、候选包验证、100%/125%/150% DPI 可见性与命中、Windows 通知区左键隐藏/恢复及用户环境恢复均通过。旧候选 `V110-20260812T163314Z-d9d51cfe-clean` 继续明确淘汰，不得发布。
+体量连续性、拖拽中断恢复和合并位移调度已进入干净测试候选 `V110-20260813T081246Z-f5ae4ac3-clean`。current gate、候选包验证、91 项 Rust 测试、Clippy、前端构建和宠物行为测试通过。旧候选 `V110-20260812T163314Z-d9d51cfe-clean` 继续明确淘汰，不得发布。
 
-当前结论为“部分通过”。阻塞缺陷本身已关闭，但最终候选仍缺少截图中断拖拽的完整人工复验、托盘右键命令与退出、Settings/Modal 输入锁定三条真实桌面闭环；精确 EXE 内嵌资源损坏没有安全注入入口。`Public release approved` 仍为 `false`，不得据此自动推送、打 tag 或创建 Release。
+当前结论为“部分通过”。远程环境只确认动作体量改善，不能证明本机指针采样、原生窗口移动与快速反向手感；托盘右键命令与退出、Settings/Modal 输入锁定、完整 DPI 拖拽也尚未形成真实桌面闭环。精确 EXE 内嵌资源损坏没有安全注入入口。`Public release approved` 仍为 `false`，本轮授权只覆盖推送 `test`，不覆盖 `main`、tag 或 Release。
 
-在最终干净候选之后，新增 `V110-UX-001` 体量重组与 `V110-UX-002` 拖拽合并位移调度。两项已形成 dirty 定向候选并通过自动门禁；远程环境仅确认体量观感改善，不能证明真实本机拖拽手感。因此既有最终干净候选不再覆盖最新代码，新修正也不得因 dirty 候选而进入发布。
+`V110-UX-001` 体量重组与 `V110-UX-002` 拖拽合并位移调度已提交并重建为当前干净测试候选。候选身份已经闭合，但真实本机拖拽质量仍未闭合，因此不能进入发布收口。
 
 ## 候选身份
 
@@ -14,19 +14,19 @@
 | --- | --- |
 | 版本 | `1.1.0` |
 | 分支 | `main` |
-| 发布源 HEAD | `7eb9f88d13b8f59e1560bfd8b58cccc8e9501d1f` |
+| 发布源 HEAD | `f5ae4ac3fcfeef0c3a3c5f321a690b8ed3aa6ab8` |
 | Source tree | clean |
-| Candidate ID | `V110-20260813T042624Z-7eb9f88d-clean` |
-| 构建时间（UTC） | `2026-08-13T04:28:26.0756711Z` |
-| Zip | `LetsMakeMoney-v1.1.0-windows-x86_64.zip`，6,229,431 字节 |
-| Zip SHA256 | `0E6757775658929E89CF158E97FA5AEBBCCA2CEBFB63F35F574F567845AD96A3` |
-| EXE | `LetsMakeMoney.exe`，14,818,816 字节 |
-| EXE SHA256 | `57478CDC1B307B33815C830DCA608D37BD8F24A7DAFB87983F8B539359492E52` |
+| Candidate ID | `V110-20260813T081246Z-f5ae4ac3-clean` |
+| 构建时间（UTC） | `2026-08-13T08:13:42.3406398Z` |
+| Zip | `LetsMakeMoney-v1.1.0-windows-x86_64.zip`，6,570,393 字节 |
+| Zip SHA256 | `E79D3716400D74E9E2F5419700B97630F273AA67761982081AED07E8C87C6EB7` |
+| EXE | `LetsMakeMoney.exe`，15,360,000 字节 |
+| EXE SHA256 | `0D02CC9AA628FD7FC66EADFB518E36BFE023689F82581C52F258B75A0694384B` |
 | WebView2Loader.dll | 160,320 字节 |
 | DLL SHA256 | `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C` |
 | 公开发布 | 未发布 |
 
-### 最新定向候选（不可发布）
+### 历史定向候选（不可发布）
 
 | 字段 | 当前值 |
 | --- | --- |
@@ -42,7 +42,7 @@
 
 ## 自动门禁
 
-- 最终发布源提交上的 `scripts/verify_windows_current.ps1` 通过：Vite、TypeScript strict、Rust fmt、clippy、91/91 Rust tests、宠物运行时行为测试 4/4 和宠物包合同均通过。
+- 当前测试候选源提交上的 `scripts/verify_windows_current.ps1` 通过：Vite、TypeScript strict、Rust fmt、clippy、91/91 Rust tests、宠物运行时行为测试 6/6 和宠物包合同均通过。
 - `scripts/package_v110.ps1` 从干净提交生成唯一候选；`scripts/verify_v110_package.ps1 -Mode candidate` 通过，Zip、EXE、DLL、README 和 BUILD-INFO 身份一致。
 - npm、Cargo、Tauri、包名、BUILD-INFO 和发布说明均锁定为精确版本 `1.1.0`。
 - Classic 正式运行时包 manifest SHA256 为 `9E50542B436D197F0CD5CB8CD7149B6E0C57EE9A12073DF2A2E5B588719992AC`，package tree SHA256 为 `BC62C560134CD240015ABE742DAFA9E76D80196412C73C60423BD173A3548EA1`。
@@ -50,9 +50,9 @@
 
 ## 真实 GUI 与证据边界
 
-### 最终候选实测
+### 既有干净候选实测
 
-- 只运行新解压目录中的最终候选 EXE；100% DPI 复核可见，125% 与 150% DPI 下 192×208 桌宠窗口均完整显示，无裁切或空白。
+- 只运行新解压目录中的既有干净候选 EXE；100% DPI 复核可见，125% 与 150% DPI 下当时的 192×208 桌宠窗口均完整显示，无裁切或空白。当前 256×208 测试候选不得继承该尺寸的完整 GUI 结论。
 - 可见头部/身体点击产生输入事件；透明角落点击不产生宠物输入，逐帧透明命中合同保持有效。
 - 桌宠右键菜单三次打开均出现成对的 `pet_input_input_locked source=context-menu` 与 `pet_input_input_unlocked`，未遗留输入锁。
 - 使用真实 Windows 通知区左键隐藏和恢复：隐藏时记录 `tray.left_click`、`window_hidden` 与 `dashboard.lifecycle.paused`；恢复时记录 `dashboard.lifecycle.resumed`、`window_shown`、权威同步和主题恢复。右键托盘菜单已真实渲染全部六个入口。
@@ -76,13 +76,13 @@
 - 最新代码再次执行陪伴窗口策略定向回归：Mini/Pet 严格互斥、Workbench 进入前状态恢复、Workbench 打开期间切换重基线等 6 项 Rust 测试全部通过；这属于自动行为证据，不代替托盘与真实窗口人工闭环。
 - 当前运行日志继续按 2,000,000 字节阈值保留三份轮换文件，未见失控增长；但基础循环的 `action_started` 与逐帧命中摘要仍较密集，记录为非阻塞诊断噪声债务，不据此宣称存在稳定性故障或内存泄漏。
 
-上述三基础状态单击、5 次 500ms 拖拽、Workbench/Mini 互斥、30 分钟观感和两小时稳定运行来自旧干净候选或同源定向复验载荷。最终提交只修改宠物输入中断恢复并增加行为测试，因此这些未受影响的证据继续保留，但不改写为最终 Zip 的重新实测。
+上述三基础状态单击、5 次 500ms 拖拽、Workbench/Mini 互斥、30 分钟观感和两小时稳定运行来自旧干净候选或同源定向复验载荷。当前候选同时修改体量与拖拽调度，因此这些证据只能作为历史回归参考，不能改写为当前 Zip 的重新实测。
 
 ## 待人工补证
 
-- 在最终 Zip 中完成 500ms 长按、方向反转、截图/失焦中断、`run_stop` 和后续再次交互的连续闭环。
+- 在当前 Zip 中完成 500ms 长按、方向反转、截图/失焦中断、`run_stop` 和后续再次交互的连续闭环。
 - 在本机直接操作环境确认体量切换后的抓取连续性和合并位移后的真实跟手性；当前远程结论仅为“观感改善”。
-- 在最终 Zip 中逐项点击托盘右键菜单命令并验证退出后的进程状态；当前仅证明菜单渲染及左键隐藏/恢复。
+- 在当前 Zip 中逐项点击托盘右键菜单命令并验证退出后的进程状态；当前仅证明菜单渲染及左键隐藏/恢复。
 - Settings/Modal 打开期间的输入锁定及异常关闭后的释放。
 
 ## 暂不验证
