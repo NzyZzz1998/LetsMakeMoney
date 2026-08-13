@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/readme/hero.svg" width="100%" alt="LetsMakeMoney keeps today's earnings progress visible on the Windows desktop">
+  <img src="assets/readme/hero.svg" width="100%" alt="LetsMakeMoney v1.1.0 brings back the optional Classic orange cat desktop companion">
 </div>
 
 <div align="center">
@@ -8,6 +8,19 @@
   <a href="doc/current.md">Project status</a> ·
   <a href="doc/releases/v1.1.0/README.md">v1.1.0 candidate</a>
 </div>
+
+## v1.1.0: the cat is back
+
+The Classic orange cat returns as an **optional desktop companion**. It does not replace the earnings workflow or appear beside Mini: users choose either Mini or Classic in Settings, and Mini remains the default.
+
+- **Three companion states:** `working`, `awake_rest`, and `sleeping` follow the authoritative work state.
+- **State-aware interaction:** each state has its own click response; holding for 500ms starts running with direction changes and a complete release settle.
+- **Transparent desktop interaction:** visible pixels are interactive while transparent pixels pass through.
+- **Isolated from the core app:** the active companion hides while the workbench is open, and package or runtime failures safely fall back to Mini.
+- **Still a test candidate:** size continuity is improved, but direct-machine drag feel, rapid reversal, and several window workflows remain unverified.
+
+> [!NOTE]
+> v1.1.0 is currently available only on the `test` branch for continued acceptance. Stable downloads remain on [Releases](https://github.com/NzyZzz1998/LetsMakeMoney/releases).
 
 ## What is today's work worth?
 

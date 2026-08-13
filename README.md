@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/readme/hero.svg" width="100%" alt="LetsMakeMoney：在 Windows 桌面随时看见今天的收入进度">
+  <img src="assets/readme/hero.svg" width="100%" alt="LetsMakeMoney v1.1.0：Classic 小猫作为可选桌面陪伴回归">
 </div>
 
 <div align="center">
@@ -8,6 +8,19 @@
   <a href="doc/current.md">项目状态</a> ·
   <a href="doc/releases/v1.1.0/README.md">v1.1.0 候选</a>
 </div>
+
+## v1.1.0：小猫回来了
+
+Classic 橘猫以**可选桌面陪伴**的形式回到 LetsMakeMoney。它不替代收入主线，也不会和 Mini 同时占据桌面：用户可以在 Settings 中选择 Mini 或 Classic，默认仍是更克制的 Mini。
+
+- **三种陪伴状态：** `working`、`awake_rest`、`sleeping` 跟随权威工作状态切换。
+- **状态化互动：** 每种状态拥有独立单击反馈；长按 500ms 后进入跑动，支持左右转向和释放收势。
+- **透明桌面交互：** 可见像素参与命中，透明区域穿透，不用一整块矩形窗口挡住桌面。
+- **不拖累主应用：** Workbench 打开时暂时隐藏当前陪伴；宠物包损坏或运行异常时安全回落 Mini。
+- **仍是测试候选：** 动作体量连续性已经改善，但本机直接输入下的拖拽手感、快速反转和部分窗口闭环仍待验收。
+
+> [!NOTE]
+> v1.1.0 目前只在 `test` 分支继续验收，尚未成为公开 Release。当前稳定下载仍以 [Releases](https://github.com/NzyZzz1998/LetsMakeMoney/releases) 为准。
 
 ## 今天的工作，值多少钱？
 
