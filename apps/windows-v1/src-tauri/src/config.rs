@@ -9,8 +9,8 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-pub const CURRENT_CONFIG_VERSION: u32 = 8;
-pub const MIGRATABLE_CONFIG_VERSIONS: &[u64] = &[5, 6, 7];
+pub const CURRENT_CONFIG_VERSION: u32 = 9;
+pub const MIGRATABLE_CONFIG_VERSIONS: &[u64] = &[5, 6, 7, 8];
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct WindowPosition {
@@ -39,6 +39,15 @@ pub enum MiniEdgeDock {
     None,
 }
 
+#[derive(Clone, Copy, Debug, Default, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum DesktopCompanionMode {
+    Pet,
+    #[default]
+    #[serde(other)]
+    Mini,
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct AppConfig {
     pub config_version: u32,
@@ -54,7 +63,11 @@ pub struct AppConfig {
     pub lunch_end_time: String,
     pub calendar_dataset_version: String,
     pub date_overrides: Vec<DateOverride>,
+    #[serde(default)]
+    pub desktop_companion_mode: DesktopCompanionMode,
     pub mini_window_position: Option<WindowPosition>,
+    #[serde(default)]
+    pub pet_window_position: Option<WindowPosition>,
     pub mini_window_visible: bool,
     pub mini_window_always_on_top: bool,
     #[serde(default = "default_true")]
@@ -70,7 +83,7 @@ pub struct AppConfig {
 
 impl Default for AppConfig {
     fn default() -> Self {
-        serde_json::from_str(include_str!("../../contracts/config-v8-defaults.json"))
+        serde_json::from_str(include_str!("../../contracts/config-v9-defaults.json"))
             .expect("embedded config defaults must remain valid")
     }
 }
@@ -192,6 +205,25 @@ pub fn migrate_v7(source: &Value) -> Result<AppConfig, String> {
     let mut target = source.as_object().cloned().ok_or("invalid_source_config")?;
     target.insert("config_version".into(), Value::from(CURRENT_CONFIG_VERSION));
     target.insert("theme_mode".into(), Value::from("light"));
+    target.insert("desktop_companion_mode".into(), Value::from("mini"));
+    target.insert("pet_window_position".into(), Value::Null);
+    let config: AppConfig =
+        serde_json::from_value(Value::Object(target)).map_err(|error| error.to_string())?;
+    validate(&config)?;
+    Ok(config)
+}
+
+pub fn migrate_v8(source: &Value) -> Result<AppConfig, String> {
+    if source.get("config_version").and_then(Value::as_u64) != Some(8) {
+        return Err("unsupported_source_config".into());
+    }
+    let mut target = source.as_object().cloned().ok_or("invalid_source_config")?;
+    target.insert("config_version".into(), Value::from(CURRENT_CONFIG_VERSION));
+    target
+        .entry("theme_mode")
+        .or_insert_with(|| Value::from("light"));
+    target.insert("desktop_companion_mode".into(), Value::from("mini"));
+    target.insert("pet_window_position".into(), Value::Null);
     let config: AppConfig =
         serde_json::from_value(Value::Object(target)).map_err(|error| error.to_string())?;
     validate(&config)?;
@@ -289,6 +321,7 @@ pub fn migrate_to_current(source: &Value) -> Result<AppConfig, String> {
         Some(5) => migrate_v5(source),
         Some(6) => migrate_v6(source),
         Some(7) => migrate_v7(source),
+        Some(8) => migrate_v8(source),
         _ => Err("unsupported_source_config".into()),
     }
 }
@@ -576,9 +609,36 @@ mod tests {
 
     #[test]
     fn configuration_version_contract_has_one_current_target() {
-        assert_eq!(CURRENT_CONFIG_VERSION, 8);
-        assert_eq!(MIGRATABLE_CONFIG_VERSIONS, &[5, 6, 7]);
+        assert_eq!(CURRENT_CONFIG_VERSION, 9);
+        assert_eq!(MIGRATABLE_CONFIG_VERSIONS, &[5, 6, 7, 8]);
         assert_eq!(AppConfig::default().config_version, CURRENT_CONFIG_VERSION);
+    }
+
+    #[test]
+    fn v8_migrates_to_mini_without_changing_existing_window_preferences() {
+        let mut source = serde_json::to_value(AppConfig::default()).unwrap();
+        let object = source.as_object_mut().unwrap();
+        object.insert("config_version".into(), Value::from(8));
+        object.remove("desktop_companion_mode");
+        object.remove("pet_window_position");
+        object.insert("mini_window_visible".into(), Value::from(false));
+        object.insert("mini_window_always_on_top".into(), Value::from(false));
+        object.insert(
+            "mini_window_position".into(),
+            serde_json::json!({"x": 120.0, "y": 240.0}),
+        );
+
+        let migrated = migrate_to_current(&source).expect("v8 must migrate to v9");
+
+        assert_eq!(migrated.config_version, 9);
+        assert_eq!(migrated.desktop_companion_mode, DesktopCompanionMode::Mini);
+        assert_eq!(migrated.pet_window_position, None);
+        assert!(!migrated.mini_window_visible);
+        assert!(!migrated.mini_window_always_on_top);
+        assert_eq!(
+            migrated.mini_window_position,
+            Some(WindowPosition { x: 120.0, y: 240.0 })
+        );
     }
 
     #[test]
@@ -630,7 +690,8 @@ mod tests {
         });
         let migrated = migrate_v5(&source).unwrap();
         let text = serde_json::to_string(&migrated).unwrap();
-        assert_eq!(migrated.config_version, 8);
+        assert_eq!(migrated.config_version, 9);
+        assert_eq!(migrated.desktop_companion_mode, DesktopCompanionMode::Mini);
         assert_eq!(migrated.theme_mode, ThemeMode::Light);
         for retired_key in [
             "pet_id",
@@ -718,7 +779,7 @@ mod tests {
         });
 
         let migrated = migrate_v6(&source).expect("v6 config should migrate");
-        assert_eq!(migrated.config_version, 8);
+        assert_eq!(migrated.config_version, 9);
         assert_eq!(migrated.date_overrides.len(), 2);
         assert!(migrated.date_overrides.iter().any(|entry| {
             entry.date == "2026-07-24" && entry.kind == crate::domain::DateOverrideKind::PaidRest
@@ -796,7 +857,7 @@ mod tests {
         let mut source = source.as_object().unwrap().clone();
         source.insert("monthly_salary".into(), Value::from(12_345.67));
         let migrated = migrate_v7(&Value::Object(source)).unwrap();
-        assert_eq!(migrated.config_version, 8);
+        assert_eq!(migrated.config_version, 9);
         assert_eq!(migrated.theme_mode, ThemeMode::Light);
         assert_eq!(migrated.monthly_salary, 12_345.67);
     }

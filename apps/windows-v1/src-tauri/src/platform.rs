@@ -19,7 +19,7 @@ pub struct EdgeDockPositions {
 }
 
 pub const MINI_EDGE_DOCK_THRESHOLD_LOGICAL_PX: i32 = 16;
-pub const MINI_EDGE_PRIVACY_TAB_LOGICAL_PX: i32 = 34;
+pub const MINI_EDGE_PRIVACY_TAB_LOGICAL_PX: i32 = 40;
 pub const MINI_EDGE_UNDOCK_THRESHOLD_LOGICAL_PX: i32 = 24;
 pub const MINI_EDGE_FALLBACK_MARGIN_LOGICAL_PX: i32 = 12;
 pub const MINI_EDGE_TRANSITION_MS: u64 = 180;
@@ -472,12 +472,12 @@ mod tests {
     }
 
     #[test]
-    fn v107_privacy_tab_keeps_34_logical_pixels_visible() {
+    fn privacy_tab_keeps_40_logical_pixels_visible() {
         let fixture = v107_geometry_fixture();
-        assert_eq!(fixture.contract.privacy_tab_logical_px, 34);
+        assert_eq!(fixture.contract.privacy_tab_logical_px, 40);
         assert_eq!(
             MINI_EDGE_PRIVACY_TAB_LOGICAL_PX, fixture.contract.privacy_tab_logical_px,
-            "production privacy-tab width must follow the v1.0.7 contract"
+            "production privacy-tab width must follow the current readable contract"
         );
         for case in fixture.dock_cases {
             let side = match case.expected_side.as_str() {

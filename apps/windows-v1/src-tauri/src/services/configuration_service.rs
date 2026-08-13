@@ -13,6 +13,7 @@ pub struct ConfigurationSaveOutcome {
 pub struct RuntimeSnapshotOutcome {
     pub result: SaveResult,
     pub mini_window_position: Option<WindowPosition>,
+    pub pet_window_position: Option<WindowPosition>,
 }
 
 pub fn save_user_configuration(
@@ -61,6 +62,7 @@ pub fn persist_runtime_snapshot(
     Ok(RuntimeSnapshotOutcome {
         result,
         mini_window_position: current.mini_window_position.clone(),
+        pet_window_position: current.pet_window_position.clone(),
     })
 }
 
@@ -198,5 +200,6 @@ mod tests {
             outcome.mini_window_position,
             Some(WindowPosition { x: 320.0, y: 180.0 })
         );
+        assert_eq!(outcome.pet_window_position, None);
     }
 }

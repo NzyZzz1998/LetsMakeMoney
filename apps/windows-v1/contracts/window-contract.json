@@ -1,5 +1,5 @@
 {
-  "contract_version": 2,
+  "contract_version": 3,
   "windows": [
     {
       "id": "mini",
@@ -14,6 +14,17 @@
       "taskbar": false,
       "close": "hide_to_tray",
       "singleton": true
+    },
+    {
+      "id": "pet",
+      "default_size": [256, 208],
+      "minimum_size": [256, 208],
+      "resizable": false,
+      "taskbar": false,
+      "close": "hide_to_tray",
+      "singleton": true,
+      "transparent_hit_region": "per_frame_native_mask",
+      "product_gate": "closed_until_product_return_approved"
     },
     {
       "id": "workbench",
@@ -45,9 +56,9 @@
   ],
   "tray": {
     "menu_width": [220, 260],
-    "left_click": "toggle_mini_visibility",
+    "left_click": "toggle_active_companion_visibility",
     "commands": [
-      "toggle_mini",
+      "toggle_active_companion",
       "open_workbench",
       "open_settings",
       "open_wizard",
@@ -76,9 +87,9 @@
     "second_launch": "activate_existing_primary_window",
     "duplicate_windows": false
   },
-  "removed_v1_capabilities": [
-    "pure_pet_taskbar_policy",
-    "dynamic_click_through",
-    "transparent_pet_window"
+  "forbidden_legacy_capabilities": [
+    "godot_pet_runtime",
+    "pure_pet_mode",
+    "pet_id_runtime_branching"
   ]
 }

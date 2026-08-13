@@ -10,15 +10,15 @@ function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
-assert(CURRENT_CONFIG_VERSION === 8, "the current configuration version remains v8");
+assert(CURRENT_CONFIG_VERSION === 9, "the current configuration version is v9");
 assert(defaultConfig.config_version === CURRENT_CONFIG_VERSION, "defaults use the version constant");
 
 const normalized = normalizeConfiguration({
-  config_version: 3 as 8,
+  config_version: 3 as 9,
   theme_mode: "unexpected" as "light",
   monthly_salary: 15_000,
 });
-assert(normalized.config_version === 8, "legacy frontend values normalize to the current version");
+assert(normalized.config_version === 9, "legacy frontend values normalize to the current version");
 assert(normalized.theme_mode === "light", "invalid themes fall back to light");
 assert(normalized.monthly_salary === 15_000, "valid persisted values are preserved");
 assert(normalized.work_hours_per_day === 8, "missing values inherit safe defaults");

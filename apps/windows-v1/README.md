@@ -1,38 +1,31 @@
 # LetsMakeMoney Windows Stable 工程
 
-这是 LetsMakeMoney 当前 Windows Stable 主线工程，技术栈为 Rust、Tauri、TypeScript 与 React。当前公开版本为 v1.0.7 Stable；该版本已完成独立验收、必需 CI、干净构建、annotated tag、GitHub Release 与线上附件回下载核验。
+这是 LetsMakeMoney 当前 Windows 主线工程，技术栈为 Rust、Tauri、TypeScript 与 React。当前公开版本仍为 v1.0.7 Stable；当前本地开发候选为 v1.1.0，尚未推送、打 tag 或发布。
 
 v1.0.7 当前已验证开发环境为 Windows 11 x86_64 单显示器；Windows 10 与多显示器不进入 v1.0.7 已验证通过声明，完整边界见 `doc/releases/v1.0.7/support-matrix.md`。
 
 ## 产品边界
 
-- 无宠物迷你收入视图。
+- 默认 Mini 迷你收入视图，以及用户显式选择的 Classic 橘猫陪伴；二者严格互斥。
 - 今日与日历工作台。
 - 三步首次配置向导。
 - 收入与作息、日历、窗口与启动、数据与支持四组设置。
 - Windows 原生托盘、关闭隐藏、窗口找回、诊断与用户确认更新。
-- 不包含宠物 UI、运行时、配置、资源、点击穿透或纯桌宠模式。
+- Classic 使用独立透明 WebView、配置 v9、逐帧命中和故障回落；包故障不得影响收入主线。
+- 不包含多宠物、下载系统、宠物市场、业务事件动作或 Godot 桌宠运行时。
 
-旧桌宠版本保留在 `v0.9-beta` tag 和对应 GitHub Release，不在 v1.0 活跃源码中维护。
+旧桌宠版本保留在 `v0.9-beta` tag 和对应 GitHub Release，只作为历史基线。
 
 ## 本地验证
 
 从仓库根目录运行：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m0.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m1.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m2.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m3.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m4.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m5.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_m6.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\verify_v10_docs.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_windows_current.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\package_v110.ps1
 ```
 
-也可以运行 `scripts\verify_v10.ps1` 执行聚合验证。
-
-历史增量验证入口位于仓库根目录，并只用于复核对应版本。当前开发聚合入口为 `scripts\verify_windows_current.ps1`；当前开发合同由 `scripts\current-manifest.json` 标识。v1.0.8 开发候选使用 `scripts\package_v10f.ps1` 生成，并由 `scripts\verify_v10f_package.ps1` 复核；在 v1.0.8 正式发布前，公开发布身份仍以仓库根目录 `README.md`、`doc/current.md` 和 v1.0.7 GitHub Release 为准。
+历史增量脚本只用于复核对应版本，不得作为当前门禁。当前合同由 `scripts\current-manifest.json` 标识，候选由 `scripts\verify_v110_package.ps1` 复核；公开发布身份仍以 GitHub Release 和其 SHA256 文件为准。
 
 ## 架构行为验证
 

@@ -1,8 +1,8 @@
-# LetsMakeMoney v1.0 第三方声明
+# LetsMakeMoney v1.1 第三方声明
 
-**最后更新**：2026-07-28
+**最后更新**：2026-08-13
 
-v1.0 使用 Rust、Tauri、TypeScript 和 React。项目自身代码采用 MIT License；第三方组件保留各自许可。
+v1.1 使用 Rust、Tauri、TypeScript 和 React。项目自身代码采用 MIT License；第三方组件保留各自许可。Classic 橘猫是项目所有者批准的受限产品素材，不属于第三方组件，其边界见 `ASSETS_LICENSE.md`。
 
 ## 运行时与前端
 
@@ -16,7 +16,7 @@ v1.0 使用 Rust、Tauri、TypeScript 和 React。项目自身代码采用 MIT L
 | Microsoft WebView2Loader | 随 webview2-com-sys 0.38.2 锁定 | 帮助应用定位设备上的 WebView2 Runtime；x64 `WebView2Loader.dll` 随便携 Zip 分发 | Microsoft WebView2 SDK 组件；Microsoft 官方部署文档明确要求随对应架构应用提供，https://learn.microsoft.com/zh-cn/microsoft-edge/webview2/concepts/distribution |
 | Microsoft Edge WebView2 Runtime | 用户设备上的系统安装版本 | Windows Web 内容运行时 | 由 Microsoft 独立安装和许可；本项目便携 Zip 不包含 Runtime |
 
-Rust 传递依赖由 `apps/windows-v1/src-tauri/Cargo.lock` 锁定，npm 依赖由 `apps/windows-v1/package-lock.json` 锁定。发布包不得携带旧 Godot、godot-cpp、MinGW native bridge 或宠物运行时。
+Rust 传递依赖由 `apps/windows-v1/src-tauri/Cargo.lock` 锁定，npm 依赖由 `apps/windows-v1/package-lock.json` 锁定。发布包不得携带旧 Godot、godot-cpp、MinGW native bridge、PetManager 生产目录、未登记宠物包或 QA 中间产物；只允许携带 `ASSETS_MANIFEST.md` 登记的 Classic 净化运行时包。
 
 `WebView2Loader.dll` 与 WebView2 Runtime 是不同组件：前者是随应用分发的架构相关加载器，后者是用户设备上独立安装和更新的运行时。本项目仅分发 x64 Loader，不捆绑 Evergreen 或 Fixed Version Runtime。
 

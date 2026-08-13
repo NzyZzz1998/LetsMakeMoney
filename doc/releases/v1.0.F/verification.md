@@ -1,10 +1,18 @@
 # LetsMakeMoney Windows v1.0.8 验证记录
 
+## 2026-08-09 收官补充验证
+
+- 最终收官修正覆盖 Mini 隐私竖条 40px 可读性合同、竖排文字稳定性、日历正常态估算提示收敛及 Workbench 紧凑布局阈值。
+- 在最终修正与收官文档写入前，执行 `scripts/verify_windows_current.ps1 -Milestone M7`，退出码为 `0`。
+- M1、M5、M6、M7 全部通过；前端行为测试、TypeScript strict、Vite production build、Rust `77/77` tests、fmt、clippy、架构与工具解析门禁全部通过。
+- 本节证明最终源码具备本地收官与 tag 条件；它不替代公开发布所需的重新打包、候选包身份复核、远端附件回下载和 published 模式验证。
+- 下一阶段桌宠回归与动画重构草案未纳入 v1.0.8 tag。
+
 ## 当前结论
 
 本地发布源提交、锁定候选、自动门禁和真实 Windows 11 单显示器 GUI 验收已完成。项目所有者使用真实鼠标完成通知区左键隐藏/恢复、右键菜单、任务栏入口策略和退出，退出后进程消失且日志记录退出语义。候选未发现新的发布阻塞缺陷，当前结论为 **通过，可进入发布收口**。
 
-`test` 已推送；本轮未推送 `main`，未创建远端 tag、GitHub Release 或修改仓库设置。最终 README 更新晚于锁定候选，正式发布前必须从最终发布提交重建候选并更新哈希。
+`test` 已推送；本轮只创建本地 annotated tag `v1.0.8`，未推送 `main` 或 tag，未创建 GitHub Release，也未修改仓库设置。最终 README 与源码修正晚于历史锁定候选，公开发布前必须从 tag 对应的干净提交重建候选并更新哈希。
 
 ## 候选身份
 

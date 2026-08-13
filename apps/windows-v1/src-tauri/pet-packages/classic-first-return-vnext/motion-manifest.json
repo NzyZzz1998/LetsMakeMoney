@@ -1,0 +1,1860 @@
+{
+  "schemaVersion": 2,
+  "packageVersion": "0.4.1-rc.1",
+  "petId": "letsmakemoney-classic-pro",
+  "logicalSize": {
+    "width": 256,
+    "height": 208
+  },
+  "anchor": {
+    "x": 0.5,
+    "y": 0.95
+  },
+  "footBaselineY": 198,
+  "actions": [
+    {
+      "id": "working_play_loop_a",
+      "sourceState": "working",
+      "targetState": "working",
+      "semanticRole": "base_loop",
+      "playbackKind": "loop",
+      "variantGroup": "working_play",
+      "weight": 1.0,
+      "cooldownMs": 0,
+      "maxConsecutive": 2,
+      "interruptPolicy": "interaction_or_business_event",
+      "safeExitFrames": [
+        5,
+        10,
+        15
+      ],
+      "maxRuntimeMs": 3000,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "footBaselineY": 198,
+      "logicalSize": {
+        "width": 256,
+        "height": 208
+      },
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "mirrorSafe": false,
+      "directionVariants": [],
+      "fallback": "working_play_loop_a",
+      "frames": [
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "CB417B31E343B7155E3D4F27994CD57ACA36BCC34438659754F8F3CE58C7D9E3",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-000"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "7FD032A930C0E1977CF8C75DFF66D93B536B0F6C6B8130C95A7F4E80F1597668",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-001"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "44C6716E8A21BFDBFC3BD757D745FFD8A1169FCE71B77F3FCC282E3E3A44C327",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-002"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 0,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "E45E6B461A33085DA34942DFD586C8B2DC17CB5CA40BB935DB6638A9353C35F2",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-003"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 0,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "F6CDBDDAE81AF5D255179761EA1344D0D9134D4C00966984C8EF75349486E033",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-004"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 0,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "5D8BD03BA8CF822571961DDE71436242756670F1F7BC337ABE6F464641B2AC5E",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-005"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1536,
+            "y": 0,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "8DD0FB01B5E052BDEFA16451F00BC82D3DBE6D08D75AD861DBF91181A6D4B07F",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-006"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1792,
+            "y": 0,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "17C969314B614B7D7B97298E742D4E383247A8E0616C018AC0A37A3013F0CB2A",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-007"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 208,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "A84DFC0E58B22A6EAB606387B0A8F03E9FC24E0B74F1D47E6381FAB76955906C",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-008"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 208,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "A57982E99E2FE018DD884B43E96A7A6897D1FE49C543D3A60015524EF7530346",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-009"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 208,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "39ADEB0539FF1306C018C49846976E1102A29FB40FBBA9AE72FED5A2B3443634",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-010"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 208,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "C05EBBED2A8BA96D8507F5FEE8FF66AEE833BB77ADA24483270881EC14257E09",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-011"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 208,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "93A1EBF34597EC9BCD12B084A012559B5FFB095E38419E47662FBE62B2112C17",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-012"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 208,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "F48EBB04BC53A4CE9B68DB1E0C8B94590DC996F22C698C8FBBFAA21D6EF53124",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-013"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1536,
+            "y": 208,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "D7E62E4930897E0B22C81C16A71C7A67CC1F15F50E6A12A8AE54D73A2DD76399",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-014"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1792,
+            "y": 208,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "3DB5C63DABA9481DEAF43A50F53BC3823A515C548EB486075C21B2E178FF5AFF",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_a-015"
+        }
+      ]
+    },
+    {
+      "id": "working_play_loop_b",
+      "sourceState": "working",
+      "targetState": "working",
+      "semanticRole": "base_loop",
+      "playbackKind": "loop",
+      "variantGroup": "working_base",
+      "weight": 0.65,
+      "cooldownMs": 0,
+      "maxConsecutive": 1,
+      "interruptPolicy": "interaction_or_business_event",
+      "safeExitFrames": [
+        5
+      ],
+      "maxRuntimeMs": 5000,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "footBaselineY": 198,
+      "logicalSize": {
+        "width": 256,
+        "height": 208
+      },
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "mirrorSafe": false,
+      "directionVariants": [],
+      "fallback": "working_play_loop_a",
+      "frames": [
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 416,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "51817A25A58439C9D1F7E5206B706C78D28CC8643AFF6672344632FFC149120A",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_b-000"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 416,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "0819810DD21169C9B4D2E98521A1A7FAD706FD2CAD5E7D9CB152A70EACA88CDB",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_b-001"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 416,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "6FD0A5C548F3D499270330C0132697AA1295EA2F4BC048945F0AF6E9A642E024",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_b-002"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 416,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "B7FEC1E9F6FE637DA329CF7606855B4B7B672FC3BB2198B2063C3A29EFCEA21B",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_b-003"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 416,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "2CEA4C1FF4435CD1228273E9F0F0EC2AEB3D62B4D3D35A6FAE31919ECF2A9DE1",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_b-004"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 416,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 220,
+          "sha256": "97D61B0C16F66700FB1CEC0A0560E89DAC6AEF83A04783E0FE643EB594403180",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_play_loop_b-005"
+        }
+      ]
+    },
+    {
+      "id": "working_observe",
+      "sourceState": "working",
+      "targetState": "working",
+      "semanticRole": "ambient",
+      "playbackKind": "oneshot",
+      "variantGroup": "working_ambient",
+      "weight": 0.55,
+      "cooldownMs": 60000,
+      "maxConsecutive": 1,
+      "interruptPolicy": "interaction_or_drag",
+      "safeExitFrames": [
+        5
+      ],
+      "maxRuntimeMs": 1800,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "footBaselineY": 198,
+      "logicalSize": {
+        "width": 256,
+        "height": 208
+      },
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "mirrorSafe": false,
+      "directionVariants": [],
+      "fallback": "working_play_loop_a",
+      "frames": [
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1536,
+            "y": 416,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "6C1262763804C0AA03FE94EC4E25BBB71035D5FBB95D1F56094A9196A6DB99BE",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_observe-000"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1792,
+            "y": 416,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "6A85200099172034595F9CB628EBCEB224C09C025492BAA82B58CE6894FE2B8C",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_observe-001"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 624,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "5240E99960BC6ECED87FB2D290853D897B3BBCC157134CDE9CB850E9FF5181D9",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_observe-002"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 624,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "3ED405E258151DEEA30F8110821E3FB62B349C10825D7123D85A09E93FC7EB87",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_observe-003"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 624,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 150,
+          "sha256": "711D54052CB13B8DE63501B8612A399F0DFF315FA1827704074EB66529041006",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_observe-004"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 624,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 280,
+          "sha256": "ED14AFD97659F3AB737915349E9F2D6C244014790D021EF5B659BF98D18AAD62",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_observe-005"
+        }
+      ]
+    },
+    {
+      "id": "working_ack",
+      "sourceState": "working",
+      "targetState": "working",
+      "semanticRole": "ack",
+      "playbackKind": "oneshot",
+      "variantGroup": "working_ack",
+      "weight": 1.0,
+      "cooldownMs": 4000,
+      "maxConsecutive": 1,
+      "interruptPolicy": "drag_only",
+      "safeExitFrames": [
+        7
+      ],
+      "maxRuntimeMs": 1560,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "footBaselineY": 198,
+      "logicalSize": {
+        "width": 256,
+        "height": 208
+      },
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "mirrorSafe": false,
+      "directionVariants": [],
+      "fallback": "working_play_loop_a",
+      "frames": [
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 624,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "C4F4FC168933098648ABE4D911346FC809696C94EF6C85B9221B775469C9410B",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_ack-000"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 624,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "DA4388D506EDF880C7333275D1BE9327549ABCA512A5444812B5314D4A9CBEDA",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_ack-001"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1536,
+            "y": 624,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "EAAA69F3E0A4C1748AF82A42F2C2CC567F1057F15C7E277F29808D115FD6531F",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_ack-002"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1792,
+            "y": 624,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "4538548ADAF7BE94E5548A916BB27511D2BF925980B9B7E63D8D0D46112FACA8",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_ack-003"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 832,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "322E94F05DF30C1842EE9A09BB1EA8FA18F6B78D6C3733DF84BE8826BBB10CE3",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_ack-004"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 832,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "D8D06D9F338AA6A9699D1D5186595CB85DB3B1659CE28F7AAF0D8812A50180E2",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_ack-005"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 832,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "0B948FF476992611062DF88B6EB4DB5899E587A8524A3DB1ECBA29A86D8A5F29",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_ack-006"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 832,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "00485270B715328119B9A2B10BD66AB9B4E5AE3C5F060B0A2821D7D7F88C6F52",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#working_ack-007"
+        }
+      ]
+    },
+    {
+      "id": "awake_rest_loop",
+      "sourceState": "awake_rest",
+      "targetState": "awake_rest",
+      "semanticRole": "base_loop",
+      "playbackKind": "loop",
+      "variantGroup": "rest_base",
+      "weight": 1.0,
+      "cooldownMs": 0,
+      "maxConsecutive": 2,
+      "interruptPolicy": "interaction_or_business_event",
+      "safeExitFrames": [
+        5,
+        10,
+        15
+      ],
+      "maxRuntimeMs": 10000,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "footBaselineY": 198,
+      "logicalSize": {
+        "width": 256,
+        "height": 208
+      },
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "mirrorSafe": false,
+      "directionVariants": [],
+      "fallback": "awake_rest_loop",
+      "frames": [
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 832,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 260,
+          "sha256": "B7D44F5BBB45B216798ACF8D8E804E6DAA7849BE17162D446A07F872A565BD4B",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-000"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 832,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 260,
+          "sha256": "B2DAC56457AC8A5FCF3232A9AD36DA05A1826881944D7A2D21E0CB25A313F76E",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-001"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1536,
+            "y": 832,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 240,
+          "sha256": "EBB35579F7202E13D59CC8EF44F56CABAD310CA8C408AFB63E8C0922D9C5EA93",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-002"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1792,
+            "y": 832,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 220,
+          "sha256": "DB6535B9923455783F4145CF04A35A1A347C6FCB4AA0347B21D51499D313DEE7",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-003"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 1040,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 240,
+          "sha256": "2BB3986065293F35BB8AC4DF8E1963A6534DF46B3B41D3498C9677E657780C51",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-004"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 1040,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 260,
+          "sha256": "8B814E52ADDAC1DA40D3EEB9C68A4863AB700246E45230529A96002E11ABA714",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-005"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 1040,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 280,
+          "sha256": "2F859BA8FF3002D5C3FF88CD146C71A497A83AA39D7DD1537401A1D5281C02BF",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-006"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 1040,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 260,
+          "sha256": "69567EFA40BED3D040E6EC6F24EE60CD2CA0F5E83836097C4AD6B784073FD09D",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-007"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 1040,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 260,
+          "sha256": "9423B3BBC6B4049D121444A65C9D0D1A43D9A0F727BC98314EF1A9800C19E302",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-008"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 1040,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 260,
+          "sha256": "477B363F75EFB3BFEA4F4DD1ABA905E91DFBB2C24A211A81DDBE76FD6B1DC72F",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-009"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1536,
+            "y": 1040,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 240,
+          "sha256": "816175719F14E879CA82C4DBC1DCE6C4D3B30919F3B089C21E784BF0ADCE76D8",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-010"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1792,
+            "y": 1040,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 220,
+          "sha256": "2D26250CB03B09C3D91ED18A80129BD5DE731102FA55FF66155E093AF4F46030",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-011"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 1248,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 240,
+          "sha256": "0F0708C231C37121B06252D78DC400B439197738D13EC1789A6DE81542B4D0E9",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-012"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 1248,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 260,
+          "sha256": "76C46233F7B822D65A0B14E3F3827850BAD87402BEF98E50032F7E7A003A78D5",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-013"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 1248,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 280,
+          "sha256": "DDDB61403138B8DB67F48E4D9624714E20C121A19C115F4A2F66E191C97D292C",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-014"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 1248,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 300,
+          "sha256": "3FE89A839D6A844B77DE9157B039ABB90E7431E8B95F734CE5F441C92D5C2E10",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#awake_rest_loop-015"
+        }
+      ]
+    },
+    {
+      "id": "rest_ack",
+      "sourceState": "awake_rest",
+      "targetState": "awake_rest",
+      "semanticRole": "ack",
+      "playbackKind": "oneshot",
+      "variantGroup": "rest_ack",
+      "weight": 1.0,
+      "cooldownMs": 600,
+      "maxConsecutive": 1,
+      "interruptPolicy": "drag_only",
+      "safeExitFrames": [
+        7
+      ],
+      "maxRuntimeMs": 1800,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "footBaselineY": 198,
+      "logicalSize": {
+        "width": 256,
+        "height": 208
+      },
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "mirrorSafe": false,
+      "directionVariants": [],
+      "fallback": "awake_rest_loop",
+      "frames": [
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 1248,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 100,
+          "sha256": "8EC1603ECB57932E978060A9F26958765054718D7C9542DE36C95F640C886DD0",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#rest_ack-000"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 1248,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 100,
+          "sha256": "0DC3E64ECC5964F094E7ABEE342291CD09636C182CDFA12A8198CE2DC9572CAD",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#rest_ack-001"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1536,
+            "y": 1248,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "73C549DC312DBEC9A281B213FAF8D6D4D086F539475FBBEF25C650C6558AD693",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#rest_ack-002"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1792,
+            "y": 1248,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 140,
+          "sha256": "9C1ABD4E6B4D03A66F6B81A180DDA87AA3E26D6828FA97E621E22E7F0043C6AE",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#rest_ack-003"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 1456,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "FE55C1730A30234F8AF722B928AEC905506AB55CE298CEEF8FB5401B1FCC787C",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#rest_ack-004"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 1456,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 100,
+          "sha256": "1507D945C5EBB0E6D250C4F547B64A7DDF0657C407D3E02D7B89984F098F872E",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#rest_ack-005"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 1456,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 100,
+          "sha256": "1DB7DDD437533361F9A00B38D0639CE9943A0C8199D482D69D6FD2E127D647A4",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#rest_ack-006"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 1456,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 180,
+          "sha256": "51BDEA1DAEBAB7DBA77A92A4263D9770F31BE73893A0A2309EDD03260603E911",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#rest_ack-007"
+        }
+      ]
+    },
+    {
+      "id": "sleeping_loop",
+      "sourceState": "sleeping",
+      "targetState": "sleeping",
+      "semanticRole": "base_loop",
+      "playbackKind": "loop",
+      "variantGroup": "sleep_base",
+      "weight": 1.0,
+      "cooldownMs": 0,
+      "maxConsecutive": 3,
+      "interruptPolicy": "interaction_or_business_event",
+      "safeExitFrames": [
+        7
+      ],
+      "maxRuntimeMs": 12000,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "footBaselineY": 198,
+      "logicalSize": {
+        "width": 256,
+        "height": 208
+      },
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "mirrorSafe": false,
+      "directionVariants": [],
+      "fallback": "sleeping_loop",
+      "frames": [
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 1456,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 500,
+          "sha256": "C392F84876A7FA88CBD700570127F0C34D065E97F05F3EDAF6D0A2411137686B",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleeping_loop-000"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 1456,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 500,
+          "sha256": "1165DE10C8E2717AC8966CCF755EA0AE824E5AE4CAD3114D7FBBD64599C4E079",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleeping_loop-001"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1536,
+            "y": 1456,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 520,
+          "sha256": "161F47DC8C223ED15DED5C920EF0D011A6DAD4179ABC7A4AA46CA4737176C91D",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleeping_loop-002"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1792,
+            "y": 1456,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 520,
+          "sha256": "B92C6E2457DBE9005A2EC9DF4D609811594F231A3EB655715494AE2B3A8940F2",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleeping_loop-003"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 1664,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 500,
+          "sha256": "C3E7F1875016D0E2E1B744671ECF100A907ABC3865053FAC660BC7D7046E2038",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleeping_loop-004"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 1664,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 500,
+          "sha256": "56A224E041186E00232A09851F3B9ED7C271C4427E7DC1146BC6D40BC03CFA52",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleeping_loop-005"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 1664,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 520,
+          "sha256": "457B8C97DADC1D41E4261987C6B4662AF230E695E87692E6FE8A54DFB4BB5225",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleeping_loop-006"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 1664,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 640,
+          "sha256": "A1B295946A206C01B5954394C3D0EB709E2E8E358776CE0987CBB243F9C91471",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleeping_loop-007"
+        }
+      ]
+    },
+    {
+      "id": "sleep_twitch",
+      "sourceState": "sleeping",
+      "targetState": "sleeping",
+      "semanticRole": "ambient",
+      "playbackKind": "oneshot",
+      "variantGroup": "sleep_ambient",
+      "weight": 1.0,
+      "cooldownMs": 90000,
+      "maxConsecutive": 1,
+      "interruptPolicy": "interaction_or_drag",
+      "safeExitFrames": [
+        7
+      ],
+      "maxRuntimeMs": 2400,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "footBaselineY": 198,
+      "logicalSize": {
+        "width": 256,
+        "height": 208
+      },
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "mirrorSafe": false,
+      "directionVariants": [],
+      "fallback": "sleeping_loop",
+      "frames": [
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 1664,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 180,
+          "sha256": "DDFFD74C901664CCE4FF49FC5141BA743AF8CE8304EE2CDBBBDFE2E1C86CDE6B",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_twitch-000"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 1664,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 140,
+          "sha256": "04100A15220386E3BBC04C8C689C501A20DD30D6F3FF9C215AE46A012E41FBF0",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_twitch-001"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1536,
+            "y": 1664,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 120,
+          "sha256": "F1652793C7D358017B1EF6D627E8EBBAE852AEC333DA099C65A97C79037F6AFC",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_twitch-002"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1792,
+            "y": 1664,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 140,
+          "sha256": "189756119965B0BDFCA0DC2D2A1B22DD59FD1C3914CD4FE5AA362C7C88F9B38B",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_twitch-003"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 1872,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 180,
+          "sha256": "07D2799B8F7453651E072630244D8164FF7450C021BE5A265034BCEC57B6D937",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_twitch-004"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 1872,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 220,
+          "sha256": "6D5049449E4E295AC1F123B07BD2C166F4B4A2D9D52D8A69B41A089FBF6C5EA4",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_twitch-005"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 1872,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 260,
+          "sha256": "9A198108ABF750B6D004D44714C1537E31ACFB673CD41E4203DD96D619833F69",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_twitch-006"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 1872,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 320,
+          "sha256": "E945A394796069FBAE92FFB506DC5503D9A9C477131721CE117623BEA07665A8",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_twitch-007"
+        }
+      ]
+    },
+    {
+      "id": "sleep_ack",
+      "sourceState": "sleeping",
+      "targetState": "sleeping",
+      "semanticRole": "ack",
+      "playbackKind": "oneshot",
+      "variantGroup": "sleep_ack",
+      "weight": 1.0,
+      "cooldownMs": 1000,
+      "maxConsecutive": 1,
+      "interruptPolicy": "drag_only",
+      "safeExitFrames": [
+        7
+      ],
+      "maxRuntimeMs": 2200,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "footBaselineY": 198,
+      "logicalSize": {
+        "width": 256,
+        "height": 208
+      },
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "mirrorSafe": false,
+      "directionVariants": [],
+      "fallback": "sleeping_loop",
+      "frames": [
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 1872,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 140,
+          "sha256": "BC93016F152B13EEC5D866427B6DA795AD1A4944E002B2BDDF0D7C77D15DF319",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_ack-000"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 1872,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 140,
+          "sha256": "54D3D3025DB4991B69F3167368B95DB2CB731556C8B367494B1B718039611C58",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_ack-001"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1536,
+            "y": 1872,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 160,
+          "sha256": "1DB351A360AB21C8A5600C5FA26C9A21090BD63C5038F9E95570FFF9565E908E",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_ack-002"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1792,
+            "y": 1872,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 180,
+          "sha256": "F98D655C759BCDFF5A1619961340F1F35EAC96BD35F729F7F495B9B8E70D680D",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_ack-003"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 2080,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 180,
+          "sha256": "07A88CAB314D220EC93A5B8B426BC3DE017B302A88024A479017A6EB1126AEB0",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_ack-004"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 2080,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 160,
+          "sha256": "362E2E5072C893E995E0A4E73056A0E768C0636652E247DBB473A0AD85D42BD3",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_ack-005"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 2080,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 140,
+          "sha256": "CDAC38CA1A4FA7732893005432B012457BF3A7FEE72407DF3115E6CAADA7BAF2",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_ack-006"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 2080,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 220,
+          "sha256": "CFB031A53CB3FEFB8CFE0D10172A52B550D5B0F17B127F5907A8626FC442074E",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#sleep_ack-007"
+        }
+      ]
+    },
+    {
+      "id": "run_prepare",
+      "sourceState": [
+        "working",
+        "awake_rest",
+        "dragging"
+      ],
+      "targetState": "dragging",
+      "semanticRole": "drag_transition",
+      "playbackKind": "oneshot",
+      "variantGroup": "drag",
+      "weight": 1.0,
+      "cooldownMs": 0,
+      "maxConsecutive": 1,
+      "interruptPolicy": "uninterruptible",
+      "safeExitFrames": [
+        12
+      ],
+      "maxRuntimeMs": 1510,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "footBaselineY": 198,
+      "logicalSize": {
+        "width": 256,
+        "height": 208
+      },
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "mirrorSafe": true,
+      "directionVariants": [],
+      "fallback": "run_loop",
+      "frames": [
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 2080,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 100,
+          "sha256": "1D970CC111A345465E0D8E0CA34BEC9E65166C26BEBF7D5D968A4CC56D4B7AA9",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_prepare-000"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 2080,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 80,
+          "sha256": "FCDF9B5B843E27F80BCF7970CF165D84612B72BF167043BBEB84949FCB826DDD",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_prepare-001"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1536,
+            "y": 2080,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 70,
+          "sha256": "0C829733C28BA994A26D2392F28254417D158E9058FF0DDDF774533BB354756B",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_prepare-002"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1792,
+            "y": 2080,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 60,
+          "sha256": "B0B9BF43E8C1BCFA464FC847098A8BC9E4CC4582394370B0C2096BDAE8690130",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_prepare-003"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 2288,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 60,
+          "sha256": "9EF1CD9502AF5CB6C67397D33C455A65B089FED6A51D113EA55320C75304E434",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_prepare-004"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 2288,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 60,
+          "sha256": "A67449821CF2E1C4DA8D44E26B375AE530B3EF3901CBA70C32BC37156FEB17DE",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_prepare-005"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 2288,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 60,
+          "sha256": "4F37B641BA8F38A01A6725C1F7124BF5A01FED282DB86358CD5C39B43AB0E0FF",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_prepare-006"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 2288,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 60,
+          "sha256": "FF5AAE2FFA1D7903E5DB5C90FD4C82E50165A7BE630AC144D39FA9AC0FA2ECC3",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_prepare-007"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 2288,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 60,
+          "sha256": "A302A8CA41E8CBE59DB2B609291A62FA32376FE05D06A13E721D0BA2B6C725C4",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_prepare-008"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 2288,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 60,
+          "sha256": "1786A84650CEF0AB310028FA9E84505CA42EDD1772D1327A3BB476FE55FB81C7",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_prepare-009"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1536,
+            "y": 2288,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 70,
+          "sha256": "878C3CD39C5A6B76F4580500DEA845507E65F45777C58305221E3EEBE1C92A9E",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_prepare-010"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1792,
+            "y": 2288,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 80,
+          "sha256": "A2C018415419C6892A62821A2E11B751EB066533F13858B3BD221B04172133AA",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_prepare-011"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 2496,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 90,
+          "sha256": "0C5F4FE03F522C75E36C87DF33FAFCAE31BF3D1674ECA53734E4ED96EDFFAACF",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_prepare-012"
+        }
+      ]
+    },
+    {
+      "id": "run_loop",
+      "sourceState": "dragging",
+      "targetState": "dragging",
+      "semanticRole": "drag_loop",
+      "playbackKind": "loop",
+      "variantGroup": "drag",
+      "weight": 1.0,
+      "cooldownMs": 0,
+      "maxConsecutive": 99,
+      "interruptPolicy": "pointer_release",
+      "safeExitFrames": [
+        1,
+        3,
+        5,
+        7
+      ],
+      "maxRuntimeMs": 1290,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "footBaselineY": 198,
+      "logicalSize": {
+        "width": 256,
+        "height": 208
+      },
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "mirrorSafe": true,
+      "directionVariants": [],
+      "fallback": "run_stop",
+      "frames": [
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 2496,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 80,
+          "sha256": "CA280541AF17E43CA7F9006C7AC964533A7CF3FF6AC013C69191C60D5F288321",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_loop-000"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 2496,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 80,
+          "sha256": "74B513EBA97956541035213E8D41AAA67790E1D2BE2332441ABEBAC23128C652",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_loop-001"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 2496,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 90,
+          "sha256": "965ABA8A1C311CB0A633370E4926FAE0028CF067D08EE3047605A506B41473CA",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_loop-002"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 2496,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 90,
+          "sha256": "54E01853E71C07142DEA17388F9C3BEAA4CF3CDDE79CC95162D09AF1B466537B",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_loop-003"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 2496,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 90,
+          "sha256": "1FB0457694E3E4FA1735F8B9528D9B2F03FB4EA83234E3F7C4D2D1E613FFF328",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_loop-004"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1536,
+            "y": 2496,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 90,
+          "sha256": "91A7E5A7D2251F58F3C451822EE18B01AF24F8E73E240E8A1F8D0448938FBCAB",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_loop-005"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1792,
+            "y": 2496,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 90,
+          "sha256": "0695E92B5FD04728BD7F28B731C8EC185F2962A1F0EFBAE7487D4A1215A3FCDE",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_loop-006"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 2704,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 80,
+          "sha256": "BC0347E95EB89D5DB4F26561582FC1D84A7C7EEEDBF4C975216AFEE5D78E5613",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_loop-007"
+        }
+      ]
+    },
+    {
+      "id": "run_stop",
+      "sourceState": "dragging",
+      "targetState": "latest_base_state",
+      "semanticRole": "drag_transition",
+      "playbackKind": "oneshot",
+      "variantGroup": "drag",
+      "weight": 1.0,
+      "cooldownMs": 0,
+      "maxConsecutive": 1,
+      "interruptPolicy": "uninterruptible",
+      "safeExitFrames": [
+        12
+      ],
+      "maxRuntimeMs": 1670,
+      "anchor": {
+        "x": 0.5,
+        "y": 0.95
+      },
+      "footBaselineY": 198,
+      "logicalSize": {
+        "width": 256,
+        "height": 208
+      },
+      "visualOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "mirrorSafe": true,
+      "directionVariants": [],
+      "fallback": "working_play_loop_a",
+      "frames": [
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 2704,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 70,
+          "sha256": "1BE776B19504BD868F44EB14F7B59E14D16B90ECE41D80AF99FFBEE169C4F925",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_stop-000"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 2704,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 60,
+          "sha256": "02DA0BCCEFDCE013AAF4FF12A0542AB8A07F614ECE2041AD3BF79B381A262257",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_stop-001"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 2704,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 60,
+          "sha256": "71210508CB605D806737B6B6E8D98A4D6177CC23A1EC33698BDB1DB2EEA8787F",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_stop-002"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 2704,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 60,
+          "sha256": "9015FEC9EA5B68391AE240B975909D089BD8874CDC1BD44385EC5FA24E78EE4B",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_stop-003"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 2704,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 70,
+          "sha256": "CC97E5FEF33F8ADA5E26F025B90EA17451DDB641B7FD45FB28A31344848A1F09",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_stop-004"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1536,
+            "y": 2704,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 70,
+          "sha256": "E9361EFF162782D8066DE1D5E31F903FBAAE1B2262E01A0991267D742178BA6D",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_stop-005"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1792,
+            "y": 2704,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 80,
+          "sha256": "59EB296D9A979904ABE3F4F3EE1FA317E08F0CE2034911526DB7F90F8B6362E2",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_stop-006"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 0,
+            "y": 2912,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 80,
+          "sha256": "F3E41EA118E93B677DEB85865D55225FFB49F0F3368EF271B70B3DD43A11FF1C",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_stop-007"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 256,
+            "y": 2912,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 90,
+          "sha256": "B4A2FE77293BD7410840AB197A621A3CF6A88BB44C36CCFBD8FE331A9112064D",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_stop-008"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 512,
+            "y": 2912,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 90,
+          "sha256": "70528E619AE71684575959229DBCF43F5CFCBBF9A2CDA36F068E3C0CF6C483FA",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_stop-009"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 768,
+            "y": 2912,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 100,
+          "sha256": "EDA9B8EE4F34773DE613DDF054B6FBDFF8FB76773961613AF3CFA0FCBB014554",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_stop-010"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1024,
+            "y": 2912,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 110,
+          "sha256": "3CADC085666D48B75ED35DFFAA068532C58105F0912F90D5FBB635F5E2A786A4",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_stop-011"
+        },
+        {
+          "asset": "assets/atlas-00.webp",
+          "rect": {
+            "x": 1280,
+            "y": 2912,
+            "width": 256,
+            "height": 208
+          },
+          "durationMs": 130,
+          "sha256": "FDB30E13A702E3193D7DFED48653249A2E81725F77A54C39FE4E888FFE2CB028",
+          "hitMask": "hitmasks/atlas-00.hitmask.json#run_stop-012"
+        }
+      ]
+    }
+  ],
+  "sha256": {
+    "files": {
+      "assets/atlas-00.webp": "4F37DCD29FF3BAC85F752E86ED0D68585E2E6ED24AE48334620C538C210FA302",
+      "hitmasks/atlas-00.hitmask.json": "9E1CF5EF24D2D6B290CF7D31D66EB4ABFF009DED0B5B8FCFB1FAFB4BD0238742",
+      "evidence/source-evidence.json": "F361E90AB2DDFAA757F00F70B528B73E843FCE2DF1147640E994DE6D4E9AB766",
+      "evidence/license.json": "79503C4AADD550BEB79B250261024073F9A224759589F39CC31B4F6B6BD5D81C",
+      "evidence/provenance.json": "5D76B3C83F2708A47E4698206BB0CA7DE31F5A34930B6E11AE0E3E3CD283087F"
+    }
+  }
+}

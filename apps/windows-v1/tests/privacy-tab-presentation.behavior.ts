@@ -90,8 +90,12 @@ for (const testCase of cases) {
 
 const styles = readFileSync(resolve(process.cwd(), "apps/windows-v1/src/styles.css"), "utf8");
 assert(
-  /\.mini-window__privacy-hit span\s*\{[^}]*letter-spacing:\s*1px;[^}]*text-orientation:\s*upright;/s.test(styles),
-  "privacy tab copy must use evenly spaced upright glyphs",
+  /\.mini-window__privacy-hit\s*\{[^}]*width:\s*40px;/s.test(styles),
+  "privacy tab must expose enough width for readable vertical copy",
+);
+assert(
+  /\.mini-window__privacy-hit span\s*\{[^}]*font-size:\s*11px;[^}]*font-weight:\s*700;[^}]*line-height:\s*1\.15;[^}]*letter-spacing:\s*1px;[^}]*text-orientation:\s*mixed;/s.test(styles),
+  "privacy tab copy must fit complete upright glyphs without clipped units",
 );
 
 console.log(`privacy tab presentation: ${cases.length}/${cases.length} passed`);
