@@ -44,7 +44,7 @@ export function PetWindow() {
     <main className="pet-window" aria-label="Classic 桌宠">
       <canvas
         id="pet-canvas"
-        width="192"
+        width="256"
         height="208"
         data-base-state={baseState}
         aria-label="Classic 桌宠动画"

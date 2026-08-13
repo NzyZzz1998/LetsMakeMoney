@@ -89,7 +89,8 @@ def verify_platform_contracts() -> None:
 
     by_id = {window["id"]: window for window in windows["windows"]}
     require(by_id["mini"]["default_size"] == [344, 108], "Mini window dimensions drift")
-    require(by_id["pet"]["default_size"] == [192, 208], "Pet window dimensions drift")
+    require(by_id["pet"]["default_size"] == [256, 208], "Pet window dimensions drift")
+    require(by_id["pet"]["minimum_size"] == [256, 208], "Pet minimum dimensions drift")
     require(by_id["pet"]["product_gate"] == "closed_until_product_return_approved", "Pet product gate drift")
     require(
         by_id["mini"].get("state_sizes")

@@ -4,7 +4,21 @@
   "reviewedAt": "2026-08-12T00:00:00+08:00",
   "productionRoute": "approved-source-curation-no-new-generation",
   "newGenerationPerformed": false,
+  "runtimeRecomposition": {
+    "sourceLogicalSize": {
+      "width": 192,
+      "height": 208
+    },
+    "runtimeLogicalSize": {
+      "width": 256,
+      "height": 208
+    },
+    "dragCharacterScale": 1.3,
+    "footBaselineY": 198,
+    "resampling": "premultiplied-alpha-lanczos"
+  },
   "reducedScope": true,
   "productReturnApproved": true,
-  "published": false
+  "published": false,
+  "candidatePurpose": "owner_gui_review"
 }

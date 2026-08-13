@@ -1,6 +1,6 @@
 const SAFE_FALLBACK = Object.freeze({
   kind: "embedded_static_shape",
-  logicalSize: { width: 192, height: 208 },
+  logicalSize: { width: 256, height: 208 },
 });
 
 const DEFAULT_G8_ACTIONS = Object.freeze([

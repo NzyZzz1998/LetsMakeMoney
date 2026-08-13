@@ -9,8 +9,9 @@ import { chooseNativeProbePoints, regionSignature } from "./runtime/hit-probe.mj
 import { PetInputArbiter } from "./runtime/input-arbiter.mjs";
 import { PetRuntimeMachine } from "./runtime/runtime-machine.mjs";
 import { loadVNextPayload } from "./runtime/vnext-package-core.mjs";
+import { WindowMoveCoordinator } from "./runtime/window-move-coordinator.mjs";
 
-const LOGICAL_WIDTH = 192;
+const LOGICAL_WIDTH = 256;
 const LOGICAL_HEIGHT = 208;
 const ALPHA_THRESHOLD = 24;
 const DPI_SETTLE_MS = 250;
@@ -57,7 +58,6 @@ let direction = "right";
 let lastPointerScreen = null;
 let activePointerId = null;
 let timingCursor = null;
-let moveQueue = Promise.resolve();
 const frameTimings = [];
 let frameSequence = 0;
 const probedRegionSignatures = new Set();
@@ -77,6 +77,12 @@ const firstFrameReady = new Promise((resolve) => {
 function emitEvent(event) {
   void invoke("record_pet_event", { event: event.type, payload: event }).catch(() => {});
 }
+
+const windowMoveCoordinator = new WindowMoveCoordinator({
+  move: (deltaX, deltaY) =>
+    invoke("move_pet_window", { deltaXCss: deltaX, deltaYCss: deltaY }),
+  onError: (error) => emitEvent({ type: "pet_window_move_failed", reason: String(error) }),
+});
 
 function browserLifecycleContext() {
   return {
@@ -533,12 +539,7 @@ function createRuntime(actions) {
 }
 
 function queueWindowMove(deltaX, deltaY) {
-  if (deltaX === 0 && deltaY === 0) {
-    return;
-  }
-  moveQueue = moveQueue
-    .then(() => invoke("move_pet_window", { deltaXCss: deltaX, deltaYCss: deltaY }))
-    .catch((error) => emitEvent({ type: "pet_window_move_failed", reason: String(error) }));
+  windowMoveCoordinator.enqueue(deltaX, deltaY);
 }
 
 function resetActiveInput(reason, pointerId = activePointerId) {
@@ -551,6 +552,7 @@ function resetActiveInput(reason, pointerId = activePointerId) {
 
   activePointerId = null;
   lastPointerScreen = null;
+  windowMoveCoordinator.cancelPending();
   if (pointerId !== null && canvas.hasPointerCapture(pointerId)) {
     canvas.releasePointerCapture(pointerId);
   }

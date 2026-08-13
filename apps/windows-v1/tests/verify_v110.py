@@ -67,16 +67,20 @@ def verify_pet_runtime_boundary() -> None:
 
     require(defaults.get("desktop_companion_mode") == "mini", "Classic must remain opt-in")
     require(index.get("status") == "approved" and index.get("ready") is True, "Classic package is not approved")
+    require(index.get("packageVersion") == "0.4.1-rc.1", "Classic runtime package version drift")
     require(index.get("published") is False, "embedded package metadata must not claim publication")
     require(license_data.get("redistribution") == "product-runtime", "Classic redistribution boundary drift")
     require(provenance.get("productReturnApproved") is True, "product return approval is missing")
     require(provenance.get("published") is False, "provenance must not claim public release")
     require(source.get("petId") == "letsmakemoney-classic-pro", "unexpected first-return pet identity")
     require("working_pounce" in source.get("retiredScope", []), "retired rough action unexpectedly returned")
+    manifest = read_json(PET_PACKAGE / "motion-manifest.json")
+    require(manifest.get("logicalSize") == {"width": 256, "height": 208}, "Classic runtime surface drift")
 
     runtime_source = (APP_ROOT / "public" / "pet-runtime" / "main.mjs").read_text(encoding="utf-8")
     require('canvas.addEventListener("lostpointercapture"' in runtime_source, "pet drag capture-loss recovery missing")
     require('resetActiveInput("window_blur")' in runtime_source, "pet drag window-blur recovery missing")
+    require("WindowMoveCoordinator" in runtime_source, "pet drag move coalescing missing")
 
     allowed = {
         "motion-manifest.json",

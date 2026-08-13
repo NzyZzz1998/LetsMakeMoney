@@ -183,7 +183,7 @@ mod tests {
         let manifest_sha = format!("{:X}", Sha256::digest(manifest));
         assert_eq!(
             manifest_sha,
-            "9E50542B436D197F0CD5CB8CD7149B6E0C57EE9A12073DF2A2E5B588719992AC"
+            "58049540253079960DB33F4631B0A3738A77195954822E84BE961B09F94CB81F"
         );
         let parsed: serde_json::Value = serde_json::from_slice(manifest).expect("valid manifest");
         let actions = parsed["actions"]
@@ -216,16 +216,16 @@ mod tests {
         let summary = validate_runtime_package().expect("valid reduced runtime package");
         assert_eq!(summary.pet_id, "letsmakemoney-classic-pro");
         assert_eq!(summary.action_count, 12);
-        assert_eq!(summary.package_version, "0.4.0-rc.1");
+        assert_eq!(summary.package_version, "0.4.1-rc.1");
         assert_eq!(
             summary.package_tree_sha256,
-            "BC62C560134CD240015ABE742DAFA9E76D80196412C73C60423BD173A3548EA1"
+            "8878F7E73DE79084FA887A709F27F0CEA975DF4D240CD4B0F4E4EB71BE9D06E2"
         );
         assert_eq!(
             preflight()
                 .expect("approved product candidate")
                 .package_version,
-            "0.4.0-rc.1"
+            "0.4.1-rc.1"
         );
         let status = product_status();
         assert!(status.available);

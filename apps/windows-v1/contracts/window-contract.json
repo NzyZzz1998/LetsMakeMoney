@@ -17,8 +17,8 @@
     },
     {
       "id": "pet",
-      "default_size": [192, 208],
-      "minimum_size": [192, 208],
+      "default_size": [256, 208],
+      "minimum_size": [256, 208],
       "resizable": false,
       "taskbar": false,
       "close": "hide_to_tray",

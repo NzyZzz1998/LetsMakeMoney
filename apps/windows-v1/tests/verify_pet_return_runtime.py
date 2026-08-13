@@ -45,8 +45,14 @@ def main() -> int:
     manifest_sha = hashlib.sha256(manifest_path.read_bytes()).hexdigest().upper()
     require(index["manifestSha256"] == manifest_sha, "pet manifest SHA256 drift")
     require(index["ready"] is True and index["status"] == "approved", "PetManager ready gate drift")
-    require(index["packageVersion"] == "0.4.0-rc.1", "product candidate version drift")
+    require(index["packageVersion"] == "0.4.1-rc.1", "product candidate version drift")
     require(index["published"] is False, "product candidate must not claim publication")
+    require(manifest.get("logicalSize") == {"width": 256, "height": 208}, "pet logical surface drift")
+    hit_masks = load_json(PACKAGE / "hitmasks" / "atlas-00.hitmask.json")
+    require(
+        (hit_masks.get("logicalWidth"), hit_masks.get("logicalHeight")) == (256, 208),
+        "pet hit-mask surface drift",
+    )
     require(
         [action["id"] for action in manifest["actions"]]
         == [
@@ -78,6 +84,9 @@ def main() -> int:
     require("window.__LMM_PET_INVOKE__" in source, "formal runtime invoke bridge missing")
     require('import { invoke } from "@tauri-apps/api/core"' in pet_window, "pet window invoke import missing")
     require("window.__LMM_PET_INVOKE__ = invoke" in pet_window, "pet window invoke bridge injection missing")
+    require('width="256"' in pet_window and 'height="208"' in pet_window, "pet canvas dimensions drift")
+    require("const LOGICAL_WIDTH = 256" in source, "pet runtime logical width drift")
+    require("WindowMoveCoordinator" in source, "coalesced native window movement missing")
     for forbidden in ("__PET_SPIKE__", "inject_fault", "acceptance", "frontend_heartbeat", "keydown"):
         require(forbidden not in source, f"formal runtime contains forbidden spike control: {forbidden}")
     for command in (

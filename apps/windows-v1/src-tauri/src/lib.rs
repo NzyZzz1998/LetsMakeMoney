@@ -43,9 +43,9 @@ const WINDOW_SPECS: [WindowSpec; 5] = [
     WindowSpec {
         label: "pet",
         title: "LetsMakeMoney Classic",
-        width: 192.0,
+        width: 256.0,
         height: 208.0,
-        min_width: 192.0,
+        min_width: 256.0,
         min_height: 208.0,
         resizable: false,
         skip_taskbar: true,

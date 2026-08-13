@@ -163,14 +163,14 @@ body { overflow: hidden; background: transparent; }
 html[data-window="pet"],
 html[data-window="pet"] body,
 html[data-window="pet"] #root {
-  width: 192px;
+  width: 256px;
   height: 208px;
   background: transparent;
 }
 
 .pet-window,
 #pet-canvas {
-  width: 192px;
+  width: 256px;
   height: 208px;
   background: transparent;
 }

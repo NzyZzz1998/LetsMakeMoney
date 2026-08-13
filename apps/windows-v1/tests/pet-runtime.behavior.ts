@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 
 import { PetInputArbiter } from "../public/pet-runtime/runtime/input-arbiter.mjs";
 import { PetRuntimeMachine } from "../public/pet-runtime/runtime/runtime-machine.mjs";
+import { WindowMoveCoordinator } from "../public/pet-runtime/runtime/window-move-coordinator.mjs";
 
 class FakeScheduler {
   current = 0;
@@ -144,4 +145,49 @@ function runtimeHarness() {
   assert.equal(events.at(-1)?.type, "click");
 }
 
-console.log("pet runtime behavior passed (4/4)");
+{
+  const calls: Array<{
+    deltaX: number;
+    deltaY: number;
+    resolve: () => void;
+  }> = [];
+  const coordinator = new WindowMoveCoordinator({
+    move: (deltaX: number, deltaY: number) =>
+      new Promise<void>((resolve) => calls.push({ deltaX, deltaY, resolve })),
+  });
+
+  coordinator.enqueue(4, 2);
+  coordinator.enqueue(3, -1);
+  coordinator.enqueue(5, 4);
+  assert.equal(calls.length, 1, "only one native move may be in flight");
+  assert.deepEqual(
+    { deltaX: calls[0].deltaX, deltaY: calls[0].deltaY },
+    { deltaX: 4, deltaY: 2 },
+  );
+
+  calls[0].resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(calls.length, 2, "queued pointer deltas must be coalesced into one move");
+  assert.deepEqual(
+    { deltaX: calls[1].deltaX, deltaY: calls[1].deltaY },
+    { deltaX: 8, deltaY: 3 },
+  );
+}
+
+{
+  const calls: Array<{ resolve: () => void }> = [];
+  const coordinator = new WindowMoveCoordinator({
+    move: () => new Promise<void>((resolve) => calls.push({ resolve })),
+  });
+
+  coordinator.enqueue(5, 0);
+  coordinator.enqueue(12, 0);
+  coordinator.cancelPending();
+  calls[0].resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(calls.length, 1, "interrupted drags must discard stale pending movement");
+}
+
+console.log("pet runtime behavior passed (6/6)");
