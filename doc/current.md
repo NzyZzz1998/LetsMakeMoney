@@ -31,7 +31,7 @@ v1.0.F 是 v1.0 系列收官质量版本的内部代号，版本号固定为 `v1
 - 先导产品候选 EXE SHA256 为 `D1F4E8B006D0A2E0C7091313886CCA4EC3C03F52F51EAD2B19E8744AA7D56A88`，大小 `14,957,568` 字节。100% DPI 真实 GUI 已证明默认 Mini、Workbench 租约、Mini/Classic 互斥切换与持久化、桌宠可见渲染、状态单击、动态命中和左右拖拽链路；该 EXE 来自 dirty 工作树，只是先导证据，不是 v1.1.0 发布附件。
 - 旧电脑夹具仅保留为 historical，不再是当前联调或产品素材。
 - 当前默认行为仍为 Mini。旧配置和非法陪伴模式迁移到 Mini；Settings 允许用户显式选择 Classic，Mini 与 Pet 严格互斥，运行时或包故障自动回落 Mini。
-- `PetManager ready`、`LMM sandbox pass`、`Product candidate approved` 与 `Public release approved` 分层管理：前三层已在首轮精简范围成立，公开发布仍为 `false`。发布前必须从干净提交重建，并补齐同一 v1.1.0 候选的 125%/150% DPI、托盘、坏包桌面回退、30 分钟连续观感和两小时稳定运行。
+- `PetManager ready`、`LMM sandbox pass`、`Product candidate approved` 与 `Public release approved` 分层管理：前三层已在首轮精简范围成立，公开发布仍为 `false`。旧干净候选 `V110-20260812T163314Z-d9d51cfe-clean` 在 125% DPI 验收中发现拖拽期间截图/窗口失焦会卡死输入（`V110-BUG-001`），现已明确淘汰、不得发布；该缺陷已完成 TDD 修复和真实 Windows 定向复验，等待从修复后的干净提交重建候选。idle 与跑动姿态体量及抓取点不连续另记为 `V110-UX-001` 待优化。150% DPI、托盘及精确桌面坏包注入仍待完成。
 - 事实入口：[桌宠回归沙盒 PRD](architecture/pet-return-prd.md) / [专项追踪矩阵](architecture/pet-return-traceability.md)。
 
 ## v1.0.7 范围

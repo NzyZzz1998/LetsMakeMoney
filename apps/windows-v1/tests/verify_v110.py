@@ -74,6 +74,10 @@ def verify_pet_runtime_boundary() -> None:
     require(source.get("petId") == "letsmakemoney-classic-pro", "unexpected first-return pet identity")
     require("working_pounce" in source.get("retiredScope", []), "retired rough action unexpectedly returned")
 
+    runtime_source = (APP_ROOT / "public" / "pet-runtime" / "main.mjs").read_text(encoding="utf-8")
+    require('canvas.addEventListener("lostpointercapture"' in runtime_source, "pet drag capture-loss recovery missing")
+    require('resetActiveInput("window_blur")' in runtime_source, "pet drag window-blur recovery missing")
+
     allowed = {
         "motion-manifest.json",
         "package-index.json",

@@ -55,6 +55,7 @@ let authoritativeBaseState = canvas.dataset.baseState || "awake_rest";
 let fallbackActive = false;
 let direction = "right";
 let lastPointerScreen = null;
+let activePointerId = null;
 let timingCursor = null;
 let moveQueue = Promise.resolve();
 const frameTimings = [];
@@ -540,6 +541,24 @@ function queueWindowMove(deltaX, deltaY) {
     .catch((error) => emitEvent({ type: "pet_window_move_failed", reason: String(error) }));
 }
 
+function resetActiveInput(reason, pointerId = activePointerId) {
+  const previousState = arbiter?.state ?? "uninitialized";
+  if (pointerId === null) {
+    arbiter?.reset(reason);
+  } else {
+    arbiter?.pointerCancel({ pointerId, reason });
+  }
+
+  activePointerId = null;
+  lastPointerScreen = null;
+  if (pointerId !== null && canvas.hasPointerCapture(pointerId)) {
+    canvas.releasePointerCapture(pointerId);
+  }
+  if (previousState === "press_pending" || previousState === "dragging") {
+    emitEvent({ type: "pet_input_interruption_recovered", previousState, reason });
+  }
+}
+
 canvas.addEventListener("pointerdown", (event) => {
   if (dpiSafetyPause.snapshot.active) {
     event.preventDefault();
@@ -553,11 +572,12 @@ canvas.addEventListener("pointerdown", (event) => {
     button: event.button,
   });
   if (accepted) {
+    activePointerId = event.pointerId;
     try {
       canvas.setPointerCapture(event.pointerId);
     } catch (error) {
       emitEvent({ type: "pet_input_capture_failed", reason: String(error) });
-      arbiter.pointerCancel({ pointerId: event.pointerId, reason: "pointer_capture_failed" });
+      resetActiveInput("pointer_capture_failed", event.pointerId);
     }
   }
   event.preventDefault();
@@ -573,6 +593,7 @@ canvas.addEventListener("pointermove", (event) => {
 
 canvas.addEventListener("pointerup", (event) => {
   arbiter.pointerUp({ pointerId: event.pointerId, x: event.screenX, y: event.screenY });
+  activePointerId = null;
   if (canvas.hasPointerCapture(event.pointerId)) {
     canvas.releasePointerCapture(event.pointerId);
   }
@@ -580,12 +601,14 @@ canvas.addEventListener("pointerup", (event) => {
 });
 
 canvas.addEventListener("pointercancel", (event) => {
-  arbiter.pointerCancel({ pointerId: event.pointerId });
-  if (canvas.hasPointerCapture(event.pointerId)) {
-    canvas.releasePointerCapture(event.pointerId);
-  }
-  lastPointerScreen = null;
+  resetActiveInput("pointer_cancel", event.pointerId);
 });
+
+canvas.addEventListener("lostpointercapture", (event) => {
+  resetActiveInput("lost_pointer_capture", event.pointerId);
+});
+
+window.addEventListener("blur", () => resetActiveInput("window_blur"));
 
 canvas.addEventListener("contextmenu", (event) => {
   event.preventDefault();

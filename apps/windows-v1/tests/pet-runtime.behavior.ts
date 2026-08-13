@@ -117,4 +117,31 @@ function runtimeHarness() {
   assert.equal(events.at(-1)?.type, "drag_released");
 }
 
-console.log("pet runtime behavior passed (3/3)");
+{
+  const scheduler = new FakeScheduler();
+  const events: Array<{ type: string; cancelled?: boolean; reason?: string }> = [];
+  const arbiter = new PetInputArbiter({
+    scheduler,
+    holdMs: 500,
+    clickMoveThresholdPx: 6,
+    directionDeadZonePx: 4,
+    emit: (event: { type: string; cancelled?: boolean; reason?: string }) => events.push(event),
+  });
+  arbiter.pointerDown({ pointerId: 11, x: 80, y: 60, button: 0 });
+  scheduler.advanceBy(500);
+  arbiter.reset("window_blur");
+  assert.equal(arbiter.state, "idle");
+  assert.deepEqual(events.at(-1), {
+    type: "drag_released",
+    pointerId: 11,
+    durationMs: 500,
+    cancelled: true,
+    reason: "window_blur",
+  });
+  assert.equal(arbiter.pointerDown({ pointerId: 12, x: 80, y: 60, button: 0 }), true);
+  scheduler.advanceBy(100);
+  arbiter.pointerUp({ pointerId: 12, x: 80, y: 60 });
+  assert.equal(events.at(-1)?.type, "click");
+}
+
+console.log("pet runtime behavior passed (4/4)");

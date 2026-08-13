@@ -59,10 +59,11 @@ There is currently no installer or silent update. Update checks only proceed aft
 | --- | --- |
 | Public stable release | [v1.0.7 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7) |
 | Local v1.0 closeout | `v1.0.8` annotated tag, preserved as historical identity |
-| Current development candidate | `v1.1.0`, without a Beta suffix |
+| Current development candidate | Exact version `v1.1.0` |
 | Candidate purpose | Classic-only desktop companion return; Mini remains the default |
-| Existing evidence | Current gate and 100% DPI precursor GUI path passed |
-| Remaining before publication | Clean rebuild, three DPI levels, tray, bad-package fallback, 30-minute viewing, and two-hour stability |
+| Rejected candidate | `V110-20260812T163314Z-d9d51cfe-clean`; blocked from release by `V110-BUG-001` |
+| Fix status | Drag interruption recovery passed TDD and targeted 125% DPI verification; a final clean candidate is pending |
+| Remaining before publication | Final-candidate 125%/150% DPI, tray, environment restoration, and exact desktop bad-package evidence |
 
 The v1.1.0 candidate adds:
 
