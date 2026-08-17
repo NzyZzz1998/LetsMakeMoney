@@ -21,6 +21,18 @@ def load_json(path: Path) -> dict:
     return value
 
 
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
+
+
+def package_tree_sha256(files: dict[str, str]) -> str:
+    payload = b"".join(
+        path.encode("utf-8") + b"\0" + files[path].encode("ascii")
+        for path in sorted(files)
+    )
+    return hashlib.sha256(payload).hexdigest().upper()
+
+
 def main() -> int:
     expected_files = {
         "assets/atlas-00.webp",
@@ -46,6 +58,19 @@ def main() -> int:
     require(b"\r\n" not in manifest_bytes, "pet manifest must use canonical LF line endings")
     manifest_sha = hashlib.sha256(manifest_bytes).hexdigest().upper()
     require(index["manifestSha256"] == manifest_sha, "pet manifest SHA256 drift")
+
+    bound_hashes = manifest.get("sha256", {}).get("files")
+    require(isinstance(bound_hashes, dict) and bound_hashes, "pet manifest file hashes missing")
+    for relative_path, expected_hash in bound_hashes.items():
+        require(
+            sha256(PACKAGE / relative_path) == expected_hash,
+            f"pet runtime file SHA256 drift: {relative_path}",
+        )
+    tree_files = {"motion-manifest.json": manifest_sha, **bound_hashes}
+    require(
+        package_tree_sha256(tree_files) == index["packageTreeSha256"],
+        "pet package tree SHA256 drift",
+    )
     require(index["ready"] is True and index["status"] == "approved", "PetManager ready gate drift")
     require(index["packageVersion"] == "0.4.1-rc.1", "product candidate version drift")
     require(index["published"] is False, "product candidate must not claim publication")

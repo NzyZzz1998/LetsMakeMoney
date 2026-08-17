@@ -97,12 +97,12 @@ def verify_pet_runtime_boundary() -> None:
 
 def verify_release_documents() -> None:
     required = {
-        "README.md": "本地候选",
+        "README.md": "clean 候选",
         "release-notes.md": "Classic",
-        "verification.md": "候选身份",
-        "manual-verification.md": "125%",
-        "release-checklist.md": "干净提交",
-        "progress.md": "未发布",
+        "verification.md": "部分通过，可推送并重新打包",
+        "manual-verification.md": "Mini 贴边首次自动隐藏",
+        "release-checklist.md": "tag 与 Release 仍冻结",
+        "progress.md": "公开发布仍冻结",
     }
     for name, marker in required.items():
         path = RELEASE / name
@@ -112,7 +112,12 @@ def verify_release_documents() -> None:
         require("\ufffd" not in text, f"release document contains replacement characters: {name}")
 
     current = (REPO_ROOT / "doc" / "current.md").read_text(encoding="utf-8")
-    require("v1.1.0" in current and "未发布" in current, "current.md lacks candidate publication boundary")
+    require(
+        "当前公开版本 | Windows v1.0.7 Stable" in current
+        and "Public release approved = false" in current
+        and "v1.1.0 尚未发布" in current,
+        "current.md does not preserve the blocked v1.1.0 publication facts",
+    )
     portable_zh = (APP_ROOT / "release-docs" / "portable-readme.zh-CN.md").read_text(encoding="utf-8")
     portable_en = (APP_ROOT / "release-docs" / "portable-readme.en.md").read_text(encoding="utf-8")
     require("默认使用 Mini" in portable_zh and "Classic" in portable_zh, "Chinese portable companion contract drift")

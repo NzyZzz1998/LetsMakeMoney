@@ -574,11 +574,15 @@ fn stage_companion_switch(
             hide_window_with_source(app, plan.target_label, "companion_switch_enforce_exclusive")?;
         }
     }
+    let target_after =
+        companion_policy::companion_visibility_after_mode_switch(source_before, requested);
     if let Some(source_label) = visible_companion_label(source_before) {
         hide_window_with_source(app, source_label, "companion_switch_source")?;
+    }
+    if let Some(target_label) = visible_companion_label(target_after) {
         if let Err(error) = show_window_with_options(
             app,
-            plan.target_label,
+            target_label,
             "companion_switch_target",
             false,
             true,
@@ -592,10 +596,11 @@ fn stage_companion_switch(
         app,
         "desktop_companion.switch_staged",
         &format!(
-            "source={} target={} source_before={}",
+            "source={} target={} source_before={} target_after={}",
             plan.source_label,
             plan.target_label,
-            source_before.label()
+            source_before.label(),
+            target_after.label(),
         ),
     );
     Ok(Some(CompanionSwitchStage {
@@ -2281,15 +2286,18 @@ fn transition_visibility_lease(
     app: &AppHandle,
     transaction_id: u64,
     phase: window_policy::VisibilityLeasePhase,
-) -> Result<(), String> {
+) -> Result<window_policy::VisibilityLease, String> {
     let runtime = app.state::<WindowVisibilityRuntime>();
     let mut machine = runtime
         .0
         .lock()
         .map_err(|_| "window_visibility_lock_failed".to_string())?;
-    let lease = machine
-        .transition(transaction_id, phase)
-        .ok_or_else(|| "window_visibility_stale_transaction".to_string())?;
+    let lease = if phase == window_policy::VisibilityLeasePhase::Compensating {
+        machine.begin_compensation(transaction_id)
+    } else {
+        machine.transition(transaction_id, phase)
+    }
+    .ok_or_else(|| "window_visibility_stale_transaction".to_string())?;
     append_log(
         app,
         "window.visibility_lease.transition",
@@ -2300,7 +2308,7 @@ fn transition_visibility_lease(
             lease.companion_before.label()
         ),
     );
-    Ok(())
+    Ok(lease)
 }
 
 fn current_visibility_lease(app: &AppHandle) -> Result<window_policy::VisibilityLease, String> {
@@ -2431,6 +2439,7 @@ fn confirm_workbench_ready_internal(
         lease.transaction_id,
         window_policy::VisibilityLeasePhase::Open,
     )
+    .map(|_| ())
 }
 
 fn close_workbench_transaction(app: &AppHandle, source: &str) -> Result<(), String> {
@@ -2441,13 +2450,15 @@ fn close_workbench_transaction(app: &AppHandle, source: &str) -> Result<(), Stri
     ) {
         return hide_window_with_source(app, "workbench", source);
     }
-    transition_visibility_lease(
+    let compensating_lease = transition_visibility_lease(
         app,
         lease.transaction_id,
         window_policy::VisibilityLeasePhase::Compensating,
     )?;
     if lease.phase == window_policy::VisibilityLeasePhase::Open {
-        if let Err(error) = restore_companion_pre_visibility(app, lease.companion_before) {
+        if let Err(error) =
+            restore_companion_pre_visibility(app, compensating_lease.companion_before)
+        {
             let _ = transition_visibility_lease(
                 app,
                 lease.transaction_id,
@@ -2459,7 +2470,7 @@ fn close_workbench_transaction(app: &AppHandle, source: &str) -> Result<(), Stri
         }
     }
     if let Err(error) = hide_window_with_source(app, "workbench", source) {
-        if let Some(label) = visible_companion_label(lease.companion_before) {
+        if let Some(label) = visible_companion_label(compensating_lease.companion_before) {
             let _ = hide_window_with_source(app, label, "workbench_close_compensation");
         }
         let _ = transition_visibility_lease(
@@ -2474,6 +2485,7 @@ fn close_workbench_transaction(app: &AppHandle, source: &str) -> Result<(), Stri
         lease.transaction_id,
         window_policy::VisibilityLeasePhase::Closed,
     )
+    .map(|_| ())
 }
 
 fn compensate_workbench_loss(app: &AppHandle, source: &str) -> Result<(), String> {
@@ -2500,12 +2512,12 @@ fn compensate_workbench_loss(app: &AppHandle, source: &str) -> Result<(), String
         );
         return Ok(());
     }
-    transition_visibility_lease(
+    let compensating_lease = transition_visibility_lease(
         app,
         lease.transaction_id,
         window_policy::VisibilityLeasePhase::Compensating,
     )?;
-    match restore_companion_pre_visibility(app, lease.companion_before) {
+    match restore_companion_pre_visibility(app, compensating_lease.companion_before) {
         Ok(()) => {
             transition_visibility_lease(
                 app,

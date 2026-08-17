@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
@@ -46,6 +48,12 @@ struct MotionManifest {
     package_version: String,
     pet_id: String,
     actions: Vec<MotionAction>,
+    sha256: ManifestHashes,
+}
+
+#[derive(Debug, Deserialize)]
+struct ManifestHashes {
+    files: BTreeMap<String, String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -115,6 +123,12 @@ pub fn validate_runtime_package() -> Result<RuntimePackageSummary, String> {
     {
         return Err("pet_package_manifest_contract_mismatch".to_string());
     }
+    validate_bound_file_hashes(&manifest.sha256.files)?;
+    validate_package_tree_hash(
+        &manifest.sha256.files,
+        &manifest_sha256,
+        &index.package_tree_sha256,
+    )?;
     Ok(RuntimePackageSummary {
         pet_id: index.pet_id,
         package_version: index.package_version,
@@ -122,6 +136,41 @@ pub fn validate_runtime_package() -> Result<RuntimePackageSummary, String> {
         manifest_sha256,
         package_tree_sha256: index.package_tree_sha256,
     })
+}
+
+fn validate_bound_file_hashes(files: &BTreeMap<String, String>) -> Result<(), String> {
+    for (relative_path, expected_hash) in files {
+        let bytes = runtime_file(relative_path)
+            .ok_or_else(|| "pet_package_bound_file_missing".to_string())?;
+        let actual_hash = format!("{:X}", Sha256::digest(bytes));
+        if !actual_hash.eq_ignore_ascii_case(expected_hash) {
+            return Err("pet_package_bound_file_hash_mismatch".to_string());
+        }
+    }
+    Ok(())
+}
+
+fn validate_package_tree_hash(
+    files: &BTreeMap<String, String>,
+    manifest_sha256: &str,
+    expected_tree_hash: &str,
+) -> Result<(), String> {
+    let mut tree_files = files.clone();
+    tree_files.insert(
+        "motion-manifest.json".to_string(),
+        manifest_sha256.to_string(),
+    );
+    let mut payload = Vec::new();
+    for (relative_path, file_hash) in tree_files {
+        payload.extend_from_slice(relative_path.as_bytes());
+        payload.push(0);
+        payload.extend_from_slice(file_hash.as_bytes());
+    }
+    let actual_tree_hash = format!("{:X}", Sha256::digest(payload));
+    if !actual_tree_hash.eq_ignore_ascii_case(expected_tree_hash) {
+        return Err("pet_package_tree_hash_mismatch".to_string());
+    }
+    Ok(())
 }
 
 pub fn preflight() -> Result<RuntimePackageSummary, String> {
@@ -183,7 +232,7 @@ mod tests {
         let manifest_sha = format!("{:X}", Sha256::digest(manifest));
         assert_eq!(
             manifest_sha,
-            "8E0396EA5CC0E3D089D77E0739C25C2AC2142F69CFEC28F4D110804FB20901B4"
+            "78DD5FEC1C046BBC22CFC887C799E26DAEE8F4E28D3D5A52A63CD39869412F89"
         );
         let parsed: serde_json::Value = serde_json::from_slice(manifest).expect("valid manifest");
         let actions = parsed["actions"]
@@ -219,7 +268,7 @@ mod tests {
         assert_eq!(summary.package_version, "0.4.1-rc.1");
         assert_eq!(
             summary.package_tree_sha256,
-            "5EAE933DA004EAC7BF8391DA78AA2A68DC9B5D773561E9B8C9CCBD372366519E"
+            "8B8C3A2562A0509F9D9D713D283B38E3D1BC128007519E6E491B109BF87165D3"
         );
         assert_eq!(
             preflight()
@@ -231,5 +280,21 @@ mod tests {
         assert!(status.available);
         assert!(status.reason.is_none());
         assert_eq!(status.package.expect("approved package").action_count, 12);
+    }
+
+    #[test]
+    fn embedded_package_validates_every_bound_file_and_the_package_tree() {
+        let manifest: MotionManifest =
+            serde_json::from_slice(MANIFEST).expect("valid motion manifest");
+        validate_bound_file_hashes(&manifest.sha256.files).expect("bound file hashes");
+
+        let index: PackageIndex =
+            serde_json::from_slice(PACKAGE_INDEX).expect("valid package index");
+        validate_package_tree_hash(
+            &manifest.sha256.files,
+            &index.manifest_sha256,
+            &index.package_tree_sha256,
+        )
+        .expect("package tree hash");
     }
 }

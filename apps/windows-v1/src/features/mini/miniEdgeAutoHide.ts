@@ -88,6 +88,7 @@ export function createMiniEdgeAutoHideController(
   };
   let timer: number | null = null;
   let generation = 0;
+  let dragOperationGeneration = 0;
   let disposed = false;
   let pointerEntryArmed = true;
 
@@ -248,6 +249,7 @@ export function createMiniEdgeAutoHideController(
     initialize: refresh,
     refresh,
     pointerEntered() {
+      if (state.locks.dragging) return;
       if (!pointerEntryArmed) return;
       pointerEntryArmed = false;
       state = { ...state, pointerInside: true };
@@ -262,23 +264,20 @@ export function createMiniEdgeAutoHideController(
     },
     setLock,
     async dragStarted() {
+      dragOperationGeneration += 1;
       setLock("dragging", true);
       await reveal("drag_start");
     },
     async dragCompleted() {
       clearTimer("drag_complete");
-      const expectedGeneration = generation;
+      const expectedDragOperation = dragOperationGeneration;
       try {
         const status = await dependencies.completeDrag();
-        if (disposed) return;
+        if (disposed || expectedDragOperation !== dragOperationGeneration) return;
         state = {
           ...state,
           locks: { ...state.locks, dragging: false },
         };
-        if (expectedGeneration !== generation) {
-          publish();
-          return;
-        }
         const docked = status.auto_hide && status.dock !== "none";
         if (docked) {
           pointerEntryArmed = false;

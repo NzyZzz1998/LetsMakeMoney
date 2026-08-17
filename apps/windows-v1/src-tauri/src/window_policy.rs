@@ -123,6 +123,10 @@ impl VisibilityLeaseMachine {
         Some(self.current)
     }
 
+    pub fn begin_compensation(&mut self, transaction_id: u64) -> Option<VisibilityLease> {
+        self.transition(transaction_id, VisibilityLeasePhase::Compensating)
+    }
+
     pub fn rebase_companion(
         &mut self,
         from: CompanionPreVisibility,
@@ -258,6 +262,30 @@ mod tests {
         assert_eq!(
             machine.current().companion_before,
             CompanionPreVisibility::MiniExpanded
+        );
+    }
+
+    #[test]
+    fn compensation_uses_the_latest_rebased_companion() {
+        let mut machine = VisibilityLeaseMachine::default();
+        let (lease, started) = machine.begin(CompanionPreVisibility::MiniExpanded);
+        assert!(started);
+        machine.transition(lease.transaction_id, VisibilityLeasePhase::Open);
+
+        let stale_observation = machine.current();
+        assert!(machine.rebase_companion(
+            CompanionPreVisibility::MiniExpanded,
+            CompanionPreVisibility::PetVisible,
+        ));
+
+        let compensation = machine
+            .begin_compensation(stale_observation.transaction_id)
+            .expect("active lease must enter compensation");
+        assert_eq!(compensation.phase, VisibilityLeasePhase::Compensating);
+        assert_eq!(
+            compensation.companion_before,
+            CompanionPreVisibility::PetVisible,
+            "a close transaction must restore the rebased pet, not its stale Mini snapshot"
         );
     }
 
