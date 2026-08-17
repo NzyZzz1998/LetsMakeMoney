@@ -21,7 +21,7 @@
     <rect x="15" y="59" width="33" height="9" rx="4.5" fill="#D89B26"/>
   </g>
 
-  <text x="166" y="78" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="17" font-weight="650" fill="#6E6A62">WINDOWS · LOCAL FIRST · v1.1.0 TEST</text>
+  <text x="166" y="78" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="17" font-weight="650" fill="#6E6A62">WINDOWS · LOCAL FIRST · v1.1.0 STABLE</text>
   <text x="62" y="185" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="62" font-weight="730" fill="#30302B">LetsMakeMoney</text>
   <text x="64" y="231" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="30" font-weight="650" fill="#30302B">Classic 小猫回归，继续陪你看见收入进度</text>
   <text x="64" y="275" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="21" fill="#6E6A62">Mini / Classic 二选一 · 三种状态 · 本地计算 · 安全回落</text>
@@ -32,7 +32,7 @@
     <rect x="158" width="174" height="40" rx="20" fill="#FFFFFF" stroke="#D8D1C5"/>
     <text x="245" y="26" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="17" font-weight="650" fill="#30302B">浅色 / 深色</text>
     <rect x="344" width="192" height="40" rx="20" fill="#E3ECE4"/>
-    <text x="440" y="26" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="17" font-weight="650" fill="#46684E">Classic 回归候选</text>
+    <text x="440" y="26" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="17" font-weight="650" fill="#46684E">Classic 已回归</text>
   </g>
 
   <g transform="translate(760 92)" filter="url(#miniShadow)">

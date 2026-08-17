@@ -1,39 +1,26 @@
 <div align="center">
-  <img src="assets/readme/hero.svg" width="100%" alt="LetsMakeMoney v1.1.0：Classic 小猫作为可选桌面陪伴回归">
+  <img src="assets/readme/hero.svg" width="100%" alt="LetsMakeMoney v1.1.0：本地收入进度与可选 Classic 桌面陪伴">
 </div>
 
 <div align="center">
   <a href="README.en.md">English</a> ·
-  <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases">下载稳定版</a> ·
+  <a href="https://github.com/NzyZzz1998/LetsMakeMoney/releases/latest">下载稳定版</a> ·
   <a href="doc/current.md">项目状态</a> ·
-  <a href="doc/releases/v1.1.0/README.md">v1.1.0 候选</a>
+  <a href="doc/releases/v1.1.0/release-notes.md">v1.1.0 发布说明</a>
 </div>
-
-## v1.1.0：小猫回来了
-
-Classic 橘猫以**可选桌面陪伴**的形式回到 LetsMakeMoney。它不替代收入主线，也不会和 Mini 同时占据桌面：用户可以在 Settings 中选择 Mini 或 Classic，默认仍是更克制的 Mini。
-
-- **三种陪伴状态：** `working`、`awake_rest`、`sleeping` 跟随权威工作状态切换。
-- **状态化互动：** 每种状态拥有独立单击反馈；长按 500ms 后进入跑动，支持左右转向和释放收势。
-- **透明桌面交互：** 可见像素参与命中，透明区域穿透，不用一整块矩形窗口挡住桌面。
-- **不拖累主应用：** Workbench 打开时暂时隐藏当前陪伴；宠物包损坏或运行异常时安全回落 Mini。
-- **本机验收与最终重建均已完成：** 动作体量连续性、拖拽手感、快速反转、窗口协同、托盘退出和三档 DPI 已通过；最终干净候选也已通过完整门禁、包体审计和启动冒烟。
-
-> [!NOTE]
-> v1.1.0 目前只在 `test` 分支继续验收，尚未成为公开 Release。当前稳定下载仍以 [Releases](https://github.com/NzyZzz1998/LetsMakeMoney/releases) 为准。
 
 ## 今天的工作，值多少钱？
 
-LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。设置月薪、工作时间和休息方式后，它会把抽象的月薪换算成今日已赚、工作进度、距离下一阶段的时间和月度工时汇总。
+LetsMakeMoney 是一款本地优先的 Windows 收入进度工具。设置月薪、工作时间与休息方式后，它会把抽象的月薪换算为今日已赚、工作进度、阶段倒计时和月度工时总结。
 
-Mini 收入视图可以安静地留在桌面；v1.1.0 也可由用户显式切换为 Classic 橘猫陪伴，二者严格互斥。需要调整日期、记录加班或查看整月安排时，再打开完整工作台。无需账号，工资、作息、加班记录和日志都保存在本机。
+v1.1.0 带回了可选的 Classic 橘猫桌面陪伴。Mini 收入视图与 Classic 严格互斥：默认使用 Mini，也可以在设置中切换为小猫。无需账号，工资、作息、日期调整、加班记录和日志都保存在本机。
 
 ## 真实界面
 
 <div align="center">
   <img src="assets/readme/workbench.png" width="900" alt="LetsMakeMoney 今日收入工作台，使用演示数据">
   <br>
-  <sub>v1.0.8 Windows 主界面基线，图中为演示数据；v1.1.0 Classic 陪伴未混入旧截图。</sub>
+  <sub>真实 Windows 工作台，金额、日期和工时均为演示数据。</sub>
 </div>
 
 <table>
@@ -47,57 +34,31 @@ Mini 收入视图可以安静地留在桌面；v1.1.0 也可由用户显式切�
   </tr>
 </table>
 
-<p align="center"><sub>截图来自 v1.0.8 Windows 实际运行界面；金额、日期与工时仅用于演示。</sub></p>
+## v1.1.0：Classic 小猫回归
+
+- **三种陪伴状态：** `working`、`awake_rest`、`sleeping` 跟随权威工作状态切换。
+- **状态化互动：** 每种状态拥有独立单击反馈；长按 500ms 后进入跑动，支持即时转向和释放收势。
+- **透明桌面交互：** 可见像素参与命中，透明区域穿透，不以矩形窗口遮挡桌面。
+- **Mini / Classic 二选一：** Workbench 打开期间隐藏当前陪伴，关闭后恢复进入前状态。
+- **主线隔离：** 宠物包损坏或运行异常时安全回落 Mini，不影响收入、日历、设置与托盘。
 
 ## 核心体验
 
-| 随时看见进度 | 理解每个工作日 | 保持桌面私密 | 本地可靠运行 |
+| 看见收入进度 | 理解每个工作日 | 保持桌面私密 | 本地可靠运行 |
 | --- | --- | --- | --- |
-| 今日已赚、阶段倒计时、工作进度 | 单休、双休、大小周与跨夜班次 | Mini 贴边自动收起敏感金额 | 配置事务、损坏恢复与诊断摘要 |
-| 今日安排、日薪、时薪和月度累计 | 官方日历、估算年份和手动日期调整 | 悬停展开、移开收起、托盘找回 | 浅色/深色主题与本地持久化 |
-| 按日记录加班和月度工时总结 | 带薪休息、不带薪休息与调休工作日 | Workbench 打开时自动隐藏 Mini | 三档 DPI 界面与透明命中校准 |
-| Mini / Classic 二选一陪伴 | Classic 三基础状态与状态化单击 | 透明像素穿透、可见像素交互 | 包损坏时安全回落 Mini |
+| 今日已赚、工作进度与阶段倒计时 | 单休、双休、大小周与跨夜班次 | Mini 贴边自动收起敏感金额 | 配置事务、损坏恢复与诊断摘要 |
+| 今日安排、日薪、时薪与月度累计 | 官方日历、估算年份与日期调整 | 悬停展开、移开收起、托盘找回 | 浅色/深色主题与本地持久化 |
+| 按日记录加班与月度工时总结 | 带薪休息、不带薪休息与调休 | Workbench 打开时隐藏桌面陪伴 | 100% / 125% / 150% DPI 验证 |
+| Mini / Classic 自主选择 | 状态化单击与长按拖拽 | 透明像素穿透 | 包异常时安全回落 Mini |
 
 ## 三步开始使用
 
-1. 从 [Releases](https://github.com/NzyZzz1998/LetsMakeMoney/releases) 下载最新稳定版便携 Zip。
-2. 解压后运行 `LetsMakeMoney.exe`，按引导填写月薪、休息模式和工作时间。
-3. 在 Mini 查看实时进度；从托盘打开今日工作台、设置或重新配置。
+1. 从 [Releases](https://github.com/NzyZzz1998/LetsMakeMoney/releases/latest) 下载 `LetsMakeMoney-v1.1.0-windows-x86_64.zip`。
+2. 完整解压后运行 `LetsMakeMoney.exe`，按引导填写月薪、休息模式和工作时间。
+3. 使用 Mini 查看实时进度，或在设置中切换为 Classic；从托盘打开今日工作台、设置与重新配置。
 
-当前不提供安装器或静默更新。应用只会在用户确认后检查和打开更新页面。
-
-## v1.1.0 候选
-
-> [!IMPORTANT]
-> v1.1.0 当前只同步到测试分支，不是公开稳定版。Classic 的自动门禁、本机直接输入验收以及最终干净候选重建均已完成；推送 `main`、tag 和 GitHub Release 仍需项目所有者单独授权。
-
-| 事实 | 当前状态 |
-| --- | --- |
-| 当前公开稳定版 | [v1.0.7 Stable](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7) |
-| v1.0 系列本地收官 | `v1.0.8` annotated tag，保持历史不变 |
-| 当前开发候选 | 精确版本 `v1.1.0` |
-| 候选定位 | Classic-only 桌面陪伴回归；默认 Mini，用户显式启用 Classic |
-| 最终干净候选 | `V110-20260817T031659Z-71616e2e-clean` |
-| 候选 Zip SHA256 | `DA11AAD0928E52DEEBA366E834FBAFD6182CD5F107FCBA01E9BDFA14D1898527` |
-| 自动门禁 | current gate、91 项 Rust 测试、Clippy、前端构建、包体验证通过 |
-| 人工结论 | 行为候选通过；最终重建仅改变包身份规范化与证据文档，并完成启动冒烟 |
-
-v1.1.0 候选增加：
-
-- Classic 橘猫的 working、awake_rest、sleeping 基础状态与独立单击反馈。
-- 500ms 长按跑动、左右方向即时切换、释放收势与透明像素命中。
-- Mini 与 Classic 严格互斥；Workbench 打开期间隐藏当前陪伴并按进入前状态恢复。
-- Classic manifest、图集或哈希异常时安全回落 Mini，不阻断收入主线。
-- 净化运行时包只包含正式图集、命中数据、manifest 与必要许可摘要。
-
-候选身份、哈希和验收边界见 [v1.1.0 验证记录](doc/releases/v1.1.0/verification.md)。本地候选不能替代正式 Release。
-
-### 发布前边界
-
-- 最终候选已从干净提交重建，Zip、EXE、DLL、README 与 BUILD-INFO 身份已锁定，并从新解压目录完成启动冒烟。
-- 完整 GUI 验收来自行为等价的前序干净候选；最终重建只修正规范化 LF 包哈希与证据文档，不冒充重新执行整套 GUI。
-- 精确 EXE 内嵌坏包注入因没有安全入口列为暂不验证；自动隔离坏包夹具 3/3 通过。
-- Windows 10 与多显示器环境。
+> [!NOTE]
+> 当前提供免安装便携 Zip。Windows SmartScreen 可能因程序尚未代码签名而显示“未知发布者”；请只从本仓库 Release 下载并核对 SHA256。
 
 ## 数据与隐私
 
@@ -107,20 +68,18 @@ v1.1.0 候选增加：
 
 - 无需注册或登录，不上传工资、作息、日期调整或加班记录。
 - 诊断摘要会隐藏本机路径等机器特定信息。
-- Mini 贴近工作区左右边缘后可以收起金额，只保留非金额阶段提示。
-- 官方日历未覆盖的年份会明确标记为“估算”，不会伪造官方节假日或调休数据。
+- Mini 可在工作区左右边缘收起金额，只保留非金额阶段提示。
+- 未覆盖年份明确标记为“估算”，不会伪造官方节假日或调休数据。
 - Classic 仅在用户显式选择后启用；动画素材不适用 MIT，详见 [视觉素材许可](ASSETS_LICENSE.md)。
-- v0.9 桌宠版保留在 [`v0.9-beta`](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v0.9-beta)，仅作为历史基线。
 
 ## 支持边界
 
-- **稳定版已验证：** Windows 11 x86_64，单显示器，100% / 125% / 150% DPI。
-- **v1.1.0 候选：** 三档 DPI 的界面、透明命中和完整本机拖拽链路通过。
-- **运行前提：** Microsoft Edge WebView2 Runtime。
+- **已验证：** Windows 11 x86_64，单显示器，100% / 125% / 150% DPI。
 - **尽力兼容：** Windows 10 x86_64；当前缺少真实设备或 VM 证据。
 - **暂未验证：** 多显示器，不进入已验证通过声明。
+- **运行前提：** Microsoft Edge WebView2 Runtime。
 
-v1.1.0 的完整交互结论必须在本机直接输入环境中取得，并写入 [验证记录](doc/releases/v1.1.0/verification.md)。
+完整候选身份、哈希与验收边界见 [v1.1.0 验证记录](doc/releases/v1.1.0/verification.md)。
 
 ## 从源码运行
 
@@ -142,23 +101,21 @@ npm run tauri dev
 ### 验证与打包
 
 ```powershell
-# 仓库根目录：唯一当前验证入口
+# 仓库根目录：唯一 current gate
 powershell -ExecutionPolicy Bypass -File .\scripts\verify_windows_current.ps1
 
-# 生成隔离的 v1.1.0 本地候选，不覆盖正式发布附件
+# 创建隔离候选，不覆盖正式 Release
 powershell -ExecutionPolicy Bypass -File .\scripts\package_v110.ps1
 ```
-
-本地候选只写入 `.artifacts\candidates\v1.1.0\<candidate-id>\`。同名本地 Zip 不能证明 GitHub Release 身份，正式下载始终以 Releases 页面及其 SHA256 文件为准。
 
 ## 仓库结构
 
 ```text
 apps/windows-v1/       Tauri 2 + React 19 Windows 客户端
 shared/                官方日历与共享数据
-scripts/               current gate、打包和合规检查
+scripts/               current gate、打包与合规检查
 doc/current.md         当前项目事实入口
-doc/releases/v1.1.0/   v1.1.0 候选、验收与发布准备
+doc/releases/v1.1.0/   v1.1.0 验收与发布证据
 ```
 
 ## 参与与许可

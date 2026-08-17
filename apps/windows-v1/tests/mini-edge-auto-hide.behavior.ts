@@ -201,6 +201,51 @@ for (const dock of ["left", "right"] as const) {
 }
 
 {
+  const inFlightScheduler = new FakeScheduler();
+  let resolveDrag: ((status: MiniEdgeNativeStatus) => void) | null = null;
+  const inFlightController = createMiniEdgeAutoHideController({
+    scheduler: inFlightScheduler,
+    retractDelayMs: 600,
+    readStatus: async () => ({
+      auto_hide: true,
+      dock: "none",
+      visibility: "expanded",
+      notice: null,
+    }),
+    setRetracted: async retracted => ({
+      auto_hide: true,
+      dock: "right",
+      visibility: retracted ? "retracted" : "expanded",
+      notice: null,
+    }),
+    completeDrag: async () =>
+      await new Promise<MiniEdgeNativeStatus>(resolve => {
+        resolveDrag = resolve;
+      }),
+  });
+  await inFlightController.initialize();
+  await inFlightController.dragStarted();
+  const completion = inFlightController.dragCompleted();
+  inFlightController.pointerEntered();
+  resolveDrag?.({
+    auto_hide: true,
+    dock: "right",
+    visibility: "expanded",
+    notice: null,
+  });
+  await completion;
+  assert(
+    inFlightController.snapshot().dock === "right",
+    "native docking still commits when repositioning emits pointer enter before drag completion resolves",
+  );
+  assert(
+    inFlightScheduler.pendingCount() === 1,
+    "the in-flight pointer enter cannot cancel the first privacy retraction",
+  );
+  inFlightController.dispose();
+}
+
+{
   const protectedScheduler = new FakeScheduler();
   let protectedStatus: MiniEdgeNativeStatus = {
     auto_hide: true,

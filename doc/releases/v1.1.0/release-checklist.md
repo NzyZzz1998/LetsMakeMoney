@@ -1,6 +1,6 @@
 # LetsMakeMoney Windows v1.1.0 发布检查
 
-> 状态：旧干净候选已因 `V110-BUG-001` 淘汰；行为候选已通过本机真实桌面验收，最终干净候选已完成重建、自动门禁、包体审计与启动冒烟，未发布。
+> 状态：旧 clean 候选又暴露 `V110-BUG-003` 至 `V110-BUG-005`，不得发布。三项定向修复已在 dirty 候选通过自动与真实 GUI 复验；等待干净重建，tag 与 Release 冻结。
 
 ## 代码与身份
 
@@ -19,12 +19,12 @@
 
 ## 候选与包体
 
-- [x] 从包含最终验收文档的干净提交运行 `scripts/package_v110.ps1` 重建最终发布候选。
-- [x] 最终重建候选通过 `scripts/verify_v110_package.ps1 -Mode candidate`。
-- [x] 最终 Zip、EXE、DLL、README 和 BUILD-INFO 身份锁定；旧候选明确拒绝发布。
+- [ ] 从包含三项阻塞修复与最终验收文档的干净提交运行 `scripts/package_v110.ps1` 重建最终发布候选。
+- [ ] 新的最终候选通过 `scripts/verify_v110_package.ps1 -Mode candidate`。
+- [ ] 新的 Zip、EXE、DLL、README、BUILD-INFO、manifest 与 package tree 身份锁定。
 - [x] 最终包内无配置、日志、截图、验收证据、PetManager 生产目录或 Spike 中间产物。
 
-最终 Candidate ID：`V110-20260817T031659Z-71616e2e-clean`；Zip SHA256：`DA11AAD0928E52DEEBA366E834FBAFD6182CD5F107FCBA01E9BDFA14D1898527`。
+已淘汰 Candidate ID：`V110-20260817T031659Z-71616e2e-clean`；Zip SHA256：`DA11AAD0928E52DEEBA366E834FBAFD6182CD5F107FCBA01E9BDFA14D1898527`。当前 dirty 定向候选不可发布。
 
 ## 真实验收
 
@@ -42,8 +42,8 @@
 
 - [x] 项目所有者批准推送 `main`。
 - [x] 项目所有者批准推送 `test`，仅用于继续验收。
-- [ ] 项目所有者批准创建并推送 `v1.1.0` tag。
-- [ ] 项目所有者批准创建 GitHub Release。
-- [ ] Release 只上传便携 Zip 与 `SHA256SUMS.txt`。
+- [ ] 项目所有者在新 clean 候选复验后重新批准创建并推送 `v1.1.0` tag。
+- [ ] 项目所有者在新 clean 候选复验后重新批准创建 GitHub Release。
+- [x] Release 只上传便携 Zip 与 `SHA256SUMS.txt`。
 
 未勾选项完成前不得公开发布。

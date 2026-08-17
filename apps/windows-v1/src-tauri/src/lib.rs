@@ -574,11 +574,15 @@ fn stage_companion_switch(
             hide_window_with_source(app, plan.target_label, "companion_switch_enforce_exclusive")?;
         }
     }
+    let target_after =
+        companion_policy::companion_visibility_after_mode_switch(source_before, requested);
     if let Some(source_label) = visible_companion_label(source_before) {
         hide_window_with_source(app, source_label, "companion_switch_source")?;
+    }
+    if let Some(target_label) = visible_companion_label(target_after) {
         if let Err(error) = show_window_with_options(
             app,
-            plan.target_label,
+            target_label,
             "companion_switch_target",
             false,
             true,
@@ -592,10 +596,11 @@ fn stage_companion_switch(
         app,
         "desktop_companion.switch_staged",
         &format!(
-            "source={} target={} source_before={}",
+            "source={} target={} source_before={} target_after={}",
             plan.source_label,
             plan.target_label,
-            source_before.label()
+            source_before.label(),
+            target_after.label(),
         ),
     );
     Ok(Some(CompanionSwitchStage {

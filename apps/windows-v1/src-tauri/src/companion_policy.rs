@@ -72,7 +72,6 @@ pub fn companion_visibility_after_mode_switch(
     requested: DesktopCompanionMode,
 ) -> CompanionPreVisibility {
     match visibility {
-        CompanionPreVisibility::HiddenByUser => CompanionPreVisibility::HiddenByUser,
         CompanionPreVisibility::NotPresent => CompanionPreVisibility::NotPresent,
         _ => match requested {
             DesktopCompanionMode::Mini => CompanionPreVisibility::MiniExpanded,
@@ -137,7 +136,7 @@ mod tests {
     }
 
     #[test]
-    fn switching_during_a_workbench_lease_rebases_the_restore_target() {
+    fn switching_modes_rebases_the_restore_target_and_reveals_a_user_hidden_companion() {
         assert_eq!(
             companion_visibility_after_mode_switch(
                 CompanionPreVisibility::MiniPrivacyRetracted,
@@ -157,7 +156,7 @@ mod tests {
                 CompanionPreVisibility::HiddenByUser,
                 DesktopCompanionMode::Pet,
             ),
-            CompanionPreVisibility::HiddenByUser,
+            CompanionPreVisibility::PetVisible,
         );
     }
 }

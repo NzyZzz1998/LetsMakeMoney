@@ -248,6 +248,7 @@ export function createMiniEdgeAutoHideController(
     initialize: refresh,
     refresh,
     pointerEntered() {
+      if (state.locks.dragging) return;
       if (!pointerEntryArmed) return;
       pointerEntryArmed = false;
       state = { ...state, pointerInside: true };

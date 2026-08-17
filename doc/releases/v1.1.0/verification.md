@@ -2,9 +2,9 @@
 
 ## 当前结论
 
-体量连续性、拖拽中断恢复和合并位移调度已由干净行为候选 `V110-20260813T081246Z-f5ae4ac3-clean` 完成本机验收。最终发布候选 `V110-20260817T031659Z-71616e2e-clean` 已通过 current gate、候选包验证、91 项 Rust 测试、Clippy、前端构建、宠物行为测试和启动冒烟。旧候选 `V110-20260812T163314Z-d9d51cfe-clean` 继续明确淘汰，不得发布。
+体量连续性、拖拽中断恢复和合并位移调度已由干净行为候选 `V110-20260813T081246Z-f5ae4ac3-clean` 完成本机验收。其后锁定的 clean 候选 `V110-20260817T031659Z-71616e2e-clean` 又暴露 `V110-BUG-003` 至 `V110-BUG-005`，已经淘汰，不得发布。
 
-发布前结论为“通过，可等待公开发布授权”。2026-08-17 本机直接输入验收关闭了拖拽手感、抓取连续性、快速反向、截图中断恢复、托盘命令/退出、Settings/Modal 输入锁定及三档 DPI 拖拽闭环。精确 EXE 内嵌资源损坏没有安全注入入口，继续列为“暂不验证”；隔离坏包夹具 3/3 通过。`Public release approved` 仍为 `false`，本轮授权只覆盖推送 `test`，不覆盖 `main`、tag 或 Release。
+当前发布前结论为“未通过，等待干净候选重建”。2026-08-17 dirty 定向候选已证明 Settings 显式切换 Classic 后猫咪可见、Mini 贴边事务完成收起、净化宠物包全部绑定文件与 package tree 可验证；这些证据不能替代最终 clean Zip 复验。`Public release approved = false`，tag 与 Release 冻结。
 
 `V110-UX-001` 与 `V110-UX-002` 已完成本机验证。最终重建还关闭了 `V110-BUG-002` 的换行相关包身份漂移；该修复不改变动画和输入行为，最终 Zip 已完成独立包体验证与启动冒烟。
 
@@ -24,7 +24,26 @@
 | EXE SHA256 | `8EAC6B9F277421207D679F55E91AA9E5A535FF8C721E4BF945CBFA9D9123D42C` |
 | WebView2Loader.dll | 160,320 字节 |
 | DLL SHA256 | `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C` |
-| 公开发布 | 未发布 |
+| 公开发布 | 已撤销；该候选已淘汰，不得作为 v1.1.0 Stable 附件 |
+
+### 当前 dirty 定向候选（不可发布）
+
+| 字段 | 当前值 |
+| --- | --- |
+| Candidate ID | `V110-20260817-companion-edge-package-fix-dirty` |
+| Source HEAD | `f80c5a1297f254e1741554fd4daf3e08e6ea1bb8` |
+| Source tree | dirty |
+| Zip SHA256 | `BE797AB0BEA130ED8E5E95D56C23A2B1F06AC67CFE543D4E782EEB55F6E0D627` |
+| Manifest SHA256 | `78DD5FEC1C046BBC22CFC887C799E26DAEE8F4E28D3D5A52A63CD39869412F89` |
+| Package tree SHA256 | `8B8C3A2562A0509F9D9D713D283B38E3D1BC128007519E6E491B109BF87165D3` |
+| 用途 | `V110-BUG-003` 至 `V110-BUG-005` 定向复验；不可发布 |
+
+### 新增定向复验
+
+- Settings 显式执行 Mini → Classic 并保存，关闭 Settings 与 Workbench 后只剩 `LetsMakeMoney Classic`，真实猫咪可见。
+- 运行日志出现 `pet.runtime_ready`，manifest 与 package tree 为上表锁定值；未再次发生当前启动的 `file_hash_mismatch` 回退。
+- Mini 贴右边缘后日志出现 `detected → retract.scheduled → retracted → retract.completed`，恢复原配置重启后真实窗口为 `40×108` 隐私竖条。
+- Python 宠物包完整性门禁、Rust 包完整性测试、陪伴策略测试、Mini 贴边竞态行为测试及完整 Rust 测试通过。
 
 ### 历史定向候选（不可发布）
 
@@ -77,7 +96,7 @@
 - 当前运行日志继续按 2,000,000 字节阈值保留三份轮换文件，未见失控增长；但基础循环的 `action_started` 与逐帧命中摘要仍较密集，记录为非阻塞诊断噪声债务，不据此宣称存在稳定性故障或内存泄漏。
 - 2026-08-17 从当前 Zip 新解压目录运行精确 EXE，项目所有者在本机直接输入环境完成模式互斥、状态点击、500ms 长按拖拽、快速左右反向、截图中断、Workbench 协同、Settings/Modal 输入锁定、托盘全部命令与退出，以及 100%/125%/150% DPI 闭环，结论为全部通过。
 
-三基础状态单击、5 次 500ms 拖拽、Workbench/Mini 互斥、30 分钟观感和两小时稳定运行先由旧干净候选或同源定向载荷建立，再由 `V110-20260813T081246Z-f5ae4ac3-clean` 完成本机直接输入收口。最终候选只增加规范化 LF 包身份修复与证据文档，并完成包体审计和启动冒烟；这些材料共同构成发布前证据，但不改写为最终 Zip 重新执行整套 GUI。
+三基础状态单击、5 次 500ms 拖拽、Workbench/Mini 互斥、30 分钟观感和两小时稳定运行先由旧干净候选或同源定向载荷建立，再由 `V110-20260813T081246Z-f5ae4ac3-clean` 完成本机直接输入收口。新增三项修复必须进入新的 clean 候选并完成最终复验，历史证据不得单独升级为发布通过。
 
 ## 待人工补证
 

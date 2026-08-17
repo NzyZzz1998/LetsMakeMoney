@@ -74,3 +74,14 @@
 - [x] Windows 显示缩放恢复为验收前的 100%。
 
 无法由自动化可靠完成的通知区、DPI 和主观动画观感必须保留真实人工结论，不得用自动门禁替代。
+
+## 新 clean 候选必须补验
+
+- [ ] 从 Mini 模式通过 Settings 显式选择 Classic 并保存；关闭 Settings 后 Classic 必须立即显示。
+- [ ] 从托盘打开 Settings、当前 Mini 已因用户操作隐藏时，切换 Classic 仍必须显示目标陪伴。
+- [ ] 将完整 Mini 直接拖到左、右屏幕边缘，释放且不进行第二次点击；延迟后必须自动收成隐私竖条。
+- [ ] 指针在拖拽完成时进入新窗口位置不得取消收起；移入竖条展开、移开再次收起。
+- [ ] Classic 启动日志必须出现 `pet.runtime_ready`，不得出现 `file_hash_mismatch` 或 `fallback_to_mini`。
+- [ ] 模拟坏包 fixture 仍安全回落 Mini，收入主线和配置可用。
+
+以上项目目前仅由 dirty 定向候选通过。新的 clean Zip 未完成前不得勾选，也不得创建 `v1.1.0` tag 或 Release。
