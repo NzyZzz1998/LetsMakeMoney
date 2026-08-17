@@ -97,12 +97,12 @@ def verify_pet_runtime_boundary() -> None:
 
 def verify_release_documents() -> None:
     required = {
-        "README.md": "dirty 候选定向修复",
+        "README.md": "clean 候选",
         "release-notes.md": "Classic",
-        "verification.md": "等待干净候选重建",
-        "manual-verification.md": "新 clean 候选必须补验",
-        "release-checklist.md": "tag 与 Release 冻结",
-        "progress.md": "tag 与 Release 冻结",
+        "verification.md": "部分通过，可推送并重新打包",
+        "manual-verification.md": "Mini 贴边首次自动隐藏",
+        "release-checklist.md": "tag 与 Release 仍冻结",
+        "progress.md": "公开发布仍冻结",
     }
     for name, marker in required.items():
         path = RELEASE / name

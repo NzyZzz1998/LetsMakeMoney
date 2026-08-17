@@ -1,6 +1,6 @@
 # LetsMakeMoney Windows v1.1.0
 
-> 状态：`v1.1.0` 功能范围已冻结；三项发布阻塞已完成 dirty 候选定向修复，等待干净候选重建与最终复验。尚未创建 tag 或 Stable Release。
+> 状态：`v1.1.0` 功能范围已冻结；发布阻塞修复已进入 clean 候选并完成项目所有者定向复验。允许推送和重新打包，尚未创建 tag 或 Stable Release。
 
 v1.1.0 在不改变收入、日历、加班和配置事务口径的前提下，恢复 Classic 橘猫作为可选桌面陪伴。新用户、旧配置和非法值均默认使用 Mini；用户必须在 Settings 中显式选择 Classic，Mini 与 Classic 严格互斥。
 
