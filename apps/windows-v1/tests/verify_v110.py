@@ -99,10 +99,10 @@ def verify_release_documents() -> None:
     required = {
         "README.md": "clean 候选",
         "release-notes.md": "Classic",
-        "verification.md": "部分通过，可推送并重新打包",
+        "verification.md": "Tag publication approved = true",
         "manual-verification.md": "Mini 贴边首次自动隐藏",
-        "release-checklist.md": "tag 与 Release 仍冻结",
-        "progress.md": "公开发布仍冻结",
+        "release-checklist.md": "GitHub Release 仍冻结",
+        "progress.md": "tag 无阻塞",
     }
     for name, marker in required.items():
         path = RELEASE / name
@@ -113,10 +113,10 @@ def verify_release_documents() -> None:
 
     current = (REPO_ROOT / "doc" / "current.md").read_text(encoding="utf-8")
     require(
-        "当前公开版本 | Windows v1.0.7 Stable" in current
-        and "Public release approved = false" in current
-        and "v1.1.0 尚未发布" in current,
-        "current.md does not preserve the blocked v1.1.0 publication facts",
+        "当前公开版本 | Windows v1.1.0 Stable" in current
+        and "Tag publication approved = true" in current
+        and "GitHub Release approved = false" in current,
+        "current.md does not preserve the split v1.1.0 tag and Release facts",
     )
     portable_zh = (APP_ROOT / "release-docs" / "portable-readme.zh-CN.md").read_text(encoding="utf-8")
     portable_en = (APP_ROOT / "release-docs" / "portable-readme.en.md").read_text(encoding="utf-8")
