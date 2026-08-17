@@ -1,6 +1,6 @@
 # LetsMakeMoney Windows v1.1.0 发布检查
 
-> 状态：旧 clean 候选又暴露 `V110-BUG-003` 至 `V110-BUG-005`，不得发布。三项定向修复已在 dirty 候选通过自动与真实 GUI 复验；等待干净重建，tag 与 Release 冻结。
+> 状态：所有既有 clean 候选均早于 `V110-BUG-003` 至 `V110-BUG-007` 的完整修复，不得发布。最新两项竞态已通过自动回归；等待干净重建和真实 GUI 复验，tag 与 Release 冻结。
 
 ## 代码与身份
 
@@ -19,7 +19,7 @@
 
 ## 候选与包体
 
-- [ ] 从包含三项阻塞修复与最终验收文档的干净提交运行 `scripts/package_v110.ps1` 重建最终发布候选。
+- [ ] 从包含五项阻塞修复与最终验收文档的干净提交运行 `scripts/package_v110.ps1` 重建最终发布候选。
 - [ ] 新的最终候选通过 `scripts/verify_v110_package.ps1 -Mode candidate`。
 - [ ] 新的 Zip、EXE、DLL、README、BUILD-INFO、manifest 与 package tree 身份锁定。
 - [x] 最终包内无配置、日志、截图、验收证据、PetManager 生产目录或 Spike 中间产物。
@@ -35,6 +35,8 @@
 - [x] 两小时稳定运行通过。
 - [x] 拖拽期间截图/窗口失焦可安全取消并恢复后续交互。
 - [x] 用户配置、日志、DPI 和进程状态已恢复。
+- [ ] 新 clean 候选中执行“切换 Classic → 关闭 Workbench → 立即拖拽”，全程不得恢复 Mini。
+- [ ] Mini 左右边缘各连续贴边 10 次，每次释放后均自动收起，移入展开和移出再收起正常。
 
 精确桌面包损坏缺少不改变候选身份的安全注入入口；自动坏包夹具 3/3 通过，该项仍不得写成真实桌面通过。
 

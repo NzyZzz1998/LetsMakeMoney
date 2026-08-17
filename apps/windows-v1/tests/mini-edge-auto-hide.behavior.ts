@@ -226,7 +226,9 @@ for (const dock of ["left", "right"] as const) {
   await inFlightController.initialize();
   await inFlightController.dragStarted();
   const completion = inFlightController.dragCompleted();
-  inFlightController.pointerEntered();
+  inFlightController.pointerLeft();
+  inFlightController.setLock("focus_inside", true);
+  inFlightController.setLock("focus_inside", false);
   resolveDrag?.({
     auto_hide: true,
     dock: "right",
@@ -240,7 +242,7 @@ for (const dock of ["left", "right"] as const) {
   );
   assert(
     inFlightScheduler.pendingCount() === 1,
-    "the in-flight pointer enter cannot cancel the first privacy retraction",
+    "in-flight pointer and focus churn cannot discard the completed docking transaction",
   );
   inFlightController.dispose();
 }

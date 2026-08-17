@@ -3,9 +3,9 @@
 ## 当前状态
 
 - 版本：`1.1.0`，不使用 Beta 后缀。
-- 状态：新增三项发布阻塞已完成定向修复；dirty 候选自动门禁与真实 GUI 复验通过，等待干净提交重建及最终复验。
+- 状态：新增五项发布阻塞均已完成代码修复；`V110-BUG-006` 与 `V110-BUG-007` 自动回归通过，等待干净提交重建及最终 GUI 复验。
 - 产品范围：Classic-only 可选桌面陪伴；默认 Mini；严格互斥。
-- 当前阻塞：旧 clean 候选存在 Classic 保存后不显示、Mini 贴边竞态及净化包哈希错误，不得发布；tag 与 Release 冻结。
+- 当前阻塞：所有既有 clean 候选均早于最新可见性租约与贴边事务修复，不得发布；tag 与 Release 冻结。
 
 ## 已完成
 
@@ -33,12 +33,14 @@
 - 2026-08-17 本机直接输入补证全部通过：抓取连续性、拖拽跟手、快速左右反向、截图中断恢复、Mini/Classic 互斥、Workbench 协同、Settings/Modal 锁定、托盘命令/退出及 100%/125%/150% DPI 均已闭环。
 - 验收结束后系统缩放恢复到 100%，用户配置、加班记录和日志与备份 SHA256 全部一致，进程数为 0。
 - `V110-BUG-002` 已关闭：Classic manifest 统一使用仓库规范化 LF 字节计算身份，Python 合同显式拒绝 CRLF；宠物包 Python 门禁及 Rust 定向测试 3/3 通过。
+- `V110-BUG-006` 已关闭代码根因：Workbench 补偿阶段原子取得重基后的最新陪伴状态，禁止陈旧 Mini 快照覆盖 Classic。
+- `V110-BUG-007` 已关闭代码根因：拖拽完成事务与收起计时器使用独立版本号，原生吸附期间的指针/焦点抖动不再丢弃首次收起。
 - 最终修复提交 `71616e2e0ce3e4fb6d687d3115689e7a6ffeb2d1` 已生成候选 `V110-20260817T031659Z-71616e2e-clean`；Zip SHA256 为 `DA11AAD0928E52DEEBA366E834FBAFD6182CD5F107FCBA01E9BDFA14D1898527`，EXE SHA256 为 `8EAC6B9F277421207D679F55E91AA9E5A535FF8C721E4BF945CBFA9D9123D42C`，DLL SHA256 为 `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C`。
 - 最终候选通过完整 current gate、91/91 Rust tests、Clippy、前端构建及候选包身份审计，并从新解压目录完成 10 秒启动冒烟；进程路径和 EXE SHA256 与候选一致。
 
 ## 下一步
 
-1. 将 `V110-BUG-003` 至 `V110-BUG-005` 与最终 README 形成干净发布提交。
+1. 将 `V110-BUG-003` 至 `V110-BUG-007` 与最终 README 形成干净发布提交。
 2. 从干净提交重新构建并锁定 Zip、EXE、DLL、manifest 与 package tree 身份。
-3. 复验 Settings 切换 Classic、贴边自动隐藏、坏包回退及核心回归。
+3. 复验 Settings 切换 Classic 后关闭/拖拽不回 Mini、左右贴边各 10 次自动隐藏、坏包回退及核心回归。
 4. 项目所有者重新确认后才允许创建 `v1.1.0` tag 与 GitHub Stable Release。

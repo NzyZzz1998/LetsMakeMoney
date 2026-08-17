@@ -4,7 +4,7 @@
 
 体量连续性、拖拽中断恢复和合并位移调度已由干净行为候选 `V110-20260813T081246Z-f5ae4ac3-clean` 完成本机验收。其后锁定的 clean 候选 `V110-20260817T031659Z-71616e2e-clean` 又暴露 `V110-BUG-003` 至 `V110-BUG-005`，已经淘汰，不得发布。
 
-当前发布前结论为“未通过，等待干净候选重建”。2026-08-17 dirty 定向候选已证明 Settings 显式切换 Classic 后猫咪可见、Mini 贴边事务完成收起、净化宠物包全部绑定文件与 package tree 可验证；这些证据不能替代最终 clean Zip 复验。`Public release approved = false`，tag 与 Release 冻结。
+当前发布前结论为“未通过，等待干净候选重建”。在既有定向修复之后又确认了 Workbench 陈旧租约恢复 Mini 与原生吸附期间丢失首次收起两项竞态；代码与自动回归已经通过，但尚无包含全部修复的 clean Zip GUI 证据。`Public release approved = false`，tag 与 Release 冻结。
 
 `V110-UX-001` 与 `V110-UX-002` 已完成本机验证。最终重建还关闭了 `V110-BUG-002` 的换行相关包身份漂移；该修复不改变动画和输入行为，最终 Zip 已完成独立包体验证与启动冒烟。
 
@@ -44,6 +44,9 @@
 - 运行日志出现 `pet.runtime_ready`，manifest 与 package tree 为上表锁定值；未再次发生当前启动的 `file_hash_mismatch` 回退。
 - Mini 贴右边缘后日志出现 `detected → retract.scheduled → retracted → retract.completed`，恢复原配置重启后真实窗口为 `40×108` 隐私竖条。
 - Python 宠物包完整性门禁、Rust 包完整性测试、陪伴策略测试、Mini 贴边竞态行为测试及完整 Rust 测试通过。
+- Workbench 租约回归证明补偿阶段使用最新 `pet_visible`，不会使用进入补偿前缓存的 Mini 状态。
+- Mini 贴边回归在原生吸附在途时注入 pointer/focus 抖动，仍能提交 dock 并保留唯一首次收起计时器。
+- 当前源码完整 Rust 测试 93/93、架构行为门禁、TypeScript strict 和 Vite 生产构建通过；新 clean 候选尚未生成。
 
 ### 历史定向候选（不可发布）
 
