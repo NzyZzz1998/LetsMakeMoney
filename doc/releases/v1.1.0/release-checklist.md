@@ -1,6 +1,6 @@
 # LetsMakeMoney Windows v1.1.0 发布检查
 
-> 状态：旧干净候选已因 `V110-BUG-001` 淘汰；最新测试候选已通过自动门禁和本机真实桌面验收。因验收文档晚于候选源提交，仍需从最终干净提交重建发布候选，未发布。
+> 状态：旧干净候选已因 `V110-BUG-001` 淘汰；行为候选已通过本机真实桌面验收，最终干净候选已完成重建、自动门禁、包体审计与启动冒烟，未发布。
 
 ## 代码与身份
 
@@ -19,12 +19,12 @@
 
 ## 候选与包体
 
-- [ ] 从包含最终验收文档的干净提交运行 `scripts/package_v110.ps1` 重建最终发布候选。
-- [ ] 最终重建候选通过 `scripts/verify_v110_package.ps1 -Mode candidate`。
-- [ ] 最终 Zip、EXE、DLL、README 和 BUILD-INFO 身份锁定；旧候选明确拒绝发布。
+- [x] 从包含最终验收文档的干净提交运行 `scripts/package_v110.ps1` 重建最终发布候选。
+- [x] 最终重建候选通过 `scripts/verify_v110_package.ps1 -Mode candidate`。
+- [x] 最终 Zip、EXE、DLL、README 和 BUILD-INFO 身份锁定；旧候选明确拒绝发布。
 - [x] 最终包内无配置、日志、截图、验收证据、PetManager 生产目录或 Spike 中间产物。
 
-当前测试 Candidate ID：`V110-20260813T081246Z-f5ae4ac3-clean`；Zip SHA256：`E79D3716400D74E9E2F5419700B97630F273AA67761982081AED07E8C87C6EB7`。
+最终 Candidate ID：`V110-20260817T031659Z-71616e2e-clean`；Zip SHA256：`DA11AAD0928E52DEEBA366E834FBAFD6182CD5F107FCBA01E9BDFA14D1898527`。
 
 ## 真实验收
 

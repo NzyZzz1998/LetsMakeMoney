@@ -2,11 +2,11 @@
 
 ## 当前结论
 
-体量连续性、拖拽中断恢复和合并位移调度已进入干净测试候选 `V110-20260813T081246Z-f5ae4ac3-clean`。current gate、候选包验证、91 项 Rust 测试、Clippy、前端构建和宠物行为测试通过。旧候选 `V110-20260812T163314Z-d9d51cfe-clean` 继续明确淘汰，不得发布。
+体量连续性、拖拽中断恢复和合并位移调度已由干净行为候选 `V110-20260813T081246Z-f5ae4ac3-clean` 完成本机验收。最终发布候选 `V110-20260817T031659Z-71616e2e-clean` 已通过 current gate、候选包验证、91 项 Rust 测试、Clippy、前端构建、宠物行为测试和启动冒烟。旧候选 `V110-20260812T163314Z-d9d51cfe-clean` 继续明确淘汰，不得发布。
 
-当前测试候选结论为“通过”。2026-08-17 本机直接输入验收关闭了拖拽手感、抓取连续性、快速反向、截图中断恢复、托盘命令/退出、Settings/Modal 输入锁定及三档 DPI 拖拽闭环。精确 EXE 内嵌资源损坏没有安全注入入口，继续列为“暂不验证”；隔离坏包夹具 3/3 通过。`Public release approved` 仍为 `false`，本轮授权只覆盖推送 `test`，不覆盖 `main`、tag 或 Release。
+发布前结论为“通过，可等待公开发布授权”。2026-08-17 本机直接输入验收关闭了拖拽手感、抓取连续性、快速反向、截图中断恢复、托盘命令/退出、Settings/Modal 输入锁定及三档 DPI 拖拽闭环。精确 EXE 内嵌资源损坏没有安全注入入口，继续列为“暂不验证”；隔离坏包夹具 3/3 通过。`Public release approved` 仍为 `false`，本轮授权只覆盖推送 `test`，不覆盖 `main`、tag 或 Release。
 
-`V110-UX-001` 体量重组与 `V110-UX-002` 拖拽合并位移调度已在当前干净测试候选完成本机验证。当前功能与真实 GUI 门禁已闭合，可以进入最终发布候选重建；由于本次验收文档晚于候选源提交，当前 Zip 不能直接充当最终发布附件。
+`V110-UX-001` 与 `V110-UX-002` 已完成本机验证。最终重建还关闭了 `V110-BUG-002` 的换行相关包身份漂移；该修复不改变动画和输入行为，最终 Zip 已完成独立包体验证与启动冒烟。
 
 ## 候选身份
 
@@ -14,14 +14,14 @@
 | --- | --- |
 | 版本 | `1.1.0` |
 | 分支 | `main` |
-| 发布源 HEAD | `f5ae4ac3fcfeef0c3a3c5f321a690b8ed3aa6ab8` |
+| 发布源 HEAD | `71616e2e0ce3e4fb6d687d3115689e7a6ffeb2d1` |
 | Source tree | clean |
-| Candidate ID | `V110-20260813T081246Z-f5ae4ac3-clean` |
-| 构建时间（UTC） | `2026-08-13T08:13:42.3406398Z` |
-| Zip | `LetsMakeMoney-v1.1.0-windows-x86_64.zip`，6,570,393 字节 |
-| Zip SHA256 | `E79D3716400D74E9E2F5419700B97630F273AA67761982081AED07E8C87C6EB7` |
-| EXE | `LetsMakeMoney.exe`，15,360,000 字节 |
-| EXE SHA256 | `0D02CC9AA628FD7FC66EADFB518E36BFE023689F82581C52F258B75A0694384B` |
+| Candidate ID | `V110-20260817T031659Z-71616e2e-clean` |
+| 构建时间（UTC） | `2026-08-17T03:17:52.5219029Z` |
+| Zip | `LetsMakeMoney-v1.1.0-windows-x86_64.zip`，6,727,322 字节 |
+| Zip SHA256 | `DA11AAD0928E52DEEBA366E834FBAFD6182CD5F107FCBA01E9BDFA14D1898527` |
+| EXE | `LetsMakeMoney.exe`，15,244,800 字节 |
+| EXE SHA256 | `8EAC6B9F277421207D679F55E91AA9E5A535FF8C721E4BF945CBFA9D9123D42C` |
 | WebView2Loader.dll | 160,320 字节 |
 | DLL SHA256 | `8427B1FC58EC707813E5C0A51EB5D69397BB333250A7B891BE4D3B123F1E0F1C` |
 | 公开发布 | 未发布 |
@@ -42,7 +42,7 @@
 
 ## 自动门禁
 
-- 当前测试候选源提交上的 `scripts/verify_windows_current.ps1` 通过：Vite、TypeScript strict、Rust fmt、clippy、91/91 Rust tests、宠物运行时行为测试 6/6 和宠物包合同均通过。
+- 最终候选源提交上的 `scripts/verify_windows_current.ps1` 通过：Vite、TypeScript strict、Rust fmt、clippy、91/91 Rust tests、宠物运行时行为测试 6/6 和宠物包合同均通过。
 - `scripts/package_v110.ps1` 从干净提交生成唯一候选；`scripts/verify_v110_package.ps1 -Mode candidate` 通过，Zip、EXE、DLL、README 和 BUILD-INFO 身份一致。
 - npm、Cargo、Tauri、包名、BUILD-INFO 和发布说明均锁定为精确版本 `1.1.0`。
 - Classic `0.4.1-rc.1` 正式运行时包使用规范化 LF manifest；SHA256 为 `8E0396EA5CC0E3D089D77E0739C25C2AC2142F69CFEC28F4D110804FB20901B4`，package tree SHA256 为 `5EAE933DA004EAC7BF8391DA78AA2A68DC9B5D773561E9B8C9CCBD372366519E`。
@@ -77,7 +77,7 @@
 - 当前运行日志继续按 2,000,000 字节阈值保留三份轮换文件，未见失控增长；但基础循环的 `action_started` 与逐帧命中摘要仍较密集，记录为非阻塞诊断噪声债务，不据此宣称存在稳定性故障或内存泄漏。
 - 2026-08-17 从当前 Zip 新解压目录运行精确 EXE，项目所有者在本机直接输入环境完成模式互斥、状态点击、500ms 长按拖拽、快速左右反向、截图中断、Workbench 协同、Settings/Modal 输入锁定、托盘全部命令与退出，以及 100%/125%/150% DPI 闭环，结论为全部通过。
 
-上述三基础状态单击、5 次 500ms 拖拽、Workbench/Mini 互斥、30 分钟观感和两小时稳定运行来自旧干净候选或同源定向复验载荷。当前候选同时修改体量与拖拽调度，因此这些证据只能作为历史回归参考，不能改写为当前 Zip 的重新实测。
+三基础状态单击、5 次 500ms 拖拽、Workbench/Mini 互斥、30 分钟观感和两小时稳定运行先由旧干净候选或同源定向载荷建立，再由 `V110-20260813T081246Z-f5ae4ac3-clean` 完成本机直接输入收口。最终候选只增加规范化 LF 包身份修复与证据文档，并完成包体审计和启动冒烟；这些材料共同构成发布前证据，但不改写为最终 Zip 重新执行整套 GUI。
 
 ## 待人工补证
 
