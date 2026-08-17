@@ -98,10 +98,18 @@ def validate_document(
     _validate_links(text, package_root)
 
     if name == "README.md":
-        for phrase in ("便携", "不包含安装器", "宠物功能", "升级", "回退"):
+        for phrase in ("便携", "不包含安装器", "默认使用 Mini", "Classic", "安全回落", "升级", "回退"):
             require(phrase in text, f"{name} is missing required phrase: {phrase}")
     else:
-        for phrase in ("Portable", "does not include an installer", "pet features", "upgrading", "roll back"):
+        for phrase in (
+            "Portable",
+            "does not include an installer",
+            "Mini is the default",
+            "Classic",
+            "safely falls back",
+            "upgrading",
+            "roll back",
+        ):
             require(phrase.lower() in text.lower(), f"{name} is missing required phrase: {phrase}")
 
 

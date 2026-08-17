@@ -9,14 +9,32 @@
 | 当前公开版本 | Windows v1.0.7 Stable |
 | 当前公开 tag | `v1.0.7` |
 | v1.0.7 发布源提交 | `f500ed4e7de28ec68b2a848da6fa2340420b91b2` |
-| 当前开发版本 | v1.0.F（公开版本固定为 v1.0.8） |
-| 本地发布源 | `main@81abae364ad577a394c3c9dcda3a1d1c15e83b99` |
-| 当前里程碑 | v1.0.F / v1.0.8 发布收口与最终候选重建 |
-| 总体状态 | 锁定候选验收全部通过；`test` 已推送；尚未重建最终候选且未获发布授权，当前不可发布 |
+| v1.0 系列收官版本 | v1.0.F（版本号 `v1.0.8`） |
+| 本地收官身份 | annotated tag `v1.0.8`，指向本次收官提交 |
+| 当前开发候选 | Windows `v1.1.0`，不使用 Beta 后缀 |
+| 当前里程碑 | Classic-only 桌面陪伴最终候选已完成干净重建、自动门禁、本机直接输入验收与启动冒烟 |
+| 总体状态 | 默认仍为 Mini，Classic 为用户显式选择且二者互斥；v1.1.0 仅获推送 `test` 授权，未获 `main`、tag 或 GitHub Release 授权 |
 
 v1.0.7 已从干净源提交构建、通过 current gate、候选包验证、真实 GUI 身份冒烟与 GitHub 下载包复核，并完成 GitHub Stable Release。正式便携 Zip SHA256 为 `D656B96973F64632896715ADCBB9CAFEAED4D06D44BA1C098824335AC673E3F2`，发布地址为 [GitHub Release v1.0.7](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7)。此前 dirty 候选的首次失败、修复与 DPI 定向复验证据继续按历史事实保留，均不得冒充正式附件。
 
-v1.0.F 是 v1.0 系列收官质量版本的内部代号，公开版本固定为 `v1.0.8`。发布源提交 `81abae364ad577a394c3c9dcda3a1d1c15e83b99` 生成的锁定候选 `V10F-20260804-final-81abae36` 已完成 M1-M7、候选身份、核心 GUI、浅深主题、Windows 11 单显示器 100%/125%/150% DPI 及通知区真实鼠标验收，结论为通过。候选 Zip SHA256 为 `07D9B1766CECE8DA092CE31C234E6018D4820049F3D2A310033478BF5EB69DDA`。当前 `test` 已推送至 `b691af76817e6b743a8207825629431ed8da14d2`；由于最终 README 更新晚于锁定候选，正式发布前必须从最终发布提交重新构建、更新哈希并复核包身份。尚未推送 `main`、创建 tag 或 GitHub Release，也未取得这些动作的单独授权，因此当前不可发布。
+Windows v1.1.0 未发布；当前只允许将测试候选同步到 `test` 分支继续验收。
+
+v1.0.F 是 v1.0 系列收官质量版本的内部代号，版本号固定为 `v1.0.8`。历史锁定候选 `V10F-20260804-final-81abae36` 已完成 M1-M7、候选身份、核心 GUI、浅深主题、Windows 11 单显示器 100%/125%/150% DPI 及通知区真实鼠标验收，结论为通过；其 Zip SHA256 `07D9B1766CECE8DA092CE31C234E6018D4820049F3D2A310033478BF5EB69DDA` 仅作为当时候选证据保留，不代表本次收官提交的正式发布附件。最终隐私竖条与日历布局修正已通过完整 current gate。本次仅创建本地 annotated tag `v1.0.8`，不推送 `main` 或 tag，也不创建 GitHub Release；如后续决定公开发布，必须从该 tag 对应的干净提交重新构建、更新哈希并完成包体验证。
+
+## v1.1.0 桌面陪伴回归候选
+
+- 原内部代号 `pet-return` 已绑定当前开发候选 `v1.1.0`；公开版本不使用 Beta 后缀。
+- 已完成产品合同、四域状态机、宠物包 vNext、首轮 Runtime/Quality Spike，以及正式主线中的 Mini/Pet 互斥、配置 v9、透明 WebView、动态命中和故障回落；Classic-only 本地产品候选已获项目所有者批准。
+- `PetManager reduced-scope ready = true` 适用于 Classic 首轮 12 动作精简包；18 动作完整目录仍为 `PetManager full-catalog ready = false`。
+- `Runtime Spike pass = true` 适用于 S1.9 技术运行时；当前 12 动作首轮包已完成三基础状态、状态化单击、500ms 拖拽与方向同步、隐藏恢复、100%/125%/150% DPI、动态命中、坏包、真实 Windows 睡眠恢复和最终两小时稳定运行，故 `LMM sandbox pass = true` 仅在该隔离首轮范围内成立。
+- 首轮精简包包含 working 4 项、awake_rest 2 项、sleeping 3 项和 drag 3 项，共 12 动作、118 帧。`working` 只表示用户工作期间的安静陪伴；`working_pounce` 已退役，跑动三动作只用于长按拖拽。A2 的理毛与伸展因多肢、缺肢和身份漂移延后，四个业务事件动作继续阻塞；首轮业务边界直接切换权威基础状态。
+- 隔离沙盒历史包 manifest SHA256 为 `73A722D022EB4138B5FA8F7469D5304F08DC026EB3CB98D480A9C56CAE911E0E`，package tree SHA256 为 `745AB4A26B4B149FC279686D9FA236384BDDF150DF2D18C2DBDA643A1A596A4E`；历史桌面候选 EXE SHA256 为 `2463940CA9AFC0BECD2DB9252F558315FA1AE1CA19CCB89BD480B27BABEB826B`，其 121 样本双心跳和两小时稳定性继续作为沙盒证据保留。
+- 当前产品候选包为 `0.4.1-rc.1`，规范化 LF manifest SHA256 `8E0396EA5CC0E3D089D77E0739C25C2AC2142F69CFEC28F4D110804FB20901B4`，package tree SHA256 `5EAE933DA004EAC7BF8391DA78AA2A68DC9B5D773561E9B8C9CCBD372366519E`；状态为 `approved / ready:true / productReturnApproved:true / published:false`。
+- 先导产品候选 EXE SHA256 为 `D1F4E8B006D0A2E0C7091313886CCA4EC3C03F52F51EAD2B19E8744AA7D56A88`，大小 `14,957,568` 字节。100% DPI 真实 GUI 已证明默认 Mini、Workbench 租约、Mini/Classic 互斥切换与持久化、桌宠可见渲染、状态单击、动态命中和左右拖拽链路；该 EXE 来自 dirty 工作树，只是先导证据，不是 v1.1.0 发布附件。
+- 旧电脑夹具仅保留为 historical，不再是当前联调或产品素材。
+- 当前默认行为仍为 Mini。旧配置和非法陪伴模式迁移到 Mini；Settings 允许用户显式选择 Classic，Mini 与 Pet 严格互斥，运行时或包故障自动回落 Mini。
+- `PetManager ready`、`LMM sandbox pass`、`Product candidate approved` 与 `Public release approved` 分层管理：前三层已在首轮精简范围成立，公开发布仍为 `false`。旧候选 `V110-20260812T163314Z-d9d51cfe-clean` 因 `V110-BUG-001` 已淘汰；完整本机 GUI 验收使用干净候选 `V110-20260813T081246Z-f5ae4ac3-clean`。最终发布候选为 `V110-20260817T031659Z-71616e2e-clean`，源提交 `71616e2e0ce3e4fb6d687d3115689e7a6ffeb2d1`，Zip SHA256 `DA11AAD0928E52DEEBA366E834FBAFD6182CD5F107FCBA01E9BDFA14D1898527`。它已通过完整 current gate、包体审计和新解压目录启动冒烟；精确桌面坏包注入继续按“暂不验证”管理。
+- 事实入口：[桌宠回归沙盒 PRD](architecture/pet-return-prd.md) / [专项追踪矩阵](architecture/pet-return-traceability.md)。
 
 ## v1.0.7 范围
 
@@ -28,7 +46,7 @@ v1.0.F 是 v1.0 系列收官质量版本的内部代号，公开版本固定为 
 - 收敛六周日历、Combobox、窗口圆角/阴影和自由拖动；
 - 建立脚本生命周期、证据耐久、支持矩阵、CSP 与性能条件门禁。
 
-不恢复宠物，不加入账号、云同步、安装器、自动更新、多平台、完整考勤、加班审批、主题扩展或技术栈重写。
+v1.0.7 原发布范围不恢复宠物，也不加入账号、云同步、安装器、自动更新、多平台、完整考勤、加班审批、主题扩展或技术栈重写；当前桌宠工作属于发布后的独立 `pet-return` 候选，不改写 v1.0.7 历史范围。
 
 ## 支持边界
 
@@ -40,6 +58,11 @@ v1.0.F 是 v1.0 系列收官质量版本的内部代号，公开版本固定为 
 完整矩阵见 [v1.0.7 支持矩阵](releases/v1.0.7/support-matrix.md)。
 
 ## 当前入口
+
+- [v1.1.0 发布前总览](releases/v1.1.0/README.md)
+- [v1.1.0 验证记录](releases/v1.1.0/verification.md)
+- [v1.1.0 手动验收](releases/v1.1.0/manual-verification.md)
+- [v1.1.0 发布检查](releases/v1.1.0/release-checklist.md)
 
 - [v1.0.F PRD](releases/v1.0.F/prd.md)
 - [v1.0.F 追踪矩阵](releases/v1.0.F/traceability.md)

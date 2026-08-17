@@ -27,6 +27,9 @@ $behaviorTests = @(
     "date-overtime-decision.behavior.ts",
     "date-override-state.behavior.ts",
     "desktop-services.behavior.ts",
+    "desktop-companion.behavior.ts",
+    "pet-base-state.behavior.ts",
+    "pet-runtime.behavior.ts",
     "high-risk-combinations.behavior.ts",
     "mini-edge-auto-hide.behavior.ts",
     "monthly-summary.behavior.ts",
@@ -62,6 +65,11 @@ foreach ($test in $behaviorTests) {
 & $python (Join-Path $app "tests\verify_architecture_structure.py")
 if ($LASTEXITCODE -ne 0) {
     throw "Architecture structure verification failed."
+}
+
+& $python (Join-Path $app "tests\verify_pet_return_runtime.py")
+if ($LASTEXITCODE -ne 0) {
+    throw "Pet return runtime contract verification failed."
 }
 
 & $python (Join-Path $app "tests\verify_v104_m6.py")

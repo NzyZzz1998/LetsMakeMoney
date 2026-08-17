@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "packageVersion": "0.4.1-rc.1",
+  "petId": "letsmakemoney-classic-pro",
+  "manifest": "motion-manifest.json",
+  "manifestSha256": "8E0396EA5CC0E3D089D77E0739C25C2AC2142F69CFEC28F4D110804FB20901B4",
+  "packageTreeSha256": "5EAE933DA004EAC7BF8391DA78AA2A68DC9B5D773561E9B8C9CCBD372366519E",
+  "status": "approved",
+  "ready": true,
+  "published": false
+}

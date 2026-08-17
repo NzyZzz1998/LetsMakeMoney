@@ -123,7 +123,7 @@ def validate_repository(repo_root: Path, manifest_path: Path) -> None:
         raise ManifestError(f"script lifecycle coverage mismatch: missing={missing} stale={stale}")
 
     package = load_json(repo_root / "apps" / "windows-v1" / "package.json")
-    defaults = load_json(repo_root / "apps" / "windows-v1" / "contracts" / "config-v8-defaults.json")
+    defaults = load_json(repo_root / "apps" / "windows-v1" / "contracts" / "config-v9-defaults.json")
     if not isinstance(package, dict) or not isinstance(defaults, dict):
         raise ManifestError("package and defaults must be JSON objects")
     validate_manifest_data(

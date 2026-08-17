@@ -4,7 +4,7 @@
 - Channel: {{CHANNEL}}
 - Distribution: installation-free portable Zip
 
-LetsMakeMoney is a local-first Windows earnings-progress utility. Salary, schedule, date overrides, and logs remain on the local device.
+LetsMakeMoney is a local-first Windows earnings-progress utility. Salary, schedule, date overrides, overtime records, and logs remain on the local device.
 
 ## Start
 
@@ -28,7 +28,8 @@ Before upgrading or rolling back, exit the app from the tray and back up this di
 ## Updates and rollback
 
 - The in-app update check only queries public GitHub Releases. Downloading and replacing the program always requires user action.
-- This package does not include an installer, silent updates, automatic program replacement, or pet features.
+- This package does not include an installer, silent updates, or automatic program replacement. Mini is the default desktop companion; users may explicitly switch to the Classic orange cat in Settings, and the two modes are mutually exclusive.
+- If the Classic runtime package is missing, damaged, or fails validation, the app safely falls back to Mini without affecting earnings, calendar, or configuration data.
 - To roll back, exit the current version and run a retained older portable directory. Restore configuration only from your own backup when necessary.
 - Published files and checksums are available from [GitHub Releases](https://github.com/NzyZzz1998/LetsMakeMoney/releases).
 

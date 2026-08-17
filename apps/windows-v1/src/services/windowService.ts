@@ -2,9 +2,12 @@ import {
   appRuntime,
   type AppRuntime,
 } from "../runtime/appRuntime";
-import type { MiniEdgeDock } from "../domain/configuration";
+import type {
+  DesktopCompanionMode,
+  MiniEdgeDock,
+} from "../domain/configuration";
 
-export type WindowKind = "mini" | "workbench" | "settings" | "wizard";
+export type WindowKind = "mini" | "pet" | "workbench" | "settings" | "wizard";
 
 export interface WindowDragOrigin {
   x: number;
@@ -19,6 +22,20 @@ export interface MiniEdgeStatus {
   dock: MiniEdgeDock;
   visibility: MiniEdgeVisibility;
   notice: "fallback" | null;
+}
+
+export interface PetRuntimePackageSummary {
+  petId: string;
+  packageVersion: string;
+  actionCount: number;
+  manifestSha256: string;
+  packageTreeSha256: string;
+}
+
+export interface PetProductPackageStatus {
+  available: boolean;
+  reason: string | null;
+  package: PetRuntimePackageSummary | null;
 }
 
 export interface WindowService {
@@ -37,6 +54,9 @@ export interface WindowService {
     source: string,
     reducedMotion: boolean,
   ): Promise<MiniEdgeStatus>;
+  switchDesktopCompanion(mode: DesktopCompanionMode): Promise<void>;
+  petPackageStatus(): Promise<PetProductPackageStatus>;
+  showDesktopCompanion(): Promise<void>;
   configurationInitialized(): Promise<boolean>;
   workbenchReady(): Promise<void>;
   exit(): Promise<void>;
@@ -119,6 +139,12 @@ export function createWindowService(runtime: AppRuntime): WindowService {
         source,
         reducedMotion,
       }),
+    switchDesktopCompanion: mode =>
+      runtime.invoke("switch_desktop_companion", { mode }),
+    petPackageStatus: () =>
+      runtime.invoke<PetProductPackageStatus>("pet_package_status"),
+    showDesktopCompanion: () =>
+      runtime.invoke("show_desktop_companion"),
     configurationInitialized: () => runtime.invoke<boolean>("configuration_initialized"),
     workbenchReady: () => invokeWindowOperation(runtime, "workbench_ready", "workbench", "workbench_ready"),
     exit: () => runtime.invoke("exit_application"),

@@ -4,6 +4,7 @@
   "description": "Allow all LetsMakeMoney product windows to start a native drag operation.",
   "windows": [
     "mini",
+    "pet",
     "workbench",
     "settings",
     "wizard"

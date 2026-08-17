@@ -1,0 +1,61 @@
+{
+  "petId": "letsmakemoney-classic-pro",
+  "candidate": "S3-First-Return-Reduced-Catalog",
+  "scope": [
+    "working_play_loop_a",
+    "working_play_loop_b",
+    "working_observe",
+    "working_ack",
+    "awake_rest_loop",
+    "rest_ack",
+    "sleeping_loop",
+    "sleep_twitch",
+    "sleep_ack",
+    "run_prepare",
+    "run_loop",
+    "run_stop"
+  ],
+  "deferredScope": [
+    "rest_groom",
+    "rest_stretch",
+    "work_start",
+    "break_relief",
+    "break_return",
+    "work_end_celebrate"
+  ],
+  "retiredScope": [
+    "working_pounce"
+  ],
+  "sources": [
+    {
+      "id": "classic-s2.2",
+      "scope": [
+        "working_play_loop_a",
+        "working_ack",
+        "run_prepare",
+        "run_loop",
+        "run_stop"
+      ],
+      "status": "approved"
+    },
+    {
+      "id": "classic-batch-a",
+      "scope": [
+        "awake_rest_loop",
+        "rest_ack",
+        "sleeping_loop",
+        "sleep_twitch",
+        "sleep_ack"
+      ],
+      "status": "approved"
+    },
+    {
+      "id": "classic-batch-b",
+      "scope": [
+        "working_play_loop_b",
+        "working_observe"
+      ],
+      "status": "approved"
+    }
+  ]
+}

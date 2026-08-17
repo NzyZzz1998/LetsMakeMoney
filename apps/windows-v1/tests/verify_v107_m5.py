@@ -82,9 +82,9 @@ def verify_privacy_tab_readability() -> None:
     css = source(SRC / "styles.css")
     platform = source(RUST_ROOT / "src" / "platform.rs")
     fixture = source(APP_ROOT / "tests" / "fixtures" / "v107-mini-edge-geometry.json")
-    require("width: 34px" in css, "Privacy tab web surface must expose the readable width")
-    require("MINI_EDGE_PRIVACY_TAB_LOGICAL_PX: i32 = 34" in platform, "Native privacy width must match the web surface")
-    require('"privacy_tab_logical_px": 34' in fixture, "DPI fixture must lock the v1.0.7 privacy width")
+    require("width: 40px" in css, "Privacy tab web surface must expose the readable width")
+    require("MINI_EDGE_PRIVACY_TAB_LOGICAL_PX: i32 = 40" in platform, "Native privacy width must match the web surface")
+    require('"privacy_tab_logical_px": 40' in fixture, "DPI fixture must lock the readable privacy width")
     require("white-space: nowrap" in css and "word-break: keep-all" in css, "Privacy tab copy must stay in one vertical line")
 
 

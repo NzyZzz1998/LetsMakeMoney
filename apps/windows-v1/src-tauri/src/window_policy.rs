@@ -1,44 +1,9 @@
+use crate::companion_policy::CompanionPreVisibility;
 use crate::platform::{physical_pixels, Rect};
 
 pub const MINI_SAFE_GRAB_WIDTH_LOGICAL_PX: i32 = 28;
 pub const MINI_SAFE_GRAB_HEIGHT_LOGICAL_PX: i32 = 48;
 pub const STANDARD_SAFE_GRAB_LOGICAL_PX: i32 = 48;
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum MiniPreVisibility {
-    Expanded,
-    PrivacyRetracted,
-    HiddenByUser,
-    NotPresent,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum MiniRestoreAction {
-    ShowExpanded,
-    ShowPrivacyRetracted,
-    KeepHidden,
-}
-
-pub fn mini_restore_action(visibility: MiniPreVisibility) -> MiniRestoreAction {
-    match visibility {
-        MiniPreVisibility::Expanded => MiniRestoreAction::ShowExpanded,
-        MiniPreVisibility::PrivacyRetracted => MiniRestoreAction::ShowPrivacyRetracted,
-        MiniPreVisibility::HiddenByUser | MiniPreVisibility::NotPresent => {
-            MiniRestoreAction::KeepHidden
-        }
-    }
-}
-
-impl MiniPreVisibility {
-    pub fn label(self) -> &'static str {
-        match self {
-            Self::Expanded => "expanded",
-            Self::PrivacyRetracted => "privacy_retracted",
-            Self::HiddenByUser => "hidden_by_user",
-            Self::NotPresent => "not_present",
-        }
-    }
-}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum VisibilityLeasePhase {
@@ -55,11 +20,32 @@ pub enum WorkbenchReadyStrategy {
     ConfirmNatively,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum CompanionSwitchLeaseStrategy {
+    Direct,
+    Rebase,
+    Retry,
+}
+
 pub fn workbench_ready_strategy(window_preexisted: bool) -> WorkbenchReadyStrategy {
     if window_preexisted {
         WorkbenchReadyStrategy::ConfirmNatively
     } else {
         WorkbenchReadyStrategy::AwaitFrontend
+    }
+}
+
+pub fn companion_switch_lease_strategy(
+    phase: VisibilityLeasePhase,
+) -> CompanionSwitchLeaseStrategy {
+    match phase {
+        VisibilityLeasePhase::Open => CompanionSwitchLeaseStrategy::Rebase,
+        VisibilityLeasePhase::Opening | VisibilityLeasePhase::Compensating => {
+            CompanionSwitchLeaseStrategy::Retry
+        }
+        VisibilityLeasePhase::Closed | VisibilityLeasePhase::Failed => {
+            CompanionSwitchLeaseStrategy::Direct
+        }
     }
 }
 
@@ -79,7 +65,7 @@ impl VisibilityLeasePhase {
 pub struct VisibilityLease {
     pub transaction_id: u64,
     pub phase: VisibilityLeasePhase,
-    pub mini_before: MiniPreVisibility,
+    pub companion_before: CompanionPreVisibility,
 }
 
 #[derive(Debug)]
@@ -95,7 +81,7 @@ impl Default for VisibilityLeaseMachine {
             current: VisibilityLease {
                 transaction_id: 0,
                 phase: VisibilityLeasePhase::Closed,
-                mini_before: MiniPreVisibility::NotPresent,
+                companion_before: CompanionPreVisibility::NotPresent,
             },
         }
     }
@@ -106,7 +92,7 @@ impl VisibilityLeaseMachine {
         self.current
     }
 
-    pub fn begin(&mut self, mini_before: MiniPreVisibility) -> (VisibilityLease, bool) {
+    pub fn begin(&mut self, companion_before: CompanionPreVisibility) -> (VisibilityLease, bool) {
         if matches!(
             self.current.phase,
             VisibilityLeasePhase::Opening
@@ -120,7 +106,7 @@ impl VisibilityLeaseMachine {
         self.current = VisibilityLease {
             transaction_id,
             phase: VisibilityLeasePhase::Opening,
-            mini_before,
+            companion_before,
         };
         (self.current, true)
     }
@@ -135,6 +121,25 @@ impl VisibilityLeaseMachine {
         }
         self.current.phase = phase;
         Some(self.current)
+    }
+
+    pub fn rebase_companion(
+        &mut self,
+        from: CompanionPreVisibility,
+        to: CompanionPreVisibility,
+    ) -> bool {
+        if self.current.companion_before != from
+            || !matches!(
+                self.current.phase,
+                VisibilityLeasePhase::Opening
+                    | VisibilityLeasePhase::Open
+                    | VisibilityLeasePhase::Compensating
+            )
+        {
+            return false;
+        }
+        self.current.companion_before = to;
+        true
     }
 }
 
@@ -186,9 +191,9 @@ mod tests {
     #[test]
     fn lease_is_idempotent_and_ignores_late_transitions() {
         let mut machine = VisibilityLeaseMachine::default();
-        let (first, started) = machine.begin(MiniPreVisibility::PrivacyRetracted);
+        let (first, started) = machine.begin(CompanionPreVisibility::MiniPrivacyRetracted);
         assert!(started);
-        let (same, started_again) = machine.begin(MiniPreVisibility::Expanded);
+        let (same, started_again) = machine.begin(CompanionPreVisibility::MiniExpanded);
         assert!(!started_again);
         assert_eq!(same, first);
         assert!(machine
@@ -202,7 +207,7 @@ mod tests {
             .is_none());
         assert_eq!(machine.current().phase, VisibilityLeasePhase::Open);
         machine.transition(first.transaction_id, VisibilityLeasePhase::Closed);
-        let (second, restarted) = machine.begin(MiniPreVisibility::HiddenByUser);
+        let (second, restarted) = machine.begin(CompanionPreVisibility::HiddenByUser);
         assert!(restarted);
         assert!(second.transaction_id > first.transaction_id);
     }
@@ -220,22 +225,39 @@ mod tests {
     }
 
     #[test]
-    fn every_mini_pre_visibility_has_an_explicit_restore_action() {
+    fn companion_switch_rebases_an_open_workbench_instead_of_rejecting_it() {
         assert_eq!(
-            mini_restore_action(MiniPreVisibility::Expanded),
-            MiniRestoreAction::ShowExpanded
+            companion_switch_lease_strategy(VisibilityLeasePhase::Open),
+            CompanionSwitchLeaseStrategy::Rebase,
         );
         assert_eq!(
-            mini_restore_action(MiniPreVisibility::PrivacyRetracted),
-            MiniRestoreAction::ShowPrivacyRetracted
+            companion_switch_lease_strategy(VisibilityLeasePhase::Opening),
+            CompanionSwitchLeaseStrategy::Retry,
         );
         assert_eq!(
-            mini_restore_action(MiniPreVisibility::HiddenByUser),
-            MiniRestoreAction::KeepHidden
+            companion_switch_lease_strategy(VisibilityLeasePhase::Compensating),
+            CompanionSwitchLeaseStrategy::Retry,
         );
         assert_eq!(
-            mini_restore_action(MiniPreVisibility::NotPresent),
-            MiniRestoreAction::KeepHidden
+            companion_switch_lease_strategy(VisibilityLeasePhase::Closed),
+            CompanionSwitchLeaseStrategy::Direct,
+        );
+    }
+
+    #[test]
+    fn active_workbench_lease_rebases_failed_pet_to_mini() {
+        let mut machine = VisibilityLeaseMachine::default();
+        let (lease, started) = machine.begin(CompanionPreVisibility::PetVisible);
+        assert!(started);
+        machine.transition(lease.transaction_id, VisibilityLeasePhase::Open);
+
+        assert!(machine.rebase_companion(
+            CompanionPreVisibility::PetVisible,
+            CompanionPreVisibility::MiniExpanded,
+        ));
+        assert_eq!(
+            machine.current().companion_before,
+            CompanionPreVisibility::MiniExpanded
         );
     }
 

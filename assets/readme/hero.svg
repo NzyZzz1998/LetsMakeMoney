@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
   <title id="title">LetsMakeMoney</title>
-  <desc id="desc">A local-first Windows earnings progress utility with the Oatmeal Graphite identity and a compact Mini view.</desc>
+  <desc id="desc">LetsMakeMoney v1.1.0 brings back the optional Classic orange cat companion alongside the local-first Windows earnings experience.</desc>
 
   <defs>
     <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
@@ -21,10 +21,10 @@
     <rect x="15" y="59" width="33" height="9" rx="4.5" fill="#D89B26"/>
   </g>
 
-  <text x="166" y="78" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="17" font-weight="650" fill="#6E6A62">WINDOWS · LOCAL FIRST · v1.0 FINAL</text>
+  <text x="166" y="78" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="17" font-weight="650" fill="#6E6A62">WINDOWS · LOCAL FIRST · v1.1.0 TEST</text>
   <text x="62" y="185" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="62" font-weight="730" fill="#30302B">LetsMakeMoney</text>
-  <text x="64" y="231" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="30" font-weight="650" fill="#30302B">把今天的工作，变成看得见的收入进度</text>
-  <text x="64" y="275" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="21" fill="#6E6A62">今日已赚 · 阶段倒计时 · 日历与加班 · 数据只留在本机</text>
+  <text x="64" y="231" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="30" font-weight="650" fill="#30302B">Classic 小猫回归，继续陪你看见收入进度</text>
+  <text x="64" y="275" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="21" fill="#6E6A62">Mini / Classic 二选一 · 三种状态 · 本地计算 · 安全回落</text>
 
   <g transform="translate(64 314)">
     <rect width="146" height="40" rx="20" fill="#30302B"/>
@@ -32,7 +32,7 @@
     <rect x="158" width="174" height="40" rx="20" fill="#FFFFFF" stroke="#D8D1C5"/>
     <text x="245" y="26" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="17" font-weight="650" fill="#30302B">浅色 / 深色</text>
     <rect x="344" width="192" height="40" rx="20" fill="#E3ECE4"/>
-    <text x="440" y="26" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="17" font-weight="650" fill="#46684E">Windows 11</text>
+    <text x="440" y="26" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="17" font-weight="650" fill="#46684E">Classic 回归候选</text>
   </g>
 
   <g transform="translate(760 92)" filter="url(#miniShadow)">
@@ -43,19 +43,19 @@
       <rect x="10" y="31" width="27" height="4.5" rx="2.25" fill="#778B7B"/>
       <rect x="10" y="31" width="16" height="4.5" rx="2.25" fill="#D89B26"/>
     </g>
-    <text x="83" y="36" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="15" fill="#6E6A62">工作中</text>
-    <text x="83" y="72" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="34" font-weight="720" fill="#30302B">¥ 186.42</text>
-    <text x="348" y="36" text-anchor="end" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="14" fill="#55765D">本地计算</text>
+    <text x="83" y="36" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="15" fill="#6E6A62">桌面陪伴</text>
+    <text x="83" y="72" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="31" font-weight="720" fill="#30302B">Mini / Classic</text>
+    <text x="348" y="36" text-anchor="end" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="14" fill="#55765D">严格互斥</text>
     <rect x="24" y="101" width="324" height="8" rx="4" fill="#E7E3DA"/>
     <rect x="24" y="101" width="181" height="8" rx="4" fill="#D89B26"/>
-    <text x="24" y="134" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="15" fill="#6E6A62">工作进度 56%</text>
-    <text x="348" y="134" text-anchor="end" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#30302B">距离下班 04:38:20</text>
+    <text x="24" y="134" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="15" fill="#6E6A62">working · awake_rest · sleeping</text>
+    <text x="348" y="134" text-anchor="end" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#30302B">状态化互动</text>
     <circle cx="28" cy="157" r="5" fill="#778B7B"/>
-    <text x="42" y="162" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="14" fill="#55765D">配置与记录仅保存在本机</text>
+    <text x="42" y="162" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="14" fill="#55765D">包异常时回落 Mini，不阻断收入主线</text>
   </g>
 
   <g transform="translate(1005 286)">
     <rect width="128" height="42" rx="21" fill="#30302B"/>
-    <text x="64" y="27" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="16" font-weight="650" fill="#F7F4EE">Mini 视图</text>
+    <text x="64" y="27" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei UI, Arial, sans-serif" font-size="16" font-weight="650" fill="#F7F4EE">小猫回归</text>
   </g>
 </svg>

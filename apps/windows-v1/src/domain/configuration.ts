@@ -3,12 +3,17 @@ import {
   type ThemeMode,
 } from "./theme";
 
-export const CURRENT_CONFIG_VERSION = 8 as const;
+export const CURRENT_CONFIG_VERSION = 9 as const;
 
 export type RestMode = "single" | "double" | "alternating";
 export type WeekType = "big" | "small" | null;
 export type DateOverrideKind = "workday" | "paid_rest" | "unpaid_rest";
 export type MiniEdgeDock = "none" | "left" | "right";
+export type DesktopCompanionMode = "mini" | "pet";
+
+export function resolveDesktopCompanionLabel(mode: DesktopCompanionMode) {
+  return mode;
+}
 
 export interface AppConfig {
   config_version: typeof CURRENT_CONFIG_VERSION;
@@ -24,7 +29,9 @@ export interface AppConfig {
   lunch_end_time: string;
   calendar_dataset_version: string;
   date_overrides: Array<{ date: string; kind: DateOverrideKind; note?: string }>;
+  desktop_companion_mode: DesktopCompanionMode;
   mini_window_position: { x: number; y: number } | null;
+  pet_window_position: { x: number; y: number } | null;
   mini_window_visible: boolean;
   mini_window_always_on_top: boolean;
   mini_edge_auto_hide: boolean;
@@ -50,7 +57,9 @@ export const defaultConfig: AppConfig = {
   lunch_end_time: "14:00",
   calendar_dataset_version: "cn-2025-2026-v1",
   date_overrides: [],
+  desktop_companion_mode: "mini",
   mini_window_position: null,
+  pet_window_position: null,
   mini_window_visible: true,
   mini_window_always_on_top: true,
   mini_edge_auto_hide: true,
@@ -66,6 +75,7 @@ export function normalizeConfiguration(
   value: Partial<AppConfig> | null | undefined,
 ): AppConfig {
   const dock = value?.mini_edge_dock;
+  const companionMode = value?.desktop_companion_mode;
   const edgeAutoHide =
     typeof value?.mini_edge_auto_hide === "boolean"
       ? value.mini_edge_auto_hide
@@ -75,6 +85,7 @@ export function normalizeConfiguration(
     ...value,
     config_version: CURRENT_CONFIG_VERSION,
     theme_mode: normalizeThemeMode(value?.theme_mode),
+    desktop_companion_mode: companionMode === "pet" ? "pet" : "mini",
     mini_edge_auto_hide: edgeAutoHide,
     mini_edge_dock:
       edgeAutoHide && (dock === "left" || dock === "right")
