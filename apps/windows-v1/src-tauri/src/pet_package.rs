@@ -183,7 +183,7 @@ mod tests {
         let manifest_sha = format!("{:X}", Sha256::digest(manifest));
         assert_eq!(
             manifest_sha,
-            "58049540253079960DB33F4631B0A3738A77195954822E84BE961B09F94CB81F"
+            "8E0396EA5CC0E3D089D77E0739C25C2AC2142F69CFEC28F4D110804FB20901B4"
         );
         let parsed: serde_json::Value = serde_json::from_slice(manifest).expect("valid manifest");
         let actions = parsed["actions"]
@@ -219,7 +219,7 @@ mod tests {
         assert_eq!(summary.package_version, "0.4.1-rc.1");
         assert_eq!(
             summary.package_tree_sha256,
-            "8878F7E73DE79084FA887A709F27F0CEA975DF4D240CD4B0F4E4EB71BE9D06E2"
+            "5EAE933DA004EAC7BF8391DA78AA2A68DC9B5D773561E9B8C9CCBD372366519E"
         );
         assert_eq!(
             preflight()

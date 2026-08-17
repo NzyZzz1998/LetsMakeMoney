@@ -29,7 +29,7 @@ v1.0.F 是 v1.0 系列收官质量版本的内部代号，版本号固定为 `v1
 - `Runtime Spike pass = true` 适用于 S1.9 技术运行时；当前 12 动作首轮包已完成三基础状态、状态化单击、500ms 拖拽与方向同步、隐藏恢复、100%/125%/150% DPI、动态命中、坏包、真实 Windows 睡眠恢复和最终两小时稳定运行，故 `LMM sandbox pass = true` 仅在该隔离首轮范围内成立。
 - 首轮精简包包含 working 4 项、awake_rest 2 项、sleeping 3 项和 drag 3 项，共 12 动作、118 帧。`working` 只表示用户工作期间的安静陪伴；`working_pounce` 已退役，跑动三动作只用于长按拖拽。A2 的理毛与伸展因多肢、缺肢和身份漂移延后，四个业务事件动作继续阻塞；首轮业务边界直接切换权威基础状态。
 - 隔离沙盒历史包 manifest SHA256 为 `73A722D022EB4138B5FA8F7469D5304F08DC026EB3CB98D480A9C56CAE911E0E`，package tree SHA256 为 `745AB4A26B4B149FC279686D9FA236384BDDF150DF2D18C2DBDA643A1A596A4E`；历史桌面候选 EXE SHA256 为 `2463940CA9AFC0BECD2DB9252F558315FA1AE1CA19CCB89BD480B27BABEB826B`，其 121 样本双心跳和两小时稳定性继续作为沙盒证据保留。
-- 当前产品候选包为 `0.4.1-rc.1`，manifest SHA256 `58049540253079960DB33F4631B0A3738A77195954822E84BE961B09F94CB81F`，package tree SHA256 `8878F7E73DE79084FA887A709F27F0CEA975DF4D240CD4B0F4E4EB71BE9D06E2`；状态为 `approved / ready:true / productReturnApproved:true / published:false`。
+- 当前产品候选包为 `0.4.1-rc.1`，规范化 LF manifest SHA256 `8E0396EA5CC0E3D089D77E0739C25C2AC2142F69CFEC28F4D110804FB20901B4`，package tree SHA256 `5EAE933DA004EAC7BF8391DA78AA2A68DC9B5D773561E9B8C9CCBD372366519E`；状态为 `approved / ready:true / productReturnApproved:true / published:false`。
 - 先导产品候选 EXE SHA256 为 `D1F4E8B006D0A2E0C7091313886CCA4EC3C03F52F51EAD2B19E8744AA7D56A88`，大小 `14,957,568` 字节。100% DPI 真实 GUI 已证明默认 Mini、Workbench 租约、Mini/Classic 互斥切换与持久化、桌宠可见渲染、状态单击、动态命中和左右拖拽链路；该 EXE 来自 dirty 工作树，只是先导证据，不是 v1.1.0 发布附件。
 - 旧电脑夹具仅保留为 historical，不再是当前联调或产品素材。
 - 当前默认行为仍为 Mini。旧配置和非法陪伴模式迁移到 Mini；Settings 允许用户显式选择 Classic，Mini 与 Pet 严格互斥，运行时或包故障自动回落 Mini。

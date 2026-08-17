@@ -45,7 +45,7 @@
 - 当前测试候选源提交上的 `scripts/verify_windows_current.ps1` 通过：Vite、TypeScript strict、Rust fmt、clippy、91/91 Rust tests、宠物运行时行为测试 6/6 和宠物包合同均通过。
 - `scripts/package_v110.ps1` 从干净提交生成唯一候选；`scripts/verify_v110_package.ps1 -Mode candidate` 通过，Zip、EXE、DLL、README 和 BUILD-INFO 身份一致。
 - npm、Cargo、Tauri、包名、BUILD-INFO 和发布说明均锁定为精确版本 `1.1.0`。
-- Classic 正式运行时包 manifest SHA256 为 `9E50542B436D197F0CD5CB8CD7149B6E0C57EE9A12073DF2A2E5B588719992AC`，package tree SHA256 为 `BC62C560134CD240015ABE742DAFA9E76D80196412C73C60423BD173A3548EA1`。
+- Classic `0.4.1-rc.1` 正式运行时包使用规范化 LF manifest；SHA256 为 `8E0396EA5CC0E3D089D77E0739C25C2AC2142F69CFEC28F4D110804FB20901B4`，package tree SHA256 为 `5EAE933DA004EAC7BF8391DA78AA2A68DC9B5D773561E9B8C9CCBD372366519E`。
 - 隔离坏包夹具覆盖 package index 缺失、非法 JSON 和 manifest 哈希错误，3/3 均安全回退 `embedded_static_shape`。正式 EXE 内嵌资源无法在不重建或注入测试钩子的情况下原位损坏，桌面坏包注入列为暂不验证。
 
 ## 真实 GUI 与证据边界

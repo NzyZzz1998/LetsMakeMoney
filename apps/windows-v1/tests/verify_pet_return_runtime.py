@@ -42,7 +42,9 @@ def main() -> int:
     index = load_json(PACKAGE / "package-index.json")
     manifest_path = PACKAGE / "motion-manifest.json"
     manifest = load_json(manifest_path)
-    manifest_sha = hashlib.sha256(manifest_path.read_bytes()).hexdigest().upper()
+    manifest_bytes = manifest_path.read_bytes()
+    require(b"\r\n" not in manifest_bytes, "pet manifest must use canonical LF line endings")
+    manifest_sha = hashlib.sha256(manifest_bytes).hexdigest().upper()
     require(index["manifestSha256"] == manifest_sha, "pet manifest SHA256 drift")
     require(index["ready"] is True and index["status"] == "approved", "PetManager ready gate drift")
     require(index["packageVersion"] == "0.4.1-rc.1", "product candidate version drift")
