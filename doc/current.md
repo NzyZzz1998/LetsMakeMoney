@@ -12,7 +12,7 @@
 | v1.0 系列收官版本 | v1.0.F（版本号 `v1.0.8`） |
 | 本地收官身份 | annotated tag `v1.0.8`，指向本次收官提交 |
 | 当前开发候选 | Windows `v1.1.0`，不使用 Beta 后缀 |
-| 当前里程碑 | Classic-only 桌面陪伴的体量连续性与拖拽调度已进入干净测试候选，等待本机直接输入补证 |
+| 当前里程碑 | Classic-only 桌面陪伴候选已通过自动门禁与本机直接输入验收，等待最终发布候选重建 |
 | 总体状态 | 默认仍为 Mini，Classic 为用户显式选择且二者互斥；v1.1.0 仅获推送 `test` 授权，未获 `main`、tag 或 GitHub Release 授权 |
 
 v1.0.7 已从干净源提交构建、通过 current gate、候选包验证、真实 GUI 身份冒烟与 GitHub 下载包复核，并完成 GitHub Stable Release。正式便携 Zip SHA256 为 `D656B96973F64632896715ADCBB9CAFEAED4D06D44BA1C098824335AC673E3F2`，发布地址为 [GitHub Release v1.0.7](https://github.com/NzyZzz1998/LetsMakeMoney/releases/tag/v1.0.7)。此前 dirty 候选的首次失败、修复与 DPI 定向复验证据继续按历史事实保留，均不得冒充正式附件。
@@ -33,7 +33,7 @@ v1.0.F 是 v1.0 系列收官质量版本的内部代号，版本号固定为 `v1
 - 先导产品候选 EXE SHA256 为 `D1F4E8B006D0A2E0C7091313886CCA4EC3C03F52F51EAD2B19E8744AA7D56A88`，大小 `14,957,568` 字节。100% DPI 真实 GUI 已证明默认 Mini、Workbench 租约、Mini/Classic 互斥切换与持久化、桌宠可见渲染、状态单击、动态命中和左右拖拽链路；该 EXE 来自 dirty 工作树，只是先导证据，不是 v1.1.0 发布附件。
 - 旧电脑夹具仅保留为 historical，不再是当前联调或产品素材。
 - 当前默认行为仍为 Mini。旧配置和非法陪伴模式迁移到 Mini；Settings 允许用户显式选择 Classic，Mini 与 Pet 严格互斥，运行时或包故障自动回落 Mini。
-- `PetManager ready`、`LMM sandbox pass`、`Product candidate approved` 与 `Public release approved` 分层管理：前三层已在首轮精简范围成立，公开发布仍为 `false`。旧候选 `V110-20260812T163314Z-d9d51cfe-clean` 因 `V110-BUG-001` 已淘汰；当前干净测试候选为 `V110-20260813T081246Z-f5ae4ac3-clean`，源提交 `f5ae4ac3fcfeef0c3a3c5f321a690b8ed3aa6ab8`，Zip SHA256 `E79D3716400D74E9E2F5419700B97630F273AA67761982081AED07E8C87C6EB7`。自动门禁通过且远程观感确认体量改善，但真实拖拽手感待本机补证；托盘右键命令/退出、Settings/Modal 输入锁定、完整 DPI 拖拽和精确桌面坏包注入边界仍按验证文档管理。
+- `PetManager ready`、`LMM sandbox pass`、`Product candidate approved` 与 `Public release approved` 分层管理：前三层已在首轮精简范围成立，公开发布仍为 `false`。旧候选 `V110-20260812T163314Z-d9d51cfe-clean` 因 `V110-BUG-001` 已淘汰；当前干净测试候选为 `V110-20260813T081246Z-f5ae4ac3-clean`，源提交 `f5ae4ac3fcfeef0c3a3c5f321a690b8ed3aa6ab8`，Zip SHA256 `E79D3716400D74E9E2F5419700B97630F273AA67761982081AED07E8C87C6EB7`。自动门禁与 2026-08-17 本机直接输入验收均通过，覆盖拖拽、窗口协同、托盘退出和三档 DPI；精确桌面坏包注入继续按“暂不验证”管理。正式发布前须从最终文档提交后的干净源重建并更新哈希。
 - 事实入口：[桌宠回归沙盒 PRD](architecture/pet-return-prd.md) / [专项追踪矩阵](architecture/pet-return-traceability.md)。
 
 ## v1.0.7 范围
